@@ -14,6 +14,16 @@ config/name="Crawler-Projektpraktikum"
 config/features=PackedStringArray("4.5", "Mobile")
 config/icon="res://icon.svg"
 
+[display]
+
+window/size/viewport_width=640
+window/size/viewport_height=480
+window/size/mode=4
+window/size/resizable=false
+window/stretch/mode="viewport"
+window/stretch/aspect="keep_height"
+window/stretch/scale_mode="integer"
+
 [dotnet]
 
 project/assembly_name="Crawler-Projektpraktikum"
@@ -25,4 +35,4 @@ version_control/autoload_on_startup=true
 
 [rendering]
 
-renderer/rendering_method="mobile"
+anti_aliasing/quality/msaa_2d=1
