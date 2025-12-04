@@ -7,27 +7,37 @@ on:
     branches: [dev]
   workflow_dispatch:
 
+env:
+  GODOT_VERSION: 4.5.1
+  EXPORT_NAME: Crawler-Projektpraktikum
+
 jobs:
-  build-windows:
+  export-windows:
+    name: Windows Export
     runs-on: ubuntu-latest
-    
+    container:
+      image: docker://barichello/godot-ci:3.6.2
     steps:
-      - uses: actions/checkout@v4
-        with:
-          lfs: true
-      
-      - uses: abarichello/godot-ci@master
-        with:
-          args: --export-release "Windows Desktop" "build/windows/Crawler-Projektpraktikum.exe"
-  
-  build-linux:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Setup
+        run: |
+          mkdir -v -p build/linux build/windows build/mac build/web ~/.local/share/godot/templates
+          mv /root/.local/share/godot/templates/${GODOT_VERSION}.stable ~/.local/share/godot/templates/${GODOT_VERSION}.stable
+      - name: Windows Build
+        run: godot -v --export-release "Windows Desktop" ./build/windows/$EXPORT_NAME.exe
+
+  export-linux:
+    name: Linux Export
     runs-on: ubuntu-latest
-    
+    container:
+      image: docker://barichello/godot-ci:3.6.2
     steps:
-      - uses: actions/checkout@v4
-        with:
-          lfs: true
-      
-      - uses: abarichello/godot-ci@master
-        with:
-          args: --export-release "Linux" "build/linux/Crawler-Projektpraktikum.exe.x86_64"
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Setup
+        run: |
+          mkdir -v -p build/linux build/windows build/mac build/web ~/.local/share/godot/templates
+          mv /root/.local/share/godot/templates/${GODOT_VERSION}.stable ~/.local/share/godot/templates/${GODOT_VERSION}.stable
+      - name: Linux Build
+        run: godot -v --export-release "Linux" ./build/linux/$EXPORT_NAME.x86_64
