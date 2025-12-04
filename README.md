@@ -13,7 +13,7 @@
 <h2 style="margin:0 0 8px;">⚠️ IMPORTANT</h2>
 <p style="margin:0 0 8px;">Before opening the project, ensure the required runtime and file handling are set up. Missing these steps can lead to missing assets, broken git history or editor errors.</p>
 <ul style="margin:0 0 0 20px;">
-	<li>Enable Git LFS for large assets: <code>git lfs install</code>.</li>
+	<li>Enable Git LFS for large assets: <code>git lfs install</code> (or <code>git lfs install --local</code> in the project directory).</li>
 	<li>Install the Visual C++ Redistributable (x64).</li>
 </ul>
 </div>
