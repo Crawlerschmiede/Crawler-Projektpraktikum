@@ -22,6 +22,19 @@ jobs:
         uses: actions/checkout@v6
         with:
           lfs: true
+      - name: Install X11 dependencies
+        run: |
+          apt-get update
+          apt-get install -y \
+            xvfb \
+            x11-utils \
+            libxcursor1 \
+            libxcursor-dev \
+            libwayland-cursor0 \
+            libfontconfig1 \
+            libxrender1 \
+            libx11-dev \
+            libxrandr-dev
       - name: Setup
         run: |
           mkdir -v -p ~/.local/share/godot/export_templates/
@@ -29,14 +42,7 @@ jobs:
       - name: Windows Build
         run: |
           mkdir -v -p build/windows
-          godot --headless --verbose --export-release "Windows Desktop" "build/windows/$EXPORT_NAME.exe" || true
-        # The '|| true' is used to ignore a segfault that currently occurs in Godot 4.5.1 after a successful headless export. See https://github.com/godotengine/godot/issues/112955
-
-      # - name: Upload Artifact
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: windows
-      #     path: build/windows
+          xvfb-run -a godot --verbose --export-release "Windows Desktop" "build/windows/$EXPORT_NAME.exe"
 
   export-linux:
     name: Linux Export
@@ -48,6 +54,19 @@ jobs:
         uses: actions/checkout@v6
         with:
           lfs: true
+      - name: Install X11 dependencies
+        run: |
+          apt-get update
+          apt-get install -y \
+            xvfb \
+            x11-utils \
+            libxcursor1 \
+            libxcursor-dev \
+            libwayland-cursor0 \
+            libfontconfig1 \
+            libxrender1 \
+            libx11-dev \
+            libxrandr-dev
       - name: Setup
         run: |
           mkdir -v -p ~/.local/share/godot/export_templates/
@@ -55,11 +74,4 @@ jobs:
       - name: Linux Build
         run: |
           mkdir -v -p build/linux
-          godot --headless --verbose --export-release "Linux" "build/linux/$EXPORT_NAME.x86_64" || true
-        # The '|| true' is used to ignore a segfault that currently occurs in Godot 4.5.1 after a successful headless export. See https://github.com/godotengine/godot/issues/112955
-
-      # - name: Upload Artifact
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: linux
-      #     path: build/linux
+          xvfb-run -a godot --verbose --export-release "Linux" "build/linux/$EXPORT_NAME.x86_64"
