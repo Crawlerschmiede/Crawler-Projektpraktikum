@@ -49,7 +49,7 @@ jobs:
         run: |
           mkdir -p godot/export_templates/${{ env.GODOT_VERSION }}.stable
           wget https://github.com/godotengine/godot/releases/download/${{ env.GODOT_VERSION }}-stable/Godot_v${{ env.GODOT_VERSION }}-stable_export_templates.tpz
-          tar -xzf Godot_v${{ env.GODOT_VERSION }}-stable_export_templates.tpz -C godot/export_templates/${{ env.GODOT_VERSION }}.stable
+          unzip -q Godot_v${{ env.GODOT_VERSION }}-stable_export_templates.tpz -d godot/export_templates/${{ env.GODOT_VERSION }}.stable
       - name: Verify Export Templates
         run: |
           echo "Checking for Windows templates..."
