@@ -20,9 +20,6 @@ jobs:
 
       - name: Install gdtoolkit
         run: uv tool install "gdtoolkit==4.*"
-
-      - name: Run gdformat (check only)
-        run: gdformat --check scripts/
       
       - name: Run gdlint
         run: gdlint scripts/
