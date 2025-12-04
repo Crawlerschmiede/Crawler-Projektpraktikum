@@ -29,7 +29,7 @@ jobs:
       - name: Windows Build
         run: |
           mkdir -v -p build/windows
-          godot --headless --verbose --export-release "Windows Desktop" "build/windows/$EXPORT_NAME.exe" || true
+          godot --verbose --export-release "Windows Desktop" "build/windows/$EXPORT_NAME.exe"
         # The '|| true' is used to ignore a segfault that currently occurs in Godot 4.5.1 after a successful headless export. See https://github.com/godotengine/godot/issues/112955
 
       # - name: Upload Artifact
@@ -55,7 +55,7 @@ jobs:
       - name: Linux Build
         run: |
           mkdir -v -p build/linux
-          godot --headless --verbose --export-release "Linux" "build/linux/$EXPORT_NAME.x86_64" || true
+          godot --verbose --export-release "Linux" "build/linux/$EXPORT_NAME.x86_64"
         # The '|| true' is used to ignore a segfault that currently occurs in Godot 4.5.1 after a successful headless export. See https://github.com/godotengine/godot/issues/112955
 
       # - name: Upload Artifact
