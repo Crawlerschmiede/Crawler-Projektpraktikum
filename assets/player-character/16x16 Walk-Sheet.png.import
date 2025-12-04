@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bn8xwefjdkjo8"
-path="res://.godot/imported/placeholder-pc.png-24d09fd8ee3ef4ad489d2008d4c7748f.ctex"
+uid="uid://ctamvha27bxbm"
+path="res://.godot/imported/16x16 Walk-Sheet.png-7fcd83ebae196d50aab68a2cf9941b6f.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/player-character/placeholder-pc.png"
-dest_files=["res://.godot/imported/placeholder-pc.png-24d09fd8ee3ef4ad489d2008d4c7748f.ctex"]
+source_file="res://assets/player-character/16x16 Walk-Sheet.png"
+dest_files=["res://.godot/imported/16x16 Walk-Sheet.png-7fcd83ebae196d50aab68a2cf9941b6f.ctex"]
 
 [params]
 

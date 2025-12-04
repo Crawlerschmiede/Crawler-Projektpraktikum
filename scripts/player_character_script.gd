@@ -5,6 +5,8 @@ extends CharacterBody2D
 @onready var tween := get_tree().create_tween()
 var grid_pos: Vector2i
 var tilemap: TileMapLayer
+var latest_direction = Vector2i.DOWN
+@onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 
 const TILE_SIZE: int = 16
 
@@ -53,10 +55,9 @@ func _physics_process(delta: float):
 			move_to_tile(input_direction)
 			# Reset the cooldown timer immediately after starting the move
 			step_timer = STEP_COOLDOWN
-
-# Function to get the current input direction vector
+	
 func get_held_direction() -> Vector2i:
-	var direction = Vector2.ZERO
+	var direction = Vector2i.ZERO
 	
 	if Input.is_action_pressed("ui_right"):
 		direction = Vector2i.RIGHT
@@ -66,7 +67,50 @@ func get_held_direction() -> Vector2i:
 		direction = Vector2i.UP
 	elif Input.is_action_pressed("ui_down"):
 		direction = Vector2i.DOWN
-	return direction 
+		
+	update_animation(direction)
+	return direction
+	
+func update_animation(direction: Vector2i):
+	
+	if direction != Vector2i.ZERO:
+		var walk_animation_name = ""
+		match direction:
+			Vector2i.UP:
+				walk_animation_name = "walk_up"
+			Vector2i.DOWN:
+				walk_animation_name = "walk_down"
+			Vector2i.RIGHT:
+				walk_animation_name = "walk_right"
+				sprite.flip_h = false
+			Vector2i.LEFT:
+				walk_animation_name = "walk_right"
+				sprite.flip_h = true
+			_:
+				walk_animation_name = "walk_down"
+		
+		latest_direction = direction
+		
+		sprite.play(walk_animation_name)
+		
+	else:
+		var idle_animation_name = ""
+		match latest_direction:
+			Vector2i.UP:
+				idle_animation_name = "idle_up"
+			Vector2i.DOWN:
+				idle_animation_name = "idle_down"
+			Vector2i.RIGHT:
+				idle_animation_name = "idle_right"
+				sprite.flip_h = false
+			Vector2i.LEFT:
+				idle_animation_name = "idle_right"
+				sprite.flip_h = true
+			_:
+				idle_animation_name = "idle_down"
+				
+		# Play the determined idle animation
+		sprite.play(idle_animation_name)
 
 # --- Movement Logic ---
 
