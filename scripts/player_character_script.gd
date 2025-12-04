@@ -14,8 +14,6 @@ var grid_pos: Vector2i
 var tilemap: TileMapLayer
 var latest_direction = Vector2i.DOWN
 
-const TILE_SIZE: int = 16
-
 # Flag to prevent movement while the character is currently moving (Tween is active)
 var is_moving: bool = false
 
