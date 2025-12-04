@@ -17,16 +17,11 @@ jobs:
         with:
           lfs: true
 
-      - name: Setup Godot
-        uses: chickensoft-games/setup-godot@v2
+      - name: Godot Export
+        uses: firebelley/godot-export@v7.0.0
         with:
-          version: 4.5.1
-          include-templates: true
-
-      - name: Build Windows Desktop
-        run: godot --headless --export-release "Windows Desktop" \
-          ${{ runner.temp }}/windows_export
-
-      - name: Build Linux
-        run: godot --headless --export-release "Linux" \
-          ${{ runner.temp }}/linux_export
+          godot_executable_download_url: https://downloads.tuxfamily.org/godotengine/4.5.1/Godot_v4.5.1-stable_linux_x86_64.zip
+          godot_export_templates_download_url: https://downloads.tuxfamily.org/godotengine/4.5.1/Godot_v4.5.1-stable_export_templates.tpz
+          relative_project_path: ./
+          presets_to_export: "Windows Desktop, Linux"
+          cache: true
