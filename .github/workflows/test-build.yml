@@ -10,6 +10,7 @@ on:
 env:
   GODOT_VERSION: "4.5.1"
   EXPORT_NAME: "Crawler-Projektpraktikum"
+  GODOT_DATA_PATH: "./godot"
 
 jobs:
   export:
@@ -46,8 +47,14 @@ jobs:
       - name: Download Export Templates
         if: steps.cache-godot.outputs.cache-hit != 'true'
         run: |
+          mkdir -p godot/export_templates/${{ env.GODOT_VERSION }}.stable
           wget https://github.com/godotengine/godot/releases/download/${{ env.GODOT_VERSION }}-stable/Godot_v${{ env.GODOT_VERSION }}-stable_export_templates.tpz
-          unzip Godot_v${{ env.GODOT_VERSION }}-stable_export_templates.tpz -d godot/export_templates
+          tar -xzf Godot_v${{ env.GODOT_VERSION }}-stable_export_templates.tpz -C godot/export_templates/${{ env.GODOT_VERSION }}.stable
+      - name: Verify Export Templates
+        run: |
+          echo "Checking for Windows templates..."
+          ls -la godot/export_templates/${{ env.GODOT_VERSION }}.stable/ || echo "Templates directory not found"
+          find godot/export_templates -name "*.exe" 2>/dev/null || echo "No .exe templates found"
       - name: Export Build
         run: |
           mkdir -p build/${{ matrix.build_dir }}
