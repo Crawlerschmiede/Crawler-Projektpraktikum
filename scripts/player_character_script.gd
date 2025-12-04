@@ -1,6 +1,11 @@
 extends CharacterBody2D
 
 # The size of one tile in pixels
+@export var tilemap_path: NodePath
+@onready var tween := get_tree().create_tween()
+var grid_pos: Vector2i
+var tilemap: TileMapLayer
+
 const TILE_SIZE: int = 16
 
 # Flag to prevent movement while the character is currently moving (Tween is active)
@@ -8,15 +13,27 @@ var is_moving: bool = false
 
 
 # Time (in seconds) the character pauses on a tile before taking the next step
-const STEP_COOLDOWN: float = 0.3
+const STEP_COOLDOWN: float = 0.15
 # The timer used to track when the next move is allowed
 var step_timer: float = 0.1
+var rng = RandomNumberGenerator.new()
 
 # --- Setup ---
 
 func _ready():
 	# Make sure the character starts perfectly aligned to the grid
-	global_position = global_position.snapped(Vector2(TILE_SIZE, TILE_SIZE))
+	tilemap = get_node(tilemap_path)
+	var possible_spawns =[]
+	for cell in tilemap.get_used_cells():
+		var tile_data = tilemap.get_cell_tile_data(cell)
+		if tile_data:
+			var is_blocked = tile_data.get_custom_data("non_walkable")
+			if not is_blocked:
+				possible_spawns.append(cell)
+	# Initialize grid position based on where the player starts
+	var spawnpoint = possible_spawns[rng.randi_range(0, (len(possible_spawns)-1))]
+	position = tilemap.map_to_local(spawnpoint)
+	grid_pos= spawnpoint
 	step_timer = STEP_COOLDOWN # Allows immediate movement on first press
 
 # --- Input Handling with Cooldown ---
@@ -30,7 +47,7 @@ func _physics_process(delta: float):
 	var input_direction = get_held_direction()
 	
 	# 3. Check conditions for initiating a move
-	if input_direction != Vector2.ZERO:
+	if input_direction != Vector2i.ZERO:
 		# We only start a new move if the character is not already moving AND the cooldown is ready
 		if not is_moving and step_timer <= 0.0:
 			move_to_tile(input_direction)
@@ -38,34 +55,50 @@ func _physics_process(delta: float):
 			step_timer = STEP_COOLDOWN
 
 # Function to get the current input direction vector
-func get_held_direction() -> Vector2:
+func get_held_direction() -> Vector2i:
 	var direction = Vector2.ZERO
 	
-	if Input.is_action_pressed("move_right"):
-		direction.x = 1
-	if Input.is_action_pressed("move_left"):
-		direction.x = -1
-	if Input.is_action_pressed("move_down"):
-		direction.y = 1
-	if Input.is_action_pressed("move_up"):
-		direction.y = -1
-		
-	return direction.normalized() # Normalize ensures consistent direction vector length
+	if Input.is_action_pressed("ui_right"):
+		direction = Vector2i.RIGHT
+	elif Input.is_action_pressed("ui_left"):
+		direction = Vector2i.LEFT
+	elif Input.is_action_pressed("ui_up"):
+		direction = Vector2i.UP
+	elif Input.is_action_pressed("ui_down"):
+		direction = Vector2i.DOWN
+	return direction 
 
 # --- Movement Logic ---
 
-func move_to_tile(direction: Vector2):
-	var target_position = global_position + (direction * TILE_SIZE)
+func move_to_tile(direction: Vector2i):
+	if is_moving:
+		return
+	
+	var target_cell = grid_pos + direction
+	if not is_cell_walkable(target_cell):
+		return
 	
 	is_moving = true
+	grid_pos = target_cell
+	var target_position = tilemap.map_to_local(grid_pos)
 	
-	var tween = create_tween()
-	# Duration (e.g., 0.15 seconds) should be less than STEP_COOLDOWN (0.2 seconds) 
-	# to ensure the character stops completely before the cooldown finishes.
-	tween.tween_property(self, "global_position", target_position, 0.15)
+	tween = get_tree().create_tween()
+	tween.tween_property(self, "position", target_position, 0.15)
+	tween.finished.connect(_on_move_finished)
 	
-	tween.connect("finished", on_movement_finished)
-
-func on_movement_finished():
+		
+func _on_move_finished():
 	is_moving = false
-	global_position = global_position.snapped(Vector2(TILE_SIZE, TILE_SIZE))
+	
+	
+func is_cell_walkable(cell: Vector2i) -> bool:
+	# Get the tile data from the TileMapLayer at the given cell
+	var tile_data = tilemap.get_cell_tile_data(cell)
+	if tile_data == null:
+		return false  # No tile = not walkable (outside map)
+	
+	# Check for your custom property "non_walkable"
+	if tile_data.get_custom_data("non_walkable") == true:
+		return false
+
+	return true
