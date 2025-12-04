@@ -6,7 +6,7 @@
 - Clone this repository
 - Download and install https://aka.ms/vc14/vc_redist.x64.exe for the git addon to work
 - Make sure git is installed and in your PATH
-- run `git lfs install` to enable git lfs (or `git lfs install --local`)
+- run `git lfs install` to enable git lfs (or `git lfs install --local` in the project directory)
 - Open the project in godot
 
 <div style="border:3px solid #e60000; background-color:#fff3f3; padding:16px; border-radius:6px; color:#b30000;">
@@ -23,7 +23,7 @@
 ### GDScript Toolkit
 
 - Install the GDScript Toolkit via uv or pip directly
-  - uv: `uv install godot-gdscript-toolkit`
+  - uv: `uv tool install godot-gdscript-toolkit`
   - pip: `pip install godot-gdscript-toolkit`
 
 ```
@@ -38,7 +38,7 @@ Linting Docs: https://github.com/Scony/godot-gdscript-toolkit/wiki/3.-Linter
 
 ### Pre Commit Hook
 - Install pre-commit via uv or pip directly
-  - uv: `uv install pre-commit`
+  - uv: `uv tool install pre-commit`
   - pip: `pip install pre-commit`
 - Install the git hooks
   - `pre-commit install`
