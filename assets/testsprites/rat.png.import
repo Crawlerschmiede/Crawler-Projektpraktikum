@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dsi2x3wf840q0"
-path="res://.godot/imported/placeholder_floornwall.png-5652e05d601baad81965c2edd274464b.ctex"
+uid="uid://b66gb5qt40wlo"
+path="res://.godot/imported/rat.png-4f692db98f5204e63564d002b75ffc8e.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://sprites/placeholder_floornwall.png"
-dest_files=["res://.godot/imported/placeholder_floornwall.png-5652e05d601baad81965c2edd274464b.ctex"]
+source_file="res://assets/testsprites/rat.png"
+dest_files=["res://.godot/imported/rat.png-4f692db98f5204e63564d002b75ffc8e.ctex"]
 
 [params]
 
