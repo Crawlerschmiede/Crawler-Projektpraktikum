@@ -66,6 +66,7 @@ func _physics_process(delta: float):
 			# Reset the cooldown timer immediately after starting the move
 			step_timer = STEP_COOLDOWN
 
+
 # Function to get the current input direction vector
 func get_held_direction() -> Vector2i:
 	var direction = Vector2i.ZERO
@@ -78,12 +79,12 @@ func get_held_direction() -> Vector2i:
 		direction = Vector2i.UP
 	elif Input.is_action_pressed("ui_down"):
 		direction = Vector2i.DOWN
-		
+
 	update_animation(direction)
 	return direction
-	
+
+
 func update_animation(direction: Vector2i):
-	
 	if direction != Vector2i.ZERO:
 		var walk_animation_name = ""
 		match direction:
@@ -99,11 +100,11 @@ func update_animation(direction: Vector2i):
 				sprite.flip_h = true
 			_:
 				walk_animation_name = "walk_down"
-		
+
 		latest_direction = direction
-		
+
 		sprite.play(walk_animation_name)
-		
+
 	else:
 		var idle_animation_name = ""
 		match latest_direction:
@@ -119,9 +120,10 @@ func update_animation(direction: Vector2i):
 				sprite.flip_h = true
 			_:
 				idle_animation_name = "idle_down"
-				
+
 		# Play the determined idle animation
 		sprite.play(idle_animation_name)
+
 
 # --- Movement Logic ---
 
