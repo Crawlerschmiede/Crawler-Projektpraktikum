@@ -34,6 +34,8 @@ gdformat scripts/
 gdlint scripts/
 ```
 
+Linting Docs: https://github.com/Scony/godot-gdscript-toolkit/wiki/3.-Linter
+
 ### Pre Commit Hook
 - Install pre-commit via uv or pip directly
   - uv: `uv install pre-commit`
