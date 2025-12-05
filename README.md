@@ -23,8 +23,8 @@
 ### GDScript Toolkit
 
 - Install the GDScript Toolkit via uv or pip directly
-  - uv: `uv tool install godot-gdscript-toolkit`
-  - pip: `pip install godot-gdscript-toolkit`
+  - uv: `uv tool install "gdtoolkit==4.*"`
+  - pip: `pip install "gdtoolkit==4.*"`
 
 ```
 # Format GDScript files
