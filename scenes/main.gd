@@ -3,91 +3,186 @@ extends Node2D
 @export var room_count: int = 3000
 @export var start_position: Vector2 = Vector2(500, 500)
 @export var rooms_available: int = 5
+@export var ga_iterations: int = 500
+
+const CELL_SIZE: float = 256.0
 
 var used_doors: Array[Marker2D] = []
 var open_doors: Array[Marker2D] = []
 var room_scenes: Array[PackedScene] = []
+var room_defs: Array[Dictionary] = []   # {"scene":PackedScene, "doors":Array[Dictionary], "rect":Rect2}
 
 
 func _ready() -> void:
 	randomize()
 	_load_room_scenes()
-	if room_scenes.is_empty():
+	if room_defs.is_empty():
 		push_error("Keine Room-Szenen gefunden!")
 		return
+
 	_run_simple_ga()
 
 
 # -------------------------------------------------------------------
-# Hilfsfunktionen
+# ROOM SCENE LOADING + CACHING
 # -------------------------------------------------------------------
 
 func _load_room_scenes() -> void:
 	room_scenes.clear()
-	for i in range(1, rooms_available + 1):
-		var path = "res://scenes/Room%d.tscn" % i
-		if ResourceLoader.exists(path):
-			var sc = load(path)
-			if sc is PackedScene:
-				room_scenes.append(sc)
-			else:
-				push_warning("Ungültige Scene: " + path)
-		else:
-			push_warning("Fehlt: " + path)
+	room_defs.clear()
 
+	for i in range(1, rooms_available + 1):
+		var path: String = "res://scenes/Room%d.tscn" % i
+
+		if not ResourceLoader.exists(path):
+			push_warning("Fehlt: " + path)
+			continue
+
+		var sc: Resource = load(path)
+		if not (sc is PackedScene):
+			push_warning("Ungültige Scene: " + path)
+			continue
+
+		var scene: PackedScene = sc
+		room_scenes.append(scene)
+
+		# Room instanzieren, um Türen & AABB auszulesen
+		var temp: Node2D = scene.instantiate() as Node2D
+		if temp == null:
+			push_warning("Scene ist kein Node2D: " + path)
+			continue
+
+		var doors_local: Array[Dictionary] = []
+		for c in temp.get_children():
+			if c is Marker2D and c.name.begins_with("Door"):
+				var marker := c as Marker2D
+				doors_local.append({
+					"pos": marker.position,
+					"rot": marker.rotation
+				})
+
+		var local_rect: Rect2 = Rect2(Vector2.ZERO, Vector2(128, 128))
+
+		var area: Area2D = temp.get_node_or_null("Area2D")
+		if area == null:
+			var found := temp.find_child("Area2D", true, false)
+			if found is Area2D:
+				area = found
+
+		if area:
+			var cs := area.get_child(0) as CollisionShape2D
+			if cs and cs.shape and cs.shape.has_method("get_rect"):
+				local_rect = cs.shape.get_rect()
+
+		room_defs.append({
+			"scene": scene,
+			"doors": doors_local,
+			"rect": local_rect
+		})
+
+		temp.queue_free()
+
+
+# -------------------------------------------------------------------
+# SPATIAL HASH
+# -------------------------------------------------------------------
+
+func _rect_to_global_aabb(local_rect: Rect2, room_pos: Vector2, room_rot: float) -> Rect2:
+	var corners: Array[Vector2] = [
+		local_rect.position,
+		local_rect.position + Vector2(local_rect.size.x, 0.0),
+		local_rect.position + Vector2(0.0, local_rect.size.y),
+		local_rect.position + local_rect.size
+	]
+
+	var min_x: float = INF
+	var min_y: float = INF
+	var max_x: float = -INF
+	var max_y: float = -INF
+
+	for c: Vector2 in corners:
+		var g: Vector2 = c.rotated(room_rot) + room_pos
+		min_x = min(min_x, g.x)
+		min_y = min(min_y, g.y)
+		max_x = max(max_x, g.x)
+		max_y = max(max_y, g.y)
+
+	return Rect2(Vector2(min_x, min_y), Vector2(max_x - min_x, max_y - min_y))
+
+
+func _cell_from_point(p: Vector2) -> Vector2i:
+	return Vector2i(int(floor(p.x / CELL_SIZE)), int(floor(p.y / CELL_SIZE)))
+
+
+func _grid_register_room(aabb: Rect2, grid: Dictionary) -> void:
+	var min_cell: Vector2i = _cell_from_point(aabb.position)
+	var max_cell: Vector2i = _cell_from_point(aabb.position + aabb.size)
+
+	for x in range(min_cell.x, max_cell.x + 1):
+		for y in range(min_cell.y, max_cell.y + 1):
+			var cell := Vector2i(x, y)
+			if not grid.has(cell):
+				grid[cell] = []
+			(grid[cell] as Array).append(aabb)
+
+
+func _room_overlaps_grid(aabb: Rect2, grid: Dictionary) -> bool:
+	if grid.is_empty():
+		return false
+
+	var min_cell: Vector2i = _cell_from_point(aabb.position)
+	var max_cell: Vector2i = _cell_from_point(aabb.position + aabb.size)
+
+	for x in range(min_cell.x - 1, max_cell.x + 2):
+		for y in range(min_cell.y - 1, max_cell.y + 2):
+			var cell := Vector2i(x, y)
+			if not grid.has(cell):
+				continue
+
+			var list: Array = grid[cell]
+			for other_aabb: Rect2 in list:
+				if aabb.intersects(other_aabb):
+					return true
+
+	return false
+
+
+# -------------------------------------------------------------------
+# ROOM HELPERS
+# -------------------------------------------------------------------
 
 func _clear_rooms() -> void:
 	for r in get_tree().get_nodes_in_group("rooms"):
 		r.queue_free()
+
+	used_doors.clear()
+	open_doors.clear()
 
 
 func get_doors(room: Node2D) -> Array[Marker2D]:
 	var arr: Array[Marker2D] = []
 	for c in room.get_children():
 		if c is Marker2D and c.name.begins_with("Door"):
-			arr.append(c)
+			arr.append(c as Marker2D)
 	return arr
 
 
-func get_room_area(room: Node) -> Area2D:
-	var a = room.get_node_or_null("Area2D")
-	if a: return a
-	var found: Node = room.find_child("Area2D", true, false)
-	if found is Area2D: return found
-	return null
-
-
-func get_room_aabb(room: Node2D) -> Rect2:
-	var area: Area2D = get_room_area(room)
-	if area == null:
-		return Rect2(room.global_position, Vector2(128,128))
-	var rect: Rect2 = (area.get_child(0) as CollisionShape2D).shape.get_rect()
-	return Rect2(room.global_position + rect.position, rect.size)
-
-
-func room_overlaps(room: Node2D) -> bool:
-	var aabb = get_room_aabb(room)
-	for other in get_tree().get_nodes_in_group("rooms"):
-		if other == room: continue
-		if aabb.intersects(get_room_aabb(other)):
-			return true
-	return false
-
-
 # -------------------------------------------------------------------
-# Genome erzeugen
+# GENOME
 # -------------------------------------------------------------------
 
 func create_genome() -> Array[int]:
 	var g: Array[int] = []
-	var weighted = [1,2,4,4,4, 3,3,3,3, 5,5,5,5]
+	var weighted: Array[int] = [1,2,4,4,4, 3,3,3,3, 5,5,5,5]
+
 	for i in range(room_count):
-		g.append(weighted[randi_range(0, weighted.size()-1)])
+		g.append(weighted[randi_range(0, weighted.size() - 1)])
+
 	return g
 
 
 # -------------------------------------------------------------------
-# Fitness berechnen
+# FITNESS
 # -------------------------------------------------------------------
 
 func compute_fitness(stats: Dictionary) -> float:
@@ -110,38 +205,46 @@ func compute_fitness(stats: Dictionary) -> float:
 
 
 # -------------------------------------------------------------------
-# DUNGEON GENERIEREN – FIXED VERSION
+# DUNGEON GENERATION (Optimiert + Typisiert)
 # -------------------------------------------------------------------
 
 func generate_from_genome(genome: Array[int]) -> Dictionary:
-
 	used_doors.clear()
 	open_doors.clear()
 
-	var stats = {
+	var stats: Dictionary = {
 		"room_score": 0,
 		"open_doors": 0,
 		"placed_rooms": 0
 	}
 
-	var overlap_count := 0
-	var overlap_limit := 50
+	var grid: Dictionary = {}
 
 	# -------- erster Raum --------
-	var type0 = genome[0]
-	var room: Node2D = room_scenes[type0 - 1].instantiate()
-	add_child(room)
-	room.add_to_group("rooms")
-	room.global_position = start_position
+	var type0: int = clamp(genome[0], 1, rooms_available)
+	var rdef: Dictionary = room_defs[type0 - 1]
+	var rect0: Rect2 = rdef["rect"]
 
-	# Score nur für erfolgreich platzierten Raum
-	stats["room_score"] += (10 if type0 in [3,5] else 1)
+	var pos0: Vector2 = start_position
+	var rot0: float = 0.0
+
+	var aabb0 := _rect_to_global_aabb(rect0, pos0, rot0)
+	_grid_register_room(aabb0, grid)
+
+	var room0: Node2D = (rdef["scene"] as PackedScene).instantiate()
+	add_child(room0)
+	room0.add_to_group("rooms")
+	room0.global_position = pos0
+	room0.rotation = rot0
+
 	stats["placed_rooms"] += 1
-	open_doors.append_array(get_doors(room))
+	stats["room_score"] += (10 if type0 in [3, 5] else 1)
+
+	open_doors.append_array(get_doors(room0))
+
 
 	# -------- weitere Räume --------
 	for i in range(1, genome.size()):
-
 		if open_doors.is_empty():
 			break
 
@@ -150,75 +253,77 @@ func generate_from_genome(genome: Array[int]) -> Dictionary:
 			continue
 
 		var placed := false
-		var max_attempts := 5
+		var gene_type :float= clamp(genome[i], 1, rooms_available)
 
-		for attempt in range(max_attempts):
+		for attempt in range(50):
+			var try_type :int= gene_type if attempt == 0 else randi_range(1, rooms_available)
+			var def := room_defs[try_type - 1]
 
-			# ACHTUNG: WIR VERÄNDERN DAS GENOM NICHT!
-			var try_rtype := genome[i]
-
-			var test_room: Node2D = room_scenes[try_rtype - 1].instantiate()
-			add_child(test_room)
-			test_room.add_to_group("rooms")
-
-			var test_doors = get_doors(test_room)
-			test_doors.shuffle()
-
-			if test_doors.is_empty():
-				test_room.queue_free()
+			var doors_template: Array[Dictionary] = def["doors"]
+			if doors_template.is_empty():
 				continue
 
-			for d in test_doors:
+			var indices: Array[int] = []
+			for idx in range(doors_template.size()):
+				indices.append(idx)
+			indices.shuffle()
 
-				var target_rot = prev.global_rotation + PI
-				var delta = target_rot - d.global_rotation
-				var snap: float = round(rad_to_deg(delta) / 90.0) * 90.0
+			for idx in indices:
+				var dtemp: Dictionary = doors_template[idx]
+				var door_pos: Vector2 = dtemp["pos"]
+				var door_rot: float = dtemp["rot"]
 
-				test_room.rotation += deg_to_rad(snap)
-				await get_tree().process_frame
+				var target_rot := prev.global_rotation + PI
+				var new_rot := target_rot - door_rot
+				var rotated_door_pos := door_pos.rotated(new_rot)
+				var new_pos := prev.global_position - rotated_door_pos
 
-				var offset = prev.global_position - d.global_position
-				test_room.global_position += offset
-				await get_tree().process_frame
+				var rect_local: Rect2 = def["rect"]
+				var test_aabb := _rect_to_global_aabb(rect_local, new_pos, new_rot)
 
-				if room_overlaps(test_room):
-					test_room.rotation = 0
-					test_room.global_position = Vector2.ZERO
+				if _room_overlaps_grid(test_aabb, grid):
 					continue
 
-				# Erfolgreich platziert!
+				var new_room: Node2D = (def["scene"] as PackedScene).instantiate()
+				add_child(new_room)
+				new_room.add_to_group("rooms")
+				new_room.global_position = new_pos
+				new_room.rotation = new_rot
+
+				_grid_register_room(test_aabb, grid)
+
 				placed = true
-
 				stats["placed_rooms"] += 1
-				stats["room_score"] += (10 if try_rtype in [3,5] else 1)
+				stats["room_score"] += (10 if try_type in [3, 5] else 1)
 
-				for d2 in test_doors:
-					if d2 != d:
-						open_doors.append(d2)
+				var room_doors := get_doors(new_room)
+				var used_door: Marker2D = null
+				var min_dist := INF
+
+				for d in room_doors:
+					var dist := d.global_position.distance_to(prev.global_position)
+					if dist < min_dist:
+						min_dist = dist
+						used_door = d
+
+				for d in room_doors:
+					if d != used_door:
+						open_doors.append(d)
 
 				used_doors.append(prev)
-				used_doors.append(d)
+				if used_door:
+					used_doors.append(used_door)
 
 				break
 
 			if placed:
 				break
 
-			# Raum passte nicht → verwerfen
-			test_room.queue_free()
-
-			# Raumtyp NEU testen, aber GENOM NICHT ändern!
-			try_rtype = randi_range(1, rooms_available)
-
 		if not placed:
 			continue
 
-		if overlap_count > overlap_limit:
-			break
-
 	stats["open_doors"] = open_doors.size()
 	return stats
-
 
 
 # -------------------------------------------------------------------
@@ -227,25 +332,23 @@ func generate_from_genome(genome: Array[int]) -> Dictionary:
 
 func _run_simple_ga() -> void:
 	var best_genome: Array[int] = []
-	var best_fitness := -INF
+	var best_fitness: float = -INF
 
-	for attempt in range(200):
-
-		var genome = create_genome()
+	for i in range(ga_iterations):
+		var genome: Array[int] = create_genome()
 		_clear_rooms()
 
-		var stats = await generate_from_genome(genome)
-		var fitness = compute_fitness(stats)
+		var stats: Dictionary = generate_from_genome(genome)
+		var fitness := compute_fitness(stats)
 
-		print("Layout ", attempt, " -> Fitness =", fitness, " | ", stats)
+		print("Layout ", i, " -> Fitness =", fitness, " | ", stats)
 
 		if fitness > best_fitness:
 			best_fitness = fitness
 			best_genome = genome.duplicate()
 
-	# bestes Layout rendern
 	_clear_rooms()
-	await generate_from_genome(best_genome)
+	var final_stats := generate_from_genome(best_genome)
 
 	print("\nBESTES GENOM =", best_genome)
 	print("BESTE FITNESS =", best_fitness)
