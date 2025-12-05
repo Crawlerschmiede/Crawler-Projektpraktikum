@@ -1,3 +1,4 @@
 [gd_resource type="TileMapPattern" format=3 uid="uid://cin11inww30n2"]
 
 [resource]
+resource_local_to_scene = true
