@@ -1,5 +1,8 @@
 extends CharacterBody2D
 
+const ENTITY_SPAWN = preload("res://scripts/entity_spawn.gd")
+const ENTITY_MOVEMENT = preload("res://scripts/entity_movement.gd")
+
 # --- Constants ---
 # The size of one tile in pixels
 const TILE_SIZE: int = 16
@@ -28,20 +31,10 @@ var rng := RandomNumberGenerator.new()
 
 
 func _ready():
-	# Make sure the character starts perfectly aligned to the grid
+	var entity_spawn = ENTITY_SPAWN.new()
 	tilemap = get_node(tilemap_path)
-	var possible_spawns = []
-	for cell in tilemap.get_used_cells():
-		var tile_data = tilemap.get_cell_tile_data(cell)
-		if tile_data:
-			var is_blocked = tile_data.get_custom_data("non_walkable")
-			if not is_blocked:
-				possible_spawns.append(cell)
-	# Initialize grid position based on where the player starts
-	var spawnpoint = possible_spawns[rng.randi_range(0, len(possible_spawns) - 1)]
-	position = tilemap.map_to_local(spawnpoint)
-	grid_pos = spawnpoint
-	step_timer = STEP_COOLDOWN  # Allows immediate movement on first press
+	position = entity_spawn.entity_spawn(tilemap)
+	grid_pos = tilemap.local_to_map(position)
 
 
 # --- Input Handling with Cooldown ---
