@@ -1,14 +1,13 @@
 extends Node2D
 
 var overlapping: bool = false
-var overlap_count: int = 0   # wichtig, wenn mehrere Räume gleichzeitig berühren!
+var overlap_count: int = 0
 
 func _ready() -> void:
 	$Area2D.area_entered.connect(_on_overlap_enter)
 	$Area2D.area_exited.connect(_on_overlap_exit)
 
 func _on_overlap_enter(area: Area2D) -> void:
-	# nicht mit sich selbst kollidieren
 	if area.get_parent() == self:
 		return
 

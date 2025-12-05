@@ -7,8 +7,11 @@
 
 [node name="Node2D" type="Node2D" parent="."]
 script = ExtResource("1_o5qli")
+room_count = null
+start_position = null
+rooms_available = null
 
 [node name="Camera2D" type="Camera2D" parent="."]
 offset = Vector2(500, 500)
-zoom = Vector2(0.4, 0.4)
+zoom = Vector2(0.2, 0.2)
 script = ExtResource("2_0wfyh")
