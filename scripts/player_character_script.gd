@@ -22,7 +22,6 @@ var step_timer: float = 0.1
 var rng := RandomNumberGenerator.new()
 
 # Initialize onready vars after member variables per gdlint order
-@onready var tween := get_tree().create_tween()
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 
 # --- Setup ---
@@ -138,7 +137,7 @@ func move_to_tile(direction: Vector2i):
 	grid_pos = target_cell
 	var target_position = tilemap.map_to_local(grid_pos)
 
-	tween = get_tree().create_tween()
+	var tween = get_tree().create_tween()
 	tween.tween_property(self, "position", target_position, 0.15)
 	tween.finished.connect(_on_move_finished)
 
