@@ -158,3 +158,9 @@ func is_cell_walkable(cell: Vector2i) -> bool:
 		return false
 
 	return true
+
+func _on_area_2d_area_entered(area: Area2D):
+	# Prüfen, ob das Objekt eine Funktion "collect" besitzt
+	print("test")
+	if area.has_method("collect"):
+		area.collect(self)   # dem Item den Player übergeben
