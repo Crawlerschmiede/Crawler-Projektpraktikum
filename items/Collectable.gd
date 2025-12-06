@@ -5,10 +5,15 @@ extends Area2D
 func _ready() -> void:
 	pass # Replace with function body.
 
+@export var item_name: String = "coin"
+@export var amount: int = 1
+@export var item_id: int = 0
+@export var description: String = "A basic item"
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
 	pass
 
-func collect(person):
+func collect(player):
+	player.add_to_inventory(item_name, amount)
 	queue_free()
