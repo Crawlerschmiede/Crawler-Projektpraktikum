@@ -1,6 +1,6 @@
-[gd_scene load_steps=9 format=3 uid="uid://crn1q55ogstk2"]
+[gd_scene load_steps=9 format=3 uid="uid://dmc5spi7xs0v6"]
 
-[ext_resource type="Script" uid="uid://b7x880xhs86o4" path="res://scripts/enemy_vampire_bat.gd" id="1_eqs6b"]
+[ext_resource type="Script" path="res://scripts/enemy_vampire_bat.gd" id="1_eqs6b"]
 [ext_resource type="Texture2D" uid="uid://kq6pulusj4sf" path="res://assets/enemies/VampireBat.png" id="1_erdrp"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_yi3cn"]

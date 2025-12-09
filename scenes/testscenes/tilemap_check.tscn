@@ -3,7 +3,7 @@
 [ext_resource type="Texture2D" uid="uid://bkugys8878hd" path="res://assets/testsprites/placeholder_floornwall_goodsize.png" id="1_n7skb"]
 [ext_resource type="Texture2D" uid="uid://b66gb5qt40wlo" path="res://assets/testsprites/rat.png" id="3_lm1w0"]
 [ext_resource type="PackedScene" uid="uid://bvfdv1snyoxhh" path="res://scenes/player-character-scene.tscn" id="4_lm1w0"]
-[ext_resource type="PackedScene" uid="uid://crn1q55ogstk2" path="res://scenes/enemy_vampire_bat.tscn" id="4_n7skb"]
+[ext_resource type="PackedScene" uid="uid://dmc5spi7xs0v6" path="res://scenes/enemy_vampire_bat.tscn" id="4_n7skb"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_h7b1f"]
 texture = ExtResource("1_n7skb")
@@ -35,3 +35,4 @@ zoom = Vector2(3, 3)
 
 [node name="enemy-vampire-bat" parent="." instance=ExtResource("4_n7skb")]
 position = Vector2(55, 38)
+tilemap_path = NodePath("../TileMapLayer")
