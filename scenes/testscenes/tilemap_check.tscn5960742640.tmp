@@ -28,7 +28,6 @@ tile_set = SubResource("TileSet_ff7r8")
 texture = ExtResource("3_lm1w0")
 
 [node name="Player" parent="." instance=ExtResource("4_lm1w0")]
-position = Vector2(23, 25)
 tilemap_path = NodePath("../TileMapLayer")
 
 [node name="Camera2D" type="Camera2D" parent="Player"]

@@ -1,40 +1,14 @@
-extends CharacterBody2D
+class_name PlayerCharacter
 
-const ENTITY_SPAWN = preload("res://scripts/entity_spawn.gd")
-const ENTITY_MOVEMENT = preload("res://scripts/entity_movement.gd")
+extends MoveableEntity
 
-# --- Constants ---
-# The size of one tile in pixels
-const TILE_SIZE: int = 16
 # Time (in seconds) the character pauses on a tile before taking the next step
 const STEP_COOLDOWN: float = 0.15
-
-# --- Exports ---
-@export var tilemap_path: NodePath
-
-# --- Member variables ---
-var grid_pos: Vector2i
-var tilemap: TileMapLayer
-var latest_direction = Vector2i.DOWN
-
-# Flag to prevent movement while the character is currently moving (Tween is active)
-var is_moving: bool = false
-
-# The timer used to track when the next move is allowed
 var step_timer: float = 0.1
-var rng := RandomNumberGenerator.new()
-
-# Initialize onready vars after member variables per gdlint order
-@onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
-
-# --- Setup ---
 
 
-func _ready():
-	var entity_spawn = ENTITY_SPAWN.new()
-	tilemap = get_node(tilemap_path)
-	position = entity_spawn.entity_spawn(tilemap)
-	grid_pos = tilemap.local_to_map(position)
+func _ready() -> void:
+	super_ready("pc")
 
 
 # --- Input Handling with Cooldown ---
@@ -113,40 +87,3 @@ func update_animation(direction: Vector2i):
 
 		# Play the determined idle animation
 		sprite.play(idle_animation_name)
-
-
-# --- Movement Logic ---
-
-
-func move_to_tile(direction: Vector2i):
-	if is_moving:
-		return
-
-	var target_cell = grid_pos + direction
-	if not is_cell_walkable(target_cell):
-		return
-
-	is_moving = true
-	grid_pos = target_cell
-	var target_position = tilemap.map_to_local(grid_pos)
-
-	var tween = get_tree().create_tween()
-	tween.tween_property(self, "position", target_position, 0.15)
-	tween.finished.connect(_on_move_finished)
-
-
-func _on_move_finished():
-	is_moving = false
-
-
-func is_cell_walkable(cell: Vector2i) -> bool:
-	# Get the tile data from the TileMapLayer at the given cell
-	var tile_data = tilemap.get_cell_tile_data(cell)
-	if tile_data == null:
-		return false  # No tile = not walkable (outside map)
-
-	# Check for your custom property "non_walkable"
-	if tile_data.get_custom_data("non_walkable") == true:
-		return false
-
-	return true
