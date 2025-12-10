@@ -1,10 +1,11 @@
-[gd_scene load_steps=7 format=4 uid="uid://dpkotk4tqkdwt"]
+[gd_scene load_steps=9 format=4 uid="uid://dpkotk4tqkdwt"]
 
 [ext_resource type="Texture2D" uid="uid://bkugys8878hd" path="res://assets/testsprites/placeholder_floornwall_goodsize.png" id="1_n7skb"]
 [ext_resource type="Texture2D" uid="uid://b66gb5qt40wlo" path="res://assets/testsprites/rat.png" id="3_lm1w0"]
 [ext_resource type="PackedScene" uid="uid://bvfdv1snyoxhh" path="res://scenes/player-character-scene.tscn" id="4_lm1w0"]
+[ext_resource type="Script" uid="uid://dyn03ub2767ou" path="res://scenes/testscenes/sub_viewport.gd" id="4_n7skb"]
 [ext_resource type="PackedScene" uid="uid://c55eb1fq2fk8t" path="res://items/item.tscn" id="5_lm1w0"]
-[ext_resource type="PackedScene" uid="uid://dmc5spi7xs0v6" path="res://scenes/enemy_vampire_bat.tscn" id="4_n7skb"]
+[ext_resource type="PackedScene" uid="uid://dmc5spi7xs0v6" path="res://scenes/enemy_vampire_bat.tscn" id="6_h7b1f"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_h7b1f"]
 texture = ExtResource("1_n7skb")
@@ -34,9 +35,25 @@ tilemap_path = NodePath("../TileMapLayer")
 [node name="Camera2D" type="Camera2D" parent="Player"]
 zoom = Vector2(3, 3)
 
-[node name="enemy-vampire-bat" parent="." instance=ExtResource("4_n7skb")]
-position = Vector2(55, 38)
-tilemap_path = NodePath("../TileMapLayer")
-
 [node name="Collectable" parent="." instance=ExtResource("5_lm1w0")]
 position = Vector2(85, 139)
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="SubViewportContainer" type="SubViewportContainer" parent="CanvasLayer"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="SubViewport" type="SubViewport" parent="CanvasLayer/SubViewportContainer"]
+handle_input_locally = false
+size = Vector2i(100, 100)
+render_target_update_mode = 4
+script = ExtResource("4_n7skb")
+
+[node name="MiniCam" type="Camera2D" parent="CanvasLayer/SubViewportContainer/SubViewport"]
+
+[node name="enemy-vampire-bat" parent="." instance=ExtResource("6_h7b1f")]
+tilemap_path = NodePath("../TileMapLayer")
