@@ -88,6 +88,8 @@ func update_animation(direction: Vector2i):
 
 		# Play the determined idle animation
 		sprite.play(idle_animation_name)
+
+
 func add_to_inventory(item_name: String, amount: int):
 	inventory[item_name] = inventory.get(item_name, 0) + amount
 	print("Inventory:", inventory)
