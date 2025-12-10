@@ -17,6 +17,8 @@ var grid_pos: Vector2i
 var tilemap: TileMapLayer
 var latest_direction = Vector2i.DOWN
 
+var inventory := {}
+
 # Flag to prevent movement while the character is currently moving (Tween is active)
 var is_moving: bool = false
 
@@ -150,3 +152,14 @@ func is_cell_walkable(cell: Vector2i) -> bool:
 		return false
 
 	return true
+
+
+func add_to_inventory(item_name: String, amount: int):
+	inventory[item_name] = inventory.get(item_name, 0) + amount
+	print("Inventory:", inventory)
+
+
+func _on_area_2d_area_entered(area: Area2D):
+	# Prüfen, ob das Objekt eine Funktion "collect" besitzt
+	if area.has_method("collect"):
+		area.collect(self)  # dem Item den Player übergen
