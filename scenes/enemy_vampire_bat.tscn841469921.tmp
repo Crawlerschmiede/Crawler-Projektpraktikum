@@ -1,6 +1,6 @@
-[gd_scene load_steps=9 format=3 uid="uid://dmc5spi7xs0v6"]
+[gd_scene load_steps=9 format=3 uid="uid://crn1q55ogstk2"]
 
-[ext_resource type="Script" path="res://scripts/enemy_vampire_bat.gd" id="1_eqs6b"]
+[ext_resource type="Script" uid="uid://b7x880xhs86o4" path="res://scripts/enemy_vampire_bat.gd" id="1_eqs6b"]
 [ext_resource type="Texture2D" uid="uid://kq6pulusj4sf" path="res://assets/enemies/VampireBat.png" id="1_erdrp"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_yi3cn"]
@@ -47,7 +47,8 @@ script = ExtResource("1_eqs6b")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 sprite_frames = SubResource("SpriteFrames_2nbx3")
+frame_progress = 0.9626129
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(0, 1)
+position = Vector2(0, 2)
 shape = SubResource("CircleShape2D_ymaes")

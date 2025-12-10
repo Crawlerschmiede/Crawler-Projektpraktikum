@@ -1,5 +1,8 @@
 extends CharacterBody2D
 
+const ENTITY_SPAWN = preload("res://scripts/entity_spawn.gd")
+const ENTITY_MOVEMENT = preload("res://scripts/entity_movement.gd")
+
 # --- Constants ---
 # The size of one tile in pixels
 const TILE_SIZE: int = 16
@@ -24,27 +27,16 @@ var step_timer: float = 0.1
 var rng := RandomNumberGenerator.new()
 
 # Initialize onready vars after member variables per gdlint order
-@onready var tween := get_tree().create_tween()
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 
 # --- Setup ---
 
 
 func _ready():
-	# Make sure the character starts perfectly aligned to the grid
+	var entity_spawn = ENTITY_SPAWN.new()
 	tilemap = get_node(tilemap_path)
-	var possible_spawns = []
-	for cell in tilemap.get_used_cells():
-		var tile_data = tilemap.get_cell_tile_data(cell)
-		if tile_data:
-			var is_blocked = tile_data.get_custom_data("non_walkable")
-			if not is_blocked:
-				possible_spawns.append(cell)
-	# Initialize grid position based on where the player starts
-	var spawnpoint = possible_spawns[rng.randi_range(0, len(possible_spawns) - 1)]
-	position = tilemap.map_to_local(spawnpoint)
-	grid_pos = spawnpoint
-	step_timer = STEP_COOLDOWN  # Allows immediate movement on first press
+	position = entity_spawn.entity_spawn(tilemap)
+	grid_pos = tilemap.local_to_map(position)
 
 
 # --- Input Handling with Cooldown ---
@@ -140,7 +132,7 @@ func move_to_tile(direction: Vector2i):
 	grid_pos = target_cell
 	var target_position = tilemap.map_to_local(grid_pos)
 
-	tween = get_tree().create_tween()
+	var tween = get_tree().create_tween()
 	tween.tween_property(self, "position", target_position, 0.15)
 	tween.finished.connect(_on_move_finished)
 
