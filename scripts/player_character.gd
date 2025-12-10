@@ -5,6 +5,7 @@ extends MoveableEntity
 # Time (in seconds) the character pauses on a tile before taking the next step
 const STEP_COOLDOWN: float = 0.15
 var step_timer: float = 0.1
+var inventory := {}
 
 
 func _ready() -> void:
@@ -87,3 +88,12 @@ func update_animation(direction: Vector2i):
 
 		# Play the determined idle animation
 		sprite.play(idle_animation_name)
+func add_to_inventory(item_name: String, amount: int):
+	inventory[item_name] = inventory.get(item_name, 0) + amount
+	print("Inventory:", inventory)
+
+
+func _on_area_2d_area_entered(area: Area2D):
+	# Prüfen, ob das Objekt eine Funktion "collect" besitzt
+	if area.has_method("collect"):
+		area.collect(self)  # dem Item den Player übergen

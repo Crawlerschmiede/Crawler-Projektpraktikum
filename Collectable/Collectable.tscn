@@ -1,0 +1,15 @@
+[gd_scene load_steps=4 format=3 uid="uid://e466cs57nvjo"]
+
+[ext_resource type="Script" uid="uid://tlvsra37gb7v" path="res://Collectable/collectable.gd" id="1_i4qn4"]
+[ext_resource type="Texture2D" uid="uid://b66gb5qt40wlo" path="res://assets/testsprites/rat.png" id="1_qv3hs"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_i4qn4"]
+
+[node name="Collectable" type="Area2D"]
+script = ExtResource("1_i4qn4")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_i4qn4")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("1_qv3hs")
