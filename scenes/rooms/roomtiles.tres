@@ -270,10 +270,12 @@ texture = ExtResource("1_m7st2")
 10:8/animation_frame_1/duration = 1.0
 10:8/animation_frame_2/duration = 1.0
 10:8/0 = 0
+10:8/0/custom_data_0 = true
 13:8/animation_frame_0/duration = 1.0
 13:8/animation_frame_1/duration = 1.0
 13:8/animation_frame_2/duration = 1.0
 13:8/0 = 0
+13:8/0/custom_data_0 = true
 0:9/0 = 0
 1:9/0 = 0
 2:9/0 = 0
@@ -334,6 +336,7 @@ texture = ExtResource("1_m7st2")
 13:10/animation_frame_1/duration = 1.0
 13:10/animation_frame_2/duration = 1.0
 13:10/0 = 0
+13:10/0/custom_data_0 = true
 
 [resource]
 custom_data_layer_0/name = "non_walkable"
