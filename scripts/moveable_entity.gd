@@ -2,8 +2,6 @@ class_name MoveableEntity
 
 extends CharacterBody2D
 
-
-
 # --- Constants ---
 # The size of one tile in pixels
 @onready var detection_area: Area2D = $Area2D
@@ -21,9 +19,11 @@ var rng := RandomNumberGenerator.new()
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 
+
 # --- Setup ---
 func setup(tmap: TileMapLayer):
 	tilemap = tmap
+
 
 func super_ready(entity_type: String):
 	if tilemap == null and tilemap_path != null:
@@ -72,14 +72,15 @@ func move_to_tile(direction: Vector2i):
 	var tween = get_tree().create_tween()
 	tween.tween_property(self, "position", target_position, 0.15)
 	tween.finished.connect(_on_move_finished)
-	
-	
+
+
 func check_collisions() -> void:
 	for body in detection_area.get_overlapping_bodies():
 		if body == self:
 			continue
 		if grid_pos == body.grid_pos:
 			print(self.name, " overlapped with:", body.name, " on Tile ", grid_pos)
+
 
 func _on_move_finished():
 	is_moving = false
