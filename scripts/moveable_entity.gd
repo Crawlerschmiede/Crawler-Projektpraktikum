@@ -2,8 +2,11 @@ class_name MoveableEntity
 
 extends CharacterBody2D
 
+
+
 # --- Constants ---
 # The size of one tile in pixels
+@onready var detection_area: Area2D = $Area2D
 const TILE_SIZE: int = 16
 
 # --- Exports ---
@@ -11,7 +14,7 @@ const TILE_SIZE: int = 16
 
 # --- Member variables ---
 var grid_pos: Vector2i
-var tilemap: TileMapLayer
+var tilemap: TileMapLayer = null
 var latest_direction = Vector2i.DOWN
 var is_moving: bool = false
 var rng := RandomNumberGenerator.new()
@@ -19,10 +22,12 @@ var rng := RandomNumberGenerator.new()
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 
 # --- Setup ---
-
+func setup(tmap: TileMapLayer):
+	tilemap = tmap
 
 func super_ready(entity_type: String):
-	tilemap = get_node(tilemap_path)
+	if tilemap == null and tilemap_path != null:
+		tilemap = get_node(tilemap_path)
 
 	# Spawn logic for player character
 	if entity_type == "pc":
@@ -67,10 +72,18 @@ func move_to_tile(direction: Vector2i):
 	var tween = get_tree().create_tween()
 	tween.tween_property(self, "position", target_position, 0.15)
 	tween.finished.connect(_on_move_finished)
-
+	
+	
+func check_collisions() -> void:
+	for body in detection_area.get_overlapping_bodies():
+		if body == self:
+			continue
+		if grid_pos == body.grid_pos:
+			print(self.name, " overlapped with:", body.name, " on Tile ", grid_pos)
 
 func _on_move_finished():
 	is_moving = false
+	check_collisions()
 
 
 func is_cell_walkable(cell: Vector2i) -> bool:
