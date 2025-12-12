@@ -1,11 +1,22 @@
-extends Node
+extends CanvasLayer
+
+# custom signal to inform the main scene
+signal menu_closed
 
 
-# Called when the node enters the scene tree for the first time.
-func _ready() -> void:
-	pass  # Replace with function body.
+# Called when the scene is loaded
+func _ready():
+	var continue_button = $VBoxContainer/Button
+	var quit_button = $VBoxContainer/Button2
 
 
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
-	pass
+# Function for the "Continue" button
+func _on_continue_pressed():
+	print("Check:Continue Pressed. Emitting signal.")
+	menu_closed.emit()
+
+
+# Function for the "Quit" button
+func _on_quit_pressed():
+	print("Check: Quit Pressed! Emitting signal.")
+	get_tree().quit()

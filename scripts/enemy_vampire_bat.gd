@@ -2,8 +2,9 @@ class_name EnemyVampireBat
 
 extends MoveableEntity
 
+const ROAM_COOLDOWN: int = 2
+
 var roam_timer: float = 5.0
-const roam_cooldown: int = 2
 
 
 func roam(delta):
@@ -22,7 +23,7 @@ func roam(delta):
 		elif direction_int == 3:
 			direction = Vector2i.DOWN
 		move_to_tile(direction)
-		roam_timer = roam_cooldown
+		roam_timer = ROAM_COOLDOWN
 
 
 func _ready() -> void:
