@@ -4,7 +4,6 @@ extends CharacterBody2D
 
 # --- Constants ---
 # The size of one tile in pixels
-@onready var detection_area: Area2D = $Area2D
 const TILE_SIZE: int = 16
 
 # --- Exports ---
@@ -17,6 +16,7 @@ var latest_direction = Vector2i.DOWN
 var is_moving: bool = false
 var rng := RandomNumberGenerator.new()
 
+@onready var detection_area: Area2D = $Area2D
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 
 
