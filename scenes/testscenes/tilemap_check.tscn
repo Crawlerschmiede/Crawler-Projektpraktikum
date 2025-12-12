@@ -1,5 +1,6 @@
 [gd_scene load_steps=11 format=4 uid="uid://dpkotk4tqkdwt"]
 
+[ext_resource type="Script" uid="uid://dq5gn5t3d1nhh" path="res://scripts/game_setup.gd" id="1_1jc7e"]
 [ext_resource type="Script" uid="uid://cgbawrr63ac08" path="res://scenes/testscenes/tilemap_check.gd" id="1_1jc7e"]
 [ext_resource type="Texture2D" uid="uid://bkugys8878hd" path="res://assets/testsprites/placeholder_floornwall_goodsize.png" id="1_n7skb"]
 [ext_resource type="PackedScene" uid="uid://ceokrukww4ic8" path="res://scenes/popup-menu.tscn" id="2_ohj5c"]
