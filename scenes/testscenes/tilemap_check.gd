@@ -2,9 +2,15 @@ extends Node2D
 
 # packed scene resource for the menu
 @export var menu_scene: PackedScene
+@onready var EnemyScene = preload("res://scenes/enemy_vampire_bat.tscn")
+@onready var dungeon_tilemap = $TileMapLayer
 
 # A variable to hold the instance of the menu once it's created
 var menu_instance: CanvasLayer = null
+
+func _ready() -> void:
+	for i in range(10):
+		spawn_enemy()
 
 func _process(delta):
 	# Check if the 'M' key is pressed
@@ -38,3 +44,8 @@ func on_menu_closed():
 		
 		# 3. Unpause the game
 		get_tree().paused = false
+		
+func spawn_enemy():
+	var e = EnemyScene.instantiate()
+	e.setup(dungeon_tilemap)
+	add_child(e)
