@@ -5,6 +5,7 @@ extends CharacterBody2D
 # --- Constants ---
 # The size of one tile in pixels
 const TILE_SIZE: int = 16
+var is_player: bool =false
 
 # --- Exports ---
 @export var tilemap_path: NodePath

@@ -10,6 +10,7 @@ var inventory := {}
 
 func _ready() -> void:
 	super_ready("pc")
+	is_player=true
 
 
 # --- Input Handling with Cooldown ---

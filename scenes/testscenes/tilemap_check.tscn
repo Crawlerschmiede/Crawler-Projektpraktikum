@@ -42,6 +42,7 @@ zoom = Vector2(3, 3)
 
 [node name="Collectable" parent="." instance=ExtResource("5_lm1w0")]
 position = Vector2(85, 139)
+tilemap_path = NodePath("../TileMapLayer")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
