@@ -86,7 +86,8 @@ These workflows live in `.github/workflows/`:
   - Exports Windows and Linux builds (build validation)
 - `release.yml`
   - Runs when you push a tag matching `v*` (example: `v0.1.0`)
-  - Also supports manual runs via **workflow_dispatch** with a `tag` input
+  - Also supports manual runs via **workflow_dispatch** with a `tag` input (for re-running the release process for an existing tag; **not** for creating new releases)
+  - To create a new release, push a new tag as described in the Release Process section below.
   - Builds + packages Windows (`.zip`) and Linux (`.tar.gz`) and publishes a GitHub Release
 
 ## Branching Strategy
