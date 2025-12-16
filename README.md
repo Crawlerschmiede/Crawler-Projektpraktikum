@@ -99,7 +99,7 @@ These workflows live in `.github/workflows/`:
 
 ## Release Process (dev → main → versioned release)
 
-This is the current workflow (see `build/current-merge-into-main-workflow.md`):
+This is the current workflow:
 
 1. Create a PR in GitHub to merge `dev` → `main`.
 2. Merge the PR in GitHub after CI passes.
