@@ -1,0 +1,38 @@
+[gd_scene load_steps=6 format=3 uid="uid://cxig63dd2i0nk"]
+
+[ext_resource type="Texture2D" uid="uid://bsu4kw76lmmfe" path="res://assets/decorations/banner.png" id="1_q5rwn"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2m8x7"]
+atlas = ExtResource("1_q5rwn")
+region = Rect2(0, 0, 8, 10)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2uwt4"]
+atlas = ExtResource("1_q5rwn")
+region = Rect2(9, 0, 8, 10)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_l5ie7"]
+atlas = ExtResource("1_q5rwn")
+region = Rect2(18, 0, 8, 10)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_238lc"]
+animations = [{
+"frames": [{
+"duration": 2.0,
+"texture": SubResource("AtlasTexture_2m8x7")
+}, {
+"duration": 0.3,
+"texture": SubResource("AtlasTexture_2uwt4")
+}, {
+"duration": 0.3,
+"texture": SubResource("AtlasTexture_l5ie7")
+}],
+"loop": true,
+"name": &"default",
+"speed": 2.0
+}]
+
+[node name="Banner" type="Node2D"]
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+sprite_frames = SubResource("SpriteFrames_238lc")
+frame_progress = 0.28315666
