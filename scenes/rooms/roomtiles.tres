@@ -1,7 +1,36 @@
-[gd_resource type="TileSet" load_steps=5 format=3 uid="uid://rc7plds60u7s"]
+[gd_resource type="TileSet" load_steps=21 format=3 uid="uid://rc7plds60u7s"]
 
 [ext_resource type="Texture2D" uid="uid://d0oog2dnt3maf" path="res://assets/map-tiles/atlas_floor-16x16.png" id="1_2vdqu"]
+[ext_resource type="Texture2D" uid="uid://d136m2c4wv2rj" path="res://assets/map-tiles/walls_skull.png" id="1_k5ur7"]
 [ext_resource type="Texture2D" uid="uid://p1r7l118n6so" path="res://assets/map-tiles/16x16 dungeon ii wall reconfig v04 spritesheet.png" id="1_m7st2"]
+[ext_resource type="Texture2D" uid="uid://b2vbe2ckune71" path="res://assets/decorations/skulls.png" id="3_hdxfv"]
+[ext_resource type="Texture2D" uid="uid://bsu4kw76lmmfe" path="res://assets/decorations/banner.png" id="3_ihgxc"]
+[ext_resource type="Texture2D" uid="uid://jqqx4i4l2fve" path="res://assets/decorations/brazier.png" id="4_8ov5x"]
+[ext_resource type="Texture2D" uid="uid://ccbdybvaxr43s" path="res://assets/map-tiles/walls_fountains_fixed.png" id="4_hdxfv"]
+[ext_resource type="Texture2D" uid="uid://5s223i0f2xf6" path="res://assets/map-tiles/walls_ivy.png" id="5_3ccbu"]
+[ext_resource type="Texture2D" uid="uid://dtou2d0xwl1v1" path="res://assets/map-tiles/walls_brazier.png" id="6_ihgxc"]
+[ext_resource type="Texture2D" uid="uid://84wxhb5n4h3v" path="res://assets/map-tiles/walls_banner.png" id="7_8ov5x"]
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_r1gh6"]
+texture = ExtResource("1_k5ur7")
+0:0/0 = 0
+0:0/0/custom_data_0 = true
+1:0/0 = 0
+1:0/0/custom_data_0 = true
+2:0/0 = 0
+2:0/0/custom_data_0 = true
+0:1/0 = 0
+0:1/0/custom_data_0 = true
+1:1/0 = 0
+1:1/0/custom_data_0 = true
+2:1/0 = 0
+2:1/0/custom_data_0 = true
+0:2/0 = 0
+0:2/0/custom_data_0 = true
+1:2/0 = 0
+1:2/0/custom_data_0 = true
+2:2/0 = 0
+2:2/0/custom_data_0 = true
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_lvkwe"]
 texture = ExtResource("1_2vdqu")
@@ -18,6 +47,15 @@ texture = ExtResource("1_2vdqu")
 0:0/0/custom_data_4 = true
 1:0/0 = 0
 1:0/0/custom_data_3 = true
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_b3slv"]
+texture = ExtResource("3_ihgxc")
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_4byue"]
+texture = ExtResource("4_8ov5x")
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_wx2ue"]
+texture = ExtResource("3_hdxfv")
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_ohrev"]
 texture = ExtResource("1_m7st2")
@@ -279,11 +317,6 @@ texture = ExtResource("1_m7st2")
 10:8/animation_frame_2/duration = 1.0
 10:8/0 = 0
 10:8/0/custom_data_0 = true
-13:8/animation_frame_0/duration = 1.0
-13:8/animation_frame_1/duration = 1.0
-13:8/animation_frame_2/duration = 1.0
-13:8/0 = 0
-13:8/0/custom_data_0 = true
 0:9/0 = 0
 1:9/0 = 0
 2:9/0 = 0
@@ -337,15 +370,83 @@ texture = ExtResource("1_m7st2")
 13:11/animation_frame_1/duration = 1.0
 13:11/animation_frame_2/duration = 1.0
 13:11/0 = 0
-13:9/animation_frame_0/duration = 1.0
-13:9/animation_frame_1/duration = 1.0
-13:9/animation_frame_2/duration = 1.0
-13:9/0 = 0
-13:10/animation_frame_0/duration = 1.0
-13:10/animation_frame_1/duration = 1.0
-13:10/animation_frame_2/duration = 1.0
-13:10/0 = 0
-13:10/0/custom_data_0 = true
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_knrmn"]
+texture = ExtResource("4_hdxfv")
+0:0/animation_frame_0/duration = 1.0
+0:0/animation_frame_1/duration = 1.0
+0:0/animation_frame_2/duration = 1.0
+0:0/0 = 0
+0:0/0/custom_data_0 = true
+0:1/animation_frame_0/duration = 1.0
+0:1/animation_frame_1/duration = 1.0
+0:1/animation_frame_2/duration = 1.0
+0:1/0 = 0
+0:2/animation_frame_0/duration = 1.0
+0:2/animation_frame_1/duration = 1.0
+0:2/animation_frame_2/duration = 1.0
+0:2/0 = 0
+0:2/0/custom_data_0 = true
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_ildef"]
+texture = ExtResource("5_3ccbu")
+0:0/0 = 0
+0:0/0/custom_data_0 = true
+1:0/0 = 0
+1:0/0/custom_data_0 = true
+2:0/0 = 0
+2:0/0/custom_data_0 = true
+3:0/0 = 0
+3:0/0/custom_data_0 = true
+4:0/0 = 0
+4:0/0/custom_data_0 = true
+5:0/0 = 0
+5:0/0/custom_data_0 = true
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_r54dx"]
+texture = ExtResource("6_ihgxc")
+0:0/animation_frame_0/duration = 1.0
+0:0/animation_frame_1/duration = 1.0
+0:0/animation_frame_2/duration = 1.0
+0:0/animation_frame_3/duration = 1.0
+0:0/animation_frame_4/duration = 1.0
+0:0/0 = 0
+0:0/0/custom_data_0 = true
+0:1/animation_frame_0/duration = 1.0
+0:1/animation_frame_1/duration = 1.0
+0:1/animation_frame_2/duration = 1.0
+0:1/animation_frame_3/duration = 1.0
+0:1/animation_frame_4/duration = 1.0
+0:1/0 = 0
+0:1/0/custom_data_0 = true
+0:2/animation_frame_0/duration = 1.0
+0:2/animation_frame_1/duration = 1.0
+0:2/animation_frame_2/duration = 1.0
+0:2/animation_frame_3/duration = 1.0
+0:2/animation_frame_4/duration = 1.0
+0:2/0 = 0
+0:2/0/custom_data_0 = true
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_6mlcj"]
+texture = ExtResource("7_8ov5x")
+0:0/animation_frame_0/duration = 1.0
+0:0/animation_frame_1/duration = 1.0
+0:0/animation_frame_2/duration = 1.0
+0:0/animation_frame_3/duration = 1.0
+0:0/0 = 0
+0:0/0/custom_data_0 = true
+0:1/animation_frame_0/duration = 1.0
+0:1/animation_frame_1/duration = 1.0
+0:1/animation_frame_2/duration = 1.0
+0:1/animation_frame_3/duration = 1.0
+0:1/0 = 0
+0:1/0/custom_data_0 = true
+0:2/animation_frame_0/duration = 1.0
+0:2/animation_frame_1/duration = 1.0
+0:2/animation_frame_2/duration = 1.0
+0:2/animation_frame_3/duration = 1.0
+0:2/0 = 0
+0:2/0/custom_data_0 = true
 
 [resource]
 custom_data_layer_0/name = "non_walkable"
@@ -358,5 +459,13 @@ custom_data_layer_3/name = "boss_spawn"
 custom_data_layer_3/type = 1
 custom_data_layer_4/name = "merchant_spawn"
 custom_data_layer_4/type = 1
-sources/2 = SubResource("TileSetAtlasSource_ohrev")
 sources/1 = SubResource("TileSetAtlasSource_lvkwe")
+sources/0 = SubResource("TileSetAtlasSource_r1gh6")
+sources/4 = SubResource("TileSetAtlasSource_ildef")
+sources/5 = SubResource("TileSetAtlasSource_r54dx")
+sources/6 = SubResource("TileSetAtlasSource_6mlcj")
+sources/3 = SubResource("TileSetAtlasSource_knrmn")
+sources/2 = SubResource("TileSetAtlasSource_ohrev")
+sources/15 = SubResource("TileSetAtlasSource_b3slv")
+sources/16 = SubResource("TileSetAtlasSource_4byue")
+sources/17 = SubResource("TileSetAtlasSource_wx2ue")
