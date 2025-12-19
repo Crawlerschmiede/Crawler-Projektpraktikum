@@ -16,14 +16,21 @@ var tilemap: TileMapLayer = null
 var latest_direction = Vector2i.DOWN
 var is_moving: bool = false
 var rng := RandomNumberGenerator.new()
+var HP: int = 1
+var STR: int = 1
+var DEF: int = 0
+var abilities: Array[Skill]=[] 
 
 @onready var detection_area: Area2D = $Area2D
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 
 
 # --- Setup ---
-func setup(tmap: TileMapLayer):
+func setup(tmap: TileMapLayer, _hp, _str, _def):
 	tilemap = tmap
+	HP = _hp
+	STR = _str
+	DEF = _def
 
 
 func super_ready(entity_type: String):
@@ -81,6 +88,10 @@ func check_collisions() -> void:
 			continue
 		if grid_pos == body.grid_pos:
 			print(self.name, " overlapped with:", body.name, " on Tile ", grid_pos)
+			if self.is_player:
+				initiate_battle(self, body)
+			elif body.is_player:
+				initiate_battle(body, self)
 
 
 func _on_move_finished():
@@ -98,4 +109,9 @@ func is_cell_walkable(cell: Vector2i) -> bool:
 	if tile_data.get_custom_data("non_walkable") == true:
 		return false
 
+	return true
+	
+func initiate_battle(player: Node, enemy:Node)->bool:
+	var main = get_tree().root.get_node("MAIN Pet Dungeon")
+	main.instantiate_battle(player, enemy)
 	return true

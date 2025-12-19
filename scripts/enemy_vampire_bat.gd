@@ -28,6 +28,17 @@ func roam(delta):
 
 func _ready() -> void:
 	super_ready("enemy_flying")
+	setup(tilemap, 3, 1, 0)
+	
+	var base_skill = Skill.new("Screech", "bat things", "AAAAAAAAAAAAAAAAAAAAAAAAAAAA")
+	base_skill.add_effect("damage", 1, false, "No")
+	base_skill.add_effect("danger_dmg_mult", 2, false, "y=0")
+	abilities.append(base_skill)
+	
+	base_skill = Skill.new("Swoop", "bat things", "You'd think a bat headbutting you wouldn't hurt that much... you'd be wrong")
+	base_skill.add_effect("damage", 1, false, "No")
+	base_skill.add_effect("danger_dmg_mult", 2, false, "x=2")
+	abilities.append(base_skill)
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.

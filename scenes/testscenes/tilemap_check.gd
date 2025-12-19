@@ -3,6 +3,7 @@ extends Node2D
 # packed scene resource for the menu
 @export var menu_scene: PackedScene
 @onready var EnemyScene = preload("res://scenes/enemy_vampire_bat.tscn")
+const BattleScene := preload("res://scenes/battle.tscn")
 @onready var dungeon_tilemap = $TileMapLayer
 
 # A variable to hold the instance of the menu once it's created
@@ -47,5 +48,15 @@ func on_menu_closed():
 		
 func spawn_enemy():
 	var e = EnemyScene.instantiate()
-	e.setup(dungeon_tilemap)
+	e.setup(dungeon_tilemap, 1, 1, 0)
 	add_child(e)
+	
+func instantiate_battle(player:Node, enemy:Node):
+	var battle = BattleScene.instantiate()
+	battle.player = player
+	battle.enemy = enemy
+	# Pause overworld while battle runs
+	
+	battle.process_mode = Node.PROCESS_MODE_WHEN_PAUSED
+	add_child(battle)
+	get_tree().paused = true
