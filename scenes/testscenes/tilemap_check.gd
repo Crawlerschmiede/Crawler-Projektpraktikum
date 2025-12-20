@@ -8,6 +8,7 @@ const BattleScene := preload("res://scenes/battle.tscn")
 
 # A variable to hold the instance of the menu once it's created
 var menu_instance: CanvasLayer = null
+var battle: CanvasLayer = null
 
 func _ready() -> void:
 	for i in range(10):
@@ -52,11 +53,30 @@ func spawn_enemy():
 	add_child(e)
 	
 func instantiate_battle(player:Node, enemy:Node):
-	var battle = BattleScene.instantiate()
-	battle.player = player
-	battle.enemy = enemy
-	# Pause overworld while battle runs
+	if battle == null:
+		battle = BattleScene.instantiate()
+		battle.player = player
+		battle.enemy = enemy
+		# Pause overworld while battle runs
+		
+		battle.process_mode = Node.PROCESS_MODE_WHEN_PAUSED
+		add_child(battle)
+		# Connect the menu's custom signal to our closing function
+		if battle.has_signal("player_victory"):
+			# Ensure the connection is safe and only happens once
+			battle.player_victory.connect(enemy_defeated.bind(enemy))
+		if battle.has_signal("player_loss"):
+			# Ensure the connection is safe and only happens once
+			battle.player_loss.connect(game_over)
+		get_tree().paused = true
+
+func enemy_defeated(enemy):
+	if battle != null:
+		battle.queue_free()
+		battle = null
+		enemy.queue_free()
+		get_tree().paused = false
 	
-	battle.process_mode = Node.PROCESS_MODE_WHEN_PAUSED
-	add_child(battle)
-	get_tree().paused = true
+
+func game_over():
+	get_tree().quit()

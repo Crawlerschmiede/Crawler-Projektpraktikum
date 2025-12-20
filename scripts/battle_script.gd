@@ -3,9 +3,13 @@ extends CanvasLayer
 @onready var enemy_marker = $Battle_root/EnemyPosition
 @onready var player_marker = $Battle_root/PlayerPosition
 @onready var combat_tilemap = $Battle_root/TileMapLayer
+@onready var skill_ui = $Battle_root/ItemList
 
 @export var player:Node
 @export var enemy:Node
+
+signal player_loss
+signal player_victory
 
 var player_gridpos:Vector2i
 
@@ -17,11 +21,16 @@ func _ready():
 	player_gridpos = combat_tilemap.local_to_map(player_marker.position)
 	combat_tilemap.add_child(player_sprite)
 	player_sprite.position = combat_tilemap.map_to_local(player_gridpos)
+	skill_ui.setup(player, enemy)
+	if skill_ui.has_signal("player_turn_done"):
+		# Ensure the connection is safe and only happens once
+		skill_ui.player_turn_done.connect(enemy_turn)
+	enemy.decide_attack()
 
 	
 	
 func create_battle_sprite(from_actor: CharacterBody2D) -> AnimatedSprite2D:
-	print("getting sprite for", from_actor)
+	print("getting sprite for ", from_actor)
 	var source_sprite := from_actor.get_node("AnimatedSprite2D") as AnimatedSprite2D
 	assert(source_sprite)
 
@@ -38,3 +47,21 @@ func create_battle_sprite(from_actor: CharacterBody2D) -> AnimatedSprite2D:
 	battle_sprite.play()
 
 	return battle_sprite
+	
+func enemy_turn():
+	var over = check_victory()
+	if !over:
+		print(enemy, " activates its Skill ", enemy.chosen.name, "!")
+		enemy.chosen.activate_skill(enemy, player)
+		enemy.decide_attack()
+		skill_ui.player_turn=true
+		check_victory()
+	
+func check_victory():
+	if enemy.HP <=0:
+		player_victory.emit()
+		return true
+	if player.HP<=0:
+		player_loss.emit()
+		return true
+	return false

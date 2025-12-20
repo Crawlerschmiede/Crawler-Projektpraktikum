@@ -1,7 +1,8 @@
-[gd_scene load_steps=6 format=4 uid="uid://vn680b4hvj3x"]
+[gd_scene load_steps=7 format=4 uid="uid://vn680b4hvj3x"]
 
 [ext_resource type="Script" uid="uid://ccci32tj3j1fq" path="res://scripts/battle_script.gd" id="1_p1qf1"]
 [ext_resource type="Texture2D" uid="uid://rhw6r8lf8r0n" path="res://assets/menu/UI_TravelBook_BookCover01a.png" id="1_th188"]
+[ext_resource type="Script" uid="uid://dy5stdv0mwwiu" path="res://scripts/skill_list.gd" id="2_a12nh"]
 [ext_resource type="Texture2D" uid="uid://bkugys8878hd" path="res://assets/testsprites/placeholder_floornwall_goodsize.png" id="2_p1qf1"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_a12nh"]
@@ -23,6 +24,7 @@ offset_left = 80.66667
 offset_top = 80.0
 offset_right = 212.0
 offset_bottom = 160.33334
+script = ExtResource("2_a12nh")
 
 [node name="TextureRect" type="TextureRect" parent="Battle_root/ItemList"]
 layout_mode = 0
@@ -48,12 +50,14 @@ tab_1/tooltip = "Make use of what you found"
 tab_2/title = "Actions"
 tab_2/tooltip = "Generic Actions"
 
-[node name="VBoxContainer" type="VBoxContainer" parent="Battle_root/ItemList"]
+[node name="ScrollContainer" type="ScrollContainer" parent="Battle_root/ItemList"]
 layout_mode = 0
-offset_left = 2.3333282
-offset_top = 21.333334
-offset_right = 129.66667
-offset_bottom = 79.0
+offset_top = 21.666672
+offset_right = 129.33333
+offset_bottom = 78.66667
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Battle_root/ItemList/ScrollContainer"]
+layout_mode = 2
 
 [node name="TileMapLayer" type="TileMapLayer" parent="Battle_root"]
 tile_map_data = PackedByteArray("AAAAAAUAAAAAAAAAAAAAAAYAAAAAAAAAAAAAAAcAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAkAAAAAAAAAAAABAAkAAAAAAAAAAAACAAkAAAAAAAAAAAADAAkAAAAAAAAAAAAEAAkAAAAAAAAAAAAEAAgAAAAAAAAAAAAEAAcAAAAAAAAAAAAEAAYAAAAAAAAAAAAEAAUAAAAAAAAAAAADAAUAAAAAAAAAAAACAAUAAAAAAAAAAAABAAUAAAAAAAAAAAABAAYAAAAAAAAAAAABAAcAAAAAAAAAAAABAAgAAAAAAAAAAAACAAgAAAAAAAAAAAADAAgAAAAAAAAAAAADAAcAAAAAAAAAAAADAAYAAAAAAAAAAAACAAYAAAAAAAAAAAACAAcAAAAAAAAAAAA=")

@@ -115,3 +115,8 @@ func initiate_battle(player: Node, enemy:Node)->bool:
 	var main = get_tree().root.get_node("MAIN Pet Dungeon")
 	main.instantiate_battle(player, enemy)
 	return true
+	
+func take_damage(damage):
+	print(self, " takes ", damage, " damage!")
+	HP =HP - damage
+	print("Now has ", HP, "HP")

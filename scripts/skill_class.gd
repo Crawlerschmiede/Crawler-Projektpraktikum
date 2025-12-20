@@ -36,6 +36,8 @@ class Effect:
 		match type:
 			"damage":
 				if targets_self:
-					user.takeDamage(value)
+					user.take_damage(value)
 				else:
-					target.takeDamage(value)
+					target.take_damage(value)
+			"movement":
+				print("Moving", details)
