@@ -9,12 +9,14 @@ var player: Node
 var enemy: Node
 
 var player_turn:bool = true
+var battle_scene: CanvasLayer = null
 
 enum Tab { SKILLS, ITEMS, ACTIONS }
 
-func setup(_player:Node, _enemy:Node):
+func setup(_player:Node, _enemy:Node, _battle_scene):
 	player = _player
 	enemy = _enemy
+	battle_scene = _battle_scene
 	tab_bar.tab_changed.connect(_on_tab_changed)
 
 	# Make sure your tabs exist in this order
@@ -47,7 +49,7 @@ func _add_button(label: String, pressed_cb: Callable) -> void:
 
 func _on_skill_pressed(ability) -> void:
 	if player_turn:
-		ability.activate_skill(player, enemy)
+		ability.activate_skill(player, enemy, battle_scene)
 		print("did the function thing!")
 		player_turn=false
 		player_turn_done.emit()
