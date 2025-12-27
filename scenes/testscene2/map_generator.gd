@@ -2,173 +2,238 @@ extends Node2D
 
 @export var room_scenes: Array[PackedScene]
 @export var start_room: PackedScene
-@export var max_rooms := 200
+@export var max_rooms: int = 200
 
-var placed_rooms: Array = []
+# --- Corridor-Regeln ---
+@export var max_corridors: int = 10
+@export var max_corridor_chain: int = 3
+@export_range(0.0, 1.0, 0.01) var door_fill_chance: float = 1.0
 
-func _ready():
+var placed_rooms: Array[Node2D] = []
+var corridor_count: int = 0
+
+
+func _ready() -> void:
 	print("=== MAP GENERATION START ===")
 	await generate()
 	print("=== MAP GENERATION END ===")
 
 
-	# ---------- MAIN LOOP (BFS / WAVES) ----------
-func generate():
+func generate() -> void:
 	# ---------- START ROOM ----------
 	if start_room == null:
-		push_error("❌ start_room ist NULL!")
+		push_error("❌ [GENERATOR] start_room ist NULL")
 		return
 
-	var first_room = start_room.instantiate()
+	var first_room := start_room.instantiate() as Node2D
+	if first_room == null:
+		push_error("❌ [GENERATOR] start_room.instantiate() ist kein Node2D")
+		return
+
 	add_child(first_room)
 	first_room.global_position = Vector2.ZERO
 	first_room.add_to_group("room")
+	first_room.set_meta("corridor_chain", 0)
+
 	placed_rooms.append(first_room)
 
 	if not first_room.has_method("get_free_doors"):
-		push_error("❌ Start room hat kein get_free_doors()")
+		push_error("❌ [ROOM] Start room hat kein get_free_doors()")
 		return
 
-	print("✔ Start room instantiated:", first_room.name)
+	if is_corridor_room(first_room):
+		corridor_count += 1
+
+	print("✔ Start room:", first_room.name)
 
 	var current_doors: Array = first_room.get_free_doors()
 	var next_doors: Array = []
 
-	print("→ Start room doors:", current_doors.size())
-
-
-	# ---------- MAIN LOOP (BFS / WAVES) ----------
+	# ---------- MAIN LOOP ----------
 	while current_doors.size() > 0 and placed_rooms.size() < max_rooms:
-		print("\n=== DOOR WAVE ===")
-		print("Rooms:", placed_rooms.size(), "Current doors:", current_doors.size())
-
 		var door = current_doors.pop_front()
-
-		if door.used:
+		if door == null or door.used:
 			continue
 
-		print("→ Using door:", door.name, "Direction:", door.direction)
+		if door_fill_chance < 1.0 and randf() > door_fill_chance:
+			continue
 
-		var candidates = room_scenes.duplicate()
+		var from_room : Node = door.get_parent()
+		while from_room != null and not from_room.is_in_group("room"):
+			from_room = from_room.get_parent()
+
+		if from_room == null:
+			push_error("❌ [DOOR] Konnte Raum-Root nicht finden für Door: " + door.name)
+			continue
+
+		var from_corridor := is_corridor_room(from_room)
+		var from_chain: int = from_room.get_meta("corridor_chain", 0)
+
+		var candidates := room_scenes.duplicate()
 		candidates.shuffle()
 
 		var placed := false
+		var last_fail_reason := ""
 
 		for room_scene in candidates:
-			var new_room = room_scene.instantiate()
+			var new_room := room_scene.instantiate() as Node2D
+			if new_room == null:
+				continue
 
 			if not new_room.has_method("get_free_doors"):
+				last_fail_reason = "kein get_free_doors()"
 				new_room.queue_free()
 				continue
 
+			var to_corridor := is_corridor_room(new_room)
+
+			# ---------- CORRIDOR REGELN ----------
+			if to_corridor:
+				if corridor_count >= max_corridors:
+					last_fail_reason = "MaxCorridors erreicht"
+					new_room.queue_free()
+					continue
+
+				var new_chain := from_chain + 1
+				if new_chain > max_corridor_chain:
+					last_fail_reason = "Corridor-Kette > " + str(max_corridor_chain)
+					new_room.queue_free()
+					continue
+
 			var matching_door = find_matching_door(new_room, door.direction)
 			if matching_door == null:
+				last_fail_reason = "kein passender Door"
 				new_room.queue_free()
 				continue
 
 			add_child(new_room)
 			new_room.add_to_group("room")
 
-			# ---------- 🔥 KORREKTER GLOBAL SNAP ----------
-			var offset = matching_door.global_position - new_room.global_position
+			# ---------- GLOBAL SNAP ----------
+			var offset: Vector2 = matching_door.global_position - new_room.global_position
 			new_room.global_position = door.global_position - offset
 
-			# OPTIONAL: Grid-Snap (empfohlen)
-			# new_room.global_position = new_room.global_position.snapped(Vector2(320, 320))
-
-			# ---------- PHYSICS UPDATE ----------
 			await get_tree().physics_frame
 			await get_tree().physics_frame
 
-			# ---------- OVERLAP CHECK ----------
-			if await check_overlap(new_room):
-				print("✖ Overlap → room removed:", new_room.name)
+			# ---------- COLLISION ----------
+			var overlap := await check_overlap_verbose(new_room)
+			if overlap.overlaps:
+				last_fail_reason = "Collision mit " + overlap.other_name
 				new_room.queue_free()
 				continue
 
-			# ---------- ✅ ERFOLG ----------
+			# ---------- ERFOLG ----------
 			door.used = true
 			matching_door.used = true
+
+			if to_corridor:
+				corridor_count += 1
+				new_room.set_meta("corridor_chain", from_chain + 1)
+			else:
+				new_room.set_meta("corridor_chain", 0)
 
 			placed_rooms.append(new_room)
 			next_doors += new_room.get_free_doors()
 
-			print("✔ Room placed:", new_room.name)
+			print("✔ Room placed:", new_room.name, "| corridor:", to_corridor, "| chain:", new_room.get_meta("corridor_chain"))
 			placed = true
 			break
 
 		if not placed:
-			print("✖ No room fits for door:", door.name)
+			print("✖ Door", door.name, "failed:", last_fail_reason)
 
-		# ---------- NEXT WAVE ----------
 		if current_doors.is_empty():
-			print("➡ Switching to next door wave:", next_doors.size())
 			current_doors = next_doors
 			next_doors = []
 
 
-# ---------- DOOR MATCHING ----------
-func find_matching_door(room, from_direction):
-	var opposite = {
+# ---------- CORRIDOR CHECK ----------
+func is_corridor_room(room: Node) -> bool:
+	if room == null:
+		return false
+
+	if not ("is_corridor" in room):
+		push_error(
+			"❌ Room '" + room.name +
+			"' hat KEINE Variable 'is_corridor'.\n" +
+			"➡ Ergänze im Room-Script:\n@export var is_corridor: bool"
+		)
+		return false
+
+	var value = room.get("is_corridor")
+	if typeof(value) != TYPE_BOOL:
+		push_error("❌ 'is_corridor' in '" + room.name + "' ist kein bool")
+		return false
+
+	return value
+
+
+# ---------- DOOR MATCH ----------
+func find_matching_door(room: Node, from_direction: String):
+	var opposite := {
 		"north": "south",
 		"south": "north",
 		"east": "west",
 		"west": "east"
 	}
 
-	print("Searching matching door for direction:", from_direction)
+	if not opposite.has(from_direction):
+		return null
 
-	for door in room.get_free_doors():
-		print("  checking:", door.name, "dir:", door.direction)
-		if door.direction == opposite[from_direction]:
-			print("  ✔ MATCH:", door.name)
-			return door
+	for d in room.get_free_doors():
+		if d.direction == opposite[from_direction]:
+			return d
 
-	print("  ✖ NO MATCH FOUND")
 	return null
 
 
-# ---------- OVERLAP CHECK ----------
-func check_overlap(new_room: Node2D) -> bool:
-	var new_cs: CollisionShape2D = new_room.get_node_or_null("Area2D/CollisionShape2D")
+# ---------- COLLISION ----------
+class OverlapResult:
+	var overlaps: bool = false
+	var other_name: String = ""
+
+
+func check_overlap_verbose(new_room: Node2D) -> OverlapResult:
+	var result := OverlapResult.new()
+
+	var new_cs := new_room.get_node_or_null("Area2D/CollisionShape2D") as CollisionShape2D
 	if new_cs == null:
-		push_error("❌ Room has no Area2D/CollisionShape2D: " + new_room.name)
-		return true
+		result.overlaps = true
+		result.other_name = "missing_collision"
+		return result
 
-	var new_rect_shape := new_cs.shape as RectangleShape2D
-	if new_rect_shape == null:
-		push_error("❌ CollisionShape2D is not RectangleShape2D in: " + new_room.name)
-		return true
+	var new_shape := new_cs.shape as RectangleShape2D
+	if new_shape == null:
+		result.overlaps = true
+		result.other_name = "wrong_shape"
+		return result
 
-	# Bounding Rect vom neuen Raum (global)
 	var new_rect := Rect2(
-		new_room.global_position - new_rect_shape.extents,
-		new_rect_shape.extents * 2.0
+		new_room.global_position - new_shape.extents,
+		new_shape.extents * 2.0
 	)
 
-	# gegen alle bestehenden Räume prüfen
 	for room in placed_rooms:
 		if room == null or room == new_room:
 			continue
-		if not (room is Node2D):
-			continue
 
-		var room2d := room as Node2D
-
-		var cs: CollisionShape2D = room2d.get_node_or_null("Area2D/CollisionShape2D")
+		var cs := room.get_node_or_null("Area2D/CollisionShape2D") as CollisionShape2D
 		if cs == null:
 			continue
 
-		var rect_shape := cs.shape as RectangleShape2D
-		if rect_shape == null:
+		var shape := cs.shape as RectangleShape2D
+		if shape == null:
 			continue
 
-		var room_rect := Rect2(
-			room2d.global_position - rect_shape.extents,
-			rect_shape.extents * 2.0
+		var rect := Rect2(
+			room.global_position - shape.extents,
+			shape.extents * 2.0
 		)
 
-		if new_rect.intersects(room_rect):
-			return true
+		if new_rect.intersects(rect):
+			result.overlaps = true
+			result.other_name = room.name
+			return result
 
-	return false
+	return result
