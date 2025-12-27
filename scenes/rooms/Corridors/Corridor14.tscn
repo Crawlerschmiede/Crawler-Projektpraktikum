@@ -1,4 +1,4 @@
-[gd_scene load_steps=6 format=4 uid="uid://dvhhbcqguxg2g"]
+[gd_scene load_steps=7 format=4 uid="uid://dvhhbcqguxg2g"]
 
 [ext_resource type="Texture2D" uid="uid://p1r7l118n6so" path="res://assets/map-tiles/16x16 dungeon ii wall reconfig v04 spritesheet.png" id="1_56t1r"]
 [ext_resource type="Script" uid="uid://bt7qirgdptbwu" path="res://scenes/rooms/Scripts/RoomTemplate.gd" id="1_vaehm"]
@@ -193,6 +193,9 @@ texture = ExtResource("1_56t1r")
 [sub_resource type="TileSet" id="TileSet_00xmv"]
 sources/0 = SubResource("TileSetAtlasSource_f8tu0")
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_vaehm"]
+size = Vector2(80, 96)
+
 [node name="Corridor14" type="Node2D"]
 script = ExtResource("1_vaehm")
 
@@ -216,3 +219,9 @@ direction = "east"
 position = Vector2(0, 56)
 script = ExtResource("2_5n1g5")
 direction = "west"
+
+[node name="Area2D" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
+position = Vector2(40, 48)
+shape = SubResource("RectangleShape2D_vaehm")
