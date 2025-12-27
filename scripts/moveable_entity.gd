@@ -6,7 +6,6 @@ extends CharacterBody2D
 # The size of one tile in pixels
 const TILE_SIZE: int = 16
 
-
 # --- Member variables ---
 var grid_pos: Vector2i
 var tilemap: TileMapLayer = null

@@ -9,7 +9,6 @@ var step_timer: float = 0.01
 var inventory := {}
 
 
-
 func _ready() -> void:
 	if camera == null:
 		print("Children:", get_children())
@@ -17,7 +16,6 @@ func _ready() -> void:
 		return
 
 	camera.make_current()
-
 
 
 # --- Input Handling with Cooldown ---
