@@ -6,8 +6,6 @@ extends CharacterBody2D
 # The size of one tile in pixels
 const TILE_SIZE: int = 16
 
-# --- Exports ---
-@export var tilemap_path: NodePath
 
 # --- Member variables ---
 var grid_pos: Vector2i
@@ -26,14 +24,13 @@ func setup(tmap: TileMapLayer):
 
 
 func super_ready(entity_type: String):
-	if tilemap == null and tilemap_path != null:
-		tilemap = get_node(tilemap_path)
+	if tilemap == null:
+		push_error("❌ MoveableEntity hat keine TileMap! setup(tilemap) vergessen?")
+		return
 
-	# Spawn logic for player character
 	if entity_type == "pc":
-		# TODO: make pc spawn at the current floor's entryway
-		position = tilemap.map_to_local(Vector2i(2, 2))
 		grid_pos = Vector2i(2, 2)
+		position = tilemap.map_to_local(grid_pos)
 	# Spawn logic for enemies
 	else:
 		var possible_spawns = []

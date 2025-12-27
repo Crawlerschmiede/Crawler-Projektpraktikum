@@ -1,4 +1,4 @@
-[gd_scene load_steps=32 format=3 uid="uid://dwghrpbxefkax"]
+[gd_scene load_steps=30 format=3 uid="uid://dwghrpbxefkax"]
 
 [ext_resource type="Script" uid="uid://d2rb43bq30iq0" path="res://scenes/testscene2/map_generator.gd" id="1_pa1ne"]
 [ext_resource type="PackedScene" uid="uid://bugoqrwv7iv0k" path="res://scenes/rooms/Rooms/room7.tscn" id="2_jk44l"]
@@ -29,20 +29,15 @@
 [ext_resource type="PackedScene" uid="uid://dvhhbcqguxg2g" path="res://scenes/rooms/Corridors/Corridor14.tscn" id="27_r0ol4"]
 [ext_resource type="PackedScene" uid="uid://nuwb0xocbmyp" path="res://scenes/rooms/Corridors/Corridor15.tscn" id="28_c14x5"]
 [ext_resource type="PackedScene" uid="uid://8fgfqjjfqenf" path="res://scenes/rooms/Corridors/Corridor17.tscn" id="29_pbodv"]
-[ext_resource type="Texture2D" uid="uid://b66gb5qt40wlo" path="res://assets/testsprites/rat.png" id="30_gdjpo"]
-[ext_resource type="PackedScene" uid="uid://bvfdv1snyoxhh" path="res://scenes/player-character-scene.tscn" id="31_8cjpl"]
 
 [node name="MapGenerator" type="Node2D"]
 script = ExtResource("1_pa1ne")
 room_scenes = Array[PackedScene]([ExtResource("2_jk44l"), ExtResource("3_p53qg"), ExtResource("4_gdjpo"), ExtResource("5_8cjpl"), ExtResource("6_6hxwb"), ExtResource("7_i6ntm"), ExtResource("8_sqty7"), ExtResource("9_h153x"), ExtResource("10_cjflb"), ExtResource("11_a7lap"), ExtResource("12_csaid"), ExtResource("13_75ylg"), ExtResource("14_e05we"), ExtResource("15_ewpwt"), ExtResource("16_mu786"), ExtResource("17_qbknk"), ExtResource("18_hx73i"), ExtResource("19_mxovt"), ExtResource("20_3qpji"), ExtResource("21_ujm4s"), ExtResource("22_sop6o"), ExtResource("23_n102u"), ExtResource("24_qgn1g"), ExtResource("25_0kr4y"), ExtResource("26_5m7m8"), ExtResource("27_r0ol4"), ExtResource("28_c14x5"), ExtResource("29_pbodv")])
 start_room = ExtResource("6_6hxwb")
-player_scene = ExtResource("31_8cjpl")
-
-[node name="Sprite2D" type="Sprite2D" parent="."]
-texture = ExtResource("30_gdjpo")
-
-[node name="Player" parent="." instance=ExtResource("31_8cjpl")]
-position = Vector2(23, 25)
+max_rooms = null
+max_corridors = null
+max_corridor_chain = null
+door_fill_chance = null
 
 [node name="Camera2D" type="Camera2D" parent="."]
 zoom = Vector2(0.1, 0.1)

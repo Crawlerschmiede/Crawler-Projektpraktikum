@@ -38,11 +38,14 @@ room_scenes = Array[PackedScene]([ExtResource("2_jk44l"), ExtResource("3_p53qg")
 start_room = ExtResource("6_6hxwb")
 player_scene = ExtResource("31_8cjpl")
 
+[node name="Camera2D" type="Camera2D" parent="."]
+zoom = Vector2(0.05, 0.05)
+
 [node name="Sprite2D" type="Sprite2D" parent="."]
 texture = ExtResource("30_gdjpo")
 
 [node name="Player" parent="." instance=ExtResource("31_8cjpl")]
 position = Vector2(23, 25)
 
-[node name="Camera2D" type="Camera2D" parent="."]
-zoom = Vector2(0.1, 0.1)
+[node name="Camera2D" type="Camera2D" parent="Player"]
+zoom = Vector2(3, 3)
