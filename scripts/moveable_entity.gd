@@ -16,6 +16,7 @@ var tilemap: TileMapLayer = null
 var latest_direction = Vector2i.DOWN
 var is_moving: bool = false
 var rng := RandomNumberGenerator.new()
+var max_HP = 1
 var HP: int = 1
 var STR: int = 1
 var DEF: int = 0
@@ -28,6 +29,7 @@ var abilities: Array[Skill]=[]
 # --- Setup ---
 func setup(tmap: TileMapLayer, _hp, _str, _def):
 	tilemap = tmap
+	max_HP = _hp
 	HP = _hp
 	STR = _str
 	DEF = _def
