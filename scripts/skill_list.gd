@@ -49,7 +49,9 @@ func _add_button(label: String, pressed_cb: Callable) -> void:
 
 func _on_skill_pressed(ability) -> void:
 	if player_turn:
-		ability.activate_skill(player, enemy, battle_scene)
+		var stuff = ability.activate_skill(player, enemy, battle_scene)
 		print("did the function thing!")
+		for thing in stuff:
+			battle_scene.log_container.add_log_event(thing)
 		player_turn=false
 		player_turn_done.emit()

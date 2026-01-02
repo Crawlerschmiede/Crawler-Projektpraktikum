@@ -10,7 +10,7 @@ var active_markers = []
 @onready var skill_ui = $Battle_root/ItemList
 @onready var enemy_hp_bar = $Battle_root/Enemy_HPBar
 @onready var player_hp_bar = $Battle_root/Player_HPBar
-
+@onready var log_container = $Battle_root/TextureRect2/message_container
 
 @export var player:Node
 @export var enemy:Node
@@ -69,16 +69,22 @@ func enemy_prepare_turn():
 	for active_marker in active_markers:
 		active_marker.queue_free()
 	active_markers.clear()
+	log_container.add_log_event("The enemy prepares its Skill "+ enemy.chosen.name+ "!")
 	print(enemy, " prepares its Skill ", enemy.chosen.name, "!")
-	enemy.chosen.prep_skill(enemy, player, self)
+	var preps = enemy.chosen.prep_skill(enemy, player, self)
+	for prep in preps:
+		log_container.add_log_event(prep)
 	
 func enemy_turn():
 	var over = check_victory()
+	var happened = []
 	if !over:
 		enemy_hp_bar.value = (enemy.HP * 100.0) / enemy.max_HP
 		player_hp_bar.value = (player.HP * 100.0) / player.max_HP
 		print(enemy, " activates its Skill ", enemy.chosen.name, "!")
-		enemy.chosen.activate_skill(enemy, player, self)
+		happened = enemy.chosen.activate_skill(enemy, player, self)
+		for happening in happened:
+			log_container.add_log_event(happening)
 		enemy.decide_attack()
 		enemy_prepare_turn()
 		skill_ui.player_turn=true
@@ -103,6 +109,7 @@ func cell_exists(cell: Vector2i) -> bool:
 	return true
 
 func move_player(direction:String, distance:int):
+	var dir = ""
 	if player_sprite == null:
 		return
 
@@ -110,14 +117,18 @@ func move_player(direction:String, distance:int):
 	match direction:
 		"L":
 			delta = Vector2i(-distance, 0)
+			dir = "left"
 		"R":
 			delta = Vector2i(distance, 0)
+			dir = "right"
 		"U":
 			delta = Vector2i(0, -distance)
+			dir = "up"
 		"D":
 			delta = Vector2i(0, distance)
+			dir = "down"
 		_:
-			return
+			return []
 
 	var new_cell := player_gridpos + delta
 	
@@ -125,6 +136,7 @@ func move_player(direction:String, distance:int):
 		return
 	player_gridpos = new_cell
 	player_sprite.position = combat_tilemap.map_to_local(player_gridpos)
+	return "Player moved "+dir
 	
 func apply_danger_zones(mult, pos, dur, direction):
 	var mult_type ="dmg_mult_"+direction
@@ -172,4 +184,5 @@ func apply_danger_zones(mult, pos, dur, direction):
 		active_markers.append(marker)
 		var world_pos: Vector2 = combat_tilemap.map_to_local(cell)
 		marker.global_position = combat_tilemap.to_global(world_pos)
+	return ["Seems like this attack is more dangerous in some places", "Pay attention to your positioning!"]
 				

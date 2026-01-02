@@ -120,5 +120,7 @@ func initiate_battle(player: Node, enemy:Node)->bool:
 	
 func take_damage(damage):
 	print(self, " takes ", damage, " damage!")
-	HP =HP - damage
+	var taken_damage = damage #useless right now but just put here for later damage calculations
+	HP =HP - taken_damage
 	print("Now has ", HP, "HP")
+	return [" took "+str(taken_damage)+" Damage", " now has "+str(HP)+" HP"]

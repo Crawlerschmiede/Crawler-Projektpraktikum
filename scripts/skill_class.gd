@@ -15,17 +15,28 @@ func _init(_name: String, _tree_path: String, _description:String):
 		description = _description
 		
 func prep_skill(user, target, battle):
+	var things_that_happened = []
 	for effect in effects:
 		if effect.type in pre_prepared_effects:
-			effect.apply(user, target, battle)
+			var stuff = effect.apply(user, target, battle, name)
+			for thing in stuff:
+				things_that_happened.append(thing)
+	return things_that_happened
 
 func activate_skill(user, target, battle):
+	var things_that_happened = []
+	var stuff = null
 	for effect in effects:
 		if effect.type in high_prio_effects && !effect.type in pre_prepared_effects:
-			effect.apply(user, target, battle)
+			stuff = effect.apply(user, target, battle, name)
+			for thing in stuff:
+				things_that_happened.append(thing)
 	for effect in effects:
 		if !effect.type in high_prio_effects && !effect.type in pre_prepared_effects:
-			effect.apply(user, target, battle)
+			stuff = effect.apply(user, target, battle, name)
+			for thing in stuff:
+				things_that_happened.append(thing)
+	return things_that_happened
 	
 		
 func add_effect(type:String, value:float, targets_self:bool, details:String):
@@ -44,7 +55,8 @@ class Effect:
 		targets_self = _targets_self
 		details = _details
 		
-	func apply(user, target, battle):
+	func apply(user, target, battle, skill_name):
+		var messages =[]
 		match type:
 			"damage":
 				print("Activating damage!")
@@ -64,15 +76,16 @@ class Effect:
 								active_dmg *= modifier_value
 
 				if targets_self:
-					user.take_damage(active_dmg)
+					messages = user.take_damage(active_dmg)
 				else:
-					target.take_damage(active_dmg)
+					messages = target.take_damage(active_dmg)
+				return ["Target "+ messages[0]+ " from "+skill_name, "Target "+messages[1]]
 			"movement":
 				print("Activating movement")
 				var basic_directions = ["U", "D", "L", "R"]
 				if details in basic_directions:
-					battle.move_player(details, value)
+					return [battle.move_player(details, value)]
 			"danger_dmg_mult":
 				print("Activating danger")
 				var duration=1
-				battle.apply_danger_zones(value, details, duration, "bad")
+				return battle.apply_danger_zones(value, details, duration, "bad")
