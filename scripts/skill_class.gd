@@ -6,14 +6,16 @@ class_name Skill
 @export var tree_path: String
 @export var description: String
 var effects: Array[Effect] = []
-var pre_prepared_effects = ["danger_dmg_mult"] #TODO could do with a more sophisticated sorting system later
+var pre_prepared_effects = ["danger_dmg_mult"]  #TODO could do with a more sophisticated sorting system later
 var high_prio_effects = ["movement"]
 
-func _init(_name: String, _tree_path: String, _description:String):
-		name = _name
-		tree_path = _tree_path
-		description = _description
-		
+
+func _init(_name: String, _tree_path: String, _description: String):
+	name = _name
+	tree_path = _tree_path
+	description = _description
+
+
 func prep_skill(user, target, battle):
 	var things_that_happened = []
 	for effect in effects:
@@ -22,6 +24,7 @@ func prep_skill(user, target, battle):
 			for thing in stuff:
 				things_that_happened.append(thing)
 	return things_that_happened
+
 
 func activate_skill(user, target, battle):
 	var things_that_happened = []
@@ -37,26 +40,26 @@ func activate_skill(user, target, battle):
 			for thing in stuff:
 				things_that_happened.append(thing)
 	return things_that_happened
-	
-		
-func add_effect(type:String, value:float, targets_self:bool, details:String):
+
+
+func add_effect(type: String, value: float, targets_self: bool, details: String):
 	effects.append(Effect.new(type, value, targets_self, details))
-		
+
 
 class Effect:
 	var type: String
-	var value: float	
+	var value: float
 	var targets_self: bool
-	var details:String #for general use. i.e., you have a movement type skill, value 1.0, this would hold "left" or "user input" or something,
+	var details: String  #for general use. i.e., you have a movement type skill, value 1.0, this would hold "left" or "user input" or something,
 
-	func _init(_type: String, _value: float, _targets_self:int, _details:String):
+	func _init(_type: String, _value: float, _targets_self: int, _details: String):
 		type = _type
 		value = _value
 		targets_self = _targets_self
 		details = _details
-		
+
 	func apply(user, target, battle, skill_name):
-		var messages =[]
+		var messages = []
 		match type:
 			"damage":
 				print("Activating damage!")
@@ -79,7 +82,7 @@ class Effect:
 					messages = user.take_damage(active_dmg)
 				else:
 					messages = target.take_damage(active_dmg)
-				return ["Target "+ messages[0]+ " from "+skill_name, "Target "+messages[1]]
+				return ["Target " + messages[0] + " from " + skill_name, "Target " + messages[1]]
 			"movement":
 				print("Activating movement")
 				var basic_directions = ["U", "D", "L", "R"]
@@ -87,5 +90,5 @@ class Effect:
 					return [battle.move_player(details, value)]
 			"danger_dmg_mult":
 				print("Activating danger")
-				var duration=1
+				var duration = 1
 				return battle.apply_danger_zones(value, details, duration, "bad")

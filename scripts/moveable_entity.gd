@@ -5,7 +5,7 @@ extends CharacterBody2D
 # --- Constants ---
 # The size of one tile in pixels
 const TILE_SIZE: int = 16
-var is_player: bool =false
+var is_player: bool = false
 
 # --- Exports ---
 @export var tilemap_path: NodePath
@@ -20,7 +20,7 @@ var max_HP = 1
 var HP: int = 1
 var STR: int = 1
 var DEF: int = 0
-var abilities: Array[Skill]=[] 
+var abilities: Array[Skill] = []
 
 @onready var detection_area: Area2D = $Area2D
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
@@ -112,15 +112,17 @@ func is_cell_walkable(cell: Vector2i) -> bool:
 		return false
 
 	return true
-	
-func initiate_battle(player: Node, enemy:Node)->bool:
+
+
+func initiate_battle(player: Node, enemy: Node) -> bool:
 	var main = get_tree().root.get_node("MAIN Pet Dungeon")
 	main.instantiate_battle(player, enemy)
 	return true
-	
+
+
 func take_damage(damage):
 	print(self, " takes ", damage, " damage!")
-	var taken_damage = damage #useless right now but just put here for later damage calculations
-	HP =HP - taken_damage
+	var taken_damage = damage  #useless right now but just put here for later damage calculations
+	HP = HP - taken_damage
 	print("Now has ", HP, "HP")
-	return [" took "+str(taken_damage)+" Damage", " now has "+str(HP)+" HP"]
+	return [" took " + str(taken_damage) + " Damage", " now has " + str(HP) + " HP"]

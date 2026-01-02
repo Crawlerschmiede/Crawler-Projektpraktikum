@@ -12,20 +12,18 @@ var active_markers = []
 @onready var player_hp_bar = $Battle_root/Player_HPBar
 @onready var log_container = $Battle_root/TextureRect2/message_container
 
-@export var player:Node
-@export var enemy:Node
-
+@export var player: Node
+@export var enemy: Node
 
 signal player_loss
 signal player_victory
 
-
-var player_gridpos:Vector2i
+var player_gridpos: Vector2i
 var tile_modifiers: Dictionary = {}
-
 
 var enemy_sprite
 var player_sprite
+
 
 func _ready():
 	enemy_sprite = create_battle_sprite(enemy)
@@ -39,13 +37,12 @@ func _ready():
 	if skill_ui.has_signal("player_turn_done"):
 		# Ensure the connection is safe and only happens once
 		skill_ui.player_turn_done.connect(enemy_turn)
-	enemy_hp_bar.value = (enemy.HP*100)/enemy.max_HP
+	enemy_hp_bar.value = (enemy.HP * 100) / enemy.max_HP
 	player_hp_bar.value = (player.HP * 100.0) / player.max_HP
 	enemy.decide_attack()
 	enemy_prepare_turn()
 
-	
-	
+
 func create_battle_sprite(from_actor: CharacterBody2D) -> AnimatedSprite2D:
 	var source_sprite := from_actor.get_node("AnimatedSprite2D") as AnimatedSprite2D
 	assert(source_sprite)
@@ -63,18 +60,20 @@ func create_battle_sprite(from_actor: CharacterBody2D) -> AnimatedSprite2D:
 	battle_sprite.play()
 
 	return battle_sprite
-	
+
+
 func enemy_prepare_turn():
-	tile_modifiers.clear() #TODO VERY low tech, just removes everything, works fine for 1-turn effects, but anything else'll need something more complex
+	tile_modifiers.clear()  #TODO VERY low tech, just removes everything, works fine for 1-turn effects, but anything else'll need something more complex
 	for active_marker in active_markers:
 		active_marker.queue_free()
 	active_markers.clear()
-	log_container.add_log_event("The enemy prepares its Skill "+ enemy.chosen.name+ "!")
+	log_container.add_log_event("The enemy prepares its Skill " + enemy.chosen.name + "!")
 	print(enemy, " prepares its Skill ", enemy.chosen.name, "!")
 	var preps = enemy.chosen.prep_skill(enemy, player, self)
 	for prep in preps:
 		log_container.add_log_event(prep)
-	
+
+
 func enemy_turn():
 	var over = check_victory()
 	var happened = []
@@ -87,20 +86,22 @@ func enemy_turn():
 			log_container.add_log_event(happening)
 		enemy.decide_attack()
 		enemy_prepare_turn()
-		skill_ui.player_turn=true
+		skill_ui.player_turn = true
 		check_victory()
 		player_hp_bar.value = (player.HP * 100.0) / player.max_HP
 		enemy_hp_bar.value = (enemy.HP * 100.0) / enemy.max_HP
-	
+
+
 func check_victory():
-	if enemy.HP <=0:
+	if enemy.HP <= 0:
 		player_victory.emit()
 		return true
-	if player.HP<=0:
+	if player.HP <= 0:
 		player_loss.emit()
 		return true
 	return false
-	
+
+
 func cell_exists(cell: Vector2i) -> bool:
 	# Get the tile data from the TileMapLayer at the given cell
 	var tile_data = combat_tilemap.get_cell_tile_data(cell)
@@ -108,7 +109,8 @@ func cell_exists(cell: Vector2i) -> bool:
 		return false  # No tile = not walkable (outside map)
 	return true
 
-func move_player(direction:String, distance:int):
+
+func move_player(direction: String, distance: int):
 	var dir = ""
 	if player_sprite == null:
 		return
@@ -131,61 +133,56 @@ func move_player(direction:String, distance:int):
 			return []
 
 	var new_cell := player_gridpos + delta
-	
+
 	if !cell_exists(new_cell):
 		return
 	player_gridpos = new_cell
 	player_sprite.position = combat_tilemap.map_to_local(player_gridpos)
-	return "Player moved "+dir
-	
+	return "Player moved " + dir
+
+
 func apply_danger_zones(mult, pos, dur, direction):
-	var mult_type ="dmg_mult_"+direction
+	var mult_type = "dmg_mult_" + direction
 	if pos == "player_x":
 		for tile in used_cells:
 			if tile.x == player_gridpos.x:
-				tile_modifiers[tile] = {
-					mult_type: mult
-				}
+				tile_modifiers[tile] = {mult_type: mult}
 	elif pos == "player_y":
 		for tile in used_cells:
 			if tile.y == player_gridpos.y:
-				tile_modifiers[tile] = {
-					mult_type: mult
-				}
+				tile_modifiers[tile] = {mult_type: mult}
 	elif "x" in pos:
 		var parts = pos.split("=")
 		var min_x = 99999999999999
 		for tile in used_cells:
-			if tile.x<min_x:
-				min_x =tile.x
+			if tile.x < min_x:
+				min_x = tile.x
 		for tile in used_cells:
-			if tile.x == min_x+int(parts[1]):
-				tile_modifiers[tile] = {
-					mult_type: mult
-				}
+			if tile.x == min_x + int(parts[1]):
+				tile_modifiers[tile] = {mult_type: mult}
 	elif "y" in pos:
 		var parts = pos.split("=")
 		print("parts: ", parts)
 		var min_y = 99999999999999
 		for tile in used_cells:
-			if tile.y<min_y:
-				min_y =tile.y
+			if tile.y < min_y:
+				min_y = tile.y
 		for tile in used_cells:
-			if tile.y == min_y+int(parts[1]):
-				tile_modifiers[tile] = {
-					mult_type: mult
-				}
+			if tile.y == min_y + int(parts[1]):
+				tile_modifiers[tile] = {mult_type: mult}
 	for cell: Vector2i in tile_modifiers.keys():
 		var data: Dictionary = tile_modifiers[cell]
 		var marker = marker_prefab.instantiate()
-		
-		marker.marker_type ="danger"
+
+		marker.marker_type = "danger"
 		marker.tooltip_container = log_container
-		marker.marker_info = "Standing here will make you take "+str(int(mult))+"x Damage!"
-		
+		marker.marker_info = "Standing here will make you take " + str(int(mult)) + "x Damage!"
+
 		$Battle_root.add_child(marker)
 		active_markers.append(marker)
 		var world_pos: Vector2 = combat_tilemap.map_to_local(cell)
 		marker.global_position = combat_tilemap.to_global(world_pos)
-	return ["Seems like this attack is more dangerous in some places", "Pay attention to your positioning!"]
-				
+	return [
+		"Seems like this attack is more dangerous in some places",
+		"Pay attention to your positioning!"
+	]

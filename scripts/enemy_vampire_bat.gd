@@ -31,13 +31,17 @@ func roam(delta):
 func _ready() -> void:
 	super_ready("enemy_flying")
 	setup(tilemap, 3, 1, 0)
-	
+
 	var base_skill = Skill.new("Screech", "bat things", "AAAAAAAAAAAAAAAAAAAAAAAAAAAA")
 	base_skill.add_effect("damage", 1, false, "No")
 	base_skill.add_effect("danger_dmg_mult", 2, false, "y=0")
 	abilities.append(base_skill)
-	
-	base_skill = Skill.new("Swoop", "bat things", "You'd think a bat headbutting you wouldn't hurt that much... you'd be wrong")
+
+	base_skill = Skill.new(
+		"Swoop",
+		"bat things",
+		"You'd think a bat headbutting you wouldn't hurt that much... you'd be wrong"
+	)
 	base_skill.add_effect("damage", 1, false, "No")
 	base_skill.add_effect("danger_dmg_mult", 2, false, "player_x")
 	abilities.append(base_skill)
@@ -47,9 +51,9 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	sprite.play("default")
 	roam(delta)
-	
-func decide_attack()->void:
-	var chosen_index = rng.randi_range(0, len(abilities)-1)
+
+
+func decide_attack() -> void:
+	var chosen_index = rng.randi_range(0, len(abilities) - 1)
 	chosen = abilities[chosen_index]
 	print("Next ability is ", chosen.name)
-	

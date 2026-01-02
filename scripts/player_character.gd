@@ -10,19 +10,31 @@ var inventory := {}
 
 func _ready() -> void:
 	super_ready("pc")
-	is_player=true
+	is_player = true
 	setup(tilemap, 10, 1, 0)
-	
-	var base_skill = Skill.new("Punch", "hitting and punching and biting and kicking people", "It's a punch... you don't need an explanation")
+
+	var base_skill = Skill.new(
+		"Punch",
+		"hitting and punching and biting and kicking people",
+		"It's a punch... you don't need an explanation"
+	)
 	base_skill.add_effect("damage", 2, false, "No")
 	abilities.append(base_skill)
-	
-	base_skill = Skill.new("Right Pivot", "hitting and punching and biting and kicking people", "It's a punch BUT you also take a step to the right, how novel!")
+
+	base_skill = Skill.new(
+		"Right Pivot",
+		"hitting and punching and biting and kicking people",
+		"It's a punch BUT you also take a step to the right, how novel!"
+	)
 	base_skill.add_effect("damage", 1, false, "No")
 	base_skill.add_effect("movement", 1, true, "R")
 	abilities.append(base_skill)
-	
-	base_skill = Skill.new("Left Pivot", "hitting and punching and biting and kicking people", "It's a punch BUT you also take a step to the left, how exciting!")
+
+	base_skill = Skill.new(
+		"Left Pivot",
+		"hitting and punching and biting and kicking people",
+		"It's a punch BUT you also take a step to the left, how exciting!"
+	)
 	base_skill.add_effect("damage", 1, false, "No")
 	base_skill.add_effect("movement", 1, true, "L")
 	abilities.append(base_skill)
