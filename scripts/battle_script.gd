@@ -178,7 +178,10 @@ func apply_danger_zones(mult, pos, dur, direction):
 	for cell: Vector2i in tile_modifiers.keys():
 		var data: Dictionary = tile_modifiers[cell]
 		var marker = marker_prefab.instantiate()
+		
 		marker.marker_type ="danger"
+		marker.tooltip_container = log_container
+		marker.marker_info = "Standing here will make you take "+str(int(mult))+"x Damage!"
 		
 		$Battle_root.add_child(marker)
 		active_markers.append(marker)

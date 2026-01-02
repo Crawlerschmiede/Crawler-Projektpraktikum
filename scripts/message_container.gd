@@ -41,4 +41,13 @@ func _process(delta: float) -> void:
 	if state!=last_state:
 		print("clearing")
 		_clear_list()
+		print("switched from "+last_state+" to " + state)
+		match state:
+			"log":
+				_fill_list(combat_log)
+			"tooltip":
+				_fill_list(tooltips)
+				
+				
+		last_state = state
 		
