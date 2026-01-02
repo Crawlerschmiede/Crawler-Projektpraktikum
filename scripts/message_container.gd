@@ -5,6 +5,7 @@ extends ScrollContainer
 @export var combat_log = []
 @export var tooltips = []
 @export var state = "log"
+@export var changed: bool = false
 var last_state = "log"
 
 
@@ -38,7 +39,7 @@ func _ready() -> void:
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
-	if state!=last_state:
+	if state!=last_state or changed:
 		print("clearing")
 		_clear_list()
 		print("switched from "+last_state+" to " + state)
@@ -50,4 +51,6 @@ func _process(delta: float) -> void:
 				
 				
 		last_state = state
+		changed=false
+		
 		

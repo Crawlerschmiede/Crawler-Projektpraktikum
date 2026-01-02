@@ -35,7 +35,7 @@ func _ready():
 	player_gridpos = combat_tilemap.local_to_map(player_marker.position)
 	combat_tilemap.add_child(player_sprite)
 	player_sprite.position = combat_tilemap.map_to_local(player_gridpos)
-	skill_ui.setup(player, enemy, self)
+	skill_ui.setup(player, enemy, self, log_container)
 	if skill_ui.has_signal("player_turn_done"):
 		# Ensure the connection is safe and only happens once
 		skill_ui.player_turn_done.connect(enemy_turn)

@@ -33,9 +33,11 @@ func _process(delta: float) -> void:
 
 func _on_mouse_entered():
 	if tooltip_container!=null:
-		tooltip_container.state ="tooltip"
 		tooltip_container.tooltips =[marker_type.to_upper(), marker_info]
+		tooltip_container.state ="tooltip"
+		tooltip_container.changed=true
 
 func _on_mouse_exited():
 	if tooltip_container!=null:
 		tooltip_container.state ="log"
+		tooltip_container.changed=true
