@@ -6,6 +6,9 @@ extends CharacterBody2D
 # The size of one tile in pixels
 const TILE_SIZE: int = 16
 var is_player: bool = false
+const SKILLS = preload("res://scripts/premade_skills.gd")
+var existing_skills = SKILLS.new()
+var abilities_this_has =[]
 
 # --- Exports ---
 @export var tilemap_path: NodePath
@@ -62,6 +65,8 @@ func super_ready(entity_type: String):
 		var spawnpoint = possible_spawns[rng.randi_range(0, len(possible_spawns) - 1)]
 		position = tilemap.map_to_local(spawnpoint)
 		grid_pos = spawnpoint
+	for ability in abilities_this_has:
+		add_skill(ability)
 
 
 # --- Movement Logic ---
@@ -112,7 +117,12 @@ func is_cell_walkable(cell: Vector2i) -> bool:
 		return false
 
 	return true
+	
+#--skill logic--
+func add_skill(skill_name):
+	abilities.append(existing_skills.get_skill(skill_name))
 
+#--battle logic--
 
 func initiate_battle(player: Node, enemy: Node) -> bool:
 	var main = get_tree().root.get_node("MAIN Pet Dungeon")
