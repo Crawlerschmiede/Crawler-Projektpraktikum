@@ -17,7 +17,9 @@ var existing_skills = {
 }
 
 func get_skill(skill_name):
-	var values = existing_skills[skill_name] 
+	var values = existing_skills.get(skill_name) 
+	if values == null:
+		return values
 	var new_skill = Skill.new(
 		skill_name,
 		values[0],

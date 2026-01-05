@@ -120,7 +120,11 @@ func is_cell_walkable(cell: Vector2i) -> bool:
 	
 #--skill logic--
 func add_skill(skill_name):
-	abilities.append(existing_skills.get_skill(skill_name))
+	var skill = existing_skills.get_skill(skill_name)
+	if skill !=null:
+		abilities.append(skill)
+	else:
+		print(skill_name + "doesn't exist!")
 
 #--battle logic--
 
