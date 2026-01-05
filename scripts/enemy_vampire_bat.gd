@@ -9,7 +9,6 @@ var roam_timer: float = 5.0
 var chosen: Skill
 
 
-
 func roam(delta):
 	roam_timer -= delta
 	var direction_int = 0
@@ -30,7 +29,7 @@ func roam(delta):
 
 
 func _ready() -> void:
-	abilities_this_has =["Screech", "Swoop"]
+	abilities_this_has = ["Screech", "Swoop"]
 	super_ready("enemy_flying")
 	setup(tilemap, 3, 1, 0)
 

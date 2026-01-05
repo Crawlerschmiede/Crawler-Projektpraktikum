@@ -135,7 +135,7 @@ func move_player(direction: String, distance: int):
 	var new_cell := player_gridpos + delta
 
 	if !cell_exists(new_cell):
-		return "Attempting to move "+dir+", the player only pushed against the wall"
+		return "Attempting to move " + dir + ", the player only pushed against the wall"
 	player_gridpos = new_cell
 	player_sprite.position = combat_tilemap.map_to_local(player_gridpos)
 	return "Player moved " + dir
