@@ -174,7 +174,7 @@ func apply_danger_zones(mult, pos, _dur, direction):
 				tile_modifiers[tile] = {mult_type: mult}
 	for cell: Vector2i in tile_modifiers.keys():
 		var data: Dictionary = tile_modifiers[cell]
-		var marker = marker_prefab.instantiate()
+		var marker = MarkerPrefab.instantiate()
 
 		marker.marker_type = "danger"
 		marker.tooltip_container = log_container
