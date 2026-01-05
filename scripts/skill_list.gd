@@ -1,19 +1,17 @@
 extends Control
 
-@onready var tab_bar: TabBar = $TabBar
-@onready var list_vbox: VBoxContainer = $ScrollContainer/VBoxContainer
-
-var tooltip_container: Node
-
 signal player_turn_done
 
+enum Tab { SKILLS, ITEMS, ACTIONS }
+
+var tooltip_container: Node
 var player: Node
 var enemy: Node
-
 var player_turn: bool = true
 var battle_scene: CanvasLayer = null
 
-enum Tab { SKILLS, ITEMS, ACTIONS }
+@onready var tab_bar: TabBar = $TabBar
+@onready var list_vbox: VBoxContainer = $ScrollContainer/VBoxContainer
 
 
 func setup(_player: Node, _enemy: Node, _battle_scene, _tooltip_container):

@@ -1,10 +1,7 @@
+class_name MadeSkills
+
 extends Resource
 
-class_name Made_Skills
-
-#write skills here as
-# name : [skilltree, description, effects]
-#The effects should be in the format [[type, value, targets self, details], [same thing for more effects]
 var existing_skills = {
 	"Screech":
 	[
