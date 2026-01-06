@@ -33,6 +33,7 @@ texture = ExtResource("1_k5ur7")
 2:2/0/custom_data_0 = true
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_lvkwe"]
+resource_name = "special_tils"
 texture = ExtResource("1_2vdqu")
 2:5/0 = 0
 3:5/0 = 0
