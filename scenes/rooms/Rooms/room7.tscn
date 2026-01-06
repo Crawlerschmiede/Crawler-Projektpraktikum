@@ -28,7 +28,7 @@ shape = SubResource("RectangleShape2D_p3feo")
 
 [node name="Doors" type="Node2D" parent="."]
 
-[node name="North" type="Marker2D" parent="Doors"]
+[node name="East" type="Marker2D" parent="Doors"]
 position = Vector2(272, 72)
 script = ExtResource("2_54cau")
-direction = "north"
+direction = "east"
