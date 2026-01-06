@@ -23,6 +23,7 @@ window/size/resizable=false
 window/stretch/mode="viewport"
 window/stretch/aspect="keep_height"
 window/stretch/scale_mode="integer"
+mouse_cursor/custom_image="uid://4wgcd0cgenrq"
 
 [dotnet]
 

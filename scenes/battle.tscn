@@ -1,0 +1,144 @@
+[gd_scene load_steps=8 format=4 uid="uid://vn680b4hvj3x"]
+
+[ext_resource type="Script" uid="uid://ccci32tj3j1fq" path="res://scripts/battle_script.gd" id="1_p1qf1"]
+[ext_resource type="Texture2D" uid="uid://rhw6r8lf8r0n" path="res://assets/menu/UI_TravelBook_BookCover01a.png" id="1_th188"]
+[ext_resource type="Script" uid="uid://dy5stdv0mwwiu" path="res://scripts/skill_list.gd" id="2_a12nh"]
+[ext_resource type="Texture2D" uid="uid://bkugys8878hd" path="res://assets/testsprites/placeholder_floornwall_goodsize.png" id="2_p1qf1"]
+[ext_resource type="Script" uid="uid://l7vprtnmuht3" path="res://scripts/message_container.gd" id="5_lpir7"]
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_a12nh"]
+texture = ExtResource("2_p1qf1")
+0:0/0 = 0
+1:0/0 = 0
+
+[sub_resource type="TileSet" id="TileSet_lpir7"]
+sources/0 = SubResource("TileSetAtlasSource_a12nh")
+
+[node name="Battle" type="CanvasLayer"]
+script = ExtResource("1_p1qf1")
+
+[node name="Battle_root" type="Node2D" parent="."]
+scale = Vector2(3, 3)
+
+[node name="ItemList" type="ItemList" parent="Battle_root"]
+offset_left = 80.66667
+offset_top = 80.0
+offset_right = 212.0
+offset_bottom = 160.33334
+script = ExtResource("2_a12nh")
+
+[node name="TextureRect" type="TextureRect" parent="Battle_root/ItemList"]
+layout_mode = 0
+offset_left = -0.66667306
+offset_right = 132.33333
+offset_bottom = 80.0
+texture = ExtResource("1_th188")
+expand_mode = 1
+
+[node name="TabBar" type="TabBar" parent="Battle_root/ItemList"]
+layout_mode = 0
+offset_left = 1.9999948
+offset_top = 0.6666666
+offset_right = 207.20834
+offset_bottom = 31.666666
+scale = Vector2(0.64, 0.64)
+current_tab = 0
+tab_count = 3
+tab_0/title = "Skills"
+tab_0/tooltip = "Abilities your Character posesses"
+tab_1/title = "Items"
+tab_1/tooltip = "Make use of what you found"
+tab_2/title = "Actions"
+tab_2/tooltip = "Generic Actions"
+
+[node name="ScrollContainer" type="ScrollContainer" parent="Battle_root/ItemList"]
+layout_mode = 0
+offset_top = 21.666672
+offset_right = 129.33333
+offset_bottom = 78.66667
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Battle_root/ItemList/ScrollContainer"]
+layout_mode = 2
+
+[node name="TileMapLayer" type="TileMapLayer" parent="Battle_root"]
+tile_map_data = PackedByteArray("AAAAAAUAAAAAAAAAAAAAAAYAAAAAAAAAAAAAAAcAAAAAAAAAAAAAAAgAAAAAAAAAAAAAAAkAAAAAAAAAAAABAAkAAAAAAAAAAAACAAkAAAAAAAAAAAADAAkAAAAAAAAAAAAEAAkAAAAAAAAAAAAEAAgAAAAAAAAAAAAEAAcAAAAAAAAAAAAEAAYAAAAAAAAAAAAEAAUAAAAAAAAAAAADAAUAAAAAAAAAAAACAAUAAAAAAAAAAAABAAUAAAAAAAAAAAABAAYAAAAAAAAAAAABAAcAAAAAAAAAAAABAAgAAAAAAAAAAAACAAgAAAAAAAAAAAADAAgAAAAAAAAAAAADAAcAAAAAAAAAAAADAAYAAAAAAAAAAAACAAYAAAAAAAAAAAACAAcAAAAAAAAAAAA=")
+tile_set = SubResource("TileSet_lpir7")
+
+[node name="EnemyPosition" type="Marker2D" parent="Battle_root"]
+position = Vector2(39, 25.000002)
+
+[node name="PlayerPosition" type="Marker2D" parent="Battle_root"]
+position = Vector2(37, 121.333336)
+
+[node name="Enemy_HPBar" type="ProgressBar" parent="Battle_root"]
+offset_left = 45.333332
+offset_top = 62.333336
+offset_right = 129.33333
+offset_bottom = 89.333336
+scale = Vector2(0.57156146, 0.4300503)
+
+[node name="Enemy_hp_label" type="Label" parent="Battle_root"]
+offset_left = 2.6666667
+offset_top = 61.000004
+offset_right = 85.666664
+offset_bottom = 84.0
+scale = Vector2(0.5, 0.5)
+text = "Enemy HP:"
+
+[node name="player_hp_label" type="Label" parent="Battle_root"]
+offset_left = 125.666664
+offset_top = 62.0
+offset_right = 204.66666
+offset_bottom = 85.0
+scale = Vector2(0.5, 0.5)
+text = "Player HP:"
+
+[node name="Player_HPBar" type="ProgressBar" parent="Battle_root"]
+offset_left = 166.0
+offset_top = 60.666664
+offset_right = 256.33334
+offset_bottom = 87.666664
+scale = Vector2(0.44450948, 0.48954546)
+
+[node name="TextureRect2" type="TextureRect" parent="Battle_root"]
+z_index = -1
+offset_left = 75.000015
+offset_top = 1.3333335
+offset_right = 208.00002
+offset_bottom = 81.333336
+scale = Vector2(0.9938794, 0.7350163)
+texture = ExtResource("1_th188")
+expand_mode = 1
+
+[node name="message_container" type="ScrollContainer" parent="Battle_root/TextureRect2"]
+layout_mode = 0
+offset_left = 3.6892319
+offset_top = 4.5350494
+offset_right = 133.02255
+offset_bottom = 61.53505
+scale = Vector2(0.9727069, 1.2546296)
+script = ExtResource("5_lpir7")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Battle_root/TextureRect2/message_container"]
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+
+[node name="ColorRect" type="ColorRect" parent="."]
+z_index = -2
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.16717109, 0.00046630923, 0, 1)
+
+[node name="ColorRect2" type="ColorRect" parent="."]
+z_index = -1
+offset_left = 43.0
+offset_top = 13.000015
+offset_right = 83.0
+offset_bottom = 53.000015
+scale = Vector2(3.6799989, 3.08)
+mouse_filter = 2
+color = Color(0.6784314, 0.7058824, 0.7411765, 1)

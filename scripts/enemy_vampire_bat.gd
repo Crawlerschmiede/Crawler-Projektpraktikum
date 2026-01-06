@@ -6,6 +6,8 @@ const ROAM_COOLDOWN: int = 2
 
 var roam_timer: float = 5.0
 
+var chosen: Skill
+
 
 func roam(delta):
 	roam_timer -= delta
@@ -27,10 +29,18 @@ func roam(delta):
 
 
 func _ready() -> void:
+	abilities_this_has = ["Screech", "Swoop"]
 	super_ready("enemy_flying")
+	setup(tilemap, 3, 1, 0)
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
 	sprite.play("default")
 	roam(delta)
+
+
+func decide_attack() -> void:
+	var chosen_index = rng.randi_range(0, len(abilities) - 1)
+	chosen = abilities[chosen_index]
+	print("Next ability is ", chosen.name)

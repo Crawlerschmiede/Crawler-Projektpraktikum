@@ -5,6 +5,10 @@ extends CharacterBody2D
 # --- Constants ---
 # The size of one tile in pixels
 const TILE_SIZE: int = 16
+var is_player: bool = false
+const SKILLS = preload("res://scripts/premade_skills.gd")
+var existing_skills = SKILLS.new()
+var abilities_this_has = []
 
 # --- Member variables ---
 var grid_pos: Vector2i
@@ -12,14 +16,23 @@ var tilemap: TileMapLayer = null
 var latest_direction = Vector2i.DOWN
 var is_moving: bool = false
 var rng := RandomNumberGenerator.new()
+var max_HP = 1
+var HP: int = 1
+var STR: int = 1
+var DEF: int = 0
+var abilities: Array[Skill] = []
 
 @onready var detection_area: Area2D = $Area2D
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 
 
 # --- Setup ---
-func setup(tmap: TileMapLayer):
+func setup(tmap: TileMapLayer, _hp, _str, _def):
 	tilemap = tmap
+	max_HP = _hp
+	HP = _hp
+	STR = _str
+	DEF = _def
 
 
 func super_ready(entity_type: String):
@@ -48,6 +61,8 @@ func super_ready(entity_type: String):
 		var spawnpoint = possible_spawns[rng.randi_range(0, len(possible_spawns) - 1)]
 		position = tilemap.map_to_local(spawnpoint)
 		grid_pos = spawnpoint
+	for ability in abilities_this_has:
+		add_skill(ability)
 
 
 # --- Movement Logic ---
@@ -76,6 +91,10 @@ func check_collisions() -> void:
 			continue
 		if grid_pos == body.grid_pos:
 			print(self.name, " overlapped with:", body.name, " on Tile ", grid_pos)
+			if self.is_player:
+				initiate_battle(self, body)
+			elif body.is_player:
+				initiate_battle(body, self)
 
 
 func _on_move_finished():
@@ -94,3 +113,29 @@ func is_cell_walkable(cell: Vector2i) -> bool:
 		return false
 
 	return true
+
+
+#--skill logic--
+func add_skill(skill_name):
+	var skill = existing_skills.get_skill(skill_name)
+	if skill != null:
+		abilities.append(skill)
+	else:
+		print(skill_name + "doesn't exist!")
+
+
+#--battle logic--
+
+
+func initiate_battle(player: Node, enemy: Node) -> bool:
+	var main = get_tree().root.get_node("MAIN Pet Dungeon")
+	main.instantiate_battle(player, enemy)
+	return true
+
+
+func take_damage(damage):
+	print(self, " takes ", damage, " damage!")
+	var taken_damage = damage  #useless right now but just put here for later damage calculations
+	HP = HP - taken_damage
+	print("Now has ", HP, "HP")
+	return [" took " + str(taken_damage) + " Damage", " now has " + str(HP) + " HP"]
