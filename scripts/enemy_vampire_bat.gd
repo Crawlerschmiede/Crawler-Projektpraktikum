@@ -9,7 +9,6 @@ var roam_timer: float = 5.0
 var chosen: Skill
 
 
-
 func roam(delta):
 	roam_timer -= delta
 	var direction_int = 0

@@ -8,7 +8,7 @@ const TILE_SIZE: int = 16
 var is_player: bool = false
 const SKILLS = preload("res://scripts/premade_skills.gd")
 var existing_skills = SKILLS.new()
-var abilities_this_has =[]
+var abilities_this_has = []
 
 # --- Exports ---
 @export var tilemap_path: NodePath
@@ -129,16 +129,19 @@ func is_cell_walkable(cell: Vector2i) -> bool:
 		return false
 
 	return true
-	
+
+
 #--skill logic--
 func add_skill(skill_name):
 	var skill = existing_skills.get_skill(skill_name)
-	if skill !=null:
+	if skill != null:
 		abilities.append(skill)
 	else:
 		print(skill_name + "doesn't exist!")
 
+
 #--battle logic--
+
 
 func initiate_battle(player: Node, enemy: Node) -> bool:
 	var main = get_tree().root.get_node("MAIN Pet Dungeon")
