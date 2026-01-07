@@ -37,6 +37,7 @@ func activate_skill(user, target, battle):
 	for effect in effects:
 		if !effect.type in high_prio_effects && !effect.type in pre_prepared_effects:
 			stuff = effect.apply(user, target, battle, name)
+			print(stuff)
 			for thing in stuff:
 				things_that_happened.append(thing)
 	return things_that_happened
@@ -92,3 +93,18 @@ class Effect:
 				print("Activating danger")
 				var duration = 1
 				return battle.apply_danger_zones(value, details, duration, "bad")
+			"poison":
+				print("Activating poison!")
+				if targets_self:
+					messages = user.increase_poison(value)
+				else:
+					messages = target.increase_poison(value)
+				return ["Targets "+messages[0]]
+			"stun":
+				print("Stunning!")
+				if targets_self:
+					messages = user.increase_stun(value)
+				else:
+					messages = target.increase_stun(value)
+				return ["Targets "+messages[0]]
+				

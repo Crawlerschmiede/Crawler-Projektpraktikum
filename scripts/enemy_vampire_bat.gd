@@ -30,7 +30,7 @@ func roam(delta):
 
 
 func _ready() -> void:
-	abilities_this_has =["Screech", "Swoop"]
+	abilities_this_has =["Screech", "Swoop", "Rabies"]
 	super_ready("enemy_flying")
 	setup(tilemap, 3, 1, 0)
 
