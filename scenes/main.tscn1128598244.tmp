@@ -1,0 +1,14 @@
+[gd_scene load_steps=3 format=3 uid="uid://42aqr06psywm"]
+
+[ext_resource type="Script" uid="uid://b2g63idf0phfd" path="res://scenes/main.gd" id="1_o5qli"]
+[ext_resource type="Script" uid="uid://bkm0imxw21syl" path="res://scenes/camera_2d.gd" id="2_0wfyh"]
+
+[node name="Room" type="Node2D"]
+
+[node name="Node2D" type="Node2D" parent="."]
+script = ExtResource("1_o5qli")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+offset = Vector2(500, 500)
+zoom = Vector2(0.2, 0.2)
+script = ExtResource("2_0wfyh")
