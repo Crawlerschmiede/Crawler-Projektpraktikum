@@ -17,18 +17,18 @@ offset_bottom = 171.0
 
 [node name="TextureRect" type="TextureRect" parent="."]
 offset_left = 57.1875
-offset_top = 41.428574
+offset_top = 28.571438
 offset_right = 145.03125
-offset_bottom = 136.42857
+offset_bottom = 143.57147
 texture = ExtResource("1_55rel")
 expand_mode = 1
 
 [node name="VBoxContainer" type="VBoxContainer" parent="."]
 texture_filter = 1
 offset_left = 66.25
-offset_top = 45.714287
+offset_top = 35.714294
 offset_right = 136.25
-offset_bottom = 125.71429
+offset_bottom = 137.7143
 size_flags_horizontal = 4
 size_flags_vertical = 4
 size_flags_stretch_ratio = 0.0
@@ -51,6 +51,18 @@ theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
 theme_override_colors/font_hover_color = Color(0.95, 0.95, 0.95, 1)
 theme_override_fonts/font = ExtResource("2_1u5a3")
 text = "Continue"
+icon = ExtResource("3_lakus")
+flat = true
+icon_alignment = 1
+
+[node name="ButtonSettings" type="Button" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/font_color = Color(0.0056611313, 0.0056611616, 0.0056611407, 1)
+theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
+theme_override_colors/font_hover_color = Color(0.95, 0.95, 0.95, 1)
+theme_override_fonts/font = ExtResource("2_1u5a3")
+text = "Settings"
 icon = ExtResource("3_lakus")
 flat = true
 icon_alignment = 1
@@ -80,4 +92,5 @@ flat = true
 icon_alignment = 1
 
 [connection signal="pressed" from="VBoxContainer/Button" to="." method="_on_continue_pressed"]
+[connection signal="pressed" from="VBoxContainer/ButtonSettings" to="." method="_on_settings_pressed"]
 [connection signal="pressed" from="VBoxContainer/Button2" to="." method="_on_quit_pressed"]
