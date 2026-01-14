@@ -1,4 +1,4 @@
-[gd_resource type="TileSet" load_steps=21 format=3 uid="uid://rc7plds60u7s"]
+[gd_resource type="TileSet" load_steps=22 format=3 uid="uid://rc7plds60u7s"]
 
 [ext_resource type="Texture2D" uid="uid://d0oog2dnt3maf" path="res://assets/map-tiles/atlas_floor-16x16.png" id="1_2vdqu"]
 [ext_resource type="Texture2D" uid="uid://d136m2c4wv2rj" path="res://assets/map-tiles/walls_skull.png" id="1_k5ur7"]
@@ -46,8 +46,10 @@ texture = ExtResource("1_2vdqu")
 1:5/0 = 0
 0:0/0 = 0
 0:0/0/custom_data_4 = true
+0:0/0/custom_data_5 = true
 1:0/0 = 0
 1:0/0/custom_data_3 = true
+1:0/0/custom_data_5 = true
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_b3slv"]
 texture = ExtResource("3_ihgxc")
@@ -449,6 +451,30 @@ texture = ExtResource("7_8ov5x")
 0:2/0 = 0
 0:2/0/custom_data_0 = true
 
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_owagk"]
+resource_name = "non_enemy_tiles"
+texture = ExtResource("1_2vdqu")
+0:0/0 = 0
+0:0/0/custom_data_5 = true
+1:0/0 = 0
+1:0/0/custom_data_5 = true
+2:0/0 = 0
+2:0/0/custom_data_5 = true
+0:1/0 = 0
+0:1/0/custom_data_5 = true
+1:1/0 = 0
+1:1/0/custom_data_5 = true
+2:1/0 = 0
+2:1/0/custom_data_5 = true
+0:2/0 = 0
+0:2/0/custom_data_5 = true
+1:2/0 = 0
+1:2/0/custom_data_5 = true
+5:5/0 = 0
+0:5/0 = 0
+0:5/0/custom_data_2 = true
+0:5/0/custom_data_5 = true
+
 [resource]
 custom_data_layer_0/name = "non_walkable"
 custom_data_layer_0/type = 1
@@ -460,6 +486,8 @@ custom_data_layer_3/name = "boss_spawn"
 custom_data_layer_3/type = 1
 custom_data_layer_4/name = "merchant_spawn"
 custom_data_layer_4/type = 1
+custom_data_layer_5/name = "non_spawnable"
+custom_data_layer_5/type = 1
 sources/1 = SubResource("TileSetAtlasSource_lvkwe")
 sources/0 = SubResource("TileSetAtlasSource_r1gh6")
 sources/4 = SubResource("TileSetAtlasSource_ildef")
@@ -470,3 +498,4 @@ sources/2 = SubResource("TileSetAtlasSource_ohrev")
 sources/15 = SubResource("TileSetAtlasSource_b3slv")
 sources/16 = SubResource("TileSetAtlasSource_4byue")
 sources/17 = SubResource("TileSetAtlasSource_wx2ue")
+sources/7 = SubResource("TileSetAtlasSource_owagk")
