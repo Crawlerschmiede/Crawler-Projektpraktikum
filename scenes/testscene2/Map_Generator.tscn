@@ -29,6 +29,3 @@ texture = ExtResource("30_gdjpo")
 
 [node name="Player" parent="." instance=ExtResource("31_8cjpl")]
 position = Vector2(23, 25)
-
-[node name="Camera2D" type="Camera2D" parent="."]
-zoom = Vector2(0.1, 0.1)
