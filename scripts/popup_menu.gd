@@ -5,14 +5,31 @@ signal menu_closed
 
 const SETTINGS_MENU_SCENE := preload("res://scenes/settings_menu.tscn")
 
+const REFERENCE_SIZE := Vector2(640.0, 480.0)
+const BASE_SCALE := Vector2(3.2, 2.8)
+
 var _settings_instance: Control = null
 var _settings_layer: CanvasLayer = null
 
 
 # Called when the scene is loaded
 func _ready():
-	var continue_button = $VBoxContainer/ButtonContinue
-	var quit_button = $VBoxContainer/ButtonQuit
+	_apply_scale()
+	get_viewport().size_changed.connect(_on_viewport_size_changed)
+
+
+func _on_viewport_size_changed() -> void:
+	_apply_scale()
+
+
+func _apply_scale() -> void:
+	var viewport_size := get_viewport().get_visible_rect().size
+	if viewport_size.x <= 0.0 or viewport_size.y <= 0.0:
+		return
+	var scale_factor: float = min(
+		viewport_size.x / REFERENCE_SIZE.x, viewport_size.y / REFERENCE_SIZE.y
+	)
+	scale = BASE_SCALE * scale_factor
 
 
 # Function for the "Continue" button

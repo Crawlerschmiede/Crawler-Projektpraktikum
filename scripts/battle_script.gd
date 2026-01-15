@@ -174,7 +174,6 @@ func apply_danger_zones(mult, pos, _dur, direction):
 			if tile.y == min_y + int(parts[1]):
 				tile_modifiers[tile] = {mult_type: mult}
 	for cell: Vector2i in tile_modifiers.keys():
-		var data: Dictionary = tile_modifiers[cell]
 		var marker = MARKER_PREFAB.instantiate()
 
 		marker.marker_type = "danger"
