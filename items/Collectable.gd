@@ -1,26 +1,29 @@
 extends Area2D
 
+@export var item_name: String = "coin"
+@export var amount: int = 1
+@export var item_id: int = 0
+@export var description: String = "A basic item"
+@export var spawn_location: String = "anywhere"
+@export var tilemap_path: NodePath
+
+var rng := RandomNumberGenerator.new()
+
+# --- Member variables ---
+var grid_pos: Vector2i
+var tilemap: TileMapLayer = null
+
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	tilemap = get_node(tilemap_path)
 	place_on_map()
 
-@export var item_name: String = "coin"
-@export var amount: int = 1
-@export var item_id: int = 0
-@export var description: String = "A basic item"
-@export var spawn_location: String ="anywhere"
-var rng := RandomNumberGenerator.new()
-@export var tilemap_path: NodePath
-
-# --- Member variables ---
-var grid_pos: Vector2i
-var tilemap: TileMapLayer = null
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	pass
+
 
 func place_on_map():
 	var possible_spawns = []
@@ -32,11 +35,12 @@ func place_on_map():
 				possible_spawns.append(cell)
 
 	# Initialize grid position based on where the entity starts
-	var spawnpoint = possible_spawns[rng.randi_range(0, len(possible_spawns) - 1)]		
+	var spawnpoint = possible_spawns[rng.randi_range(0, len(possible_spawns) - 1)]
 	if spawn_location == "anywhere":
 		position = tilemap.map_to_local(spawnpoint)
 		grid_pos = spawnpoint
-			
+
+
 func collect(player):
 	player.add_to_inventory(item_name, amount)
 	queue_free()
