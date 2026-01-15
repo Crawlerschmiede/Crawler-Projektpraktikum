@@ -21,7 +21,7 @@ func _ready() -> void:
 	for i in range(3):
 		spawn_enemy("bat", ["passive", "enemy_flying"])
 	for i in range(3):
-		spawn_enemy("skeleton",["hostile", "enemy_walking"])
+		spawn_enemy("skeleton", ["hostile", "enemy_walking"])
 
 
 func _process(_delta):

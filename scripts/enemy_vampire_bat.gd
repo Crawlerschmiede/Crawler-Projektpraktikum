@@ -10,12 +10,11 @@ var chase_timer: float = 5.0
 
 var chosen: Skill
 var types = ["passive"]
-var sprite_type:String ="bat"
+var sprite_type: String = "bat"
 var behaviour = "idle"
 var chase_target:MoveableEntity
 
 @onready var sight_area: Area2D = $SightArea
-
 
 
 func roam():
@@ -33,7 +32,7 @@ func roam():
 		elif direction_int == 3:
 			direction = Vector2i.DOWN
 		if "wallbound" in types:
-			if is_next_to_wall(grid_pos+direction):
+			if is_next_to_wall(grid_pos + direction):
 				move_to_tile(direction)
 				roam_timer = ROAM_COOLDOWN
 		else:

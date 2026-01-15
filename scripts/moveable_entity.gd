@@ -67,7 +67,7 @@ func setup(tmap: TileMapLayer, _hp, _str, _def):
 	def_stat = _def
 
 
-func super_ready(sprite_type:String, entity_type: Array):
+func super_ready(sprite_type: String, entity_type: Array):
 	if tilemap == null:
 		push_error("❌ MoveableEntity hat keine TileMap! setup(tilemap) vergessen?")
 		return
@@ -109,6 +109,7 @@ func super_ready(sprite_type:String, entity_type: Array):
 	for ability in abilities_this_has:
 		add_skill(ability)
 
+
 # --- Movement Logic ---
 func is_next_to_wall(cell: Vector2i):
 	var next_to_wall = false
@@ -122,6 +123,7 @@ func is_next_to_wall(cell: Vector2i):
 				if adjacent_blocked:
 					next_to_wall = true
 	return next_to_wall
+
 
 func move_to_tile(direction: Vector2i):
 	if is_moving:
