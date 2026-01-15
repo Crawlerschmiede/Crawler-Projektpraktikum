@@ -6,8 +6,10 @@ extends Node2D
 
 var placed_rooms := []
 
+
 func _ready():
 	generate()
+
 
 func generate():
 	var first_room = start_room.instantiate()
@@ -46,18 +48,15 @@ func generate():
 		placed_rooms.append(new_room)
 		open_doors += new_room.get_free_doors()
 
+
 func find_matching_door(room, from_direction):
-	var opposite = {
-		"north": "south",
-		"south": "north",
-		"east": "west",
-		"west": "east"
-	}
+	var opposite = {"north": "south", "south": "north", "east": "west", "west": "east"}
 
 	for door in room.get_free_doors():
 		if door.direction == opposite[from_direction]:
 			return door
 	return null
+
 
 func check_overlap(new_room):
 	var new_rect = new_room.get_global_transform_with_canvas().get_origin()

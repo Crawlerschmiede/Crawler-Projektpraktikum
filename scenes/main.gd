@@ -10,7 +10,7 @@ const CELL_SIZE: float = 256.0
 var used_doors: Array[Marker2D] = []
 var open_doors: Array[Marker2D] = []
 var room_scenes: Array[PackedScene] = []
-var room_defs: Array[Dictionary] = []   # {"scene":PackedScene, "doors":Array[Dictionary], "rect":Rect2}
+var room_defs: Array[Dictionary] = []  # {"scene":PackedScene, "doors":Array[Dictionary], "rect":Rect2}
 
 
 func _ready() -> void:
@@ -26,6 +26,7 @@ func _ready() -> void:
 # -------------------------------------------------------------------
 # ROOM SCENE LOADING + CACHING
 # -------------------------------------------------------------------
+
 
 func _load_room_scenes() -> void:
 	room_scenes.clear()
@@ -56,10 +57,7 @@ func _load_room_scenes() -> void:
 		for c in temp.get_children():
 			if c is Marker2D and c.name.begins_with("Door"):
 				var marker := c as Marker2D
-				doors_local.append({
-					"pos": marker.position,
-					"rot": marker.rotation
-				})
+				doors_local.append({"pos": marker.position, "rot": marker.rotation})
 
 		var local_rect: Rect2 = Rect2(Vector2.ZERO, Vector2(128, 128))
 
@@ -74,11 +72,7 @@ func _load_room_scenes() -> void:
 			if cs and cs.shape and cs.shape.has_method("get_rect"):
 				local_rect = cs.shape.get_rect()
 
-		room_defs.append({
-			"scene": scene,
-			"doors": doors_local,
-			"rect": local_rect
-		})
+		room_defs.append({"scene": scene, "doors": doors_local, "rect": local_rect})
 
 		temp.queue_free()
 
@@ -86,6 +80,7 @@ func _load_room_scenes() -> void:
 # -------------------------------------------------------------------
 # SPATIAL HASH
 # -------------------------------------------------------------------
+
 
 func _rect_to_global_aabb(local_rect: Rect2, room_pos: Vector2, room_rot: float) -> Rect2:
 	var corners: Array[Vector2] = [
@@ -151,6 +146,7 @@ func _room_overlaps_grid(aabb: Rect2, grid: Dictionary) -> bool:
 # ROOM HELPERS
 # -------------------------------------------------------------------
 
+
 func _clear_rooms() -> void:
 	for r in get_tree().get_nodes_in_group("rooms"):
 		r.queue_free()
@@ -171,9 +167,10 @@ func get_doors(room: Node2D) -> Array[Marker2D]:
 # GENOME
 # -------------------------------------------------------------------
 
+
 func create_genome() -> Array[int]:
 	var g: Array[int] = []
-	var weighted: Array[int] = [1,2,4,4,4, 3,3,3,3, 5,5,5,5]
+	var weighted: Array[int] = [1, 2, 4, 4, 4, 3, 3, 3, 3, 5, 5, 5, 5]
 
 	for i in range(room_count):
 		g.append(weighted[randi_range(0, weighted.size() - 1)])
@@ -184,6 +181,7 @@ func create_genome() -> Array[int]:
 # -------------------------------------------------------------------
 # FITNESS
 # -------------------------------------------------------------------
+
 
 func compute_fitness(stats: Dictionary) -> float:
 	var p: int = stats["placed_rooms"]
@@ -208,15 +206,12 @@ func compute_fitness(stats: Dictionary) -> float:
 # DUNGEON GENERATION (Optimiert + Typisiert)
 # -------------------------------------------------------------------
 
+
 func generate_from_genome(genome: Array[int]) -> Dictionary:
 	used_doors.clear()
 	open_doors.clear()
 
-	var stats: Dictionary = {
-		"room_score": 0,
-		"open_doors": 0,
-		"placed_rooms": 0
-	}
+	var stats: Dictionary = {"room_score": 0, "open_doors": 0, "placed_rooms": 0}
 
 	var grid: Dictionary = {}
 
@@ -242,7 +237,6 @@ func generate_from_genome(genome: Array[int]) -> Dictionary:
 
 	open_doors.append_array(get_doors(room0))
 
-
 	# -------- weitere Räume --------
 	for i in range(1, genome.size()):
 		if open_doors.is_empty():
@@ -253,10 +247,10 @@ func generate_from_genome(genome: Array[int]) -> Dictionary:
 			continue
 
 		var placed := false
-		var gene_type :float= clamp(genome[i], 1, rooms_available)
+		var gene_type: float = clamp(genome[i], 1, rooms_available)
 
 		for attempt in range(50):
-			var try_type :int= gene_type if attempt == 0 else randi_range(1, rooms_available)
+			var try_type: int = gene_type if attempt == 0 else randi_range(1, rooms_available)
 			var def := room_defs[try_type - 1]
 
 			var doors_template: Array[Dictionary] = def["doors"]
@@ -329,6 +323,7 @@ func generate_from_genome(genome: Array[int]) -> Dictionary:
 # -------------------------------------------------------------------
 # GENETIC SEARCH
 # -------------------------------------------------------------------
+
 
 func _run_simple_ga() -> void:
 	var best_genome: Array[int] = []

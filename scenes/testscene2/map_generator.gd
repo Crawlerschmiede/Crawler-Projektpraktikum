@@ -13,10 +13,10 @@ var player: MoveableEntity
 @export_range(0.0, 1.0, 0.01) var base_door_fill_chance: float = 1.0
 
 # --- Genetischer Ansatz ---
-@export var ga_total_evals: int = 30               # genau 500 Auswertungen
-@export var ga_population_size: int = 20              # 20 * 25 = 500
+@export var ga_total_evals: int = 30  # genau 500 Auswertungen
+@export var ga_population_size: int = 20  # 20 * 25 = 500
 @export var ga_generations: int = 25
-@export var ga_elite_keep: int = 4                    # Top 4 bleiben
+@export var ga_elite_keep: int = 4  # Top 4 bleiben
 @export var ga_mutation_rate: float = 0.25
 @export var ga_crossover_rate: float = 0.70
 @export var ga_seed: int = 1366
@@ -30,6 +30,7 @@ var world_tilemap: TileMapLayer
 var placed_rooms: Array[Node2D] = []
 var corridor_count: int = 0
 
+
 # -----------------------------
 # GA: Genome / Ergebnis
 # -----------------------------
@@ -37,7 +38,7 @@ class Genome:
 	var door_fill_chance: float
 	var max_corridors: int
 	var max_corridor_chain: int
-	var corridor_bias: float # >1 bevorzugt Corridors, <1 bevorzugt Rooms
+	var corridor_bias: float  # >1 bevorzugt Corridors, <1 bevorzugt Rooms
 
 	func clone() -> Genome:
 		var g := Genome.new()
@@ -48,7 +49,17 @@ class Genome:
 		return g
 
 	func describe() -> String:
-		return "door_fill=" + str(door_fill_chance) + ", max_corridors=" + str(max_corridors) + ", max_chain=" + str(max_corridor_chain) + ", corridor_bias=" + str(corridor_bias)
+		return (
+			"door_fill="
+			+ str(door_fill_chance)
+			+ ", max_corridors="
+			+ str(max_corridors)
+			+ ", max_chain="
+			+ str(max_corridor_chain)
+			+ ", corridor_bias="
+			+ str(corridor_bias)
+		)
+
 
 class EvalResult:
 	var genome: Genome
@@ -65,9 +76,12 @@ func _ready() -> void:
 	print(
 		"\n🏆 BEST GENOME:",
 		best.genome,
-		"| rooms:", best.rooms_placed,
-		"| corridors:", best.corridors_placed,
-		"| seed:", best.seed
+		"| rooms:",
+		best.rooms_placed,
+		"| corridors:",
+		best.corridors_placed,
+		"| seed:",
+		best.seed
 	)
 
 	# 2) beste Map wirklich bauen
@@ -84,9 +98,7 @@ func _ready() -> void:
 
 	spawn_player()
 
-
 	print("=== MAP GENERATION END ===")
-
 
 
 # -----------------------------
@@ -142,20 +154,31 @@ func genetic_search_best() -> EvalResult:
 			eval_counter += 1
 
 		# sort desc by rooms placed
-		results.sort_custom(func(a: EvalResult, b: EvalResult) -> bool:
-			return a.rooms_placed > b.rooms_placed
+		results.sort_custom(
+			func(a: EvalResult, b: EvalResult) -> bool: return a.rooms_placed > b.rooms_placed
 		)
 
 		# update best
 		if results.size() > 0 and results[0].rooms_placed > best_overall.rooms_placed:
 			best_overall = results[0]
 
-		print("[GA] Gen", g_i, "| evals:", eval_counter, "/", target, "| best_this_gen:", results[0].rooms_placed, "| best_overall:", best_overall.rooms_placed)
+		print(
+			"[GA] Gen",
+			g_i,
+			"| evals:",
+			eval_counter,
+			"/",
+			target,
+			"| best_this_gen:",
+			results[0].rooms_placed,
+			"| best_overall:",
+			best_overall.rooms_placed
+		)
 
 		# --- build next generation ---
 		# selection pool: top half
 		var pool: Array[Genome] = []
-		var half : int = max(2, int(results.size() / 2))
+		var half: int = max(2, int(results.size() / 2))
 		for k in range(half):
 			pool.append(results[k].genome)
 
@@ -213,7 +236,10 @@ class GenStats:
 	var rooms: int = 0
 	var corridors: int = 0
 
-func generate_with_genome(genome: Genome, trial_seed: int, verbose: bool, parent_override: Node = null) -> GenStats:
+
+func generate_with_genome(
+	genome: Genome, trial_seed: int, verbose: bool, parent_override: Node = null
+) -> GenStats:
 	seed(trial_seed)
 
 	var stats := GenStats.new()
@@ -235,12 +261,12 @@ func generate_with_genome(genome: Genome, trial_seed: int, verbose: bool, parent
 	parent_node.add_child(first_room)
 	first_room.global_position = Vector2.ZERO
 	first_room.add_to_group("room")
-	
+
 	first_room.set_meta("corridor_chain", 0)
 	first_room.force_update_transform()
 
 	local_placed.append(first_room)
-	
+
 	if not first_room.has_method("get_free_doors"):
 		if verbose:
 			push_error("❌ [ROOM] Start room hat kein get_free_doors()")
@@ -282,18 +308,21 @@ func generate_with_genome(genome: Genome, trial_seed: int, verbose: bool, parent
 		# corridor_bias > 1: Corridors eher nach vorne
 		# corridor_bias < 1: Corridors eher nach hinten
 		if abs(genome.corridor_bias - 1.0) > 0.01:
-			candidates.sort_custom(func(a: PackedScene, b: PackedScene) -> bool:
-				var ra := a.instantiate() as Node
-				var rb := b.instantiate() as Node
-				var ca := is_corridor_room(ra)
-				var cb := is_corridor_room(rb)
-				if ra != null: ra.queue_free()
-				if rb != null: rb.queue_free()
-				# wenn bias > 1: corridor zuerst, sonst umgekehrt
-				if genome.corridor_bias > 1.0:
-					return int(ca) > int(cb)
-				else:
-					return int(ca) < int(cb)
+			candidates.sort_custom(
+				func(a: PackedScene, b: PackedScene) -> bool:
+					var ra := a.instantiate() as Node
+					var rb := b.instantiate() as Node
+					var ca := is_corridor_room(ra)
+					var cb := is_corridor_room(rb)
+					if ra != null:
+						ra.queue_free()
+					if rb != null:
+						rb.queue_free()
+					# wenn bias > 1: corridor zuerst, sonst umgekehrt
+					if genome.corridor_bias > 1.0:
+						return int(ca) > int(cb)
+					else:
+						return int(ca) < int(cb)
 			)
 
 		var placed := false
@@ -360,7 +389,7 @@ func generate_with_genome(genome: Genome, trial_seed: int, verbose: bool, parent
 				new_room.set_meta("corridor_chain", from_chain + 1)
 			else:
 				new_room.set_meta("corridor_chain", 0)
-			
+
 			var room_tm := new_room.get_node("TileMapLayer") as TileMapLayer
 			if room_tm:
 				var tile_size := room_tm.tile_set.tile_size
@@ -369,7 +398,6 @@ func generate_with_genome(genome: Genome, trial_seed: int, verbose: bool, parent
 					int(round(new_room.global_position.y / tile_size.y))
 				)
 				new_room.set_meta("tile_origin", tile_origin)
-
 
 			local_placed.append(new_room)
 			next_doors += new_room.get_free_doors()
@@ -380,7 +408,7 @@ func generate_with_genome(genome: Genome, trial_seed: int, verbose: bool, parent
 		if not placed:
 			# Tür bleibt offen/leer
 			pass
-		
+
 		if current_doors.is_empty():
 			current_doors = next_doors
 			next_doors = []
@@ -405,7 +433,11 @@ func is_corridor_room(room: Node) -> bool:
 		return false
 
 	# Achtung: Door Nodes etc. laufen hier auch rein -> sauber filtern
-	if not room.is_in_group("room") and room.get_parent() != null and room.get_parent().is_in_group("room"):
+	if (
+		not room.is_in_group("room")
+		and room.get_parent() != null
+		and room.get_parent().is_in_group("room")
+	):
 		# oft ist room hier eigentlich ein Door/Child
 		pass
 
@@ -422,12 +454,7 @@ func is_corridor_room(room: Node) -> bool:
 # DOOR MATCH
 # -----------------------------
 func find_matching_door(room: Node, from_direction: String):
-	var opposite := {
-		"north": "south",
-		"south": "north",
-		"east": "west",
-		"west": "east"
-	}
+	var opposite := {"north": "south", "south": "north", "east": "west", "west": "east"}
 	if not opposite.has(from_direction):
 		return null
 	for d in room.get_free_doors():
@@ -442,6 +469,7 @@ func find_matching_door(room: Node, from_direction: String):
 class OverlapResult:
 	var overlaps: bool = false
 	var other_name: String = ""
+
 
 func check_overlap_aabb(new_room: Node2D, against: Array[Node2D]) -> OverlapResult:
 	var result := OverlapResult.new()
@@ -458,10 +486,7 @@ func check_overlap_aabb(new_room: Node2D, against: Array[Node2D]) -> OverlapResu
 		result.other_name = "wrong_shape"
 		return result
 
-	var new_rect := Rect2(
-		new_room.global_position - new_shape.extents,
-		new_shape.extents * 2.0
-	)
+	var new_rect := Rect2(new_room.global_position - new_shape.extents, new_shape.extents * 2.0)
 
 	for room in against:
 		if room == null or room == new_room:
@@ -475,10 +500,7 @@ func check_overlap_aabb(new_room: Node2D, against: Array[Node2D]) -> OverlapResu
 		if shape == null:
 			continue
 
-		var rect := Rect2(
-			room.global_position - shape.extents,
-			shape.extents * 2.0
-		)
+		var rect := Rect2(room.global_position - shape.extents, shape.extents * 2.0)
 
 		if new_rect.intersects(rect):
 			result.overlaps = true
@@ -499,6 +521,7 @@ func make_default_genome() -> Genome:
 	g.corridor_bias = 1.0
 	return g
 
+
 func random_genome() -> Genome:
 	var g := make_default_genome()
 	# breit streuen
@@ -508,14 +531,20 @@ func random_genome() -> Genome:
 	g.corridor_bias = clamp(randf_range(0.6, 1.6), 0.1, 3.0)
 	return g
 
+
 func crossover(a: Genome, b: Genome) -> Genome:
 	var c := a.clone()
 	# zufällig Gene wählen
-	if randf() < 0.5: c.door_fill_chance = b.door_fill_chance
-	if randf() < 0.5: c.max_corridors = b.max_corridors
-	if randf() < 0.5: c.max_corridor_chain = b.max_corridor_chain
-	if randf() < 0.5: c.corridor_bias = b.corridor_bias
+	if randf() < 0.5:
+		c.door_fill_chance = b.door_fill_chance
+	if randf() < 0.5:
+		c.max_corridors = b.max_corridors
+	if randf() < 0.5:
+		c.max_corridor_chain = b.max_corridor_chain
+	if randf() < 0.5:
+		c.corridor_bias = b.corridor_bias
 	return c
+
 
 func mutate(g: Genome) -> void:
 	# kleine Mutationen
@@ -563,20 +592,15 @@ func bake_rooms_into_world_tilemap() -> void:
 		var tile_size: Vector2i = world_tilemap.tile_set.tile_size
 		var room_offset: Vector2i = room.get_meta("tile_origin", Vector2i.ZERO)
 
-
 		for cell in room_tm.get_used_cells():
 			var source_id := room_tm.get_cell_source_id(cell)
 			var atlas := room_tm.get_cell_atlas_coords(cell)
 			var alt := room_tm.get_cell_alternative_tile(cell)
 
-			world_tilemap.set_cell(
-				cell + room_offset,
-				source_id,
-				atlas,
-				alt
-			)
+			world_tilemap.set_cell(cell + room_offset, source_id, atlas, alt)
 
 	print("✔ [BAKE] WorldTileMap erstellt | Tiles:", world_tilemap.get_used_cells().size())
+
 
 func clear_children_rooms_only() -> void:
 	# löscht alles außer dem Generator-Node selbst
@@ -587,7 +611,8 @@ func clear_children_rooms_only() -> void:
 		c.queue_free()
 	placed_rooms.clear()
 	corridor_count = 0
-	
+
+
 func spawn_player():
 	if player_scene == null:
 		push_error("❌ player_scene ist NULL")

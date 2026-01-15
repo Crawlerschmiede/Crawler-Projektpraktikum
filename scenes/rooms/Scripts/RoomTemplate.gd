@@ -4,6 +4,7 @@ extends Node2D
 @onready var doors = $Doors.get_children()
 @export var is_corridor := true
 
+
 func get_free_doors():
 	if not has_node("Doors"):
 		push_error("❌ Room has NO 'Doors' node: " + name)
