@@ -229,7 +229,7 @@ autoplay = "walk_down"
 shape = SubResource("RectangleShape2D_hfhf8")
 
 [node name="Camera2D" type="Camera2D" parent="."]
-zoom = Vector2(3, 3)
+zoom = Vector2(0.5, 0.5)
 script = ExtResource("4_0cvhd")
 
 [connection signal="area_entered" from="Area2D" to="." method="_on_area_2d_area_entered"]

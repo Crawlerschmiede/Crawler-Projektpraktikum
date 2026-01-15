@@ -5,10 +5,14 @@
 [ext_resource type="Script" uid="uid://ceq1h6lr3m33w" path="res://scenes/rooms/Scripts/north.gd" id="2_rmvq0"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_o5m2s"]
+<<<<<<< Updated upstream
 size = Vector2(352, 176)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ontjr"]
 size = Vector2(176, 192)
+=======
+size = Vector2(352, 352)
+>>>>>>> Stashed changes
 
 [node name="Room11" type="Node2D"]
 position = Vector2(4, 0)
@@ -26,7 +30,11 @@ tile_set = ExtResource("1_lgasf")
 [node name="Area2D" type="Area2D" parent="."]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
+<<<<<<< Updated upstream
 position = Vector2(160, 56)
+=======
+position = Vector2(160, 144)
+>>>>>>> Stashed changes
 shape = SubResource("RectangleShape2D_o5m2s")
 
 [node name="CollisionShape2D2" type="CollisionShape2D" parent="Area2D"]

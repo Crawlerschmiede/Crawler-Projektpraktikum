@@ -2,7 +2,8 @@ extends Node2D
 
 @export var room_scenes: Array[PackedScene]
 @export var start_room: PackedScene
-@export var max_rooms: int = 200
+@export var boss_room: PackedScene
+@export var max_rooms: int = 5
 
 @export var player_scene: PackedScene
 var player: MoveableEntity
@@ -13,23 +14,26 @@ var player: MoveableEntity
 @export_range(0.0, 1.0, 0.01) var base_door_fill_chance: float = 1.0
 
 # --- Genetischer Ansatz ---
-@export var ga_total_evals: int = 30               # genau 500 Auswertungen
-@export var ga_population_size: int = 20              # 20 * 25 = 500
+@export var ga_total_evals: int = 50               # genau 500 Auswertungen
+@export var ga_population_size: int = 40              # 20 * 25 = 500
 @export var ga_generations: int = 25
 @export var ga_elite_keep: int = 4                    # Top 4 bleiben
 @export var ga_mutation_rate: float = 0.25
 @export var ga_crossover_rate: float = 0.70
-@export var ga_seed: int = 1366
+@export var ga_seed: int = randi()
 
 # Optional: Wenn du willst, dass nach dem GA die beste Map sofort gebaut wird
 @export var build_best_map_after_ga: bool = true
 
 var world_tilemap: TileMapLayer
 
+var room_type_counts: Dictionary = {}
+
 # Laufzeit
 var placed_rooms: Array[Node2D] = []
 var corridor_count: int = 0
 
+var boss_room_spawned := false
 # -----------------------------
 # GA: Genome / Ergebnis
 # -----------------------------
@@ -87,7 +91,112 @@ func _ready() -> void:
 
 	print("=== MAP GENERATION END ===")
 
+func get_required_scenes() -> Array[PackedScene]:
+	var required: Array[PackedScene] = []
 
+	for s in room_scenes:
+		if s == null:
+			continue
+		var inst := s.instantiate()
+		if inst == null:
+			continue
+
+		# nur wenn Variable existiert
+		if "required_min_count" in inst:
+			var req := int(inst.get("required_min_count"))
+			if req > 0:
+				required.append(s)
+
+		inst.queue_free()
+
+	# Boss optional auch prüfen
+	if boss_room != null:
+		var b := boss_room.instantiate()
+		if b != null and "required_min_count" in b and int(b.get("required_min_count")) > 0:
+			required.append(boss_room)
+		if b != null:
+			b.queue_free()
+
+	return required
+func ensure_required_rooms(parent_node: Node, local_placed: Array[Node2D], genome: Genome, verbose: bool) -> void:
+	var required_scenes := get_required_scenes()
+	if required_scenes.is_empty():
+		return
+
+	# freie Türen nochmal sammeln
+	var free_doors: Array = []
+	for r in local_placed:
+		if r != null and r.has_method("get_free_doors"):
+			for d in r.get_free_doors():
+				if d != null and not d.used:
+					free_doors.append(d)
+
+	free_doors.shuffle()
+
+	for scene in required_scenes:
+		var key := get_room_key(scene)
+
+		# Wie oft muss der rein?
+		var temp := scene.instantiate()
+		if temp == null:
+			continue
+		var required_min := int(get_rule(temp, "required_min_count", 0))
+		temp.queue_free()
+
+		var current := int(room_type_counts.get(key, 0))
+
+		while current < required_min and free_doors.size() > 0:
+			var door = free_doors.pop_front()
+			if door == null or door.used:
+				continue
+
+			# Versuch: genau diesen Raum platzieren
+			var res := try_place_specific_room(scene, door, parent_node, local_placed, genome)
+			if res:
+				current += 1
+				room_type_counts[key] = current
+				if verbose:
+					print("✔ REQUIRED room placed:", key, "(", current, "/", required_min, ")")
+			else:
+				# wenn es nicht passt -> nächste Tür
+				pass
+
+func get_room_key(scene: PackedScene) -> String:
+	if scene == null:
+		return ""
+	# resource_path ist stabil -> perfekt als key
+	return scene.resource_path
+
+
+func get_rule(room_instance: Node, var_name: String, default_value):
+	if room_instance == null:
+		return default_value
+	if var_name in room_instance:
+		return room_instance.get(var_name)
+	return default_value
+
+
+func can_spawn_room(scene: PackedScene, room_instance: Node, placed_count: int) -> bool:
+	# 1) Regeln aus Raum lesen (wenn nicht vorhanden -> default)
+	var spawn_chance: float = float(get_rule(room_instance, "spawn_chance", 1.0))
+	var max_count: int = int(get_rule(room_instance, "max_count", 999999))
+	var min_rooms_before_spawn: int = int(get_rule(room_instance, "min_rooms_before_spawn", 0))
+
+	# 2) zu früh?
+	if placed_count < min_rooms_before_spawn:
+		return false
+
+	# 3) Max Count erreicht?
+	var key := get_room_key(scene)
+	var already := int(room_type_counts.get(key, 0))
+	if already >= max_count:
+		return false
+
+	# 4) Chance
+	if spawn_chance < 1.0 and randf() > spawn_chance:
+		return false
+
+	return true
 
 # -----------------------------
 # GENETIC SEARCH (500 Läufe)
@@ -215,13 +324,13 @@ class GenStats:
 
 func generate_with_genome(genome: Genome, trial_seed: int, verbose: bool, parent_override: Node = null) -> GenStats:
 	seed(trial_seed)
-
+	room_type_counts.clear()
 	var stats := GenStats.new()
 
 	# lokale state für diesen Lauf
 	var local_placed: Array[Node2D] = []
 	var local_corridor_count := 0
-
+	var boss_room_spawned := false
 	# parent bestimmen (GA-Container oder echter Generator-Node)
 	var parent_node: Node = parent_override if parent_override != null else self
 
@@ -302,6 +411,9 @@ func generate_with_genome(genome: Genome, trial_seed: int, verbose: bool, parent
 				continue
 
 			var new_room := room_scene.instantiate() as Node2D
+			if not can_spawn_room(room_scene, new_room, local_placed.size()):
+				new_room.queue_free()
+				continue
 			if new_room == null:
 				continue
 
@@ -373,6 +485,9 @@ func generate_with_genome(genome: Genome, trial_seed: int, verbose: bool, parent
 
 			local_placed.append(new_room)
 			next_doors += new_room.get_free_doors()
+						# Raumtyp zählen
+			var key := get_room_key(room_scene)
+			room_type_counts[key] = int(room_type_counts.get(key, 0)) + 1
 
 			placed = true
 			break
@@ -393,9 +508,74 @@ func generate_with_genome(genome: Genome, trial_seed: int, verbose: bool, parent
 	if parent_override == null:
 		placed_rooms = local_placed
 		corridor_count = local_corridor_count
-
+	ensure_required_rooms(parent_node, local_placed, genome, verbose)
+	
 	return stats
 
+func try_place_specific_room(scene: PackedScene, door, parent_node: Node, local_placed: Array[Node2D], genome: Genome) -> bool:
+	if scene == null:
+		return false
+
+	var new_room := scene.instantiate() as Node2D
+	if new_room == null:
+		return false
+
+	if not new_room.has_method("get_free_doors"):
+		new_room.queue_free()
+		return false
+
+	# Regeln ignorieren? Nein, required darf trotzdem max_count respektieren:
+	if not can_spawn_room(scene, new_room, local_placed.size()):
+		new_room.queue_free()
+		return false
+
+	var matching_door = find_matching_door(new_room, door.direction)
+	if matching_door == null:
+		new_room.queue_free()
+		return false
+
+	parent_node.add_child(new_room)
+	new_room.add_to_group("room")
+
+	# Snap
+	var offset: Vector2 = matching_door.global_position - new_room.global_position
+	new_room.global_position = door.global_position - offset
+	new_room.force_update_transform()
+
+	# Collision
+	var overlap := check_overlap_aabb(new_room, local_placed)
+	if overlap.overlaps:
+		new_room.queue_free()
+		return false
+
+	# Erfolg
+	door.used = true
+	matching_door.used = true
+
+	# corridor chain meta (wie bei dir)
+	var from_room: Node = door.get_parent()
+	while from_room != null and not from_room.is_in_group("room"):
+		from_room = from_room.get_parent()
+	var from_chain: int = int(from_room.get_meta("corridor_chain", 0)) if from_room != null else 0
+
+	if is_corridor_room(new_room):
+		new_room.set_meta("corridor_chain", from_chain + 1)
+	else:
+		new_room.set_meta("corridor_chain", 0)
+
+	# tile_origin meta
+	var room_tm := new_room.get_node_or_null("TileMapLayer") as TileMapLayer
+	if room_tm:
+		var tile_size := room_tm.tile_set.tile_size
+		var tile_origin := Vector2i(
+			int(round(new_room.global_position.x / tile_size.x)),
+			int(round(new_room.global_position.y / tile_size.y))
+		)
+		new_room.set_meta("tile_origin", tile_origin)
+
+	local_placed.append(new_room)
+
+	return true
 
 # -----------------------------
 # CORRIDOR CHECK
@@ -605,7 +785,7 @@ func spawn_player():
 	add_child(player)
 	player.z_index = 10
 
-	player.setup(world_tilemap)
+	player.setup(world_tilemap, 100, 10, 5)
 
 	# 🔍 WALKABLE TILE SUCHEN
 	for cell in world_tilemap.get_used_cells():

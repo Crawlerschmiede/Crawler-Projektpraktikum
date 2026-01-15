@@ -21,7 +21,6 @@ tile_map_data = PackedByteArray("AAAOAAYAAgAOAAYAAAADAAYAAgAOAAYAAAAHAAYAAgAOAAY
 tile_set = ExtResource("2_hm27s")
 
 [node name="Area2D" type="Area2D" parent="."]
-visible = false
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
 position = Vector2(160, 56)
