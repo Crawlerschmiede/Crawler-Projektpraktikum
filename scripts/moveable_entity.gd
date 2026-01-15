@@ -1,17 +1,17 @@
 class_name MoveableEntity
-
 extends CharacterBody2D
 
 # --- Constants ---
 # The size of one tile in pixels
 const TILE_SIZE: int = 16
-var is_player: bool = false
-const SKILLS = preload("res://scripts/premade_skills.gd")
-var existing_skills = SKILLS.new()
-var abilities_this_has = []
-var sprites = {"bat": preload("res://scenes/sprite_scenes/bat_sprite_scene.tscn"), "skeleton":preload("res://scenes/sprite_scenes/skeleton_sprite_scene.tscn"), "what":preload("res://scenes/sprite_scenes/what_sprite_scene.tscn"), "pc":preload("res://scenes/sprite_scenes/player_sprite_scene.tscn")}
+const SKILLS := preload("res://scripts/premade_skills.gd")
 
 # --- Member variables ---
+var is_player: bool = false
+var existing_skills = SKILLS.new()
+var abilities_this_has: Array = []
+var sprites = {"bat": preload("res://scenes/sprite_scenes/bat_sprite_scene.tscn"), "skeleton":preload("res://scenes/sprite_scenes/skeleton_sprite_scene.tscn"), "what":preload("res://scenes/sprite_scenes/what_sprite_scene.tscn"), "pc":preload("res://scenes/sprite_scenes/player_sprite_scene.tscn")}
+
 var grid_pos: Vector2i
 var tilemap: TileMapLayer = null
 var latest_direction = Vector2i.DOWN
@@ -19,10 +19,10 @@ var is_moving: bool = false
 var rng := RandomNumberGenerator.new()
 
 #--- combat stats ---
-var max_HP = 1
-var HP: int = 1
-var STR: int = 1
-var DEF: int = 0
+var max_hp: int = 1
+var hp: int = 1
+var str_stat: int = 1
+var def_stat: int = 0
 var abilities: Array[Skill] = []
 
 #--- status effects (not sure if this is the best way... it'll be fine!) ---
@@ -40,10 +40,10 @@ var poison_recovery = 1
 # --- Setup ---
 func setup(tmap: TileMapLayer, _hp, _str, _def):
 	tilemap = tmap
-	max_HP = _hp
-	HP = _hp
-	STR = _str
-	DEF = _def
+	max_hp = _hp
+	hp = _hp
+	str_stat = _str
+	def_stat = _def
 
 
 func super_ready(sprite_type:String, entity_type: Array):
@@ -170,9 +170,9 @@ func initiate_battle(player: Node, enemy: Node) -> bool:
 func take_damage(damage):
 	print(self, " takes ", damage, " damage!")
 	var taken_damage = damage  #useless right now but just put here for later damage calculations
-	HP = HP - taken_damage
-	print("Now has ", HP, "HP")
-	return [" took " + str(taken_damage) + " Damage", " now has " + str(HP) + " HP"]
+	hp = hp - taken_damage
+	print("Now has ", hp, "HP")
+	return [" took " + str(taken_damage) + " Damage", " now has " + str(hp) + " HP"]
 
 
 #-- status effect logic --

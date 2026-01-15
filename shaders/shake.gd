@@ -1,4 +1,4 @@
-extends Area2D
+extends Label
 
 
 # Called when the node enters the scene tree for the first time.
@@ -11,5 +11,10 @@ func _process(_delta: float) -> void:
 	pass
 
 
-func collect(_person):
-	queue_free()
+func shake():
+	var tween = create_tween()
+	for i in range(5):
+		tween.tween_property(
+			self, "position", Vector2(randf_range(-10, 10), randf_range(-10, 10)), 0.02
+		)
+	tween.tween_property(self, "position", Vector2.ZERO, 0.02)

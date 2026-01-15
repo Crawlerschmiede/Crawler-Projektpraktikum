@@ -1,12 +1,13 @@
-extends Resource
-
 class_name Skill
+
+extends Resource
 
 @export var name: String
 @export var tree_path: String
 @export var description: String
 var effects: Array[Effect] = []
-var pre_prepared_effects = ["danger_dmg_mult"]  #TODO could do with a more sophisticated sorting system later
+var pre_prepared_effects = ["danger_dmg_mult"]
+# TODO: could do with a more sophisticated sorting system later.
 var high_prio_effects = ["movement"]
 
 
@@ -51,7 +52,8 @@ class Effect:
 	var type: String
 	var value: float
 	var targets_self: bool
-	var details: String  #for general use. i.e., you have a movement type skill, value 1.0, this would hold "left" or "user input" or something,
+	# For general use (e.g. movement holds "left" / "user input" / etc.)
+	var details: String
 
 	func _init(_type: String, _value: float, _targets_self: int, _details: String):
 		type = _type
