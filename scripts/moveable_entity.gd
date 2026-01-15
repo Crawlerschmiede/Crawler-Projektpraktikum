@@ -35,8 +35,6 @@ var stun_recovery = 1
 var poisoned = 0
 var poison_recovery = 1
 
-
-
 @onready var detection_area: Area2D = $Area2D
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 
@@ -155,27 +153,32 @@ func take_damage(damage):
 	HP = HP - taken_damage
 	print("Now has ", HP, "HP")
 	return [" took " + str(taken_damage) + " Damage", " now has " + str(HP) + " HP"]
-	
+
+
 #-- status effect logic --
 
+
 func increase_poison(amount):
-	poisoned +=amount
-	return ["Poison increases to "+str(poisoned)+"!"]
+	poisoned += amount
+	return ["Poison increases to " + str(poisoned) + "!"]
+
 
 func increase_stun(amount):
-	stunned +=amount
-	return ["Stun increases to "+str(stunned)+"!"]
-	
+	stunned += amount
+	return ["Stun increases to " + str(stunned) + "!"]
+
+
 func full_status_heal():
 	stunned = 0
 	poisoned = 0
-	
-func deal_with_status_effects()->Array:
+
+
+func deal_with_status_effects() -> Array:
 	var gets_a_turn = true
-	var things_that_happened =[]
-	if stunned>0:
+	var things_that_happened = []
+	if stunned > 0:
 		stunned -= stun_recovery
-		if stunned<0:
+		if stunned < 0:
 			stunned = 0
 		gets_a_turn = false
 		things_that_happened.append("Is stunned and cannot move!")
@@ -184,5 +187,5 @@ func deal_with_status_effects()->Array:
 		poisoned -= poison_recovery
 		if poisoned < 0:
 			poisoned = 0
-		things_that_happened.append("Target"+message[0]+" from poison! Target"+message[1])
+		things_that_happened.append("Target" + message[0] + " from poison! Target" + message[1])
 	return [gets_a_turn, things_that_happened]

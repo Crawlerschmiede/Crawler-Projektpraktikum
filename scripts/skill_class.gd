@@ -99,12 +99,11 @@ class Effect:
 					messages = user.increase_poison(value)
 				else:
 					messages = target.increase_poison(value)
-				return ["Targets "+messages[0]]
+				return ["Targets " + messages[0]]
 			"stun":
 				print("Stunning!")
 				if targets_self:
 					messages = user.increase_stun(value)
 				else:
 					messages = target.increase_stun(value)
-				return ["Targets "+messages[0]]
-				
+				return ["Targets " + messages[0]]

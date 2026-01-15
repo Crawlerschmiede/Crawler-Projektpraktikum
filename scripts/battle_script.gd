@@ -85,7 +85,7 @@ func enemy_turn():
 		var extra_stuff = enemy.deal_with_status_effects()
 		happened = extra_stuff[1]
 		for happening in happened:
-				log_container.add_log_event(happening)
+			log_container.add_log_event(happening)
 		enemy_hp_bar.value = (enemy.HP * 100.0) / enemy.max_HP
 		player_hp_bar.value = (player.HP * 100.0) / player.max_HP
 		if extra_stuff[0]:
@@ -100,7 +100,7 @@ func enemy_turn():
 		player_hp_bar.value = (player.HP * 100.0) / player.max_HP
 		enemy_hp_bar.value = (enemy.HP * 100.0) / enemy.max_HP
 		for happening in happened:
-				log_container.add_log_event(happening)
+			log_container.add_log_event(happening)
 		if extra_stuff[0]:
 			skill_ui.player_turn = true
 		else:
