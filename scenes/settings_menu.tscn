@@ -72,6 +72,27 @@ popup/item_0/id = 0
 popup/item_1/text = "Fullscreen"
 popup/item_1/id = 1
 
+[node name="FullscreenTypeLabel" type="Label" parent="PanelContainer/VBoxContainer/TabContainer/Display"]
+layout_mode = 2
+text = "Fullscreen type"
+
+[node name="FullscreenType" type="OptionButton" parent="PanelContainer/VBoxContainer/TabContainer/Display"]
+layout_mode = 2
+selected = 0
+item_count = 2
+popup/item_0/text = "Borderless Fullscreen"
+popup/item_0/id = 0
+popup/item_1/text = "Exclusive Fullscreen"
+popup/item_1/id = 1
+
+[node name="ResolutionLabel" type="Label" parent="PanelContainer/VBoxContainer/TabContainer/Display"]
+layout_mode = 2
+text = "Resolution"
+
+[node name="Resolution" type="OptionButton" parent="PanelContainer/VBoxContainer/TabContainer/Display"]
+layout_mode = 2
+selected = 0
+
 [node name="VSync" type="CheckBox" parent="PanelContainer/VBoxContainer/TabContainer/Display"]
 layout_mode = 2
 button_pressed = true
