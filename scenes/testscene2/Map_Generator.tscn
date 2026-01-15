@@ -1,7 +1,7 @@
 [gd_scene load_steps=18 format=3 uid="uid://dwghrpbxefkax"]
 
 [ext_resource type="Script" uid="uid://d2rb43bq30iq0" path="res://scenes/testscene2/map_generator.gd" id="1_pa1ne"]
-[ext_resource type="PackedScene" uid="uid://bugoqrwv7iv0k" path="res://scenes/rooms/Rooms/room7.tscn" id="2_jk44l"]
+[ext_resource type="PackedScene" uid="uid://bugoqrwv7iv0k" path="res://scenes/rooms/Rooms/room_L_bl_1.tscn" id="2_jk44l"]
 [ext_resource type="PackedScene" uid="uid://ubgsa5febr56" path="res://scenes/rooms/Rooms/room8.tscn" id="3_p53qg"]
 [ext_resource type="PackedScene" uid="uid://8v563dggfv5u" path="res://scenes/rooms/Rooms/room9.tscn" id="4_gdjpo"]
 [ext_resource type="PackedScene" uid="uid://ixanp1uicfl" path="res://scenes/rooms/Rooms/room10.tscn" id="5_8cjpl"]
