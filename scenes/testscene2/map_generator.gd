@@ -3,7 +3,7 @@ extends Node2D
 @export var room_scenes: Array[PackedScene]
 @export var start_room: PackedScene
 @export var boss_room: PackedScene
-@export var max_rooms: int = 5
+@export var max_rooms: int = 10
 
 @export var player_scene: PackedScene
 var player: MoveableEntity
@@ -26,6 +26,7 @@ var player: MoveableEntity
 @export var build_best_map_after_ga: bool = true
 
 var world_tilemap: TileMapLayer
+var world_tilemap_top: TileMapLayer
 
 var room_type_counts: Dictionary = {}
 
@@ -717,46 +718,67 @@ func bake_rooms_into_world_tilemap() -> void:
 		push_error("❌ [BAKE] Keine Räume zum Baken vorhanden")
 		return
 
-	# WorldTileMap erstellen (falls noch nicht da)
+	# --- WORLD FLOOR ---
 	if world_tilemap == null:
 		world_tilemap = TileMapLayer.new()
-		world_tilemap.name = "WorldTileMap"
+		world_tilemap.name = "WorldFloor"
 
-		# TileSet vom ersten Raum übernehmen
-		var first_tm := placed_rooms[0].get_node_or_null("TileMapLayer") as TileMapLayer
-		if first_tm == null:
-			push_error("❌ [BAKE] StartRoom hat keine TileMapLayer")
+		# TileSet vom ersten Raum übernehmen (Floor Layer)
+		var first_floor := placed_rooms[0].get_node_or_null("TileMapLayer") as TileMapLayer
+		if first_floor == null:
+			push_error("❌ [BAKE] StartRoom hat keine TileMapLayer (Floor)")
 			return
 
-		world_tilemap.tile_set = first_tm.tile_set
+		world_tilemap.tile_set = first_floor.tile_set
 		add_child(world_tilemap)
 
+	# --- WORLD TOP ---
+	if world_tilemap_top == null:
+		world_tilemap_top = TileMapLayer.new()
+		world_tilemap_top.name = "WorldTop"
+
+		# Tileset: vom ersten vorhandenen TopLayer holen, sonst Floor Tileset nutzen
+		var first_top := placed_rooms[0].get_node_or_null("TopLayer") as TileMapLayer
+		if first_top != null:
+			world_tilemap_top.tile_set = first_top.tile_set
+		else:
+			world_tilemap_top.tile_set = world_tilemap.tile_set
+
+		add_child(world_tilemap_top)
+
 	world_tilemap.clear()
+	world_tilemap_top.clear()
 
-	# Alle Räume in die WorldTileMap schreiben
+	# --- Räume backen ---
 	for room in placed_rooms:
-		var room_tm := room.get_node_or_null("TileMapLayer") as TileMapLayer
-		if room_tm == null:
-			continue
+		var floor_tm := room.get_node_or_null("TileMapLayer") as TileMapLayer
+		var top_tm := room.get_node_or_null("TopLayer") as TileMapLayer  # <- Name anpassen falls anders!
 
-		# Offset in Tile-Koordinaten
-		var tile_size: Vector2i = world_tilemap.tile_set.tile_size
 		var room_offset: Vector2i = room.get_meta("tile_origin", Vector2i.ZERO)
 
+		# FLOOR kopieren
+		if floor_tm != null:
+			copy_layer_into_world(floor_tm, world_tilemap, room_offset)
 
-		for cell in room_tm.get_used_cells():
-			var source_id := room_tm.get_cell_source_id(cell)
-			var atlas := room_tm.get_cell_atlas_coords(cell)
-			var alt := room_tm.get_cell_alternative_tile(cell)
+		# TOP kopieren
+		if top_tm != null:
+			copy_layer_into_world(top_tm, world_tilemap_top, room_offset)
 
-			world_tilemap.set_cell(
-				cell + room_offset,
-				source_id,
-				atlas,
-				alt
-			)
+	print("✔ [BAKE] WorldTileMaps erstellt | Floor tiles:", world_tilemap.get_used_cells().size(), "| Top tiles:", world_tilemap_top.get_used_cells().size())
 
-	print("✔ [BAKE] WorldTileMap erstellt | Tiles:", world_tilemap.get_used_cells().size())
+func copy_layer_into_world(src: TileMapLayer, dst: TileMapLayer, offset: Vector2i) -> void:
+	for cell in src.get_used_cells():
+		var source_id := src.get_cell_source_id(cell)
+		var atlas := src.get_cell_atlas_coords(cell)
+		var alt := src.get_cell_alternative_tile(cell)
+
+		dst.set_cell(
+			cell + offset,
+			source_id,
+			atlas,
+			alt
+		)
+
 
 func clear_children_rooms_only() -> void:
 	# löscht alles außer dem Generator-Node selbst
