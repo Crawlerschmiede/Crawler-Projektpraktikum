@@ -1,14 +1,14 @@
 extends Control
 
+# --- Scene Configuration ---
+@export var start_menu_path: String = "res://scenes/start-menu.tscn"
+
 # --- Node References (Ensure these names match your Scene Tree) ---
 @onready var logo = $CenterContainer/Label
 @onready var logo_container = $CenterContainer
 @onready var static_rect = $StaticOverlay
 @onready var invert_rect = $InvertLayer
 @onready var tv_noise = $tv_noise
-
-# --- Scene Configuration ---
-@export var start_menu_path: String = "res://scenes/start-menu.tscn"
 
 
 func _ready():
