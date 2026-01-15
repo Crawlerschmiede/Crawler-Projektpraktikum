@@ -38,12 +38,12 @@ func setup(tmap: TileMapLayer, _hp, _str, _def):
 	DEF = _def
 
 
-func super_ready(entity_type: String):
+func super_ready(entity_type: Array):
 	if tilemap == null and tilemap_path != null:
 		tilemap = get_node(tilemap_path)
 
 	# Spawn logic for player character
-	if entity_type == "pc":
+	if "pc" in entity_type:
 		# TODO: make pc spawn at the current floor's entryway
 		position = tilemap.map_to_local(Vector2i(2, 2))
 		grid_pos = Vector2i(2, 2)
@@ -52,11 +52,16 @@ func super_ready(entity_type: String):
 		var possible_spawns = []
 
 		for cell in tilemap.get_used_cells():
+			print("cell", cell.x, cell.y)
 			var tile_data = tilemap.get_cell_tile_data(cell)
 			if tile_data:
 				var is_blocked = tile_data.get_custom_data("non_walkable")
 				if not is_blocked:
-					possible_spawns.append(cell)
+					if "wallbound" in entity_type:
+						if is_next_to_wall(cell):
+							possible_spawns.append(cell)
+					else:
+						possible_spawns.append(cell)
 			# TODO: add logic for fyling enemies, so they can enter certain tiles
 			#if entity_type == "enemy_flying":
 			#	add water/lava/floor trap tiles as possible spawns
@@ -70,7 +75,18 @@ func super_ready(entity_type: String):
 
 
 # --- Movement Logic ---
-
+func is_next_to_wall(cell: Vector2i):
+	var next_to_wall = false
+	for i in range(2):
+		for j in range(2):
+			print("i ",i," j ",j)
+			var adjacent = Vector2i(cell.x+i, cell.y+j)
+			var adjacent_tile = tilemap.get_cell_tile_data(adjacent)
+			if adjacent_tile:
+				var adjacent_blocked = adjacent_tile.get_custom_data("non_walkable")
+				if adjacent_blocked:
+					next_to_wall = true
+	return next_to_wall
 
 func move_to_tile(direction: Vector2i):
 	if is_moving:

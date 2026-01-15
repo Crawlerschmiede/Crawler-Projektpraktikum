@@ -11,8 +11,12 @@ var menu_instance: CanvasLayer = null
 var battle: CanvasLayer = null
 
 func _ready() -> void:
-	for i in range(10):
-		spawn_enemy()
+	for i in range(3):
+		spawn_enemy(["aggressive", "wallbound"])
+	for i in range(3):
+		spawn_enemy(["passive", "enemy_flying"])
+	for i in range(3):
+		spawn_enemy(["hostile", "enemy_walking"])	
 
 func _process(delta):
 	# Check if the 'M' key is pressed
@@ -47,8 +51,9 @@ func on_menu_closed():
 		# 3. Unpause the game
 		get_tree().paused = false
 		
-func spawn_enemy():
+func spawn_enemy(types):
 	var e = EnemyScene.instantiate()
+	e.types = types
 	e.setup(dungeon_tilemap, 1, 1, 0)
 	add_child(e)
 	

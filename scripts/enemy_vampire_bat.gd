@@ -7,6 +7,7 @@ const ROAM_COOLDOWN: int = 2
 var roam_timer: float = 5.0
 
 var chosen: Skill
+var types = ["passive"]
 
 
 func roam(delta):
@@ -24,19 +25,29 @@ func roam(delta):
 			direction = Vector2i.UP
 		elif direction_int == 3:
 			direction = Vector2i.DOWN
-		move_to_tile(direction)
-		roam_timer = ROAM_COOLDOWN
+		if "wallbound" in types:
+			if is_next_to_wall(grid_pos+direction):
+				move_to_tile(direction)
+				roam_timer = ROAM_COOLDOWN
+		else:
+			move_to_tile(direction)
+			roam_timer = ROAM_COOLDOWN
 
 
 func _ready() -> void:
 	abilities_this_has = ["Screech", "Swoop"]
-	super_ready("enemy_flying")
+	super_ready(types)
 	setup(tilemap, 3, 1, 0)
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
-	sprite.play("default")
+	if "wallbound" in types:
+		sprite.play("what")
+	elif "passive" in types:
+		sprite.play("default")
+	elif "hostile" in types:
+		sprite.play("skellington")
 	roam(delta)
 
 
