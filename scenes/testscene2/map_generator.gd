@@ -13,8 +13,8 @@ extends Node2D
 @export_range(0.0, 1.0, 0.01) var base_door_fill_chance: float = 1.0
 
 # --- Genetischer Ansatz ---
-@export var ga_total_evals: int = 50               # genau 500 Auswertungen
-@export var ga_population_size: int = 40              # 20 * 25 = 500
+@export var ga_total_evals: int = 50  # genau 500 Auswertungen
+@export var ga_population_size: int = 40  # 20 * 25 = 500
 @export var ga_generations: int = 25
 @export var ga_elite_keep: int = 4  # Top 4 bleiben
 @export var ga_mutation_rate: float = 0.25
@@ -35,6 +35,8 @@ var placed_rooms: Array[Node2D] = []
 var corridor_count: int = 0
 
 var boss_room_spawned := false
+
+
 # -----------------------------
 # GA: Genome / Ergebnis
 # -----------------------------
@@ -104,6 +106,7 @@ func _ready() -> void:
 
 	print("=== MAP GENERATION END ===")
 
+
 func get_required_scenes() -> Array[PackedScene]:
 	var required: Array[PackedScene] = []
 
@@ -131,7 +134,11 @@ func get_required_scenes() -> Array[PackedScene]:
 			b.queue_free()
 
 	return required
-func ensure_required_rooms(parent_node: Node, local_placed: Array[Node2D], genome: Genome, verbose: bool) -> void:
+
+
+func ensure_required_rooms(
+	parent_node: Node, local_placed: Array[Node2D], genome: Genome, verbose: bool
+) -> void:
 	var required_scenes := get_required_scenes()
 	if required_scenes.is_empty():
 		return
@@ -174,6 +181,7 @@ func ensure_required_rooms(parent_node: Node, local_placed: Array[Node2D], genom
 				# wenn es nicht passt -> nächste Tür
 				pass
 
+
 func get_room_key(scene: PackedScene) -> String:
 	if scene == null:
 		return ""
@@ -210,6 +218,7 @@ func can_spawn_room(scene: PackedScene, room_instance: Node, placed_count: int) 
 		return false
 
 	return true
+
 
 # -----------------------------
 # GENETIC SEARCH (500 Läufe)
@@ -513,7 +522,7 @@ func generate_with_genome(
 
 			local_placed.append(new_room)
 			next_doors += new_room.get_free_doors()
-						# Raumtyp zählen
+			# Raumtyp zählen
 			var key := get_room_key(room_scene)
 			room_type_counts[key] = int(room_type_counts.get(key, 0)) + 1
 
@@ -537,10 +546,13 @@ func generate_with_genome(
 		placed_rooms = local_placed
 		corridor_count = local_corridor_count
 	ensure_required_rooms(parent_node, local_placed, genome, verbose)
-	
+
 	return stats
 
-func try_place_specific_room(scene: PackedScene, door, parent_node: Node, local_placed: Array[Node2D], genome: Genome) -> bool:
+
+func try_place_specific_room(
+	scene: PackedScene, door, parent_node: Node, local_placed: Array[Node2D], genome: Genome
+) -> bool:
 	if scene == null:
 		return false
 
@@ -604,6 +616,7 @@ func try_place_specific_room(scene: PackedScene, door, parent_node: Node, local_
 	local_placed.append(new_room)
 
 	return true
+
 
 # -----------------------------
 # CORRIDOR CHECK
@@ -792,7 +805,13 @@ func bake_rooms_into_world_tilemap() -> void:
 		if top_tm != null:
 			copy_layer_into_world(top_tm, world_tilemap_top, room_offset)
 
-	print("✔ [BAKE] WorldTileMaps erstellt | Floor tiles:", world_tilemap.get_used_cells().size(), "| Top tiles:", world_tilemap_top.get_used_cells().size())
+	print(
+		"✔ [BAKE] WorldTileMaps erstellt | Floor tiles:",
+		world_tilemap.get_used_cells().size(),
+		"| Top tiles:",
+		world_tilemap_top.get_used_cells().size()
+	)
+
 
 func copy_layer_into_world(src: TileMapLayer, dst: TileMapLayer, offset: Vector2i) -> void:
 	for cell in src.get_used_cells():
@@ -800,13 +819,7 @@ func copy_layer_into_world(src: TileMapLayer, dst: TileMapLayer, offset: Vector2
 		var atlas := src.get_cell_atlas_coords(cell)
 		var alt := src.get_cell_alternative_tile(cell)
 
-		dst.set_cell(
-			cell + offset,
-			source_id,
-			atlas,
-			alt
-		)
-
+		dst.set_cell(cell + offset, source_id, atlas, alt)
 
 
 func clear_children_rooms_only() -> void:

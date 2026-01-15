@@ -8,6 +8,7 @@ extends Node2D
 @export var is_corridor := true
 @export var required_min_count: int = 0
 
+
 func get_free_doors():
 	if not has_node("Doors"):
 		push_error("❌ Room has NO 'Doors' node: " + name)
