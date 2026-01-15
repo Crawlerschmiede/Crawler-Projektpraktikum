@@ -8,6 +8,8 @@ var roam_timer: float = 5.0
 
 var chosen: Skill
 var types = ["passive"]
+var sprite_type:String ="bat"
+
 
 
 func roam(delta):
@@ -36,18 +38,12 @@ func roam(delta):
 
 func _ready() -> void:
 	abilities_this_has = ["Screech", "Swoop", "Rabies"]
-	super_ready(types)
+	super_ready(sprite_type, types)
 	setup(tilemap, 3, 1, 0)
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
-	if "wallbound" in types:
-		sprite.play("what")
-	elif "passive" in types:
-		sprite.play("default")
-	elif "hostile" in types:
-		sprite.play("skellington")
 	roam(delta)
 
 

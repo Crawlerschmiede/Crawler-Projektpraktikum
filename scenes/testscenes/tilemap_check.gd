@@ -3,6 +3,7 @@ extends Node2D
 # packed scene resource for the menu
 @export var menu_scene: PackedScene
 @onready var EnemyScene = preload("res://scenes/enemy_vampire_bat.tscn")
+@onready var PlayerScene = preload("res://scenes/player-character-scene.tscn")
 const BattleScene := preload("res://scenes/battle.tscn")
 @onready var dungeon_tilemap = $TileMapLayer
 
@@ -11,12 +12,13 @@ var menu_instance: CanvasLayer = null
 var battle: CanvasLayer = null
 
 func _ready() -> void:
+	spawn_player()
 	for i in range(3):
-		spawn_enemy(["aggressive", "wallbound"])
+		spawn_enemy("what", ["aggressive", "wallbound"])
 	for i in range(3):
-		spawn_enemy(["passive", "enemy_flying"])
+		spawn_enemy("bat", ["passive", "enemy_flying"])
 	for i in range(3):
-		spawn_enemy(["hostile", "enemy_walking"])	
+		spawn_enemy("skeleton",["hostile", "enemy_walking"])	
 
 func _process(delta):
 	# Check if the 'M' key is pressed
@@ -51,10 +53,17 @@ func on_menu_closed():
 		# 3. Unpause the game
 		get_tree().paused = false
 		
-func spawn_enemy(types):
+func spawn_enemy(sprite_type, types):
 	var e = EnemyScene.instantiate()
 	e.types = types
+	e.sprite_type = sprite_type
 	e.setup(dungeon_tilemap, 1, 1, 0)
+	add_child(e)
+	
+func spawn_player():
+	var e = PlayerScene.instantiate()
+	e.name="Player"
+	e.setup(dungeon_tilemap, 10, 3, 0)
 	add_child(e)
 	
 func instantiate_battle(player:Node, enemy:Node):
