@@ -23,4 +23,4 @@ jobs:
         run: uv tool install "gdtoolkit==4.*"
       
       - name: Run gdlint
-        run: gdlint scripts/
+        run: gdlint ./
