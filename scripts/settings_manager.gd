@@ -283,8 +283,8 @@ func _deserialize_input_event(serialized) -> InputEvent:
 		return null
 
 	var e := InputEventKey.new()
-	e.keycode = int(serialized.get("keycode", 0))
-	e.physical_keycode = int(serialized.get("physical_keycode", 0))
+	e.keycode = int(serialized.get("keycode", 0)) as Key
+	e.physical_keycode = int(serialized.get("physical_keycode", 0)) as Key
 	e.ctrl_pressed = bool(serialized.get("ctrl", false))
 	e.shift_pressed = bool(serialized.get("shift", false))
 	e.alt_pressed = bool(serialized.get("alt", false))
