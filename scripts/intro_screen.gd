@@ -81,8 +81,7 @@ func play_intro_sequence():
 	# --- STAGE 6: EXIT TO MENU ---
 	tween.tween_interval(2.5)  # Hold the logo on screen
 	tween.tween_property(self, "modulate:a", 0.0, 2)  # Fade whole screen to black
-	tween.tween_callback(func(): get_tree().change_scene_to_file(start_menu_path)
-	)
+	tween.tween_callback(func(): get_tree().change_scene_to_file(start_menu_path))
 
 
 # --- Procedural Effects ---
