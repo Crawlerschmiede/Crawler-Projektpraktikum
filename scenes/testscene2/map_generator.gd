@@ -3,9 +3,7 @@ extends Node2D
 @export var room_scenes: Array[PackedScene]
 @export var start_room: PackedScene
 @export var max_rooms: int = 200
-
 @export var player_scene: PackedScene
-var player: MoveableEntity
 
 # --- Basis-Regeln (werden vom GA überschrieben / mutiert) ---
 @export var base_max_corridors: int = 10
@@ -24,6 +22,7 @@ var player: MoveableEntity
 # Optional: Wenn du willst, dass nach dem GA die beste Map sofort gebaut wird
 @export var build_best_map_after_ga: bool = true
 
+var player: MoveableEntity
 var world_tilemap: TileMapLayer
 
 # Laufzeit
@@ -321,8 +320,7 @@ func generate_with_genome(
 					# wenn bias > 1: corridor zuerst, sonst umgekehrt
 					if genome.corridor_bias > 1.0:
 						return int(ca) > int(cb)
-					else:
-						return int(ca) < int(cb)
+					return int(ca) < int(cb)
 			)
 
 		var placed := false

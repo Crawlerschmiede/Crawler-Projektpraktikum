@@ -1,16 +1,17 @@
 extends Node2D
 
+const CELL_SIZE: float = 256.0
+
 @export var room_count: int = 3000
 @export var start_position: Vector2 = Vector2(500, 500)
 @export var rooms_available: int = 5
 @export var ga_iterations: int = 500
 
-const CELL_SIZE: float = 256.0
-
 var used_doors: Array[Marker2D] = []
 var open_doors: Array[Marker2D] = []
 var room_scenes: Array[PackedScene] = []
-var room_defs: Array[Dictionary] = []  # {"scene":PackedScene, "doors":Array[Dictionary], "rect":Rect2}
+# {"scene":PackedScene, "doors":Array[Dictionary], "rect":Rect2}
+var room_defs: Array[Dictionary] = []
 
 
 func _ready() -> void:

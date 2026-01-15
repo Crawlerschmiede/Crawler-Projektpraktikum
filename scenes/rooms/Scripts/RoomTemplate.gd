@@ -1,8 +1,9 @@
 extends Node2D
 
+@export var is_corridor := true
+
 @onready var tilemap = $TileMapLayer
 @onready var doors = $Doors.get_children()
-@export var is_corridor := true
 
 
 func get_free_doors():
