@@ -11,8 +11,8 @@ var _settings_layer: CanvasLayer = null
 
 # Called when the scene is loaded
 func _ready():
-	var continue_button = $VBoxContainer/Button
-	var quit_button = $VBoxContainer/Button2
+	var continue_button = $VBoxContainer/ButtonContinue
+	var quit_button = $VBoxContainer/ButtonQuit
 
 
 # Function for the "Continue" button
