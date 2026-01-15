@@ -11,27 +11,21 @@ var is_player: bool = false
 var existing_skills = SKILLS.new()
 var abilities_this_has: Array = []
 var sprites = {
-				"bat": 
-					[
-						preload("res://scenes/sprite_scenes/bat_sprite_scene.tscn"), 
-						["Screech", "Swoop", "Rabies"]
-					], 
-				"skeleton":
-					[
-						preload("res://scenes/sprite_scenes/skeleton_sprite_scene.tscn"),
-						["Screech", "Swoop", "Rabies"]
-					], 
-				"what":
-					[
-						preload("res://scenes/sprite_scenes/what_sprite_scene.tscn"),
-						["Screech", "Swoop", "Rabies"]
-					], 
-				"pc":
-					[
-						preload("res://scenes/sprite_scenes/player_sprite_scene.tscn"),
-						["Punch", "Right Pivot", "Left Pivot", "Full Power Punch"]
-					]
-			}
+	"bat":
+	[preload("res://scenes/sprite_scenes/bat_sprite_scene.tscn"), ["Screech", "Swoop", "Rabies"]],
+	"skeleton":
+	[
+		preload("res://scenes/sprite_scenes/skeleton_sprite_scene.tscn"),
+		["Screech", "Swoop", "Rabies"]
+	],
+	"what":
+	[preload("res://scenes/sprite_scenes/what_sprite_scene.tscn"), ["Screech", "Swoop", "Rabies"]],
+	"pc":
+	[
+		preload("res://scenes/sprite_scenes/player_sprite_scene.tscn"),
+		["Punch", "Right Pivot", "Left Pivot", "Full Power Punch"]
+	]
+}
 
 var grid_pos: Vector2i
 var tilemap: TileMapLayer = null
@@ -115,8 +109,8 @@ func is_next_to_wall(cell: Vector2i):
 	var next_to_wall = false
 	for i in range(3):
 		for j in range(3):
-			print("i ",i," j ",j)
-			var adjacent = Vector2i(cell.x+(i-1), cell.y+(j-1))
+			print("i ", i, " j ", j)
+			var adjacent = Vector2i(cell.x + (i - 1), cell.y + (j - 1))
 			var adjacent_tile = tilemap.get_cell_tile_data(adjacent)
 			if adjacent_tile:
 				var adjacent_blocked = adjacent_tile.get_custom_data("non_walkable")

@@ -12,7 +12,7 @@ var chosen: Skill
 var types = ["passive"]
 var sprite_type: String = "bat"
 var behaviour = "idle"
-var chase_target:MoveableEntity
+var chase_target: MoveableEntity
 
 @onready var sight_area: Area2D = $SightArea
 
@@ -38,7 +38,8 @@ func roam():
 		else:
 			move_to_tile(direction)
 			roam_timer = ROAM_COOLDOWN
-			
+
+
 func chase():
 	var chased_pos = chase_target.grid_pos
 	var x_move = Vector2i.ZERO
@@ -46,32 +47,38 @@ func chase():
 	if chase_timer <= 0:
 		if chased_pos.x < grid_pos.x:
 			x_move = Vector2i.LEFT
-		if chased_pos.x > grid_pos.x: 
+		if chased_pos.x > grid_pos.x:
 			x_move = Vector2i.RIGHT
 		if chased_pos.y < grid_pos.y:
 			y_move = Vector2i.UP
-		if chased_pos.y > grid_pos.y: 
+		if chased_pos.y > grid_pos.y:
 			y_move = Vector2i.DOWN
 		if "wallbound" in types:
-			if is_next_to_wall(grid_pos+x_move) and x_move != Vector2i.ZERO:
+			if is_next_to_wall(grid_pos + x_move) and x_move != Vector2i.ZERO:
 				move_to_tile(x_move)
 				chase_timer = CHASE_COOLDOWN
 				return
-			elif is_next_to_wall(grid_pos+y_move) and y_move != Vector2i.ZERO:
+			elif is_next_to_wall(grid_pos + y_move) and y_move != Vector2i.ZERO:
 				move_to_tile(y_move)
 				chase_timer = CHASE_COOLDOWN
-				return 
+				return
 		else:
-			if tilemap.get_cell_tile_data(grid_pos+x_move) and !tilemap.get_cell_tile_data(grid_pos+x_move).get_custom_data("non_walkable") and x_move != Vector2i.ZERO:
+			if (
+				tilemap.get_cell_tile_data(grid_pos + x_move)
+				and !tilemap.get_cell_tile_data(grid_pos + x_move).get_custom_data("non_walkable")
+				and x_move != Vector2i.ZERO
+			):
 				move_to_tile(x_move)
 				chase_timer = CHASE_COOLDOWN
 				return
-			elif tilemap.get_cell_tile_data(grid_pos+y_move) and !tilemap.get_cell_tile_data(grid_pos+y_move).get_custom_data("non_walkable") and y_move != Vector2i.ZERO:
+			elif (
+				tilemap.get_cell_tile_data(grid_pos + y_move)
+				and !tilemap.get_cell_tile_data(grid_pos + y_move).get_custom_data("non_walkable")
+				and y_move != Vector2i.ZERO
+			):
 				move_to_tile(y_move)
 				chase_timer = CHASE_COOLDOWN
 				return
-	
-
 
 
 func _ready() -> void:
@@ -90,12 +97,13 @@ func _process(delta: float) -> void:
 	else:
 		behaviour = "idle"
 		chase_target = null
-	
-	if behaviour=="idle":
+
+	if behaviour == "idle":
 		roam()
-	elif behaviour=="chase":
+	elif behaviour == "chase":
 		chase()
-	
+
+
 func check_sight():
 	var saw_player = false
 	for body in sight_area.get_overlapping_bodies():
@@ -103,10 +111,9 @@ func check_sight():
 			continue
 		else:
 			if body.is_player:
-				saw_player=true
+				saw_player = true
 				chase_target = body
 	return saw_player
-	
 
 
 func decide_attack() -> void:

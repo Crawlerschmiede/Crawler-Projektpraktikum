@@ -17,7 +17,7 @@ func _ready() -> void:
 		return
 
 	camera.make_current()
-	super_ready("pc",["pc"])
+	super_ready("pc", ["pc"])
 	is_player = true
 	setup(tilemap, 10, 1, 0)
 
