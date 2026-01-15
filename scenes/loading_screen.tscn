@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://mxyh768rp6h2" path="res://scripts/loading_screen.gd" id="1_if62a"]
 [ext_resource type="Texture2D" uid="uid://bb54nue8qv54r" path="res://assets/menu/menu background.jpg" id="1_qygbf"]
 [ext_resource type="Shader" uid="uid://cot202ickvsd0" path="res://shaders/start-menu.gdshader" id="2_pu4a1"]
-[ext_resource type="Shader" uid="uid://dppg5rocywhpq" path="res://retro.gdshader" id="3_if62a"]
+[ext_resource type="Shader" uid="uid://dppg5rocywhpq" path="res://shaders/retro.gdshader" id="3_if62a"]
 [ext_resource type="Texture2D" uid="uid://bc7y6dlnrp5bm" path="res://assets/menu/under.png" id="4_f7y4a"]
 [ext_resource type="Texture2D" uid="uid://cju6jidnllrp5" path="res://assets/menu/over.png" id="5_gcv3i"]
 [ext_resource type="Texture2D" uid="uid://dts38v105xt8" path="res://assets/menu/progress.png" id="6_amnj2"]
