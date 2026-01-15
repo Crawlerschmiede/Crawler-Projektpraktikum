@@ -80,8 +80,8 @@ func enemy_prepare_turn():
 
 func enemy_turn():
 	var over = check_victory()
-	player_hp_bar.value = (player.HP * 100.0) / player.max_HP
-	enemy_hp_bar.value = (enemy.HP * 100.0) / enemy.max_HP
+	player_hp_bar.value = (player.hp * 100.0) / player.max_hp
+	enemy_hp_bar.value = (enemy.hp * 100.0) / enemy.max_hp
 	var happened = []
 	if !over:
 		var extra_stuff = enemy.deal_with_status_effects()
@@ -99,8 +99,8 @@ func enemy_turn():
 			enemy_prepare_turn()
 		extra_stuff = player.deal_with_status_effects()
 		happened = extra_stuff[1]
-		player_hp_bar.value = (player.HP * 100.0) / player.max_HP
-		enemy_hp_bar.value = (enemy.HP * 100.0) / enemy.max_HP
+		player_hp_bar.value = (player.hp * 100.0) / player.max_hp
+		enemy_hp_bar.value = (enemy.hp * 100.0) / enemy.max_hp
 		for happening in happened:
 			log_container.add_log_event(happening)
 		if extra_stuff[0]:
