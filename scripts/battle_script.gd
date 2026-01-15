@@ -26,6 +26,8 @@ var player_sprite
 
 
 func _ready():
+	player.full_status_heal()
+	enemy.full_status_heal()
 	enemy_sprite = create_battle_sprite(enemy)
 	player_sprite = create_battle_sprite(player)
 	player_sprite.animation = "idle_up"
@@ -78,17 +80,33 @@ func enemy_prepare_turn():
 
 func enemy_turn():
 	var over = check_victory()
+	player_hp_bar.value = (player.HP * 100.0) / player.max_HP
+	enemy_hp_bar.value = (enemy.HP * 100.0) / enemy.max_HP
 	var happened = []
 	if !over:
-		enemy_hp_bar.value = (enemy.hp * 100.0) / enemy.max_hp
-		player_hp_bar.value = (player.hp * 100.0) / player.max_hp
-		print(enemy, " activates its Skill ", enemy.chosen.name, "!")
-		happened = enemy.chosen.activate_skill(enemy, player, self)
+		var extra_stuff = enemy.deal_with_status_effects()
+		happened = extra_stuff[1]
 		for happening in happened:
 			log_container.add_log_event(happening)
-		enemy.decide_attack()
-		enemy_prepare_turn()
-		skill_ui.player_turn = true
+		enemy_hp_bar.value = (enemy.hp * 100.0) / enemy.max_hp
+		player_hp_bar.value = (player.hp * 100.0) / player.max_hp
+		if extra_stuff[0]:
+			print(enemy, " activates its Skill ", enemy.chosen.name, "!")
+			happened = enemy.chosen.activate_skill(enemy, player, self)
+			for happening in happened:
+				log_container.add_log_event(happening)
+			enemy.decide_attack()
+			enemy_prepare_turn()
+		extra_stuff = player.deal_with_status_effects()
+		happened = extra_stuff[1]
+		player_hp_bar.value = (player.HP * 100.0) / player.max_HP
+		enemy_hp_bar.value = (enemy.HP * 100.0) / enemy.max_HP
+		for happening in happened:
+			log_container.add_log_event(happening)
+		if extra_stuff[0]:
+			skill_ui.player_turn = true
+		else:
+			enemy_turn()
 		check_victory()
 		player_hp_bar.value = (player.hp * 100.0) / player.max_hp
 		enemy_hp_bar.value = (enemy.hp * 100.0) / enemy.max_hp
