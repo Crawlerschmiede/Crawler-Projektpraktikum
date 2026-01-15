@@ -73,6 +73,7 @@ func move_to_tile(direction: Vector2i):
 		return
 
 	var target_cell = grid_pos + direction
+	print()
 	if not is_cell_walkable(target_cell):
 		return
 
