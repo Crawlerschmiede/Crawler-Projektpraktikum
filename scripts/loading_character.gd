@@ -1,12 +1,12 @@
 extends AnimatedSprite2D
 
-# We use the ".." to look at the parent, then find the progress bar
-@onready var progress_bar = $"../TextureProgressBar"
-
 @export var start_x: float = 0.0  # Where the character starts (left)
 @export var end_x: float = 640.0  # Where the character ends (right)
 
 var last_value: float = 0.0
+
+# We use the ".." to look at the parent, then find the progress bar
+@onready var progress_bar = $"../TextureProgressBar"
 
 
 func _process(_delta):

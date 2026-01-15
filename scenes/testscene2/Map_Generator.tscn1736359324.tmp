@@ -1,0 +1,37 @@
+[gd_scene load_steps=30 format=3 uid="uid://dwghrpbxefkax"]
+
+[ext_resource type="Script" uid="uid://d2rb43bq30iq0" path="res://scenes/testscene2/map_generator.gd" id="1_pa1ne"]
+[ext_resource type="PackedScene" uid="uid://bugoqrwv7iv0k" path="res://scenes/rooms/Rooms/room7.tscn" id="2_jk44l"]
+[ext_resource type="PackedScene" uid="uid://ubgsa5febr56" path="res://scenes/rooms/Rooms/room8.tscn" id="3_p53qg"]
+[ext_resource type="PackedScene" uid="uid://8v563dggfv5u" path="res://scenes/rooms/Rooms/room9.tscn" id="4_gdjpo"]
+[ext_resource type="PackedScene" uid="uid://ixanp1uicfl" path="res://scenes/rooms/Rooms/room10.tscn" id="5_8cjpl"]
+[ext_resource type="PackedScene" uid="uid://cylms8qi8m5go" path="res://scenes/rooms/Rooms/room11.tscn" id="6_6hxwb"]
+[ext_resource type="PackedScene" uid="uid://brll7ngt744bn" path="res://scenes/rooms/Rooms/room12.tscn" id="7_i6ntm"]
+[ext_resource type="PackedScene" uid="uid://bmhqnttp8nken" path="res://scenes/rooms/Rooms/room13.tscn" id="8_sqty7"]
+[ext_resource type="PackedScene" uid="uid://bp261wg82m62j" path="res://scenes/rooms/Rooms/room14.tscn" id="9_h153x"]
+[ext_resource type="PackedScene" uid="uid://cqhsmnyfckchs" path="res://scenes/rooms/Rooms/room15.tscn" id="10_cjflb"]
+[ext_resource type="PackedScene" uid="uid://dqfj5l57vfquf" path="res://scenes/rooms/Rooms/room16.tscn" id="11_a7lap"]
+[ext_resource type="PackedScene" uid="uid://cc71piqvxfgxv" path="res://scenes/rooms/Rooms/room18.tscn" id="12_csaid"]
+[ext_resource type="PackedScene" uid="uid://eirf22wfho3l" path="res://scenes/rooms/Rooms/room19.tscn" id="13_75ylg"]
+[ext_resource type="PackedScene" uid="uid://cmid13a804u3a" path="res://scenes/rooms/Corridors/Corridor1.tscn" id="14_e05we"]
+[ext_resource type="PackedScene" uid="uid://belds7wmn5nyn" path="res://scenes/rooms/Corridors/Corridor2.tscn" id="15_ewpwt"]
+[ext_resource type="PackedScene" uid="uid://bjyt53ab1mqim" path="res://scenes/rooms/Corridors/Corridor3.tscn" id="16_mu786"]
+[ext_resource type="PackedScene" uid="uid://bplcl5u121f4o" path="res://scenes/rooms/Corridors/Corridor4.tscn" id="17_qbknk"]
+[ext_resource type="PackedScene" uid="uid://by7ybqv3ytcs4" path="res://scenes/rooms/Corridors/Corridor5.tscn" id="18_hx73i"]
+[ext_resource type="PackedScene" uid="uid://2k1n1ekpap2l" path="res://scenes/rooms/Corridors/Corridor6.tscn" id="19_mxovt"]
+[ext_resource type="PackedScene" uid="uid://bpa8sxata0rgq" path="res://scenes/rooms/Corridors/Corridor7.tscn" id="20_3qpji"]
+[ext_resource type="PackedScene" uid="uid://b3xjjdho24wus" path="res://scenes/rooms/Corridors/Corridor8.tscn" id="21_ujm4s"]
+[ext_resource type="PackedScene" uid="uid://catbrguqjbg7f" path="res://scenes/rooms/Corridors/Corridor9.tscn" id="22_sop6o"]
+[ext_resource type="PackedScene" uid="uid://tbvma740b3ib" path="res://scenes/rooms/Corridors/Corridor10.tscn" id="23_n102u"]
+[ext_resource type="PackedScene" uid="uid://y2syvf6w3um2" path="res://scenes/rooms/Corridors/Corridor11.tscn" id="24_qgn1g"]
+[ext_resource type="PackedScene" uid="uid://baftru1x7f1ym" path="res://scenes/rooms/Corridors/Corridor12.tscn" id="25_0kr4y"]
+[ext_resource type="PackedScene" uid="uid://bwdk7wpyqb6cb" path="res://scenes/rooms/Corridors/Corridor13.tscn" id="26_5m7m8"]
+[ext_resource type="PackedScene" uid="uid://dvhhbcqguxg2g" path="res://scenes/rooms/Corridors/Corridor14.tscn" id="27_r0ol4"]
+[ext_resource type="PackedScene" uid="uid://nuwb0xocbmyp" path="res://scenes/rooms/Corridors/Corridor15.tscn" id="28_c14x5"]
+[ext_resource type="PackedScene" uid="uid://8fgfqjjfqenf" path="res://scenes/rooms/Corridors/Corridor17.tscn" id="29_pbodv"]
+
+[node name="MapGenerator" type="Node2D"]
+script = ExtResource("1_pa1ne")
+room_scenes = Array[PackedScene]([ExtResource("2_jk44l"), ExtResource("3_p53qg"), ExtResource("4_gdjpo"), ExtResource("5_8cjpl"), ExtResource("6_6hxwb"), ExtResource("7_i6ntm"), ExtResource("8_sqty7"), ExtResource("9_h153x"), ExtResource("10_cjflb"), ExtResource("11_a7lap"), ExtResource("12_csaid"), ExtResource("13_75ylg"), ExtResource("14_e05we"), ExtResource("15_ewpwt"), ExtResource("16_mu786"), ExtResource("17_qbknk"), ExtResource("18_hx73i"), ExtResource("19_mxovt"), ExtResource("20_3qpji"), ExtResource("21_ujm4s"), ExtResource("22_sop6o"), ExtResource("23_n102u"), ExtResource("24_qgn1g"), ExtResource("25_0kr4y"), ExtResource("26_5m7m8"), ExtResource("27_r0ol4"), ExtResource("28_c14x5"), ExtResource("29_pbodv")])
+start_room = ExtResource("6_6hxwb")
+max_rooms = null

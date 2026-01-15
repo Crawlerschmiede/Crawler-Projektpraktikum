@@ -1,12 +1,13 @@
 extends ScrollContainer
 
-@onready var message_list = $VBoxContainer
-
-@export var combat_log = []
-@export var tooltips = []
-@export var state = "log"
+@export var combat_log: Array = []
+@export var tooltips: Array = []
+@export var state: String = "log"
 @export var changed: bool = false
-var last_state = "log"
+
+var last_state: String = "log"
+
+@onready var message_list = $VBoxContainer
 
 
 func add_log_event(message: String):
@@ -40,7 +41,7 @@ func _ready() -> void:
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	if state != last_state or changed:
 		print("clearing")
 		_clear_list()
