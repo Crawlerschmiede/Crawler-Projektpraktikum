@@ -10,10 +10,12 @@ const BATTLE_SCENE := preload("res://scenes/battle.tscn")
 var menu_instance: CanvasLayer = null
 var battle: CanvasLayer = null
 
+@onready var PlayerScene = preload("res://scenes/player-character-scene.tscn")
 @onready var dungeon_tilemap: TileMapLayer = $TileMapLayer
 
 
 func _ready() -> void:
+	spawn_player()
 	for i in range(10):
 		spawn_enemy()
 
@@ -57,6 +59,13 @@ func on_menu_closed():
 func spawn_enemy():
 	var e = ENEMY_SCENE.instantiate()
 	e.setup(dungeon_tilemap, 1, 1, 0)
+	add_child(e)
+
+
+func spawn_player():
+	var e = PlayerScene.instantiate()
+	e.name = "Player"
+	e.setup(dungeon_tilemap, 10, 3, 0)
 	add_child(e)
 
 

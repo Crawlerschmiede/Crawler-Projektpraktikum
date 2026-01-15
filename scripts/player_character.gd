@@ -2,13 +2,20 @@ class_name PlayerCharacter
 
 extends MoveableEntity
 
+@onready var camera: Camera2D = $Camera2D
 # Time (in seconds) the character pauses on a tile before taking the next step
-const STEP_COOLDOWN: float = 0.15
-var step_timer: float = 0.1
+const STEP_COOLDOWN: float = 0.01
+var step_timer: float = 0.01
 var inventory := {}
 
 
 func _ready() -> void:
+	if camera == null:
+		print("Children:", get_children())
+		push_error("❌ Camera2D fehlt im Player!")
+		return
+
+	camera.make_current()
 	abilities_this_has = ["Punch", "Right Pivot", "Left Pivot", "Full Power Punch"]
 	super_ready("pc")
 	is_player = true
