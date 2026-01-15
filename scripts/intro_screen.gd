@@ -5,13 +5,14 @@ extends Control
 @onready var logo_container = $CenterContainer
 @onready var static_rect = $StaticOverlay
 @onready var invert_rect = $InvertLayer
-@onready var audio_player = $AudioStreamPlayer
+@onready var tv_noise = $tv_noise
 
 # --- Scene Configuration ---
-@export var start_menu_path: String = "res://scenes/StartMenu.tscn"
+@export var start_menu_path: String = "res://scenes/start-menu.tscn"
 
 
 func _ready():
+	tv_noise.play()
 	# 1. Reset everything to "Power Off" state
 	logo.modulate.a = 0
 	logo.scale = Vector2(1.0, 1.0)
@@ -79,10 +80,9 @@ func play_intro_sequence():
 
 	# --- STAGE 6: EXIT TO MENU ---
 	tween.tween_interval(2.5)  # Hold the logo on screen
-	tween.tween_property(self, "modulate:a", 0.0, 0.5)  # Fade whole screen to black
-	#tween.tween_callback(func():
-	#get_tree().change_scene_to_file(start_menu_path)
-	#)
+	tween.tween_property(self, "modulate:a", 0.0, 2)  # Fade whole screen to black
+	tween.tween_callback(func(): get_tree().change_scene_to_file(start_menu_path)
+	)
 
 
 # --- Procedural Effects ---

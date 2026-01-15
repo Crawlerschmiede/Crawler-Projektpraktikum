@@ -23,8 +23,8 @@ void fragment() {
         text.rgb -= scanline * scanline_intensity;
 
         // 3. Vignette (Dark corners)
-        float dist = distance(SCREEN_UV, vec2(0.5));
-        text.rgb *= smoothstep(0.7, 0.7 - vignette_intensity, dist);
+        float dist = distance(SCREEN_UV, vec2(0.45));
+        text.rgb *= smoothstep(0.5, 0.5 - vignette_intensity, dist);
 
 		// This creates a hard 'rounded corner' look
 		//float mask = smoothstep(0.4, 0.39, abs(distorted_uv.x - 0.5)) * smoothstep(0.4, 0.39, abs(distorted_uv.y - 0.5));

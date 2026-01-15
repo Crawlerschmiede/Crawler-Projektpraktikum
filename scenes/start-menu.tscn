@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3 uid="uid://b5v87f3uddnt5"]
+[gd_scene load_steps=17 format=3 uid="uid://b5v87f3uddnt5"]
 
 [ext_resource type="Texture2D" uid="uid://lumkwdapp0ll" path="res://assets/menu/Box3.png" id="1_3xs3o"]
 [ext_resource type="Script" uid="uid://n6k1jvf6nmyu" path="res://scripts/mouse_clicked.gd" id="1_o50yc"]
@@ -8,6 +8,22 @@
 [ext_resource type="Shader" uid="uid://cot202ickvsd0" path="res://shaders/start-menu.gdshader" id="4_o1opb"]
 [ext_resource type="Script" uid="uid://bthnaemvycse0" path="res://scripts/label.gd" id="6_ui70f"]
 [ext_resource type="Script" uid="uid://bry2bdes3f12p" path="res://scripts/button_effect.gd" id="8_oy7i1"]
+[ext_resource type="AudioStream" uid="uid://boedoftq5v5in" path="res://assets/sfx/Secret of Tiki Island.mp3" id="9_w3k7h"]
+
+[sub_resource type="Animation" id="Animation_o50yc"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("BoxContainer:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(1, 1, 1, 0)]
+}
 
 [sub_resource type="Animation" id="Animation_ui70f"]
 resource_name = "fade_in"
@@ -23,21 +39,6 @@ tracks/0/keys = {
 "transitions": PackedFloat32Array(1, 1),
 "update": 0,
 "values": [Color(1, 1, 1, 0), Color(1, 1, 1, 1)]
-}
-
-[sub_resource type="Animation" id="Animation_o50yc"]
-length = 0.001
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("BoxContainer:modulate")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [Color(1, 1, 1, 0)]
 }
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_oy7i1"]
@@ -213,3 +214,6 @@ theme_override_fonts/font = ExtResource("3_o1opb")
 text = "Exit"
 flat = true
 script = ExtResource("8_oy7i1")
+
+[node name="bg_music" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("9_w3k7h")
