@@ -10,6 +10,12 @@ const SKILLS := preload("res://scripts/premade_skills.gd")
 var is_player: bool = false
 var existing_skills = SKILLS.new()
 var abilities_this_has: Array = []
+var sprites = {
+	"bat": preload("res://scenes/sprite_scenes/bat_sprite_scene.tscn"),
+	"skeleton": preload("res://scenes/sprite_scenes/skeleton_sprite_scene.tscn"),
+	"what": preload("res://scenes/sprite_scenes/what_sprite_scene.tscn"),
+	"pc": preload("res://scenes/sprite_scenes/player_sprite_scene.tscn")
+}
 
 var grid_pos: Vector2i
 var tilemap: TileMapLayer = null
@@ -33,7 +39,7 @@ var poisoned = 0
 var poison_recovery = 1
 
 @onready var detection_area: Area2D = $Area2D
-@onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
+@onready var sprite: AnimatedSprite2D
 
 
 # --- Setup ---
@@ -45,12 +51,15 @@ func setup(tmap: TileMapLayer, _hp, _str, _def):
 	def_stat = _def
 
 
-func super_ready(entity_type: String):
+func super_ready(sprite_type: String, entity_type: Array):
 	if tilemap == null:
 		push_error("❌ MoveableEntity hat keine TileMap! setup(tilemap) vergessen?")
 		return
 
-	if entity_type == "pc":
+	# Spawn logic for player character
+	if "pc" in entity_type:
+		# TODO: make pc spawn at the current floor's entryway
+		position = tilemap.map_to_local(Vector2i(2, 2))
 		grid_pos = Vector2i(2, 2)
 		position = tilemap.map_to_local(grid_pos)
 	# Spawn logic for enemies
@@ -58,11 +67,16 @@ func super_ready(entity_type: String):
 		var possible_spawns = []
 
 		for cell in tilemap.get_used_cells():
+			print("cell", cell.x, cell.y)
 			var tile_data = tilemap.get_cell_tile_data(cell)
 			if tile_data:
 				var is_blocked = tile_data.get_custom_data("non_walkable")
 				if not is_blocked:
-					possible_spawns.append(cell)
+					if "wallbound" in entity_type:
+						if is_next_to_wall(cell):
+							possible_spawns.append(cell)
+					else:
+						possible_spawns.append(cell)
 			# TODO: add logic for fyling enemies, so they can enter certain tiles
 			#if entity_type == "enemy_flying":
 			#	add water/lava/floor trap tiles as possible spawns
@@ -73,9 +87,25 @@ func super_ready(entity_type: String):
 		grid_pos = spawnpoint
 	for ability in abilities_this_has:
 		add_skill(ability)
+	var sprite_scene = sprites[sprite_type]
+	sprite = sprite_scene.instantiate()
+	add_child(sprite)
+	sprite.play("default")
 
 
 # --- Movement Logic ---
+func is_next_to_wall(cell: Vector2i):
+	var next_to_wall = false
+	for i in range(2):
+		for j in range(2):
+			print("i ", i, " j ", j)
+			var adjacent = Vector2i(cell.x + i, cell.y + j)
+			var adjacent_tile = tilemap.get_cell_tile_data(adjacent)
+			if adjacent_tile:
+				var adjacent_blocked = adjacent_tile.get_custom_data("non_walkable")
+				if adjacent_blocked:
+					next_to_wall = true
+	return next_to_wall
 
 
 func move_to_tile(direction: Vector2i):
