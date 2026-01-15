@@ -14,13 +14,13 @@ script = ExtResource("1_no27k")
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("CircleShape2D_r5wgn")
 
-[node name="Area2D" type="Area2D" parent="."]
+[node name="CollisionArea" type="Area2D" parent="."]
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CollisionArea"]
 shape = SubResource("RectangleShape2D_hfhf8")
 
 [node name="Camera2D" type="Camera2D" parent="."]
 zoom = Vector2(3, 3)
 script = ExtResource("4_0cvhd")
 
-[connection signal="area_entered" from="Area2D" to="." method="_on_area_2d_area_entered"]
+[connection signal="area_entered" from="CollisionArea" to="." method="_on_area_2d_area_entered"]

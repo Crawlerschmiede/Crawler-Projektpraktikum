@@ -17,7 +17,7 @@ var battle: CanvasLayer = null
 func _ready() -> void:
 	spawn_player()
 	for i in range(3):
-		spawn_enemy("what", ["aggressive", "wallbound"])
+		spawn_enemy("what", ["hostile", "wallbound"])
 	for i in range(3):
 		spawn_enemy("bat", ["passive", "enemy_flying"])
 	for i in range(3):

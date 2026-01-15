@@ -17,7 +17,6 @@ func _ready() -> void:
 		return
 
 	camera.make_current()
-	abilities_this_has = ["Punch", "Right Pivot", "Left Pivot", "Full Power Punch"]
 	super_ready("pc",["pc"])
 	is_player = true
 	setup(tilemap, 10, 1, 0)
