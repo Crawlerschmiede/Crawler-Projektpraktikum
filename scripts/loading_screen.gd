@@ -1,7 +1,5 @@
 extends Node2D
 
-@onready var tip_label = $TipLabel
-
 var tips: Array = [
 	"Torches keep the shadows at bay, but they don't last forever.",
 	"Listen closely; some walls sound hollow when struck.",
@@ -9,6 +7,8 @@ var tips: Array = [
 	"Don't forget to pack extra rations for long descents.",
 	"Not all monsters are hostile; some just want to trade."
 ]
+
+@onready var tip_label = $TipLabel
 
 
 func _ready():

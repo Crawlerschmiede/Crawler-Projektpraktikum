@@ -1,7 +1,19 @@
 extends CanvasLayer
 
-const marker_prefab = preload("res://scenes/marker.tscn")
-var active_markers = []
+signal player_loss
+signal player_victory
+
+const MARKER_PREFAB := preload("res://scenes/marker.tscn")
+
+@export var player: Node
+@export var enemy: Node
+
+var active_markers: Array = []
+var player_gridpos: Vector2i
+var tile_modifiers: Dictionary = {}
+
+var enemy_sprite
+var player_sprite
 
 @onready var enemy_marker = $Battle_root/EnemyPosition
 @onready var player_marker = $Battle_root/PlayerPosition
@@ -12,20 +24,10 @@ var active_markers = []
 @onready var player_hp_bar = $Battle_root/Player_HPBar
 @onready var log_container = $Battle_root/TextureRect2/message_container
 
-@export var player: Node
-@export var enemy: Node
-
-signal player_loss
-signal player_victory
-
-var player_gridpos: Vector2i
-var tile_modifiers: Dictionary = {}
-
-var enemy_sprite
-var player_sprite
-
 
 func _ready():
+	player.full_status_heal()
+	enemy.full_status_heal()
 	enemy_sprite = create_battle_sprite(enemy)
 	player_sprite = create_battle_sprite(player)
 	player_sprite.animation = "idle_up"
@@ -37,8 +39,8 @@ func _ready():
 	if skill_ui.has_signal("player_turn_done"):
 		# Ensure the connection is safe and only happens once
 		skill_ui.player_turn_done.connect(enemy_turn)
-	enemy_hp_bar.value = (enemy.HP * 100) / enemy.max_HP
-	player_hp_bar.value = (player.HP * 100.0) / player.max_HP
+	enemy_hp_bar.value = (enemy.hp * 100.0) / enemy.max_hp
+	player_hp_bar.value = (player.hp * 100.0) / player.max_hp
 	enemy.decide_attack()
 	enemy_prepare_turn()
 
@@ -63,7 +65,9 @@ func create_battle_sprite(from_actor: CharacterBody2D) -> AnimatedSprite2D:
 
 
 func enemy_prepare_turn():
-	tile_modifiers.clear()  #TODO VERY low tech, just removes everything, works fine for 1-turn effects, but anything else'll need something more complex
+	# TODO: very low tech; clears everything (ok for 1-turn effects).
+	# Anything longer-term will need something more robust.
+	tile_modifiers.clear()
 	for active_marker in active_markers:
 		active_marker.queue_free()
 	active_markers.clear()
@@ -76,27 +80,43 @@ func enemy_prepare_turn():
 
 func enemy_turn():
 	var over = check_victory()
+	player_hp_bar.value = (player.hp * 100.0) / player.max_hp
+	enemy_hp_bar.value = (enemy.hp * 100.0) / enemy.max_hp
 	var happened = []
 	if !over:
-		enemy_hp_bar.value = (enemy.HP * 100.0) / enemy.max_HP
-		player_hp_bar.value = (player.HP * 100.0) / player.max_HP
-		print(enemy, " activates its Skill ", enemy.chosen.name, "!")
-		happened = enemy.chosen.activate_skill(enemy, player, self)
+		var extra_stuff = enemy.deal_with_status_effects()
+		happened = extra_stuff[1]
 		for happening in happened:
 			log_container.add_log_event(happening)
-		enemy.decide_attack()
-		enemy_prepare_turn()
-		skill_ui.player_turn = true
+		enemy_hp_bar.value = (enemy.hp * 100.0) / enemy.max_hp
+		player_hp_bar.value = (player.hp * 100.0) / player.max_hp
+		if extra_stuff[0]:
+			print(enemy, " activates its Skill ", enemy.chosen.name, "!")
+			happened = enemy.chosen.activate_skill(enemy, player, self)
+			for happening in happened:
+				log_container.add_log_event(happening)
+			enemy.decide_attack()
+			enemy_prepare_turn()
+		extra_stuff = player.deal_with_status_effects()
+		happened = extra_stuff[1]
+		player_hp_bar.value = (player.hp * 100.0) / player.max_hp
+		enemy_hp_bar.value = (enemy.hp * 100.0) / enemy.max_hp
+		for happening in happened:
+			log_container.add_log_event(happening)
+		if extra_stuff[0]:
+			skill_ui.player_turn = true
+		else:
+			enemy_turn()
 		check_victory()
-		player_hp_bar.value = (player.HP * 100.0) / player.max_HP
-		enemy_hp_bar.value = (enemy.HP * 100.0) / enemy.max_HP
+		player_hp_bar.value = (player.hp * 100.0) / player.max_hp
+		enemy_hp_bar.value = (enemy.hp * 100.0) / enemy.max_hp
 
 
 func check_victory():
-	if enemy.HP <= 0:
+	if enemy.hp <= 0:
 		player_victory.emit()
 		return true
-	if player.HP <= 0:
+	if player.hp <= 0:
 		player_loss.emit()
 		return true
 	return false
@@ -141,7 +161,8 @@ func move_player(direction: String, distance: int):
 	return "Player moved " + dir
 
 
-func apply_danger_zones(mult, pos, dur, direction):
+func apply_danger_zones(mult, pos, _dur, direction):
+	# NOTE: duration currently unused (effects are 1-turn only).
 	var mult_type = "dmg_mult_" + direction
 	if pos == "player_x":
 		for tile in used_cells:
@@ -171,8 +192,7 @@ func apply_danger_zones(mult, pos, dur, direction):
 			if tile.y == min_y + int(parts[1]):
 				tile_modifiers[tile] = {mult_type: mult}
 	for cell: Vector2i in tile_modifiers.keys():
-		var data: Dictionary = tile_modifiers[cell]
-		var marker = marker_prefab.instantiate()
+		var marker = MARKER_PREFAB.instantiate()
 
 		marker.marker_type = "danger"
 		marker.tooltip_container = log_container
