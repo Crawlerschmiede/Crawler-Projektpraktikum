@@ -142,7 +142,6 @@ func check_collisions() -> void:
 		if body == self:
 			continue
 		if grid_pos == body.grid_pos:
-			print(self.name, " overlapped with:", body.name, " on Tile ", grid_pos)
 			if self.is_player:
 				initiate_battle(self, body)
 			elif body.is_player:
@@ -180,7 +179,7 @@ func add_skill(skill_name):
 
 
 func initiate_battle(player: Node, enemy: Node) -> bool:
-	var main = get_tree().root.get_node("MAIN Pet Dungeon")
+	var main = get_tree().root.get_node("MAIN Pet Dungeon2")
 	main.instantiate_battle(player, enemy)
 	return true
 
