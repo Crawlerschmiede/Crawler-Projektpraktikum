@@ -6,4 +6,5 @@ extends CanvasLayer
 
 func _process(delta: float) -> void:
 	# Let camera move with player
-	camera_node.position = player_node.position
+	if player_node:
+		camera_node.position = player_node.position
