@@ -100,6 +100,8 @@ func check_collisions() -> void:
 	for body in detection_area.get_overlapping_bodies():
 		if body == self:
 			continue
+		if body.is_in_group("item"):
+			continue
 		if grid_pos == body.grid_pos:
 			print(self.name, " overlapped with:", body.name, " on Tile ", grid_pos)
 			if self.is_player:
