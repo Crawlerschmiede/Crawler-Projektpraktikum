@@ -34,3 +34,12 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	sprite.play("default")
 	roam(delta)
+
+func on_save_game(saved_data:Array[SavedData]):
+	
+	var my_data = SavedData.new()
+	my_data.position = global_position
+	my_data.scene_path = scene_file_path
+	saved_data.append(my_data)
+
+	
