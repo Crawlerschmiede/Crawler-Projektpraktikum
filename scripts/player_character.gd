@@ -6,6 +6,8 @@ extends MoveableEntity
 const STEP_COOLDOWN: float = 0.01
 var step_timer: float = 0.01
 var inventory := {}
+var base_actions = ["Move Up", "Move Down", "Move Left", "Move Right"]
+var actions = []
 
 @onready var camera: Camera2D = $Camera2D
 
@@ -19,6 +21,8 @@ func _ready() -> void:
 	camera.make_current()
 	super_ready("pc", ["pc"])
 	is_player = true
+	for action in base_actions:
+		add_action(action)
 	setup(tilemap, 10, 1, 0)
 
 
@@ -103,6 +107,13 @@ func update_animation(direction: Vector2i):
 func add_to_inventory(item_name: String, amount: int):
 	inventory[item_name] = inventory.get(item_name, 0) + amount
 	print("Inventory:", inventory)
+	
+func add_action(skill_name):
+	var skill = existing_skills.get_skill(skill_name)
+	if skill != null:
+		actions.append(skill)
+	else:
+		print(skill_name + "doesn't exist!")
 
 
 func _on_area_2d_area_entered(area: Area2D):

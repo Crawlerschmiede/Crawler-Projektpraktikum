@@ -70,6 +70,32 @@ var existing_skills = {
 		"Have you ever punched someone with your life on the line?",
 		[["damage", 3, false, "No"], ["damage", 1, true, "No"], ["stun", 1, true, "No"]]
 	],
+	
+	#standard actions
+	"Move Up":
+	[
+		"standard",
+		"Do you really need an explanation of what walking forwards is?",
+		[["movement", 1, true, "U"]]
+	],
+	"Move Down":
+	[
+		"standard",
+		"Do you really need an explanation of what walking backwards is?",
+		[["movement", 1, true, "D"]]
+	],
+	"Move Left":
+	[
+		"standard",
+		"Do you really need an explanation of what walking left is?",
+		[["movement", 1, true, "L"]]
+	],
+	"Move Right":
+	[
+		"standard",
+		"Do you really need an explanation of what walking right is?",
+		[["movement", 1, true, "R"]]
+	],
 }
 
 
