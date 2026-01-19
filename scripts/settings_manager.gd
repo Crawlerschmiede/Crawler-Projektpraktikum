@@ -80,14 +80,10 @@ func apply_display() -> void:
 		"borderless_fullscreen":
 			DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
 		"exclusive_fullscreen":
-			DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN)
-			if size.x > 0 and size.y > 0:
-				DisplayServer.window_set_size(size)
+			_apply_exclusive_fullscreen(size)
 		"fullscreen":
 			if fullscreen_type == "exclusive":
-				DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN)
-				if size.x > 0 and size.y > 0:
-					DisplayServer.window_set_size(size)
+				_apply_exclusive_fullscreen(size)
 			else:
 				DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
 		_:
@@ -100,6 +96,13 @@ func apply_display() -> void:
 	if not vsync_enabled:
 		vsync_mode = DisplayServer.VSYNC_DISABLED
 	DisplayServer.window_set_vsync_mode(vsync_mode)
+
+
+func _apply_exclusive_fullscreen(size: Vector2i) -> void:
+	if size.x > 0 and size.y > 0:
+		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+		DisplayServer.window_set_size(size)
+	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN)
 
 
 func apply_sound() -> void:
