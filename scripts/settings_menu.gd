@@ -6,9 +6,6 @@ const SETTINGS_MANAGER_PATH := "/root/SettingsManager"
 
 const PATH_TAB_CONTAINER := NodePath("PanelContainer/VBoxContainer/TabContainer")
 const PATH_WINDOW_MODE := NodePath("PanelContainer/VBoxContainer/TabContainer/Display/WindowMode")
-const PATH_FULLSCREEN_TYPE := NodePath(
-	"PanelContainer/VBoxContainer/TabContainer/Display/FullscreenType"
-)
 const PATH_RESOLUTION := NodePath("PanelContainer/VBoxContainer/TabContainer/Display/Resolution")
 const PATH_VSYNC := NodePath("PanelContainer/VBoxContainer/TabContainer/Display/VSync")
 const PATH_MASTER_VOLUME := NodePath("PanelContainer/VBoxContainer/TabContainer/Sound/MasterVolume")
@@ -26,7 +23,6 @@ var _resolution_items: Array[Vector2i] = []
 
 # Display tab
 @onready var window_mode: OptionButton = get_node(PATH_WINDOW_MODE)
-@onready var fullscreen_type: OptionButton = get_node(PATH_FULLSCREEN_TYPE)
 @onready var resolution: OptionButton = get_node(PATH_RESOLUTION)
 @onready var vsync: CheckBox = get_node(PATH_VSYNC)
 
@@ -42,13 +38,11 @@ var _resolution_items: Array[Vector2i] = []
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_ensure_window_mode_items()
-	_ensure_fullscreen_type_items()
 	_build_resolution_items()
 	_refresh_from_settings()
 	_build_hotkey_rows()
 
 	window_mode.item_selected.connect(_on_window_mode_changed)
-	fullscreen_type.item_selected.connect(_on_fullscreen_type_changed)
 	resolution.item_selected.connect(_on_resolution_changed)
 	vsync.toggled.connect(_on_vsync_toggled)
 	master_volume.value_changed.connect(_on_master_volume_changed)
@@ -59,14 +53,8 @@ func _ensure_window_mode_items() -> void:
 	if window_mode.item_count > 0:
 		return
 	window_mode.add_item("Windowed")
-	window_mode.add_item("Fullscreen")
-
-
-func _ensure_fullscreen_type_items() -> void:
-	if fullscreen_type.item_count > 0:
-		return
-	fullscreen_type.add_item("Borderless Fullscreen")
-	fullscreen_type.add_item("Exclusive Fullscreen")
+	window_mode.add_item("Borderless Fullscreen")
+	window_mode.add_item("Exclusive Fullscreen")
 
 
 func _build_resolution_items() -> void:
@@ -104,9 +92,16 @@ func _refresh_from_settings() -> void:
 
 	# Display
 	var mode := String(mgr.get_value(["display", "window_mode"], "windowed"))
-	window_mode.select(0 if mode != "fullscreen" else 1)
 	var fs_type := String(mgr.get_value(["display", "fullscreen_type"], "borderless"))
-	fullscreen_type.select(0 if fs_type != "exclusive" else 1)
+	match mode:
+		"borderless_fullscreen":
+			window_mode.select(1)
+		"exclusive_fullscreen":
+			window_mode.select(2)
+		"fullscreen":
+			window_mode.select(2 if fs_type == "exclusive" else 1)
+		_:
+			window_mode.select(0)
 	_select_resolution_from_settings()
 	vsync.button_pressed = bool(mgr.get_value(["display", "vsync"], true))
 	_update_display_controls_state()
@@ -207,9 +202,8 @@ func _select_resolution_from_settings() -> void:
 
 
 func _update_display_controls_state() -> void:
-	var is_fullscreen := window_mode.selected == 1
-	fullscreen_type.disabled = not is_fullscreen
-	var borderless := fullscreen_type.selected == 0
+	var is_fullscreen := window_mode.selected != 0
+	var borderless := window_mode.selected == 1
 	resolution.disabled = is_fullscreen and borderless
 
 
@@ -269,18 +263,15 @@ func _on_window_mode_changed(idx: int) -> void:
 	var mgr = _get_manager()
 	if mgr == null:
 		return
-	var mode := "windowed" if idx == 0 else "fullscreen"
+	var mode := "windowed"
+	var fs_type := "borderless"
+	if idx == 1:
+		mode = "borderless_fullscreen"
+		fs_type = "borderless"
+	elif idx == 2:
+		mode = "exclusive_fullscreen"
+		fs_type = "exclusive"
 	mgr.set_value(["display", "window_mode"], mode)
-	_update_display_controls_state()
-	mgr.apply_display()
-	mgr.save_settings()
-
-
-func _on_fullscreen_type_changed(idx: int) -> void:
-	var mgr = _get_manager()
-	if mgr == null:
-		return
-	var fs_type := "borderless" if idx == 0 else "exclusive"
 	mgr.set_value(["display", "fullscreen_type"], fs_type)
 	_update_display_controls_state()
 	mgr.apply_display()

@@ -77,6 +77,12 @@ func apply_display() -> void:
 		var current := DisplayServer.window_get_size()
 		size = Vector2i(current.x, current.y)
 	match mode:
+		"borderless_fullscreen":
+			DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
+		"exclusive_fullscreen":
+			DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN)
+			if size.x > 0 and size.y > 0:
+				DisplayServer.window_set_size(size)
 		"fullscreen":
 			if fullscreen_type == "exclusive":
 				DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN)
