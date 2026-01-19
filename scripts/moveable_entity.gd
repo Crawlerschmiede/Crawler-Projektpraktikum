@@ -10,6 +10,22 @@ const SKILLS := preload("res://scripts/premade_skills.gd")
 var is_player: bool = false
 var existing_skills = SKILLS.new()
 var abilities_this_has: Array = []
+var sprites = {
+	"bat":
+	[preload("res://scenes/sprite_scenes/bat_sprite_scene.tscn"), ["Screech", "Swoop", "Rabies"]],
+	"skeleton":
+	[
+		preload("res://scenes/sprite_scenes/skeleton_sprite_scene.tscn"),
+		["Screech", "Swoop", "Rabies"]
+	],
+	"what":
+	[preload("res://scenes/sprite_scenes/what_sprite_scene.tscn"), ["Screech", "Swoop", "Rabies"]],
+	"pc":
+	[
+		preload("res://scenes/sprite_scenes/player_sprite_scene.tscn"),
+		["Punch", "Right Pivot", "Left Pivot", "Full Power Punch"]
+	]
+}
 
 var grid_pos: Vector2i
 var tilemap: TileMapLayer = null
@@ -32,8 +48,8 @@ var stun_recovery = 1
 var poisoned = 0
 var poison_recovery = 1
 
-@onready var detection_area: Area2D = $Area2D
-@onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
+@onready var collision_area: Area2D = $CollisionArea
+@onready var sprite: AnimatedSprite2D
 
 
 # --- Setup ---
@@ -45,12 +61,15 @@ func setup(tmap: TileMapLayer, _hp, _str, _def):
 	def_stat = _def
 
 
-func super_ready(entity_type: String):
+func super_ready(sprite_type: String, entity_type: Array):
 	if tilemap == null:
 		push_error("❌ MoveableEntity hat keine TileMap! setup(tilemap) vergessen?")
 		return
 
-	if entity_type == "pc":
+	# Spawn logic for player character
+	if "pc" in entity_type:
+		# TODO: make pc spawn at the current floor's entryway
+		position = tilemap.map_to_local(Vector2i(2, 2))
 		grid_pos = Vector2i(2, 2)
 		position = tilemap.map_to_local(grid_pos)
 	# Spawn logic for enemies
@@ -58,11 +77,16 @@ func super_ready(entity_type: String):
 		var possible_spawns = []
 
 		for cell in tilemap.get_used_cells():
+			print("cell", cell.x, cell.y)
 			var tile_data = tilemap.get_cell_tile_data(cell)
 			if tile_data:
 				var is_blocked = tile_data.get_custom_data("non_walkable")
 				if not is_blocked:
-					possible_spawns.append(cell)
+					if "wallbound" in entity_type:
+						if is_next_to_wall(cell):
+							possible_spawns.append(cell)
+					else:
+						possible_spawns.append(cell)
 			# TODO: add logic for fyling enemies, so they can enter certain tiles
 			#if entity_type == "enemy_flying":
 			#	add water/lava/floor trap tiles as possible spawns
@@ -71,11 +95,28 @@ func super_ready(entity_type: String):
 		var spawnpoint = possible_spawns[rng.randi_range(0, len(possible_spawns) - 1)]
 		position = tilemap.map_to_local(spawnpoint)
 		grid_pos = spawnpoint
+	var sprite_scene = sprites[sprite_type]
+	sprite = sprite_scene[0].instantiate()
+	add_child(sprite)
+	sprite.play("default")
+	abilities_this_has = sprite_scene[1]
 	for ability in abilities_this_has:
 		add_skill(ability)
 
 
 # --- Movement Logic ---
+func is_next_to_wall(cell: Vector2i):
+	var next_to_wall = false
+	for i in range(3):
+		for j in range(3):
+			print("i ", i, " j ", j)
+			var adjacent = Vector2i(cell.x + (i - 1), cell.y + (j - 1))
+			var adjacent_tile = tilemap.get_cell_tile_data(adjacent)
+			if adjacent_tile:
+				var adjacent_blocked = adjacent_tile.get_custom_data("non_walkable")
+				if adjacent_blocked:
+					next_to_wall = true
+	return next_to_wall
 
 
 func move_to_tile(direction: Vector2i):
@@ -97,11 +138,10 @@ func move_to_tile(direction: Vector2i):
 
 
 func check_collisions() -> void:
-	for body in detection_area.get_overlapping_bodies():
+	for body in collision_area.get_overlapping_bodies():
 		if body == self:
 			continue
 		if grid_pos == body.grid_pos:
-			print(self.name, " overlapped with:", body.name, " on Tile ", grid_pos)
 			if self.is_player:
 				initiate_battle(self, body)
 			elif body.is_player:
@@ -139,7 +179,7 @@ func add_skill(skill_name):
 
 
 func initiate_battle(player: Node, enemy: Node) -> bool:
-	var main = get_tree().root.get_node("MAIN Pet Dungeon")
+	var main = get_tree().root.get_node("MAIN Pet Dungeon2")
 	main.instantiate_battle(player, enemy)
 	return true
 
