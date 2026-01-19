@@ -16,6 +16,7 @@ var battle_scene: CanvasLayer = null
 @onready var list_vbox: VBoxContainer = $ScrollContainer/VBoxContainer
 var custom_font = load("res://assets/font/PixelPurl.ttf")
 
+
 func setup(_player: Node, _enemy: Node, _battle_scene, _tooltip_container):
 	player = _player
 	enemy = _enemy
@@ -56,15 +57,15 @@ func _add_button(label: String, pressed_cb: Callable, mouseover_cb: Callable) ->
 
 	b.text = label
 	# overrides from the basic godot style into custom style
-	b.flat = true 
+	b.flat = true
 	b.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
 
-	b.add_theme_color_override("font_color", Color(0.8, 0.8, 0.8)) # Light gray
-	
+	b.add_theme_color_override("font_color", Color(0.8, 0.8, 0.8))  # Light gray
+
 	# 3. Connect Hover signals for the flicker effect
 	#b.mouse_entered.connect(_on_button_hover_start.bind(b))
 	#b.mouse_exited.connect(_on_button_hover_stop.bind(b))
-	
+
 	b.pressed.connect(pressed_cb)
 	b.mouse_entered.connect(mouseover_cb)
 	b.add_theme_font_override("font", custom_font)
@@ -101,28 +102,28 @@ func remove_tooltip():
 #var hover_tweens: Dictionary = {}
 
 #func _on_button_hover_start(btn: Button):
-	# Kill any existing tween for this specific button
-	#if hover_tweens.has(btn):
-		#hover_tweens[btn].kill()
-	#
-	#var tween = create_tween().set_loops()
-	#hover_tweens[btn] = tween
-	#
-	## Create a "Flicker" by jumping between white and Doom Red/Orange
-	## The duration (0.05s) makes it feel like a glitchy CRT text
-	#tween.tween_method(func(val): 
-		#btn.add_theme_color_override("font_color", val),
-		#Color(1, 1, 1, 1), # Start color (White)
-		#Color(1, 0.2, 0.2, 0.7), # End color (Soft Red/Glitch)
-		#0.1
-	#).set_trans(Tween.TRANS_ELASTIC)
-	#
-	#tween.tween_interval(0.05) # Tiny pause to make it "stutter"
+# Kill any existing tween for this specific button
+#if hover_tweens.has(btn):
+#hover_tweens[btn].kill()
+#
+#var tween = create_tween().set_loops()
+#hover_tweens[btn] = tween
+#
+## Create a "Flicker" by jumping between white and Doom Red/Orange
+## The duration (0.05s) makes it feel like a glitchy CRT text
+#tween.tween_method(func(val):
+#btn.add_theme_color_override("font_color", val),
+#Color(1, 1, 1, 1), # Start color (White)
+#Color(1, 0.2, 0.2, 0.7), # End color (Soft Red/Glitch)
+#0.1
+#).set_trans(Tween.TRANS_ELASTIC)
+#
+#tween.tween_interval(0.05) # Tiny pause to make it "stutter"
 #
 #func _on_button_hover_stop(btn: Button):
-	#if hover_tweens.has(btn):
-		#hover_tweens[btn].kill()
-		#hover_tweens.erase(btn)
-	#
-	## Reset text to normal color
-	#btn.add_theme_color_override("font_color", Color(0.8, 0.8, 0.8))
+#if hover_tweens.has(btn):
+#hover_tweens[btn].kill()
+#hover_tweens.erase(btn)
+#
+## Reset text to normal color
+#btn.add_theme_color_override("font_color", Color(0.8, 0.8, 0.8))
