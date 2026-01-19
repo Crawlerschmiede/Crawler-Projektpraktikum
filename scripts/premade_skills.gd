@@ -21,7 +21,21 @@ var existing_skills = {
 		[["damage", 1, false, "No"], ["danger_dmg_mult", 2, false, "player_x"]]
 	],
 	"Rabies":
-	["bat things", "It's a wild animal. They have this sometimes", [["poison", 2, false, "No"]]],
+	[	
+		"bat things", 
+		"It's a wild animal. They have this sometimes", 
+		[["poison", 2, false, "No"]]
+	],
+	
+	#void stuff
+	"Encroaching Void":
+	[	
+		"void things", 
+		"You suddenly feel surrounded by non-existence", 
+		[["death", 1, false, "surrounding"]]
+	],
+	
+	
 	#unarmed player stuff
 	"Punch":
 	[

@@ -12,14 +12,19 @@ var existing_skills = SKILLS.new()
 var abilities_this_has: Array = []
 var sprites = {
 	"bat":
-	[preload("res://scenes/sprite_scenes/bat_sprite_scene.tscn"), ["Screech", "Swoop", "Rabies"]],
+	[
+		preload("res://scenes/sprite_scenes/bat_sprite_scene.tscn"), 
+		["Screech", "Swoop", "Rabies"]],
 	"skeleton":
 	[
 		preload("res://scenes/sprite_scenes/skeleton_sprite_scene.tscn"),
 		["Screech", "Swoop", "Rabies"]
 	],
 	"what":
-	[preload("res://scenes/sprite_scenes/what_sprite_scene.tscn"), ["Screech", "Swoop", "Rabies"]],
+	[
+		preload("res://scenes/sprite_scenes/what_sprite_scene.tscn"), 
+		["Screech", "Swoop", "Encroaching Void"]
+	],
 	"pc":
 	[
 		preload("res://scenes/sprite_scenes/player_sprite_scene.tscn"),
@@ -77,7 +82,6 @@ func super_ready(sprite_type: String, entity_type: Array):
 		var possible_spawns = []
 
 		for cell in tilemap.get_used_cells():
-			print("cell", cell.x, cell.y)
 			var tile_data = tilemap.get_cell_tile_data(cell)
 			if tile_data:
 				var is_blocked = tile_data.get_custom_data("non_walkable")
@@ -109,7 +113,6 @@ func is_next_to_wall(cell: Vector2i):
 	var next_to_wall = false
 	for i in range(3):
 		for j in range(3):
-			print("i ", i, " j ", j)
 			var adjacent = Vector2i(cell.x + (i - 1), cell.y + (j - 1))
 			var adjacent_tile = tilemap.get_cell_tile_data(adjacent)
 			if adjacent_tile:
@@ -124,7 +127,6 @@ func move_to_tile(direction: Vector2i):
 		return
 
 	var target_cell = grid_pos + direction
-	print()
 	if not is_cell_walkable(target_cell):
 		return
 
@@ -190,6 +192,13 @@ func take_damage(damage):
 	hp = hp - taken_damage
 	print("Now has ", hp, "HP")
 	return [" took " + str(taken_damage) + " Damage", " now has " + str(hp) + " HP"]
+	
+func heal(healing):
+	print(self, " heals by ", healing, "!")
+	var healed_hp = healing  #useless right now but just put here for later damage calculations
+	hp = hp + healed_hp
+	print("Now has ", hp, "HP")
+	return [" healed by " + str(healed_hp), " now has " + str(hp) + " HP"]
 
 
 #-- status effect logic --
