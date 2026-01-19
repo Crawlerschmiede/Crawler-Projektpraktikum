@@ -1,12 +1,15 @@
 extends SubViewport
 
-@onready var player = $"../../../Player"
-@onready var cam = $MiniCam
+@export var player_path: NodePath
+
+var player: Node2D
+@onready var cam: Camera2D = $MiniCam
 
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	world_2d = get_tree().root.world_2d
+	_resolve_player()
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -14,4 +17,13 @@ func _process(_delta: float) -> void:
 	if player != null:
 		cam.position = player.position
 	else:
-		player = $"../../../Player"
+		_resolve_player()
+
+
+func _resolve_player() -> void:
+	if player_path != NodePath():
+		player = get_node_or_null(player_path) as Node2D
+		return
+
+	var found = get_tree().root.find_child("Player", true, false)
+	player = found as Node2D if found is Node2D else null

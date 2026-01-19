@@ -4,7 +4,7 @@ extends ScrollContainer
 @export var tooltips: Array = []
 @export var state: String = "log"
 @export var changed: bool = false
-
+var custom_font = load("res://assets/font/PixelPurl.ttf")
 var last_state: String = "log"
 
 @onready var message_list = $VBoxContainer
@@ -24,7 +24,8 @@ func _add_label(text: String) -> void:
 	var b := Label.new()
 	b.text = text
 	b.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	b.add_theme_font_size_override("font_size", 10)
+	#b.add_theme_font_size_override("font_size", 10)
+	b.add_theme_font_override("font", custom_font)
 	message_list.add_child(b)
 
 

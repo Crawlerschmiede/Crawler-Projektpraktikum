@@ -58,7 +58,7 @@ func chase():
 				move_to_tile(x_move)
 				chase_timer = CHASE_COOLDOWN
 				return
-			elif is_next_to_wall(grid_pos + y_move) and y_move != Vector2i.ZERO:
+			if is_next_to_wall(grid_pos + y_move) and y_move != Vector2i.ZERO:
 				move_to_tile(y_move)
 				chase_timer = CHASE_COOLDOWN
 				return
@@ -71,7 +71,7 @@ func chase():
 				move_to_tile(x_move)
 				chase_timer = CHASE_COOLDOWN
 				return
-			elif (
+			if (
 				tilemap.get_cell_tile_data(grid_pos + y_move)
 				and !tilemap.get_cell_tile_data(grid_pos + y_move).get_custom_data("non_walkable")
 				and y_move != Vector2i.ZERO

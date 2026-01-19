@@ -68,17 +68,41 @@ func apply_all() -> void:
 func apply_display() -> void:
 	var display := settings.get("display", {}) as Dictionary
 	var mode := String(display.get("window_mode", "windowed"))
+	var fullscreen_type := String(display.get("fullscreen_type", "borderless"))
+	var res := display.get("resolution", {}) as Dictionary
+	var width := int(res.get("width", 640))
+	var height := int(res.get("height", 480))
+	var size := Vector2i(width, height)
+	if size.x <= 0 or size.y <= 0:
+		var current := DisplayServer.window_get_size()
+		size = Vector2i(current.x, current.y)
 	match mode:
-		"fullscreen":
+		"borderless_fullscreen":
 			DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
+		"exclusive_fullscreen":
+			_apply_exclusive_fullscreen(size)
+		"fullscreen":
+			if fullscreen_type == "exclusive":
+				_apply_exclusive_fullscreen(size)
+			else:
+				DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
 		_:
 			DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+			if size.x > 0 and size.y > 0:
+				DisplayServer.window_set_size(size)
 
 	var vsync_enabled := bool(display.get("vsync", true))
 	var vsync_mode := DisplayServer.VSYNC_ENABLED
 	if not vsync_enabled:
 		vsync_mode = DisplayServer.VSYNC_DISABLED
 	DisplayServer.window_set_vsync_mode(vsync_mode)
+
+
+func _apply_exclusive_fullscreen(size: Vector2i) -> void:
+	if size.x > 0 and size.y > 0:
+		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+		DisplayServer.window_set_size(size)
+	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN)
 
 
 func apply_sound() -> void:
@@ -172,6 +196,8 @@ func _get_defaults() -> Dictionary:
 		"display":
 		{
 			"window_mode": "windowed",
+			"fullscreen_type": "borderless",
+			"resolution": {"width": 640, "height": 480},
 			"vsync": true,
 		},
 		"sound":
