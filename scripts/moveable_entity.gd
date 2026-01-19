@@ -18,7 +18,7 @@ var sprites = {
 	"skeleton":
 	[
 		preload("res://scenes/sprite_scenes/skeleton_sprite_scene.tscn"),
-		["Screech", "Swoop", "Rabies"]
+		["Screech", "Swoop", "Feint"]
 	],
 	"what":
 	[

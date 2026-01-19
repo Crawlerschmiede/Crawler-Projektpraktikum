@@ -6,6 +6,7 @@ extends Resource
 # name : [skilltree, description, effects]
 # The effects should be in the format:
 # [[type, value, targets_self, details], [same thing for more effects]...]]
+#for dmg reduction, 1 means full damage taken and 0 means full immunity with float values in between
 var existing_skills = {
 	#bat stuff
 	"Screech":
@@ -35,6 +36,14 @@ var existing_skills = {
 		[["death", 1, false, "surrounding"]]
 	],
 	
+	
+	#Skeleton Stuff
+	"Feint":
+	[
+		"skeleton things",
+		"This strike looks easy to dodge... weirdly so",
+		[["damage", 2, false, "No"], ["safety_dmg_reduc", 0, false, "player_pos"]]
+	],
 	
 	#unarmed player stuff
 	"Punch":

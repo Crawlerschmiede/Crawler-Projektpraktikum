@@ -222,6 +222,16 @@ func apply_zones(zone_type, mult, pos, _dur, direction):
 		for tile in used_cells:
 			if tile.y == player_gridpos.y:
 				tile_modifiers[tile] = {mult_type: mult}
+	elif pos == "player_pos":
+		for tile in used_cells:
+			if tile == player_gridpos:
+				tile_modifiers[tile] = {mult_type: mult} 
+	elif pos == "surrounding":
+		for tile in used_cells:
+			if tile == player_gridpos:
+				continue
+			elif (tile.x == player_gridpos.x-1 or tile.x == player_gridpos.x or tile.x == player_gridpos.x+1) and (tile.y == player_gridpos.y-1 or tile.y == player_gridpos.y or tile.y == player_gridpos.y+1):
+				tile_modifiers[tile] = {mult_type: mult} 
 	elif "x" in pos:
 		var parts = pos.split("=")
 		var min_x = 99999999999999
@@ -241,19 +251,17 @@ func apply_zones(zone_type, mult, pos, _dur, direction):
 		for tile in used_cells:
 			if tile.y == min_y + int(parts[1]):
 				tile_modifiers[tile] = {mult_type: mult}
-	elif pos == "surrounding":
-		for tile in used_cells:
-			if tile == player_gridpos:
-				continue
-			elif (tile.x == player_gridpos.x-1 or tile.x == player_gridpos.x or tile.x == player_gridpos.x+1) and (tile.y == player_gridpos.y-1 or tile.y == player_gridpos.y or tile.y == player_gridpos.y+1):
-				tile_modifiers[tile] = {mult_type: mult} 
+				
 		
 	for cell: Vector2i in tile_modifiers.keys():
 		var marker = MARKER_PREFAB.instantiate()
 
 		marker.marker_type = marker_visual
 		marker.tooltip_container = log_container
-		marker.marker_info = marker_info["info"].replace("<PUTVALUEHERE>", str(mult))
+		var text_val = mult
+		if zone_type =="dmg_reduc_":
+			text_val = int((1-mult)*100)
+		marker.marker_info = marker_info["info"].replace("<PUTVALUEHERE>", str(text_val))
 
 		$Battle_root.add_child(marker)
 		active_markers.append(marker)
