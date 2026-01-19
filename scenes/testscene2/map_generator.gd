@@ -1,3 +1,5 @@
+# gdlint: disable=max-public-methods
+
 extends Node2D
 
 @export var room_scenes: Array[PackedScene]
@@ -550,8 +552,9 @@ func generate_with_genome(
 	return stats
 
 
+# gdlint: disable=max-returns
 func try_place_specific_room(
-	scene: PackedScene, door, parent_node: Node, local_placed: Array[Node2D], genome: Genome
+	scene: PackedScene, door, parent_node: Node, local_placed: Array[Node2D], _genome: Genome
 ) -> bool:
 	if scene == null:
 		return false
@@ -616,6 +619,9 @@ func try_place_specific_room(
 	local_placed.append(new_room)
 
 	return true
+
+
+# gdlint: enable=max-returns
 
 
 # -----------------------------

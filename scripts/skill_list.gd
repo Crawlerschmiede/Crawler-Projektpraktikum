@@ -11,10 +11,10 @@ var enemy: Node
 
 var player_turn: bool = true
 var battle_scene: CanvasLayer = null
+var custom_font = load("res://assets/font/PixelPurl.ttf")
 
 @onready var tab_bar: TabBar = $TabBar
 @onready var list_vbox: VBoxContainer = $ScrollContainer/VBoxContainer
-var custom_font = load("res://assets/font/PixelPurl.ttf")
 
 
 func setup(_player: Node, _enemy: Node, _battle_scene, _tooltip_container):

@@ -66,11 +66,21 @@ text = "Window mode"
 [node name="WindowMode" type="OptionButton" parent="PanelContainer/VBoxContainer/TabContainer/Display"]
 layout_mode = 2
 selected = 0
-item_count = 2
+item_count = 3
 popup/item_0/text = "Windowed"
 popup/item_0/id = 0
-popup/item_1/text = "Fullscreen"
+popup/item_1/text = "Borderless Fullscreen"
 popup/item_1/id = 1
+popup/item_2/text = "Exclusive Fullscreen"
+popup/item_2/id = 2
+
+[node name="ResolutionLabel" type="Label" parent="PanelContainer/VBoxContainer/TabContainer/Display"]
+layout_mode = 2
+text = "Resolution"
+
+[node name="Resolution" type="OptionButton" parent="PanelContainer/VBoxContainer/TabContainer/Display"]
+layout_mode = 2
+selected = 0
 
 [node name="VSync" type="CheckBox" parent="PanelContainer/VBoxContainer/TabContainer/Display"]
 layout_mode = 2
