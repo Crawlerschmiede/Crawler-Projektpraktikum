@@ -1,4 +1,4 @@
-[gd_scene load_steps=38 format=3 uid="uid://bvfdv1snyoxhh"]
+[gd_scene load_steps=53 format=3 uid="uid://bvfdv1snyoxhh"]
 
 [ext_resource type="Script" uid="uid://dp4r7814o32x6" path="res://scripts/player_character.gd" id="1_no27k"]
 [ext_resource type="Texture2D" uid="uid://m57eoo6ogcf7" path="res://assets/player-character/16x16 Idle-Sheet.png" id="2_no27k"]
@@ -9,6 +9,9 @@
 [ext_resource type="Script" uid="uid://c46g0i67damgr" path="res://scenes/Slot.gd" id="6_5c7wf"]
 [ext_resource type="Script" uid="uid://ea2sa6nokqrn" path="res://scenes/inventory.gd" id="6_7x6uh"]
 [ext_resource type="Script" uid="uid://cw2q837r7w1po" path="res://scenes/pickup_zone.gd" id="8_jjy7y"]
+[ext_resource type="Texture2D" uid="uid://do8wsaes8sy12" path="res://assets/menu/UI_TravelBook_BookPageRight01a.png" id="8_lsi2u"]
+[ext_resource type="Texture2D" uid="uid://sppwtd1lbmbe" path="res://assets/menu/UI_TravelBook_BookPageLeft01a.png" id="9_mbyut"]
+[ext_resource type="Texture2D" uid="uid://bxp7sedmunhcs" path="res://assets/menu/inventar_slot.png" id="10_j4pnj"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_r5wgn"]
 radius = 8.0
@@ -216,6 +219,42 @@ animations = [{
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_hfhf8"]
 
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_x2d4g"]
+texture = ExtResource("10_j4pnj")
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_odrip"]
+texture = ExtResource("10_j4pnj")
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_6k8oa"]
+texture = ExtResource("10_j4pnj")
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_nq0iv"]
+texture = ExtResource("10_j4pnj")
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_fxkes"]
+texture = ExtResource("10_j4pnj")
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_72a5a"]
+texture = ExtResource("10_j4pnj")
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_gdkvl"]
+texture = ExtResource("10_j4pnj")
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_3710g"]
+texture = ExtResource("10_j4pnj")
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_oag0m"]
+texture = ExtResource("10_j4pnj")
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_cjry2"]
+texture = ExtResource("10_j4pnj")
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_3r868"]
+texture = ExtResource("10_j4pnj")
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_hh3gd"]
+texture = ExtResource("10_j4pnj")
+
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_jmui6"]
 
 [node name="Player" type="CharacterBody2D"]
@@ -273,6 +312,24 @@ texture = ExtResource("5_u5lr6")
 expand_mode = 1
 metadata/_edit_use_anchors_ = true
 
+[node name="TextureRect2" type="TextureRect" parent="UserInterface/Inventory/TextureRect"]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 2.0
+offset_right = 148.0
+offset_bottom = 78.0
+texture = ExtResource("8_lsi2u")
+expand_mode = 1
+
+[node name="TextureRect3" type="TextureRect" parent="UserInterface/Inventory/TextureRect"]
+layout_mode = 0
+offset_left = 4.0
+offset_top = 2.0
+offset_right = 76.0
+offset_bottom = 78.0
+texture = ExtResource("9_mbyut")
+expand_mode = 1
+
 [node name="GridContainer" type="GridContainer" parent="UserInterface/Inventory"]
 layout_mode = 1
 anchors_preset = 8
@@ -280,9 +337,9 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -48.0
+offset_left = -46.0
 offset_top = -35.0
-offset_right = 48.0
+offset_right = 50.0
 offset_bottom = 35.0
 grow_horizontal = 2
 grow_vertical = 2
@@ -294,6 +351,7 @@ custom_minimum_size = Vector2(20, 20)
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 4
+theme_override_styles/panel = SubResource("StyleBoxTexture_x2d4g")
 script = ExtResource("6_5c7wf")
 
 [node name="Slot2" type="Panel" parent="UserInterface/Inventory/GridContainer"]
@@ -301,6 +359,7 @@ custom_minimum_size = Vector2(20, 20)
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 4
+theme_override_styles/panel = SubResource("StyleBoxTexture_odrip")
 script = ExtResource("6_5c7wf")
 
 [node name="Slot3" type="Panel" parent="UserInterface/Inventory/GridContainer"]
@@ -308,6 +367,7 @@ custom_minimum_size = Vector2(20, 20)
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 4
+theme_override_styles/panel = SubResource("StyleBoxTexture_6k8oa")
 script = ExtResource("6_5c7wf")
 
 [node name="Slot4" type="Panel" parent="UserInterface/Inventory/GridContainer"]
@@ -315,6 +375,7 @@ custom_minimum_size = Vector2(20, 20)
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 4
+theme_override_styles/panel = SubResource("StyleBoxTexture_nq0iv")
 script = ExtResource("6_5c7wf")
 
 [node name="Slot5" type="Panel" parent="UserInterface/Inventory/GridContainer"]
@@ -322,6 +383,7 @@ custom_minimum_size = Vector2(20, 20)
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 4
+theme_override_styles/panel = SubResource("StyleBoxTexture_fxkes")
 script = ExtResource("6_5c7wf")
 
 [node name="Slot6" type="Panel" parent="UserInterface/Inventory/GridContainer"]
@@ -329,6 +391,7 @@ custom_minimum_size = Vector2(20, 20)
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 4
+theme_override_styles/panel = SubResource("StyleBoxTexture_72a5a")
 script = ExtResource("6_5c7wf")
 
 [node name="Slot7" type="Panel" parent="UserInterface/Inventory/GridContainer"]
@@ -336,6 +399,7 @@ custom_minimum_size = Vector2(20, 20)
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 4
+theme_override_styles/panel = SubResource("StyleBoxTexture_gdkvl")
 script = ExtResource("6_5c7wf")
 
 [node name="Slot8" type="Panel" parent="UserInterface/Inventory/GridContainer"]
@@ -343,6 +407,7 @@ custom_minimum_size = Vector2(20, 20)
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 4
+theme_override_styles/panel = SubResource("StyleBoxTexture_3710g")
 script = ExtResource("6_5c7wf")
 
 [node name="Slot9" type="Panel" parent="UserInterface/Inventory/GridContainer"]
@@ -350,6 +415,7 @@ custom_minimum_size = Vector2(20, 20)
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 4
+theme_override_styles/panel = SubResource("StyleBoxTexture_oag0m")
 script = ExtResource("6_5c7wf")
 
 [node name="Slot10" type="Panel" parent="UserInterface/Inventory/GridContainer"]
@@ -357,6 +423,7 @@ custom_minimum_size = Vector2(20, 20)
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 4
+theme_override_styles/panel = SubResource("StyleBoxTexture_cjry2")
 script = ExtResource("6_5c7wf")
 
 [node name="Slot11" type="Panel" parent="UserInterface/Inventory/GridContainer"]
@@ -364,6 +431,7 @@ custom_minimum_size = Vector2(20, 20)
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 4
+theme_override_styles/panel = SubResource("StyleBoxTexture_3r868")
 script = ExtResource("6_5c7wf")
 
 [node name="Slot12" type="Panel" parent="UserInterface/Inventory/GridContainer"]
@@ -371,6 +439,7 @@ custom_minimum_size = Vector2(20, 20)
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 4
+theme_override_styles/panel = SubResource("StyleBoxTexture_hh3gd")
 script = ExtResource("6_5c7wf")
 
 [node name="PickupZone" type="Area2D" parent="."]
