@@ -305,6 +305,7 @@ script = ExtResource("4_0cvhd")
 script = ExtResource("5_jmui6")
 
 [node name="Inventory" type="Control" parent="UserInterface"]
+visible = false
 z_index = 100
 layout_mode = 3
 anchors_preset = 8
