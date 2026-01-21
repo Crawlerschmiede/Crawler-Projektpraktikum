@@ -7,10 +7,58 @@ const NUM_INVENTORY_SLOTS: int = 20
 # slot_index -> [item_name: String, item_quantity: int]
 var inventory: Dictionary = {}
 
+var slot_group_by_index: Dictionary = {}
+
 var suppress_signal: bool = false
 
 func _ready() -> void:
 	pass
+
+func register_slot_index(idx: int, groups: Array[StringName]) -> void:
+	slot_group_by_index[idx] = groups
+	print(slot_group_by_index, idx, groups)
+
+func _get_item_group(item_name: String) -> String:
+	if JsonData == null or not ("item_data" in JsonData):
+		return "Inventory"
+
+	var data: Dictionary = JsonData.item_data
+	if not data.has(item_name):
+		return "Inventory"
+
+	var info: Variant = data[item_name]
+	if typeof(info) != TYPE_DICTIONARY:
+		return "Inventory"
+
+	return str((info as Dictionary).get("group", "Inventory"))
+
+func _slot_accepts_item(slot_node: Node, item_name: String) -> bool:
+	if slot_node == null:
+		print("[INV] slot_accepts_item: slot_node=null")
+		return false
+
+	var item_group: String = _get_item_group(item_name)
+
+	# Debug Infos
+	var slot_groups: Array[StringName] = slot_node.get_groups()
+	print("[INV] CHECK groups: slot=", slot_node.name,
+		" slot_groups=", slot_groups,
+		" item=", item_name,
+		" item_group=", item_group)
+
+	# Slot muss passende Gruppe haben
+	if slot_node.is_in_group(item_group):
+		print("[INV] ✅ OK: slot in group ", item_group)
+		return true
+
+	# Fallback
+	if item_group == "Inventory" and slot_node.is_in_group("Inventory"):
+		print("[INV] ✅ OK: Inventory fallback")
+		return true
+
+	print("[INV] ❌ DENY: group mismatch")
+	return false
+
 
 
 # ------------------------------------------------------
@@ -80,15 +128,33 @@ func add_item(item_name: String, item_quantity: int = 1) -> void:
 			return
 
 	# 2) neue Slots belegen
-	for i in range(NUM_INVENTORY_SLOTS):
-		if not inventory.has(i):
-			var put_now: int = min(stack_size, item_quantity)
-			inventory[i] = [item_name, put_now]
-			item_quantity -= put_now
+	var wanted_group: String = _get_item_group(item_name)
 
-			if item_quantity <= 0:
-				_emit_changed()
-				return
+	var indices: Array = slot_group_by_index.keys()
+	indices.sort()
+
+	for k in indices:
+		var i: int = int(k)
+
+		if inventory.has(i):
+			continue
+
+		var slot_groups: Array = slot_group_by_index.get(i, [])
+		if not (wanted_group in slot_groups):
+			print("not the same: ", slot_groups, wanted_group)
+			continue
+		else:
+			print("found: ", slot_groups, wanted_group)
+
+		var put_now: int = min(stack_size, item_quantity)
+		inventory[i] = [item_name, put_now]
+		item_quantity -= put_now
+
+		_emit_changed()
+
+		if item_quantity <= 0:
+			return
+
 
 	# wenn wir hier sind: kein Platz
 	_emit_changed()
@@ -112,22 +178,29 @@ func _emit_changed_deferred() -> void:
 	inventory_changed.emit()
 
 
-func add_item_to_empty_slot(item_node: Node, slot_node: Node) -> void:
+func add_item_to_empty_slot(item_node: Node, slot_node: Node) -> bool:
 	if item_node == null or slot_node == null:
-		return
+		return false
 
 	var idx: int = _slot_index_from_slot(slot_node)
 	if idx < 0:
 		push_error("add_item_to_empty_slot: Slot hat keinen gültigen slot_index")
-		return
+		return false
 
 	var nm: String = str(item_node.get("item_name"))
 	var qt: int = int(item_node.get("item_quantity"))
 	if nm == "" or qt <= 0:
-		return
+		return false
+
+	if not _slot_accepts_item(slot_node, nm):
+		push_warning("Slot akzeptiert Item nicht (Group mismatch)! item='%s' group='%s'" % [nm, _get_item_group(nm)])
+		return false
 
 	inventory[idx] = [nm, qt]
 	_emit_changed()
+	return true
+
+
 
 
 func remove_item(slot_node: Node) -> void:

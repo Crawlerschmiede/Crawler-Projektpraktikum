@@ -2,6 +2,7 @@
   "Hund": {
 	"ItemCategory": "Hund",
 	"StackSize": 99,
-	"Description": "A sturdy tree branch that can be used for crafting."
+	"Description": "A sturdy tree branch that can be used for crafting.",
+	"group": "Equipment"
   }
 }

@@ -72,7 +72,7 @@ func _ready() -> void:
 func _setup_slots(slots: Array[Node]) -> void:
 	for i: int in range(slots.size()):
 		var s: Node = slots[i]
-
+		
 		if not (s is Control):
 			push_error("Slot %d ist kein Control! gui_input geht nur bei Control-Nodes." % i)
 			continue
@@ -85,10 +85,13 @@ func _setup_slots(slots: Array[Node]) -> void:
 		if not s.has_method("putIntoSlot"):
 			dbg("Slot %d hat keine putIntoSlot() (für Click/Drag nötig!)" % i)
 
+		var groups: Array[StringName] = (s as Node).get_groups()
+		PlayerInventory.register_slot_index(i, groups)
+	
 		# Optional
 		if not s.has_method("refresh_style"):
 			dbg("Slot %d hat keine refresh_style() (optional, empfohlen)" % i)
-
+		
 		# Signal connect (Callable speichern, sonst is_connected() sinnlos)
 		var call: Callable = Callable(self, "slot_gui_input").bind(s)
 		_slot_callables[s] = call
@@ -283,22 +286,23 @@ func left_click_empty_slot(slot: Node) -> void:
 	if ui == null:
 		return
 
-	var holding: Variant = ui.get("holding_item")
+	var holding: Node = ui.get("holding_item")
 	if holding == null:
 		return
 
-	if able_to_put_into_slot(slot):
-		PlayerInventory.add_item_to_empty_slot(holding, slot)
+	var ok: bool = PlayerInventory.add_item_to_empty_slot(holding, slot)
 
-		if slot.has_method("putIntoSlot"):
-			slot.call("putIntoSlot", holding)
-		else:
-			push_error("Slot hat keine putIntoSlot()")
-			return
+	if not ok:
+		dbg("DROP denied -> item bleibt in Hand")
+		return
 
-		ui.set("holding_item", null)
-		if DEBUG:
-			_validate_slot(slot)
+	# ✅ nur wenn ok: UI ändern
+	slot.call("putIntoSlot", holding)
+	ui.set("holding_item", null)
+
+	if DEBUG:
+		_validate_slot(slot)
+
 
 
 func left_click_different_item(slot: Node) -> void:

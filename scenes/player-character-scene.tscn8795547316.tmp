@@ -289,14 +289,14 @@ grow_vertical = 2
 columns = 4
 metadata/_edit_use_anchors_ = true
 
-[node name="Slot1" type="Panel" parent="UserInterface/Inventory/GridContainer" groups=["Inventory"]]
+[node name="Slot1" type="Panel" parent="UserInterface/Inventory/GridContainer" groups=["Equipment"]]
 custom_minimum_size = Vector2(20, 20)
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 4
 script = ExtResource("6_5c7wf")
 
-[node name="Slot2" type="Panel" parent="UserInterface/Inventory/GridContainer" groups=["Inventory"]]
+[node name="Slot2" type="Panel" parent="UserInterface/Inventory/GridContainer"]
 custom_minimum_size = Vector2(20, 20)
 layout_mode = 2
 size_flags_horizontal = 0
@@ -366,7 +366,7 @@ size_flags_horizontal = 0
 size_flags_vertical = 4
 script = ExtResource("6_5c7wf")
 
-[node name="Slot12" type="Panel" parent="UserInterface/Inventory/GridContainer" groups=["Equipment"]]
+[node name="Slot12" type="Panel" parent="UserInterface/Inventory/GridContainer"]
 custom_minimum_size = Vector2(20, 20)
 layout_mode = 2
 size_flags_horizontal = 0
