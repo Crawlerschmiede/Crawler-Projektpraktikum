@@ -373,6 +373,21 @@ func genetic_search_best() -> EvalResult:
 
 	return best_overall
 
+func get_room_rects(room: Node2D) -> Array[Rect2]:
+	var rects: Array[Rect2] = []
+	var area := room.get_node_or_null("Area2D") as Area2D
+	if area == null:
+		return rects
+
+	for child in area.get_children():
+		if child is CollisionShape2D:
+			var shape := child.shape as RectangleShape2D
+			if shape == null:
+				continue
+			var center :Vector2= child.global_position
+			rects.append(Rect2(center - shape.extents, shape.extents * 2.0))
+
+	return rects
 
 func evaluate_genome(genome: Genome, trial_seed: int) -> EvalResult:
 	# Wir generieren in einem temporären Container (wird danach freigegeben)
@@ -708,45 +723,55 @@ class OverlapResult:
 	var overlaps: bool = false
 	var other_name: String = ""
 
+func _get_room_rects(room: Node2D) -> Array[Rect2]:
+	var rects: Array[Rect2] = []
 
+	var area := room.get_node_or_null("Area2D") as Area2D
+	if area == null:
+		return rects
+
+	for child in area.get_children():
+		if child is CollisionShape2D:
+			var cs := child as CollisionShape2D
+			var shape := cs.shape as RectangleShape2D
+			if shape == null:
+				continue
+
+			# ✅ Achtung: CollisionShape2D kann verschoben sein!
+			var center := cs.global_position
+			rects.append(Rect2(center - shape.extents, shape.extents * 2.0))
+
+	return rects
+	
 func check_overlap_aabb(new_room: Node2D, against: Array[Node2D]) -> OverlapResult:
 	var result := OverlapResult.new()
 
-	var new_cs := new_room.get_node_or_null("Area2D/CollisionShape2D") as CollisionShape2D
-	if new_cs == null:
+	# ✅ Alle rects vom neuen room holen
+	var new_rects := _get_room_rects(new_room)
+
+	# Wenn gar keine Shapes vorhanden -> als Fehler behandeln
+	if new_rects.is_empty():
 		result.overlaps = true
 		result.other_name = "missing_collision"
 		return result
-
-	var new_shape: RectangleShape2D = new_cs.shape as RectangleShape2D
-	if new_shape == null:
-		result.overlaps = true
-		result.other_name = "wrong_shape"
-		return result
-
-	var new_rect := Rect2(new_room.global_position - new_shape.extents, new_shape.extents * 2.0)
 
 	for room in against:
 		if room == null or room == new_room:
 			continue
 
-		var cs := room.get_node_or_null("Area2D/CollisionShape2D") as CollisionShape2D
-		if cs == null:
+		var rects := _get_room_rects(room)
+		if rects.is_empty():
 			continue
 
-		var shape: RectangleShape2D = cs.shape as RectangleShape2D
-		if shape == null:
-			continue
-
-		var rect := Rect2(room.global_position - shape.extents, shape.extents * 2.0)
-
-		if new_rect.intersects(rect):
-			result.overlaps = true
-			result.other_name = room.name
-			return result
+		# ✅ Jede neue Shape gegen jede alte Shape testen
+		for a in new_rects:
+			for b in rects:
+				if a.intersects(b):
+					result.overlaps = true
+					result.other_name = room.name
+					return result
 
 	return result
-
 
 # -----------------------------
 # GA Helpers
