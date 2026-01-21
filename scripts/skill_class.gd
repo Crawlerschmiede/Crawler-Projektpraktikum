@@ -6,7 +6,7 @@ extends Resource
 @export var tree_path: String
 @export var description: String
 var effects: Array[Effect] = []
-var pre_prepared_effects = ["danger_dmg_mult"]
+var pre_prepared_effects = ["danger_dmg_mult", "safety_dmg_reduc", "death", "heal"]
 # TODO: could do with a more sophisticated sorting system later.
 var high_prio_effects = ["movement"]
 
@@ -63,13 +63,13 @@ class Effect:
 
 	func apply(user, target, battle, skill_name):
 		var messages = []
+		var active_placement_effects = battle.tile_modifiers.get(battle.player_gridpos, {})
+		print("All mods", battle.tile_modifiers)
+		print("Active mods: ", active_placement_effects)
 		match type:
 			"damage":
 				print("Activating damage!")
 				var active_dmg = value
-				var active_placement_effects = battle.tile_modifiers.get(battle.player_gridpos, {})
-				print("All mods", battle.tile_modifiers)
-				print("Active mods: ", active_placement_effects)
 				for modifier_name in active_placement_effects:
 					var modifier_value = active_placement_effects[modifier_name]
 
@@ -78,6 +78,12 @@ class Effect:
 							if !user.is_player:
 								active_dmg *= modifier_value
 						"dmg_mult_good":
+							if user.is_player:
+								active_dmg *= modifier_value
+						"dmg_reduc_good":
+							if !user.is_player:
+								active_dmg *= modifier_value
+						"dmg_reduc_bad":
 							if user.is_player:
 								active_dmg *= modifier_value
 
@@ -94,7 +100,7 @@ class Effect:
 			"danger_dmg_mult":
 				print("Activating danger")
 				var duration = 1
-				return battle.apply_danger_zones(value, details, duration, "bad")
+				return battle.apply_zones("dmg_mult_", value, details, duration, "bad")
 			"poison":
 				print("Activating poison!")
 				if targets_self:
@@ -109,3 +115,25 @@ class Effect:
 				else:
 					messages = target.increase_stun(value)
 				return ["Targets " + messages[0]]
+			"safety_dmg_reduc":
+				print("Activating safety")
+				var duration = 1
+				return battle.apply_zones("dmg_reduc_", value, details, duration, "good")
+			"death":
+				print("Activating death")
+				var duration = 1
+				var direction
+				if (targets_self and user.is_player) or (!targets_self and !user.is_player):
+					direction = "bad"
+				else:
+					direction = "good"
+				return battle.apply_zones("death_", value, details, duration, direction)
+			"heal":
+				print("Activating death")
+				var duration = 1
+				var direction
+				if (targets_self and user.is_player) or (!targets_self and !user.is_player):
+					direction = "good"
+				else:
+					direction = "bad"
+				return battle.apply_zones("heal_", value, details, duration, direction)

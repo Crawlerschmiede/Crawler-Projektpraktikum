@@ -2,10 +2,14 @@ class_name PlayerCharacter
 
 extends MoveableEntity
 
+signal player_moved
+
 # Time (in seconds) the character pauses on a tile before taking the next step
 const STEP_COOLDOWN: float = 0.01
 var step_timer: float = 0.01
 var inventory := {}
+var base_actions = ["Move Up", "Move Down", "Move Left", "Move Right"]
+var actions = []
 
 @onready var camera: Camera2D = $Camera2D
 const SKILLTREES := preload("res://scripts/premade_skilltrees.gd")
@@ -22,10 +26,13 @@ func _ready() -> void:
 	camera.make_current()
 	super_ready("pc", ["pc"])
 	is_player = true
+	for action in base_actions:
+		add_action(action)
 	for active_tree in active_skilltrees:
 		existing_skilltrees.increase_tree_level(active_tree)
 	update_unlocked_skills()
 	setup(tilemap, 10, 1, 0)
+	add_to_group("player")
 
 
 # --- Input Handling with Cooldown ---
@@ -46,6 +53,7 @@ func _physics_process(delta: float):
 			move_to_tile(input_direction)
 			# Reset the cooldown timer immediately after starting the move
 			step_timer = STEP_COOLDOWN
+			player_moved.emit()
 
 
 # Function to get the current input direction vector
@@ -109,6 +117,14 @@ func update_animation(direction: Vector2i):
 func add_to_inventory(item_name: String, amount: int):
 	inventory[item_name] = inventory.get(item_name, 0) + amount
 	print("Inventory:", inventory)
+
+
+func add_action(skill_name):
+	var skill = existing_skills.get_skill(skill_name)
+	if skill != null:
+		actions.append(skill)
+	else:
+		print(skill_name + "doesn't exist!")
 
 
 func _on_area_2d_area_entered(area: Area2D):

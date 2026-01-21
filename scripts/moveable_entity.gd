@@ -8,18 +8,29 @@ const SKILLS := preload("res://scripts/premade_skills.gd")
 
 # --- Member variables ---
 var is_player: bool = false
+var types = ["passive"]
 var existing_skills = SKILLS.new()
 var abilities_this_has: Array = []
+var multi_turn_action = null
 var sprites = {
 	"bat":
 	[preload("res://scenes/sprite_scenes/bat_sprite_scene.tscn"), ["Screech", "Swoop", "Rabies"]],
 	"skeleton":
 	[
 		preload("res://scenes/sprite_scenes/skeleton_sprite_scene.tscn"),
-		["Screech", "Swoop", "Rabies"]
+		["Screech", "Swoop", "Feint"]
 	],
 	"what":
-	[preload("res://scenes/sprite_scenes/what_sprite_scene.tscn"), ["Screech", "Swoop", "Rabies"]],
+	[
+		preload("res://scenes/sprite_scenes/what_sprite_scene.tscn"),
+		["Screech", "Swoop", "Encroaching Void"]
+	],
+	"base_zombie":
+	[
+		preload("res://scenes/sprite_scenes/base_zombie_sprite_scene.tscn"),
+		["Screech", "Rabies"],
+		{"idle": "default", "teleport_start": "dig_down", "teleport_end": "dig_up"}
+	],
 	"pc":
 	[
 		preload("res://scenes/sprite_scenes/player_sprite_scene.tscn")
@@ -47,8 +58,11 @@ var stun_recovery = 1
 var poisoned = 0
 var poison_recovery = 1
 
+#--- References to other stuff ---
+
 @onready var collision_area: Area2D = $CollisionArea
 @onready var sprite: AnimatedSprite2D
+var animations = null
 
 
 # --- Setup ---
@@ -64,7 +78,7 @@ func super_ready(sprite_type: String, entity_type: Array):
 	if tilemap == null:
 		push_error("❌ MoveableEntity hat keine TileMap! setup(tilemap) vergessen?")
 		return
-
+	types = entity_type
 	# Spawn logic for player character
 	if "pc" in entity_type:
 		# TODO: make pc spawn at the current floor's entryway
@@ -76,7 +90,6 @@ func super_ready(sprite_type: String, entity_type: Array):
 		var possible_spawns = []
 
 		for cell in tilemap.get_used_cells():
-			print("cell", cell.x, cell.y)
 			var tile_data = tilemap.get_cell_tile_data(cell)
 			if tile_data:
 				var is_blocked = tile_data.get_custom_data("non_walkable")
@@ -86,7 +99,7 @@ func super_ready(sprite_type: String, entity_type: Array):
 							possible_spawns.append(cell)
 					else:
 						possible_spawns.append(cell)
-			# TODO: add logic for fyling enemies, so they can enter certain tiles
+			# TODO: add logic for flying enemies, so they can enter certain tiles
 			#if entity_type == "enemy_flying":
 			#	add water/lava/floor trap tiles as possible spawns
 
@@ -102,6 +115,8 @@ func super_ready(sprite_type: String, entity_type: Array):
 		abilities_this_has = sprite_scene[1]
 		for ability in abilities_this_has:
 			add_skill(ability)
+	if len(sprite_scene) > 2:
+		animations = sprite_scene[2]
 
 
 # --- Movement Logic ---
@@ -109,7 +124,6 @@ func is_next_to_wall(cell: Vector2i):
 	var next_to_wall = false
 	for i in range(3):
 		for j in range(3):
-			print("i ", i, " j ", j)
 			var adjacent = Vector2i(cell.x + (i - 1), cell.y + (j - 1))
 			var adjacent_tile = tilemap.get_cell_tile_data(adjacent)
 			if adjacent_tile:
@@ -124,9 +138,18 @@ func move_to_tile(direction: Vector2i):
 		return
 
 	var target_cell = grid_pos + direction
-	print()
 	if not is_cell_walkable(target_cell):
-		return
+		if "burrowing" in types:
+			var new_target = target_cell + direction
+			if is_cell_walkable(new_target):
+				if has_animation(sprite, "dig_down"):
+					sprite.play("dig_down")
+				multi_turn_action = {"name": "dig_to", "target": new_target, "countdown": 2}
+				return
+			else:
+				return
+		else:
+			return
 
 	is_moving = true
 	grid_pos = target_cell
@@ -135,6 +158,19 @@ func move_to_tile(direction: Vector2i):
 	var tween = get_tree().create_tween()
 	tween.tween_property(self, "position", target_position, 0.15)
 	tween.finished.connect(_on_move_finished)
+
+
+func teleport_to_tile(coordinates: Vector2i, animation = null) -> void:
+	if not is_cell_walkable(coordinates):
+		sprite.play("default")
+		return
+	self.grid_pos = coordinates
+	self.position = tilemap.map_to_local(grid_pos)
+	if animation != null:
+		sprite.play(animation[0])
+		await sprite.animation_finished
+		sprite.play("default")
+	return
 
 
 func check_collisions() -> void:
@@ -192,6 +228,14 @@ func take_damage(damage):
 	return [" took " + str(taken_damage) + " Damage", " now has " + str(hp) + " HP"]
 
 
+func heal(healing):
+	print(self, " heals by ", healing, "!")
+	var healed_hp = healing  #useless right now but just put here for later damage calculations
+	hp = hp + healed_hp
+	print("Now has ", hp, "HP")
+	return [" healed by " + str(healed_hp), " now has " + str(hp) + " HP"]
+
+
 #-- status effect logic --
 
 
@@ -226,3 +270,8 @@ func deal_with_status_effects() -> Array:
 			poisoned = 0
 		things_that_happened.append("Target" + message[0] + " from poison! Target" + message[1])
 	return [gets_a_turn, things_that_happened]
+
+
+# --- helpers ---
+func has_animation(sprite: AnimatedSprite2D, anim_name: String) -> bool:
+	return sprite.sprite_frames.has_animation(anim_name)
