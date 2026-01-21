@@ -12,12 +12,14 @@ var chosen: Skill
 var types = ["passive"]
 var sprite_type: String = "bat"
 var behaviour = "idle"
-var chase_target: MoveableEntity
+var chase_target: PlayerCharacter
+var chasing: bool = false
 
 @onready var sight_area: Area2D = $SightArea
 
 
 func roam():
+	chasing = false
 	var direction_int = 0
 	var direction = Vector2i.ZERO
 	if roam_timer <= 0:
@@ -44,6 +46,14 @@ func chase():
 	var chased_pos = chase_target.grid_pos
 	var x_move = Vector2i.ZERO
 	var y_move = Vector2i.ZERO
+	if !chasing:
+		chasing = true
+		if "burrowing" in types:
+			var digrection = (chase_target.latest_direction)*-2
+			var targ_dig_pos = chased_pos + digrection
+			
+			teleport_to_tile(targ_dig_pos)
+			
 	if chase_timer <= 0:
 		if chased_pos.x < grid_pos.x:
 			x_move = Vector2i.LEFT

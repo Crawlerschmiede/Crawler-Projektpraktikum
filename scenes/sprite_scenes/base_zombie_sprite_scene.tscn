@@ -1,0 +1,42 @@
+[gd_scene load_steps=7 format=3 uid="uid://ge2ea3y4rrek"]
+
+[ext_resource type="Texture2D" uid="uid://cf4bns5mu02mp" path="res://assets/enemies/base_zombie.png" id="1_gk6ds"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1ecye"]
+atlas = ExtResource("1_gk6ds")
+region = Rect2(0, 2, 20, 19)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6rblh"]
+atlas = ExtResource("1_gk6ds")
+region = Rect2(20, 2, 20, 19)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_idte7"]
+atlas = ExtResource("1_gk6ds")
+region = Rect2(40, 2, 20, 19)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_f4dm8"]
+atlas = ExtResource("1_gk6ds")
+region = Rect2(60, 2, 20, 19)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_xtrj1"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1ecye")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_6rblh")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_idte7")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_f4dm8")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}]
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D"]
+sprite_frames = SubResource("SpriteFrames_xtrj1")

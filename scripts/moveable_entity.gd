@@ -25,6 +25,11 @@ var sprites = {
 		preload("res://scenes/sprite_scenes/what_sprite_scene.tscn"), 
 		["Screech", "Swoop", "Encroaching Void"]
 	],
+	"base_zombie":
+	[
+		preload("res://scenes/sprite_scenes/base_zombie_sprite_scene.tscn"), 
+		["Screech", "Rabies"]
+	],
 	"pc":
 	[
 		preload("res://scenes/sprite_scenes/player_sprite_scene.tscn"),
@@ -53,8 +58,11 @@ var stun_recovery = 1
 var poisoned = 0
 var poison_recovery = 1
 
+#--- References to other stuff ---
+
 @onready var collision_area: Area2D = $CollisionArea
 @onready var sprite: AnimatedSprite2D
+var game: Node2D = null
 
 
 # --- Setup ---
@@ -137,6 +145,16 @@ func move_to_tile(direction: Vector2i):
 	var tween = get_tree().create_tween()
 	tween.tween_property(self, "position", target_position, 0.15)
 	tween.finished.connect(_on_move_finished)
+	
+func teleport_to_tile(coordinates: Vector2i, animation = null):
+	if animation!=null:
+		sprite.play(animation)
+	if not is_cell_walkable(coordinates):
+		return
+	self.grid_pos = coordinates
+	self.position = tilemap.map_to_local(grid_pos)
+	
+	
 
 
 func check_collisions() -> void:

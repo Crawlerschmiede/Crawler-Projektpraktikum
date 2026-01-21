@@ -14,6 +14,7 @@ var battle: CanvasLayer = null
 @onready var dungeon_tilemap: TileMapLayer = $TileMapLayer
 
 
+
 func _ready() -> void:
 	spawn_player()
 	for i in range(3):
@@ -22,6 +23,8 @@ func _ready() -> void:
 		spawn_enemy("bat", ["passive", "enemy_flying"])
 	for i in range(3):
 		spawn_enemy("skeleton", ["hostile", "enemy_walking"])
+	for i in range(3):
+		spawn_enemy("base_zombie", ["hostile", "enemy_walking", "burrowing"])
 
 
 func _process(_delta):
@@ -65,6 +68,7 @@ func spawn_enemy(sprite_type, types):
 	e.types = types
 	e.sprite_type = sprite_type
 	e.setup(dungeon_tilemap, 1, 1, 0)
+	e.game = self
 	add_child(e)
 
 
@@ -72,6 +76,7 @@ func spawn_player():
 	var e = PlayerScene.instantiate()
 	e.name = "Player"
 	e.setup(dungeon_tilemap, 10, 3, 0)
+	e.game = self
 	add_child(e)
 
 
