@@ -1,4 +1,4 @@
-[gd_scene load_steps=34 format=3 uid="uid://bvfdv1snyoxhh"]
+[gd_scene load_steps=7 format=3 uid="uid://bvfdv1snyoxhh"]
 
 [ext_resource type="Script" uid="uid://dp4r7814o32x6" path="res://scripts/player_character.gd" id="1_no27k"]
 [ext_resource type="Script" uid="uid://cnto6kvd27me0" path="res://scenes/testscene2/camera_2d.gd" id="4_0cvhd"]
@@ -45,5 +45,3 @@ render_target_update_mode = 4
 script = ExtResource("5_u5lr6")
 
 [node name="MiniCam" type="Camera2D" parent="CanvasLayer/SubViewportContainer/SubViewport"]
-
-[connection signal="area_entered" from="Area2D" to="." method="_on_area_2d_area_entered"]
