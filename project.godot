@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="Crawler-Projektpraktikum"
-run/main_scene="uid://dpkotk4tqkdwt"
+run/main_scene="uid://dwghrpbxefkax"
 config/features=PackedStringArray("4.5", "Mobile")
 config/icon="res://icon.svg"
 
@@ -23,6 +23,7 @@ SettingsManager="*res://scripts/settings_manager.gd"
 
 window/size/viewport_width=640
 window/size/viewport_height=480
+window/size/resizable=false
 window/stretch/mode="viewport"
 window/stretch/aspect="keep_height"
 window/stretch/scale_mode="integer"
