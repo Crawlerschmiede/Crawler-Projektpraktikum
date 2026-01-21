@@ -1,13 +1,14 @@
 # gdlint: disable=max-public-methods
 
 extends Node2D
-
-@export var room_scenes: Array[PackedScene]
+@export var rooms_folder: String = "res://scenes/rooms/Rooms/"
+var room_scenes: Array[PackedScene] = []
 @export var start_room: PackedScene
 @export var boss_room: PackedScene
 @export var max_rooms: int = 10
 
 @export var player_scene: PackedScene
+var _corridor_cache: Dictionary = {} # key: String(scene.resource_path) -> bool
 
 # --- Basis-Regeln (werden vom GA überschrieben / mutiert) ---
 @export var base_max_corridors: int = 10
@@ -42,6 +43,49 @@ var boss_room_spawned := false
 # -----------------------------
 # GA: Genome / Ergebnis
 # -----------------------------
+func load_room_scenes_from_folder(path: String) -> Array[PackedScene]:
+	var result: Array[PackedScene] = []
+
+	var dir := DirAccess.open(path)
+	if dir == null:
+		push_error("Folder not found: " + path)
+		return result
+
+	dir.list_dir_begin()
+	var file := dir.get_next()
+
+	while file != "":
+		if not dir.current_is_dir():
+			if file.ends_with(".tscn"):
+				var full_path := path + file
+				var ps := load(full_path)
+				if ps is PackedScene:
+					result.append(ps)
+				else:
+					push_warning("Not a PackedScene: " + full_path)
+		file = dir.get_next()
+
+	dir.list_dir_end()
+	return result
+
+func _scene_is_corridor(scene: PackedScene) -> bool:
+	if scene == null:
+		return false
+
+	var key := scene.resource_path
+	if _corridor_cache.has(key):
+		return bool(_corridor_cache[key])
+
+	# EINMAL instantiaten zum checken (und sofort free)
+	var inst := scene.instantiate()
+	var is_corr := false
+	if inst != null:
+		is_corr = ("is_corridor" in inst) and bool(inst.get("is_corridor"))
+		inst.queue_free()
+
+	_corridor_cache[key] = is_corr
+	return is_corr
+
 class Genome:
 	var door_fill_chance: float
 	var max_corridors: int
@@ -77,6 +121,7 @@ class EvalResult:
 
 
 func _ready() -> void:
+	room_scenes = load_room_scenes_from_folder(rooms_folder)
 	print("=== MAP GENERATION START ===")
 
 	# 1) genetische Suche
@@ -429,20 +474,16 @@ func generate_with_genome(
 		# corridor_bias > 1: Corridors eher nach vorne
 		# corridor_bias < 1: Corridors eher nach hinten
 		if abs(genome.corridor_bias - 1.0) > 0.01:
-			candidates.sort_custom(
-				func(a: PackedScene, b: PackedScene) -> bool:
-					var ra := a.instantiate() as Node
-					var rb := b.instantiate() as Node
-					var ca := is_corridor_room(ra)
-					var cb := is_corridor_room(rb)
-					if ra != null:
-						ra.queue_free()
-					if rb != null:
-						rb.queue_free()
-					# wenn bias > 1: corridor zuerst, sonst umgekehrt
-					if genome.corridor_bias > 1.0:
-						return int(ca) > int(cb)
-					return int(ca) < int(cb)
+			candidates.sort_custom(func(a: PackedScene, b: PackedScene) -> bool:
+				var ca := _scene_is_corridor(a)
+				var cb := _scene_is_corridor(b)
+
+				# bias > 1: corridors nach vorne
+				if genome.corridor_bias > 1.0:
+					return int(ca) > int(cb)
+
+				# bias < 1: corridors nach hinten
+				return int(ca) < int(cb)
 			)
 
 		var placed := false
