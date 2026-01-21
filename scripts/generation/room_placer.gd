@@ -1,6 +1,7 @@
 extends RefCounted
 class_name RoomPlacer
 
+
 class GenStats:
 	var rooms: int = 0
 	var corridors: int = 0
@@ -135,6 +136,7 @@ func generate_stats(
 	stats.corridors = corridor_count
 	return stats
 
+
 func _get_room_rects(room: Node2D) -> Array[Rect2]:
 	var rects: Array[Rect2] = []
 	var area := room.get_node_or_null("Area2D") as Area2D
@@ -156,7 +158,7 @@ func _get_room_rects(room: Node2D) -> Array[Rect2]:
 func _check_overlap(new_room: Node2D, against: Array[Node2D]) -> bool:
 	var new_rects := _get_room_rects(new_room)
 	if new_rects.is_empty():
-		return true # wenn kein collision shape -> blocken
+		return true  # wenn kein collision shape -> blocken
 
 	for other in against:
 		if other == null or other == new_room:
@@ -169,6 +171,7 @@ func _check_overlap(new_room: Node2D, against: Array[Node2D]) -> bool:
 					return true
 
 	return false
+
 
 # echte Map bauen (für DungeonGenerator)
 func generate_best(
@@ -198,11 +201,13 @@ func _find_room_root(node: Node) -> Node:
 		r = r.get_parent()
 	return r
 
+
 func _is_corridor(room: Node) -> bool:
 	return ("is_corridor" in room) and bool(room.get("is_corridor"))
 
+
 func _find_matching_door(room: Node, from_dir: String):
-	var opposite := {"north":"south","south":"north","east":"west","west":"east"}
+	var opposite := {"north": "south", "south": "north", "east": "west", "west": "east"}
 	if not opposite.has(from_dir):
 		return null
 	for d in room.get_free_doors():

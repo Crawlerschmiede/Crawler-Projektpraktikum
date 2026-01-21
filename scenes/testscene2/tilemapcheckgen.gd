@@ -58,6 +58,7 @@ func _load_world(idx: int) -> void:
 
 	get_tree().paused = false
 
+
 func update_color_filter() -> void:
 	# World 0 = Level 1
 	# World 1 = Level 2

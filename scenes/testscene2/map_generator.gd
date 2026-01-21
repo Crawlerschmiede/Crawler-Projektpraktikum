@@ -13,7 +13,7 @@ var room_scenes: Array[PackedScene] = []
 @export var max_rooms: int = 10
 
 @export var player_scene: PackedScene
-var _corridor_cache: Dictionary = {} # key: String(scene.resource_path) -> bool
+var _corridor_cache: Dictionary = {}  # key: String(scene.resource_path) -> bool
 
 # --- Basis-Regeln (werden vom GA überschrieben / mutiert) ---
 @export var base_max_corridors: int = 10
@@ -75,7 +75,7 @@ func _get_closed_door_direction(scene: PackedScene) -> String:
 	_closed_door_cache[key] = dir
 	return dir
 
-	
+
 func get_closed_door_for_direction(dir: String) -> PackedScene:
 	dir = dir.to_lower()
 
@@ -88,9 +88,10 @@ func get_closed_door_for_direction(dir: String) -> PackedScene:
 		return null
 	return candidates.pick_random()
 
-	
+
 func load_closed_door_scenes_from_folder(path: String) -> Array[PackedScene]:
 	return load_room_scenes_from_folder(path)
+
 
 func close_free_doors(parent_node: Node) -> void:
 	if closed_door_scenes.is_empty():
@@ -128,7 +129,8 @@ func close_free_doors(parent_node: Node) -> void:
 			total += 1
 
 	print("✔ Closed Doors gesetzt:", total)
-	
+
+
 func debug_print_free_doors() -> void:
 	var total := 0
 	for r in placed_rooms:
@@ -141,6 +143,7 @@ func debug_print_free_doors() -> void:
 				print("  -", d.name, "dir:", d.direction, "used:", d.used)
 				total += 1
 	print("TOTAL FREE DOORS:", total)
+
 
 # -----------------------------
 # GA: Genome / Ergebnis
@@ -170,6 +173,7 @@ func load_room_scenes_from_folder(path: String) -> Array[PackedScene]:
 	dir.list_dir_end()
 	return result
 
+
 func _scene_is_corridor(scene: PackedScene) -> bool:
 	if scene == null:
 		return false
@@ -187,6 +191,7 @@ func _scene_is_corridor(scene: PackedScene) -> bool:
 
 	_corridor_cache[key] = is_corr
 	return is_corr
+
 
 class Genome:
 	var door_fill_chance: float
@@ -577,16 +582,17 @@ func generate_with_genome(
 		# corridor_bias > 1: Corridors eher nach vorne
 		# corridor_bias < 1: Corridors eher nach hinten
 		if abs(genome.corridor_bias - 1.0) > 0.01:
-			candidates.sort_custom(func(a: PackedScene, b: PackedScene) -> bool:
-				var ca := _scene_is_corridor(a)
-				var cb := _scene_is_corridor(b)
+			candidates.sort_custom(
+				func(a: PackedScene, b: PackedScene) -> bool:
+					var ca := _scene_is_corridor(a)
+					var cb := _scene_is_corridor(b)
 
-				# bias > 1: corridors nach vorne
-				if genome.corridor_bias > 1.0:
-					return int(ca) > int(cb)
+					# bias > 1: corridors nach vorne
+					if genome.corridor_bias > 1.0:
+						return int(ca) > int(cb)
 
-				# bias < 1: corridors nach hinten
-				return int(ca) < int(cb)
+					# bias < 1: corridors nach hinten
+					return int(ca) < int(cb)
 			)
 
 		var placed := false
@@ -813,6 +819,7 @@ class OverlapResult:
 	var overlaps: bool = false
 	var other_name: String = ""
 
+
 func _get_room_rects(room: Node2D) -> Array[Rect2]:
 	var rects: Array[Rect2] = []
 
@@ -832,7 +839,8 @@ func _get_room_rects(room: Node2D) -> Array[Rect2]:
 			rects.append(Rect2(center - shape.extents, shape.extents * 2.0))
 
 	return rects
-	
+
+
 func check_overlap_aabb(new_room: Node2D, against: Array[Node2D]) -> OverlapResult:
 	var result := OverlapResult.new()
 
@@ -862,6 +870,7 @@ func check_overlap_aabb(new_room: Node2D, against: Array[Node2D]) -> OverlapResu
 					return result
 
 	return result
+
 
 # -----------------------------
 # GA Helpers
@@ -973,9 +982,12 @@ func bake_rooms_into_world_tilemap() -> void:
 		world_tilemap_top.get_used_cells().size()
 	)
 
+
 func bake_closed_doors_into_world() -> void:
 	if world_tilemap == null or world_tilemap_top == null:
-		push_error("❌ world_tilemap/world_tilemap_top ist null - bake_rooms_into_world_tilemap zuerst!")
+		push_error(
+			"❌ world_tilemap/world_tilemap_top ist null - bake_rooms_into_world_tilemap zuerst!"
+		)
 		return
 
 	var total := 0
@@ -1067,6 +1079,7 @@ func clear_children_rooms_only() -> void:
 		c.queue_free()
 	placed_rooms.clear()
 	corridor_count = 0
+
 
 func get_main_tilemap() -> TileMapLayer:
 	for room in placed_rooms:

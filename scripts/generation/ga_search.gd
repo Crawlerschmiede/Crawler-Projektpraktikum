@@ -1,6 +1,7 @@
 extends RefCounted
 class_name GASearch
 
+
 class Genome:
 	var door_fill_chance: float
 	var max_corridors: int
@@ -71,7 +72,9 @@ func search_best(
 				break
 
 			var trial_seed := ga_seed + eval_counter * 17 + g_i * 101
-			var res := await _evaluate_genome(generator, room_lib, placer, start_room, max_rooms, population[i], trial_seed)
+			var res := await _evaluate_genome(
+				generator, room_lib, placer, start_room, max_rooms, population[i], trial_seed
+			)
 			results.append(res)
 			eval_counter += 1
 
@@ -80,9 +83,18 @@ func search_best(
 		if results.size() > 0 and results[0].rooms_placed > best_overall.rooms_placed:
 			best_overall = results[0]
 
-		print("[GA] Gen", g_i, "| evals:", eval_counter, "/", target,
-			"| best_this_gen:", results[0].rooms_placed,
-			"| best_overall:", best_overall.rooms_placed)
+		print(
+			"[GA] Gen",
+			g_i,
+			"| evals:",
+			eval_counter,
+			"/",
+			target,
+			"| best_this_gen:",
+			results[0].rooms_placed,
+			"| best_overall:",
+			best_overall.rooms_placed
+		)
 
 		# selection pool (top half)
 		var pool: Array[Genome] = []
@@ -131,7 +143,9 @@ func _evaluate_genome(
 	container.name = "_GA_CONTAINER_"
 	generator.add_child(container)
 
-	var stats = await placer.generate_stats(container, room_lib, start_room, max_rooms, genome, trial_seed)
+	var stats = await placer.generate_stats(
+		container, room_lib, start_room, max_rooms, genome, trial_seed
+	)
 
 	container.queue_free()
 
@@ -163,10 +177,14 @@ func _random_genome() -> Genome:
 
 func _crossover(a: Genome, b: Genome) -> Genome:
 	var c := a.clone()
-	if randf() < 0.5: c.door_fill_chance = b.door_fill_chance
-	if randf() < 0.5: c.max_corridors = b.max_corridors
-	if randf() < 0.5: c.max_corridor_chain = b.max_corridor_chain
-	if randf() < 0.5: c.corridor_bias = b.corridor_bias
+	if randf() < 0.5:
+		c.door_fill_chance = b.door_fill_chance
+	if randf() < 0.5:
+		c.max_corridors = b.max_corridors
+	if randf() < 0.5:
+		c.max_corridor_chain = b.max_corridor_chain
+	if randf() < 0.5:
+		c.corridor_bias = b.corridor_bias
 	return c
 
 

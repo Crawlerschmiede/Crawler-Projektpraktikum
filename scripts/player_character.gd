@@ -137,11 +137,13 @@ func _on_area_2d_area_entered(area: Area2D):
 	if area.has_method("collect"):
 		area.collect(self)  # dem Item den Player übergen
 
+
 func level_up():
 	self.max_hp = self.max_hp + 1
 	self.hp = self.max_hp
 	existing_skilltrees.increase_tree_level("unarmed")
 	update_unlocked_skills()
+
 
 func _check_exit_tile() -> bool:
 	if tilemap == null:
@@ -153,6 +155,7 @@ func _check_exit_tile() -> bool:
 
 	# Custom Data "exit" muss im Tileset gesetzt sein (bool)
 	return td.get_custom_data("exit") == true
+
 
 func update_unlocked_skills():
 	abilities = []

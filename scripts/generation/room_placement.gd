@@ -2,6 +2,7 @@
 extends RefCounted
 class_name RoomPlacer
 
+
 # -----------------------------
 # Stats object returned from generation
 # -----------------------------
@@ -28,10 +29,7 @@ func get_rule(room_instance: Node, var_name: String, default_value):
 
 
 func can_spawn_room(
-	scene: PackedScene,
-	room_instance: Node,
-	placed_count: int,
-	room_type_counts: Dictionary
+	scene: PackedScene, room_instance: Node, placed_count: int, room_type_counts: Dictionary
 ) -> bool:
 	var spawn_chance: float = float(get_rule(room_instance, "spawn_chance", 1.0))
 	var max_count: int = int(get_rule(room_instance, "max_count", 999999))
@@ -142,7 +140,9 @@ func generate_best(
 	trial_seed: int,
 	room_type_counts: Dictionary
 ) -> Array[Node2D]:
-	await generate_with_genome(parent_node, room_lib, start_room, max_rooms, genome, trial_seed, true, room_type_counts)
+	await generate_with_genome(
+		parent_node, room_lib, start_room, max_rooms, genome, trial_seed, true, room_type_counts
+	)
 	return _last_local_placed
 
 
@@ -224,12 +224,13 @@ func generate_with_genome(
 
 		# corridor bias (optional)
 		if abs(float(genome.corridor_bias) - 1.0) > 0.01:
-			candidates.sort_custom(func(a: PackedScene, b: PackedScene) -> bool:
-				var ca = room_lib.is_corridor(a)
-				var cb = room_lib.is_corridor(b)
-				if float(genome.corridor_bias) > 1.0:
-					return int(ca) > int(cb) # corridors first
-				return int(ca) < int(cb) # corridors last
+			candidates.sort_custom(
+				func(a: PackedScene, b: PackedScene) -> bool:
+					var ca = room_lib.is_corridor(a)
+					var cb = room_lib.is_corridor(b)
+					if float(genome.corridor_bias) > 1.0:
+						return int(ca) > int(cb)  # corridors first
+					return int(ca) < int(cb)  # corridors last
 			)
 
 		var placed := false

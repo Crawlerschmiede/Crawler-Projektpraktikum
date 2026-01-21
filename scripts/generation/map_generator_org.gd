@@ -19,6 +19,7 @@ var baker := WorldBaker.new()
 var door_closer: DoorCloser = DoorCloser.new()
 var ga := GASearch.new()
 
+
 func get_random_tilemap() -> TileMapLayer:
 	# load scenes
 	room_lib.load_rooms(rooms_folder)
@@ -42,12 +43,12 @@ func get_random_tilemap() -> TileMapLayer:
 		baker.bake_rooms(placed_rooms)
 		door_closer.bake_closed_doors(self, placed_rooms, baker)
 
-
 		for r in placed_rooms:
 			r.visible = false
 
 	return baker.world_floor
-	
+
+
 func _clear_generated():
 	for n in get_tree().get_nodes_in_group("room"):
 		if n != null and is_instance_valid(n):

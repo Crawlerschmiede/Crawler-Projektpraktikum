@@ -4,6 +4,7 @@ class_name DoorCloser
 var closed_door_scenes: Array[PackedScene] = []
 var door_dir_cache := {}
 
+
 func load_closed_doors(path: String, lib: RoomLibrary) -> void:
 	closed_door_scenes = lib._load_scenes_from_folder(path)
 
@@ -58,7 +59,9 @@ func bake_closed_doors(generator: Node, placed_rooms: Array[Node2D], baker: Worl
 			if scene == null:
 				continue
 
-			total += baker.bake_closed_door_scene(generator, scene, door.global_position, door.global_rotation)
+			total += baker.bake_closed_door_scene(
+				generator, scene, door.global_position, door.global_rotation
+			)
 			door.used = true
 
 	print("✔ [BAKE] Closed Doors:", total)

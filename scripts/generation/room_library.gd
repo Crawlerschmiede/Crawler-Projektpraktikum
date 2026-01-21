@@ -4,9 +4,11 @@ class_name RoomLibrary
 var room_scenes: Array[PackedScene] = []
 var corridor_cache := {}
 
+
 func load_rooms(path: String) -> void:
 	room_scenes.clear()
 	room_scenes = _load_scenes_from_folder(path)
+
 
 func _load_scenes_from_folder(path: String) -> Array[PackedScene]:
 	var result: Array[PackedScene] = []
@@ -26,6 +28,7 @@ func _load_scenes_from_folder(path: String) -> Array[PackedScene]:
 
 	dir.list_dir_end()
 	return result
+
 
 func is_corridor(scene: PackedScene) -> bool:
 	if scene == null:

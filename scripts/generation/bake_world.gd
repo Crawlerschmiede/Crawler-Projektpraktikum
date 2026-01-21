@@ -4,6 +4,7 @@ class_name WorldBaker
 var world_floor: TileMapLayer
 var world_top: TileMapLayer
 
+
 func ensure_world_tilemaps(parent: Node, placed_rooms: Array[Node2D]) -> void:
 	if placed_rooms.is_empty():
 		return
@@ -31,11 +32,15 @@ func bake_rooms(placed_rooms: Array[Node2D]) -> void:
 		var top_tm := room.get_node_or_null("TopLayer") as TileMapLayer
 		var offset = room.get_meta("tile_origin", Vector2i.ZERO)
 
-		if floor_tm: _copy_layer(floor_tm, world_floor, offset)
-		if top_tm: _copy_layer(top_tm, world_top, offset)
+		if floor_tm:
+			_copy_layer(floor_tm, world_floor, offset)
+		if top_tm:
+			_copy_layer(top_tm, world_top, offset)
 
 
-func bake_closed_door_scene(generator: Node, scene: PackedScene, door_pos: Vector2, door_rot: float) -> int:
+func bake_closed_door_scene(
+	generator: Node, scene: PackedScene, door_pos: Vector2, door_rot: float
+) -> int:
 	var inst := scene.instantiate() as Node2D
 	if inst == null:
 		return 0
@@ -56,8 +61,10 @@ func bake_closed_door_scene(generator: Node, scene: PackedScene, door_pos: Vecto
 	var floor_tm := inst.get_node_or_null("TileMapLayer") as TileMapLayer
 	var top_tm := inst.get_node_or_null("TopLayer") as TileMapLayer
 
-	if floor_tm: _copy_layer(floor_tm, world_floor, tile_origin)
-	if top_tm: _copy_layer(top_tm, world_top, tile_origin)
+	if floor_tm:
+		_copy_layer(floor_tm, world_floor, tile_origin)
+	if top_tm:
+		_copy_layer(top_tm, world_top, tile_origin)
 
 	inst.queue_free()
 	return 1
@@ -65,7 +72,8 @@ func bake_closed_door_scene(generator: Node, scene: PackedScene, door_pos: Vecto
 
 func _copy_layer(src: TileMapLayer, dst: TileMapLayer, offset: Vector2i) -> void:
 	for cell in src.get_used_cells():
-		dst.set_cell(cell + offset,
+		dst.set_cell(
+			cell + offset,
 			src.get_cell_source_id(cell),
 			src.get_cell_atlas_coords(cell),
 			src.get_cell_alternative_tile(cell)
