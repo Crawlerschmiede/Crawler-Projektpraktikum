@@ -1,12 +1,13 @@
-[gd_scene load_steps=10 format=4 uid="uid://dpkotk4tqkdwt"]
+[gd_scene load_steps=11 format=4 uid="uid://dpkotk4tqkdwt"]
 
 [ext_resource type="Script" uid="uid://cgbawrr63ac08" path="res://scenes/testscenes/tilemap_check.gd" id="1_1jc7e"]
 [ext_resource type="Texture2D" uid="uid://bkugys8878hd" path="res://assets/testsprites/placeholder_floornwall_goodsize.png" id="1_n7skb"]
 [ext_resource type="PackedScene" uid="uid://ceokrukww4ic8" path="res://scenes/popup-menu.tscn" id="2_ohj5c"]
 [ext_resource type="Texture2D" uid="uid://b66gb5qt40wlo" path="res://assets/testsprites/rat.png" id="3_lm1w0"]
 [ext_resource type="Script" uid="uid://dyn03ub2767ou" path="res://scenes/testscenes/sub_viewport.gd" id="4_n7skb"]
+[ext_resource type="Script" path="res://scenes/testscenes/minimap.gd" id="6_1jc7e"]
 [ext_resource type="PackedScene" uid="uid://ctw147xj16x67" path="res://scenes/Item/item_drop.tscn" id="6_h7b1f"]
-[ext_resource type="Script" uid="uid://u8iasqm4625a" path="res://scenes/testscenes/minimap.gd" id="6_1jc7e"]
+[ext_resource type="PackedScene" uid="uid://b7ipllkuce5ui" path="res://scenes/Lootbox/Lootbox.tscn" id="8_ohj5c"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_h7b1f"]
 texture = ExtResource("1_n7skb")
@@ -55,3 +56,6 @@ position = Vector2(35, 118)
 
 [node name="ItemDrop2" parent="." instance=ExtResource("6_h7b1f")]
 position = Vector2(77, 120)
+
+[node name="Lootbox" parent="." instance=ExtResource("8_ohj5c")]
+position = Vector2(59, 138)

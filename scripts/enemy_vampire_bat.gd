@@ -162,7 +162,7 @@ func check_sight():
 		if body == self:
 			continue
 		else:
-			if body.is_player:
+			if body != null and ("is_player" in body) and body.is_player:
 				saw_player = true
 				chase_target = body
 	return saw_player
