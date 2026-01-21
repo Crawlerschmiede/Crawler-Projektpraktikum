@@ -9,7 +9,6 @@ var roam_timer: float = 5.0
 var chase_timer: float = 5.0
 
 var chosen: Skill
-var types = ["passive"]
 var sprite_type: String = "bat"
 var behaviour = "idle"
 var chase_target: PlayerCharacter

@@ -68,7 +68,6 @@ func spawn_enemy(sprite_type, types):
 	e.types = types
 	e.sprite_type = sprite_type
 	e.setup(dungeon_tilemap, 1, 1, 0)
-	e.game = self
 	add_child(e)
 
 
@@ -76,7 +75,6 @@ func spawn_player():
 	var e = PlayerScene.instantiate()
 	e.name = "Player"
 	e.setup(dungeon_tilemap, 10, 3, 0)
-	e.game = self
 	add_child(e)
 
 

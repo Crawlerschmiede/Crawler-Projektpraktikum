@@ -8,6 +8,7 @@ const SKILLS := preload("res://scripts/premade_skills.gd")
 
 # --- Member variables ---
 var is_player: bool = false
+var types = ["passive"]
 var existing_skills = SKILLS.new()
 var abilities_this_has: Array = []
 var sprites = {
@@ -62,7 +63,6 @@ var poison_recovery = 1
 
 @onready var collision_area: Area2D = $CollisionArea
 @onready var sprite: AnimatedSprite2D
-var game: Node2D = null
 
 
 # --- Setup ---
@@ -78,7 +78,7 @@ func super_ready(sprite_type: String, entity_type: Array):
 	if tilemap == null:
 		push_error("❌ MoveableEntity hat keine TileMap! setup(tilemap) vergessen?")
 		return
-
+	types = entity_type
 	# Spawn logic for player character
 	if "pc" in entity_type:
 		# TODO: make pc spawn at the current floor's entryway
@@ -136,7 +136,16 @@ func move_to_tile(direction: Vector2i):
 
 	var target_cell = grid_pos + direction
 	if not is_cell_walkable(target_cell):
-		return
+		if "burrowing" in types:
+			print("I could dig under this...")
+			var new_target = target_cell + direction
+			if is_cell_walkable(new_target):
+				target_cell = new_target
+			else:
+				return
+		else:
+			return
+			
 
 	is_moving = true
 	grid_pos = target_cell
