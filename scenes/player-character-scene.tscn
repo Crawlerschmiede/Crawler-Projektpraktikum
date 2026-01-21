@@ -22,7 +22,7 @@ shape = SubResource("CircleShape2D_r5wgn")
 shape = SubResource("RectangleShape2D_hfhf8")
 
 [node name="Camera2D" type="Camera2D" parent="."]
-zoom = Vector2(2, 2)
+zoom = Vector2(0.5, 0.5)
 script = ExtResource("4_0cvhd")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="." node_paths=PackedStringArray("camera_node", "player_node")]

@@ -26,10 +26,6 @@ func _ready() -> void:
 	generators = [generator1, generator2, generator3]
 	await _load_world(world_index)
 
-
-# ---------------------------------------
-# ✅ WORLD LOAD / SWITCH (wie dein altes script)
-# ---------------------------------------
 func _load_world(idx: int) -> void:
 	# Pause während load
 	get_tree().paused = true

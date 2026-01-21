@@ -1,6 +1,11 @@
 # gdlint: disable=max-public-methods
 
 extends Node2D
+
+@export var closed_doors_folder: String = "res://scenes/rooms/Closed Doors/"
+var closed_door_scenes: Array[PackedScene] = []
+var _closed_door_cache: Dictionary = {}
+
 @export var rooms_folder: String = "res://scenes/rooms/Rooms/"
 var room_scenes: Array[PackedScene] = []
 @export var start_room: PackedScene
@@ -39,6 +44,103 @@ var corridor_count: int = 0
 
 var boss_room_spawned := false
 
+
+func _get_closed_door_direction(scene: PackedScene) -> String:
+	if scene == null:
+		return ""
+
+	var key := scene.resource_path
+	if _closed_door_cache.has(key):
+		return str(_closed_door_cache[key])
+
+	var inst := scene.instantiate()
+	var dir := ""
+
+	if inst != null:
+		# 1) Falls die Szene selbst direction export hat -> nutzen
+		if "direction" in inst:
+			dir = str(inst.get("direction")).to_lower()
+
+		# 2) Sonst: Richtung aus Doors/ Door child lesen
+		elif inst.has_node("Doors"):
+			var doors_node := inst.get_node("Doors")
+			for d in doors_node.get_children():
+				# dein Door script hat direction property
+				if d != null and "direction" in d:
+					dir = str(d.get("direction")).to_lower()
+					break
+
+		inst.queue_free()
+
+	_closed_door_cache[key] = dir
+	return dir
+
+	
+func get_closed_door_for_direction(dir: String) -> PackedScene:
+	dir = dir.to_lower()
+
+	var candidates: Array[PackedScene] = []
+	for s in closed_door_scenes:
+		if _get_closed_door_direction(s) == dir:
+			candidates.append(s)
+
+	if candidates.is_empty():
+		return null
+	return candidates.pick_random()
+
+	
+func load_closed_door_scenes_from_folder(path: String) -> Array[PackedScene]:
+	return load_room_scenes_from_folder(path)
+
+func close_free_doors(parent_node: Node) -> void:
+	if closed_door_scenes.is_empty():
+		push_warning("⚠ closed_door_scenes leer - lade closed doors zuerst!")
+		return
+
+	var total := 0
+
+	for room in placed_rooms:
+		if room == null:
+			continue
+		if not room.has_method("get_free_doors"):
+			continue
+
+		var free_doors = room.get_free_doors()
+		for door in free_doors:
+			if door == null or door.used:
+				continue
+
+			var door_scene := get_closed_door_for_direction(door.direction)
+			if door_scene == null:
+				push_warning("⚠ Keine ClosedDoor Scene für Richtung: " + str(door.direction))
+				continue
+
+			var closed_door := door_scene.instantiate() as Node2D
+			parent_node.add_child(closed_door)
+
+			# ✅ Snap direkt auf die Tür
+			closed_door.global_position = door.global_position
+			closed_door.global_rotation = door.global_rotation  # falls Türen rotiert sind
+
+			# ✅ Tür markieren als benutzt
+			door.used = true
+
+			total += 1
+
+	print("✔ Closed Doors gesetzt:", total)
+	
+func debug_print_free_doors() -> void:
+	var total := 0
+	for r in placed_rooms:
+		if r == null or not r.has_method("get_free_doors"):
+			continue
+		var free = r.get_free_doors()
+		if free.size() > 0:
+			print("ROOM:", r.name, "free doors:", free.size())
+			for d in free:
+				print("  -", d.name, "dir:", d.direction, "used:", d.used)
+				total += 1
+	print("TOTAL FREE DOORS:", total)
 
 # -----------------------------
 # GA: Genome / Ergebnis
@@ -123,6 +225,9 @@ class EvalResult:
 func get_random_tilemap() -> TileMapLayer:
 	start_room = load("res://scenes/rooms/Rooms/room_11x11.tscn")
 	room_scenes = load_room_scenes_from_folder(rooms_folder)
+	closed_door_scenes = load_room_scenes_from_folder(closed_doors_folder)
+	for s in closed_door_scenes:
+		print(" -", s.resource_path, "dir:", _get_closed_door_direction(s))
 	print("=== MAP GENERATION START ===")
 
 	# 1) genetische Suche
@@ -142,7 +247,7 @@ func get_random_tilemap() -> TileMapLayer:
 	if build_best_map_after_ga:
 		clear_children_rooms_only()
 		await generate_with_genome(best.genome, best.seed, true)
-
+		debug_print_free_doors()
 		bake_rooms_into_world_tilemap()
 
 		# Räume optional ausblenden (empfohlen)
@@ -373,21 +478,6 @@ func genetic_search_best() -> EvalResult:
 
 	return best_overall
 
-func get_room_rects(room: Node2D) -> Array[Rect2]:
-	var rects: Array[Rect2] = []
-	var area := room.get_node_or_null("Area2D") as Area2D
-	if area == null:
-		return rects
-
-	for child in area.get_children():
-		if child is CollisionShape2D:
-			var shape := child.shape as RectangleShape2D
-			if shape == null:
-				continue
-			var center :Vector2= child.global_position
-			rects.append(Rect2(center - shape.extents, shape.extents * 2.0))
-
-	return rects
 
 func evaluate_genome(genome: Genome, trial_seed: int) -> EvalResult:
 	# Wir generieren in einem temporären Container (wird danach freigegeben)
@@ -870,6 +960,7 @@ func bake_rooms_into_world_tilemap() -> void:
 		# FLOOR kopieren
 		if floor_tm != null:
 			copy_layer_into_world(floor_tm, world_tilemap, room_offset)
+			bake_closed_doors_into_world()
 
 		# TOP kopieren
 		if top_tm != null:
@@ -881,6 +972,81 @@ func bake_rooms_into_world_tilemap() -> void:
 		"| Top tiles:",
 		world_tilemap_top.get_used_cells().size()
 	)
+
+func bake_closed_doors_into_world() -> void:
+	if world_tilemap == null or world_tilemap_top == null:
+		push_error("❌ world_tilemap/world_tilemap_top ist null - bake_rooms_into_world_tilemap zuerst!")
+		return
+
+	var total := 0
+
+	for room in placed_rooms:
+		if room == null or not room.has_method("get_free_doors"):
+			continue
+
+		var room_offset: Vector2i = room.get_meta("tile_origin", Vector2i.ZERO)
+
+		for door in room.get_free_doors():
+			if door == null or door.used:
+				continue
+
+			var door_scene := get_closed_door_for_direction(str(door.direction))
+			if door_scene == null:
+				push_warning("⚠ Keine ClosedDoor Scene für Richtung: " + str(door.direction))
+				continue
+
+			var inst := door_scene.instantiate() as Node2D
+			if inst == null:
+				continue
+			add_child(inst)
+
+			# ✅ matching door IN closed-door scene finden
+			var matching := _find_any_door_node(inst)
+			if matching == null:
+				push_warning("⚠ ClosedDoor hat keine Door Nodes: " + door_scene.resource_path)
+				inst.queue_free()
+				continue
+
+			# ✅ SNAPPEN wie bei Räumen:
+			# closed door so bewegen, dass matching door genau auf echte Tür liegt
+			var offset: Vector2 = matching.global_position - inst.global_position
+			inst.global_position = door.global_position - offset
+			inst.force_update_transform()
+
+			# tile_origin bestimmen (wie bei rooms)
+			var tile_size := world_tilemap.tile_set.tile_size
+			var tile_origin := Vector2i(
+				int(round(inst.global_position.x / tile_size.x)),
+				int(round(inst.global_position.y / tile_size.y))
+			)
+
+			# TileMaps holen
+			var src_floor := inst.get_node_or_null("TileMapLayer") as TileMapLayer
+			var src_top := inst.get_node_or_null("TopLayer") as TileMapLayer
+
+			if src_floor != null:
+				copy_layer_into_world(src_floor, world_tilemap, tile_origin)
+			if src_top != null:
+				copy_layer_into_world(src_top, world_tilemap_top, tile_origin)
+
+			inst.queue_free()
+
+			door.used = true
+			total += 1
+
+	print("✔ [BAKE] Closed Doors gebacken:", total)
+
+
+func _find_any_door_node(root: Node) -> Node:
+	if root == null:
+		return null
+
+	if root.has_node("Doors"):
+		var doors := root.get_node("Doors")
+		for d in doors.get_children():
+			if d != null and ("direction" in d):
+				return d
+	return null
 
 
 func copy_layer_into_world(src: TileMapLayer, dst: TileMapLayer, offset: Vector2i) -> void:
