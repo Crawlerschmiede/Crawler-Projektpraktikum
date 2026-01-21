@@ -22,8 +22,7 @@ var sprites = {
 	[preload("res://scenes/sprite_scenes/what_sprite_scene.tscn"), ["Screech", "Swoop", "Rabies"]],
 	"pc":
 	[
-		preload("res://scenes/sprite_scenes/player_sprite_scene.tscn"),
-		["Punch", "Right Pivot", "Left Pivot", "Full Power Punch"]
+		preload("res://scenes/sprite_scenes/player_sprite_scene.tscn")
 	]
 }
 
@@ -99,9 +98,10 @@ func super_ready(sprite_type: String, entity_type: Array):
 	sprite = sprite_scene[0].instantiate()
 	add_child(sprite)
 	sprite.play("default")
-	abilities_this_has = sprite_scene[1]
-	for ability in abilities_this_has:
-		add_skill(ability)
+	if not "pc" in entity_type:
+		abilities_this_has = sprite_scene[1]
+		for ability in abilities_this_has:
+			add_skill(ability)
 
 
 # --- Movement Logic ---

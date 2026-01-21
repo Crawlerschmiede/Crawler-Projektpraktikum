@@ -8,7 +8,10 @@ var step_timer: float = 0.01
 var inventory := {}
 
 @onready var camera: Camera2D = $Camera2D
+const SKILLTREES := preload("res://scripts/premade_skilltrees.gd")
+var existing_skilltrees = SKILLTREES.new()
 
+const active_skilltrees =["unarmed"]
 
 func _ready() -> void:
 	if camera == null:
@@ -19,6 +22,9 @@ func _ready() -> void:
 	camera.make_current()
 	super_ready("pc", ["pc"])
 	is_player = true
+	for active_tree in active_skilltrees:
+		existing_skilltrees.increase_tree_level(active_tree)
+	update_unlocked_skills()
 	setup(tilemap, 10, 1, 0)
 
 
@@ -109,3 +115,15 @@ func _on_area_2d_area_entered(area: Area2D):
 	# Prüfen, ob das Objekt eine Funktion "collect" besitzt
 	if area.has_method("collect"):
 		area.collect(self)  # dem Item den Player übergen
+		
+func level_up():
+	self.max_hp = self.max_hp+1
+	self.hp=self.max_hp
+	existing_skilltrees.increase_tree_level("unarmed")
+	update_unlocked_skills()
+		
+func update_unlocked_skills():
+	abilities=[]
+	var gotten_skills = existing_skilltrees.get_active_skills()
+	for ability in gotten_skills:
+		add_skill(ability)
