@@ -14,7 +14,6 @@ var battle: CanvasLayer = null
 @onready var dungeon_tilemap: TileMapLayer = $TileMapLayer
 
 
-
 func _ready() -> void:
 	spawn_player()
 	for i in range(3):

@@ -100,7 +100,7 @@ class Effect:
 			"danger_dmg_mult":
 				print("Activating danger")
 				var duration = 1
-				return battle.apply_zones("dmg_mult_",  value, details, duration, "bad")
+				return battle.apply_zones("dmg_mult_", value, details, duration, "bad")
 			"poison":
 				print("Activating poison!")
 				if targets_self:

@@ -8,8 +8,8 @@ const CHASE_COOLDOWN: float = 0.5
 var roam_timer: float = 5.0
 var chase_timer: float = 5.0
 var burrowed = false
-var chased_pos:Vector2i
-var chased_direction:Vector2i
+var chased_pos: Vector2i
+var chased_direction: Vector2i
 
 var chosen: Skill
 var sprite_type: String = "bat"
@@ -17,15 +17,14 @@ var behaviour = "idle"
 var chase_target: PlayerCharacter
 var chasing: bool = false
 
-
 @onready var sight_area: Area2D = $SightArea
 
 
 func roam():
 	if "burrowing" in types:
-			if burrowed:
-				burrowed=false
-				sprite.play("default")
+		if burrowed:
+			burrowed = false
+			sprite.play("default")
 	chasing = false
 	var direction_int = 0
 	var direction = Vector2i.ZERO
@@ -57,21 +56,20 @@ func chase():
 		if "burrowing" in types:
 			if !burrowed:
 				sprite.play(used_animation["teleport_start"])
-				burrowed = true				
+				burrowed = true
 				return
 			else:
 				var animation_array = null
-				var digrection = (chased_direction)*-2
+				var digrection = (chased_direction) * -2
 				var targ_dig_pos = chased_pos + digrection
 				if used_animation:
 					if used_animation["teleport_start"] and used_animation["teleport_end"]:
-						animation_array=[used_animation["teleport_end"]]
+						animation_array = [used_animation["teleport_end"]]
 				await teleport_to_tile(targ_dig_pos, animation_array)
 				chasing = true
 				burrowed = false
 				return
 
-			
 	chasing = true
 	if chased_pos.x < grid_pos.x:
 		x_move = Vector2i.LEFT
@@ -91,17 +89,11 @@ func chase():
 			chase_timer = CHASE_COOLDOWN
 			return
 	elif "burrowing" in types:
-		if (
-			tilemap.get_cell_tile_data(grid_pos + x_move)
-			and x_move != Vector2i.ZERO
-		):
+		if tilemap.get_cell_tile_data(grid_pos + x_move) and x_move != Vector2i.ZERO:
 			move_to_tile(x_move)
 			chase_timer = CHASE_COOLDOWN
 			return
-		if (
-			tilemap.get_cell_tile_data(grid_pos + y_move)
-			and y_move != Vector2i.ZERO
-		):
+		if tilemap.get_cell_tile_data(grid_pos + y_move) and y_move != Vector2i.ZERO:
 			move_to_tile(y_move)
 			chase_timer = CHASE_COOLDOWN
 			return
@@ -134,8 +126,9 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	chase_timer -= delta
 	roam_timer -= delta
-	
-func move_it(): 
+
+
+func move_it():
 	if multi_turn_action == null:
 		var saw_player = check_sight()
 		if saw_player:
@@ -150,8 +143,8 @@ func move_it():
 		elif behaviour == "chase":
 			chase()
 	else:
-		if multi_turn_action["countdown"]>0:
-			multi_turn_action["countdown"]=multi_turn_action["countdown"]-1
+		if multi_turn_action["countdown"] > 0:
+			multi_turn_action["countdown"] = multi_turn_action["countdown"] - 1
 		else:
 			match multi_turn_action["name"]:
 				"dig_to":
@@ -160,7 +153,7 @@ func move_it():
 						sprite.play("dig_up")
 						await sprite.animation_finished
 						sprite.play("default")
-			multi_turn_action=null
+			multi_turn_action = null
 
 
 func check_sight():

@@ -14,10 +14,7 @@ var abilities_this_has: Array = []
 var multi_turn_action = null
 var sprites = {
 	"bat":
-	[
-		preload("res://scenes/sprite_scenes/bat_sprite_scene.tscn"), 
-		["Screech", "Swoop", "Rabies"]
-	],
+	[preload("res://scenes/sprite_scenes/bat_sprite_scene.tscn"), ["Screech", "Swoop", "Rabies"]],
 	"skeleton":
 	[
 		preload("res://scenes/sprite_scenes/skeleton_sprite_scene.tscn"),
@@ -25,18 +22,14 @@ var sprites = {
 	],
 	"what":
 	[
-		preload("res://scenes/sprite_scenes/what_sprite_scene.tscn"), 
+		preload("res://scenes/sprite_scenes/what_sprite_scene.tscn"),
 		["Screech", "Swoop", "Encroaching Void"]
 	],
 	"base_zombie":
 	[
-		preload("res://scenes/sprite_scenes/base_zombie_sprite_scene.tscn"), 
+		preload("res://scenes/sprite_scenes/base_zombie_sprite_scene.tscn"),
 		["Screech", "Rabies"],
-		{
-			"idle": "default",
-			"teleport_start": "dig_down",
-			"teleport_end":"dig_up"
-		}
+		{"idle": "default", "teleport_start": "dig_down", "teleport_end": "dig_up"}
 	],
 	"pc":
 	[
@@ -123,7 +116,7 @@ func super_ready(sprite_type: String, entity_type: Array):
 	for ability in abilities_this_has:
 		add_skill(ability)
 	if len(sprite_scene) > 2:
-		animations =  sprite_scene[2]
+		animations = sprite_scene[2]
 
 
 # --- Movement Logic ---
@@ -151,17 +144,12 @@ func move_to_tile(direction: Vector2i):
 			if is_cell_walkable(new_target):
 				if has_animation(sprite, "dig_down"):
 					sprite.play("dig_down")
-				multi_turn_action = {
-										"name":"dig_to",
-										"target":new_target,
-										"countdown": 2
-									}
+				multi_turn_action = {"name": "dig_to", "target": new_target, "countdown": 2}
 				return
 			else:
 				return
 		else:
 			return
-			
 
 	is_moving = true
 	grid_pos = target_cell
@@ -170,20 +158,19 @@ func move_to_tile(direction: Vector2i):
 	var tween = get_tree().create_tween()
 	tween.tween_property(self, "position", target_position, 0.15)
 	tween.finished.connect(_on_move_finished)
-	
-func teleport_to_tile(coordinates: Vector2i, animation = null)->void:
+
+
+func teleport_to_tile(coordinates: Vector2i, animation = null) -> void:
 	if not is_cell_walkable(coordinates):
 		sprite.play("default")
 		return
 	self.grid_pos = coordinates
 	self.position = tilemap.map_to_local(grid_pos)
-	if animation!=null:
+	if animation != null:
 		sprite.play(animation[0])
 		await sprite.animation_finished
 		sprite.play("default")
 	return
-	
-	
 
 
 func check_collisions() -> void:
@@ -239,7 +226,8 @@ func take_damage(damage):
 	hp = hp - taken_damage
 	print("Now has ", hp, "HP")
 	return [" took " + str(taken_damage) + " Damage", " now has " + str(hp) + " HP"]
-	
+
+
 func heal(healing):
 	print(self, " heals by ", healing, "!")
 	var healed_hp = healing  #useless right now but just put here for later damage calculations
@@ -282,8 +270,8 @@ func deal_with_status_effects() -> Array:
 			poisoned = 0
 		things_that_happened.append("Target" + message[0] + " from poison! Target" + message[1])
 	return [gets_a_turn, things_that_happened]
-	
-	
-# --- helpers --- 
+
+
+# --- helpers ---
 func has_animation(sprite: AnimatedSprite2D, anim_name: String) -> bool:
 	return sprite.sprite_frames.has_animation(anim_name)

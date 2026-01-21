@@ -111,7 +111,8 @@ func update_animation(direction: Vector2i):
 func add_to_inventory(item_name: String, amount: int):
 	inventory[item_name] = inventory.get(item_name, 0) + amount
 	print("Inventory:", inventory)
-	
+
+
 func add_action(skill_name):
 	var skill = existing_skills.get_skill(skill_name)
 	if skill != null:

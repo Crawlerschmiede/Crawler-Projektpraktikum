@@ -160,7 +160,8 @@ func move_player(direction: String, distance: int):
 	player_sprite.position = combat_tilemap.map_to_local(player_gridpos)
 	check_curr_tile_mods()
 	return "Player moved " + dir
-	
+
+
 func check_curr_tile_mods():
 	var active_placement_effects = tile_modifiers.get(player_gridpos, {})
 	for modifier_name in active_placement_effects:
@@ -176,38 +177,39 @@ func check_curr_tile_mods():
 			"heal_bad":
 				enemy.heal(modifier_value)
 	check_victory()
-	
-	
-var marker_flavours ={
-	"dmg_reduc_":{
+
+
+var marker_flavours = {
+	"dmg_reduc_":
+	{
 		"visual": "safety",
 		"info": "Standing here will let you avoid <PUTVALUEHERE>% of incoming Damage!",
-		"log":["Seems like there's some safe zones here"]
+		"log": ["Seems like there's some safe zones here"]
 	},
-	"dmg_mult_":{
+	"dmg_mult_":
+	{
 		"visual": "danger",
 		"info": "Standing here will make you take <PUTVALUEHERE>x Damage!",
-		"log":[
+		"log":
+		[
 			"Seems like this attack is more dangerous in some places",
 			"Pay attention to your positioning!"
 		]
 	},
-	"death_":{
+	"death_":
+	{
 		"visual": "death",
 		"info": "Look man, it's a floating skull, this is not where want to be standing",
-		"log":[
-			"Is that a floating skull?",
-			"Maybe avoid standing there!"
-		]
+		"log": ["Is that a floating skull?", "Maybe avoid standing there!"]
 	},
-	"heal_":{
+	"heal_":
+	{
 		"visual": "heal",
 		"info": "Standing here will heal you for <PUTVALUEHERE>!",
-		"log":[
-			"Seems like you can grab some healing here"
-		]
+		"log": ["Seems like you can grab some healing here"]
 	},
 }
+
 
 func apply_zones(zone_type, mult, pos, _dur, direction):
 	# NOTE: duration currently unused (effects are 1-turn only).
@@ -225,13 +227,24 @@ func apply_zones(zone_type, mult, pos, _dur, direction):
 	elif pos == "player_pos":
 		for tile in used_cells:
 			if tile == player_gridpos:
-				tile_modifiers[tile] = {mult_type: mult} 
+				tile_modifiers[tile] = {mult_type: mult}
 	elif pos == "surrounding":
 		for tile in used_cells:
 			if tile == player_gridpos:
 				continue
-			elif (tile.x == player_gridpos.x-1 or tile.x == player_gridpos.x or tile.x == player_gridpos.x+1) and (tile.y == player_gridpos.y-1 or tile.y == player_gridpos.y or tile.y == player_gridpos.y+1):
-				tile_modifiers[tile] = {mult_type: mult} 
+			elif (
+				(
+					tile.x == player_gridpos.x - 1
+					or tile.x == player_gridpos.x
+					or tile.x == player_gridpos.x + 1
+				)
+				and (
+					tile.y == player_gridpos.y - 1
+					or tile.y == player_gridpos.y
+					or tile.y == player_gridpos.y + 1
+				)
+			):
+				tile_modifiers[tile] = {mult_type: mult}
 	elif "x" in pos:
 		var parts = pos.split("=")
 		var min_x = 99999999999999
@@ -251,16 +264,15 @@ func apply_zones(zone_type, mult, pos, _dur, direction):
 		for tile in used_cells:
 			if tile.y == min_y + int(parts[1]):
 				tile_modifiers[tile] = {mult_type: mult}
-				
-		
+
 	for cell: Vector2i in tile_modifiers.keys():
 		var marker = MARKER_PREFAB.instantiate()
 
 		marker.marker_type = marker_visual
 		marker.tooltip_container = log_container
 		var text_val = mult
-		if zone_type =="dmg_reduc_":
-			text_val = int((1-mult)*100)
+		if zone_type == "dmg_reduc_":
+			text_val = int((1 - mult) * 100)
 		marker.marker_info = marker_info["info"].replace("<PUTVALUEHERE>", str(text_val))
 
 		$Battle_root.add_child(marker)
