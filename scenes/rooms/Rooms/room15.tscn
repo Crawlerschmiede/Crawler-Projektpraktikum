@@ -10,7 +10,7 @@ size = Vector2(352, 176)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_5jkcs"]
 size = Vector2(176, 192)
 
-[node name="Room15" type="Node2D"]
+[node name="Room L tr" type="Node2D"]
 position = Vector2(4, 0)
 script = ExtResource("2_5jkcs")
 is_corridor = false
