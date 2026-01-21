@@ -22,7 +22,7 @@ SettingsManager="*res://scripts/settings_manager.gd"
 [display]
 
 window/size/viewport_width=960
-window/size/viewport_height=480
+window/size/viewport_height=550
 window/size/mode=2
 window/size/extend_to_title=true
 window/stretch/mode="canvas_items"
