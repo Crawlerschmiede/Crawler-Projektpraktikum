@@ -2,11 +2,11 @@ extends Panel
 class_name Slot
 
 @export var slot_index: int = -1
-@export var slotType: int = 0 # SlotType enum value
+@export var slotType: int = 0  # SlotType enum value
 
 # Textures
 @export var default_tex: Texture2D = preload("res://assets/menu/UI_TravelBook_Slot01b.png")
-@export var empty_tex: Texture2D   = preload("res://assets/menu/UI_TravelBook_Slot01b.png")
+@export var empty_tex: Texture2D = preload("res://assets/menu/UI_TravelBook_Slot01b.png")
 @export var selected_tex: Texture2D = preload("res://assets/menu/UI_TravelBook_Slot01b.png")
 
 var default_style: StyleBoxTexture
@@ -51,7 +51,8 @@ func refresh_style() -> void:
 		set("theme_override_styles/panel", empty_style)
 	else:
 		set("theme_override_styles/panel", default_style)
-		
+
+
 func pickFromSlot() -> void:
 	if item == null:
 		return
@@ -78,8 +79,6 @@ func pickFromSlot() -> void:
 	refresh_style()
 
 
-
-
 func putIntoSlot(new_item: Node) -> void:
 	if new_item == null:
 		return
@@ -100,7 +99,6 @@ func putIntoSlot(new_item: Node) -> void:
 	new_item.position = Vector2.ZERO
 	item = new_item
 	refresh_style()
-
 
 
 func clear_slot() -> void:

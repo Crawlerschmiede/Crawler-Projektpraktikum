@@ -22,8 +22,6 @@ func _ready() -> void:
 	_refresh()
 
 
-
-
 # ---------------------------------------------------
 # Public API (wird von Slot / InventoryUI benutzt)
 # ---------------------------------------------------

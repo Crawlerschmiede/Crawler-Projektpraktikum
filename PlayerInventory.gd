@@ -9,6 +9,7 @@ var inventory: Dictionary = {}
 
 var suppress_signal: bool = false
 
+
 func _ready() -> void:
 	pass
 
@@ -94,7 +95,9 @@ func add_item(item_name: String, item_quantity: int = 1) -> void:
 	_emit_changed()
 	push_warning("Inventar voll! Item nicht vollständig hinzugefügt: %s" % item_name)
 
+
 var _emit_pending: bool = false
+
 
 func _emit_changed() -> void:
 	if suppress_signal:
@@ -168,6 +171,7 @@ func add_item_quantity(slot_node: Node, amount: int) -> void:
 func clear_inventory() -> void:
 	inventory.clear()
 	_emit_changed()
+
 
 func _rebuild_inventory() -> void:
 	var new_inv: Dictionary = {}
