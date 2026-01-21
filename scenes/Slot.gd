@@ -41,6 +41,25 @@ func _ready() -> void:
 
 	refresh_style()
 
+func _fit_item_to_slot(it: Node) -> void:
+	if it == null:
+		return
+	if not (it is Control):
+		return
+
+	var c := it as Control
+
+	c.set_anchors_preset(Control.PRESET_FULL_RECT)
+
+	# offsets clean setzen
+	c.offset_left = 0
+	c.offset_top = 0
+	c.offset_right = 0
+	c.offset_bottom = 0
+
+	# Sicherheit: gleiche Größe
+	c.size = size
+	c.position = Vector2.ZERO
 
 func refresh_style() -> void:
 	print(item)
@@ -90,13 +109,15 @@ func putIntoSlot(new_item: Node) -> void:
 
 	# In Slot hängen
 	add_child(new_item)
-
+	
 	if new_item is CanvasItem:
 		var ci := new_item as CanvasItem
 		ci.top_level = false
 		ci.z_index = 0
 		ci.visible = true
-
+	
+	_fit_item_to_slot(new_item)
+	
 	new_item.position = Vector2.ZERO
 	item = new_item
 	refresh_style()
@@ -114,6 +135,7 @@ func initialize_item(item_name: String, item_quantity: int) -> void:
 	if item == null:
 		item = ItemScene.instantiate()
 		add_child(item)
+		_fit_item_to_slot(item)
 
 	# Erwartet dass dein Item Node eine set_item(name, qty) Methode besitzt
 	if item.has_method("set_item"):

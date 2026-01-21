@@ -11,7 +11,25 @@ func dbg(msg: String) -> void:
 # Slot Script (Pfad prüfen!)
 const SlotScript: GDScript = preload("res://scenes/Slot.gd")
 
-@onready var inventory_slots: GridContainer = $GridContainer
+@onready var inv_grid: GridContainer = $Equiptment
+@onready var equip_grid: GridContainer = $GridContainer
+
+func _collect_slots_recursive(root: Node, out: Array[Node]) -> void:
+	for c in root.get_children():
+		if c.has_method("initialize_item") and c.has_method("putIntoSlot") and c.has_method("pickFromSlot"):
+			out.append(c)
+		else:
+			if c.get_child_count() > 0:
+				_collect_slots_recursive(c, out)
+
+
+func _get_all_slots() -> Array[Node]:
+	var out: Array[Node] = []
+	_collect_slots_recursive(inv_grid, out)
+	_collect_slots_recursive(equip_grid, out)
+	return out
+
+
 
 var _ui: Node = null
 var _slot_callables: Dictionary = {} # key: Node (slot), value: Callable
@@ -39,7 +57,8 @@ func _get_ui() -> Node:
 
 func _get_slots() -> Array[Node]:
 	# get_children() liefert Array[Node], aber ohne typed generic → wir casten sauber.
-	var children: Array = inventory_slots.get_children()
+	var children: Array = _get_all_slots()
+	print(children)
 	var out: Array[Node] = []
 	for n in children:
 		if n is Node:
@@ -52,10 +71,6 @@ func _get_slots() -> Array[Node]:
 # -------------------------
 func _ready() -> void:
 	dbg("_ready() gestartet")
-
-	if inventory_slots == null:
-		push_error("GridContainer nicht gefunden: Prüfe Node-Pfad $GridContainer")
-		return
 
 	var slots: Array[Node] = _get_slots()
 	dbg("Slots im GridContainer gefunden: %d" % slots.size())
