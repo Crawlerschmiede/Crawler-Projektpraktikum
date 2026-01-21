@@ -2,11 +2,15 @@ name: GDScript Lint
 
 on:
   push:
-    branches: [dev]
-    branches-ignore: [release]
+    branches: 
+      - 'dev'
+    branches-ignore: 
+      - 'release'
   pull_request:
-    branches: [dev]
-    branches-ignore: [release]
+    branches: 
+      - 'dev'
+    branches-ignore: 
+      - 'release'
   workflow_dispatch:
 
 jobs:
