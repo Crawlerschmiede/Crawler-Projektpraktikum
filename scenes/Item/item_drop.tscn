@@ -4,6 +4,7 @@
 [ext_resource type="Script" uid="uid://b5116o1cr5ici" path="res://scenes/Item/item_drop.gd" id="1_mhsm6"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_mhsm6"]
+size = Vector2(9, 5)
 
 [sub_resource type="Animation" id="Animation_cu0on"]
 resource_name = "Float"

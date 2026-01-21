@@ -49,4 +49,7 @@ script = ExtResource("4_n7skb")
 [node name="MiniCam" type="Camera2D" parent="CanvasLayer/SubViewportContainer/SubViewport"]
 
 [node name="ItemDrop" parent="." instance=ExtResource("6_h7b1f")]
-position = Vector2(68, 118)
+position = Vector2(35, 118)
+
+[node name="ItemDrop2" parent="." instance=ExtResource("6_h7b1f")]
+position = Vector2(77, 120)

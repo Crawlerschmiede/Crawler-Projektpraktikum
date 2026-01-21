@@ -1,67 +1,124 @@
 extends Panel
+class_name Slot
 
-var default_tex = preload("res://assets/menu/UI_TravelBook_Slot01b.png")
-var empty_tex = preload("res://assets/menu/UI_TravelBook_Slot01b.png")
-var selected_tex = preload("res://assets/menu/UI_TravelBook_Slot01b.png")
+@export var slot_index: int = -1
+@export var slotType: int = 0 # SlotType enum value
 
-var default_style: StyleBoxTexture = null
-var empty_style: StyleBoxTexture = null
-var selected_style: StyleBoxTexture = null
+# Textures
+@export var default_tex: Texture2D = preload("res://assets/menu/UI_TravelBook_Slot01b.png")
+@export var empty_tex: Texture2D   = preload("res://assets/menu/UI_TravelBook_Slot01b.png")
+@export var selected_tex: Texture2D = preload("res://assets/menu/UI_TravelBook_Slot01b.png")
 
-var ItemClass = preload("res://scenes/Item/item.tscn")
-var item = null
-var slot_index
+var default_style: StyleBoxTexture
+var empty_style: StyleBoxTexture
+var selected_style: StyleBoxTexture
+
+# Item
+const ItemScene: PackedScene = preload("res://scenes/Item/item.tscn")
+var item: Node = null
 
 enum SlotType {
 	HOTBAR = 0,
-	INVENTORY,
-	SHIRT,
-	PANTS,
-	SHOES,
+	INVENTORY = 1,
+	SHIRT = 2,
+	PANTS = 3,
+	SHOES = 4,
 }
 
-var slotType = null
+var _ui: Node = null
 
-func _ready():
+
+func _ready() -> void:
+	_ui = find_parent("UserInterface")
+
 	default_style = StyleBoxTexture.new()
 	empty_style = StyleBoxTexture.new()
 	selected_style = StyleBoxTexture.new()
+
 	default_style.texture = default_tex
 	empty_style.texture = empty_tex
 	selected_style.texture = selected_tex
-	
-#	if randi() % 2 == 0:
-#		item = ItemClass.instance()
-#		add_child(item)
+
 	refresh_style()
-		
-func refresh_style():
-	
-	#if slotType == SlotType.HOTBAR and PlayerInventory.active_item_slot == slot_index:
-	#	set('custom_styles/panel', selected_style)
+
+
+func refresh_style() -> void:
+	print(item)
+	if item != null and (not is_instance_valid(item) or item.get_parent() != self):
+		item = null
+
 	if item == null:
-		set('custom_styles/panel', empty_style)
+		set("theme_override_styles/panel", empty_style)
 	else:
-		set('custom_styles/panel', default_style)
+		set("theme_override_styles/panel", default_style)
 		
-func pickFromSlot():
-	remove_child(item)
-	find_parent("UserInterface").add_child(item)
+func pickFromSlot() -> void:
+	if item == null:
+		return
+
+	var moving := item
+	item = null  # <<< SOFORT
+
+	var ui := find_parent("UserInterface")
+	if ui == null:
+		return
+
+	if moving.get_parent() == self:
+		remove_child(moving)
+
+	ui.add_child(moving)
+
+	if moving is CanvasItem:
+		var ci := moving as CanvasItem
+		ci.top_level = true
+		ci.z_index = 999
+
+	moving.global_position = get_global_mouse_position()
+
+	refresh_style()
+
+
+
+
+func putIntoSlot(new_item: Node) -> void:
+	if new_item == null:
+		return
+
+	var ui := find_parent("UserInterface")
+	if ui != null and is_instance_valid(ui) and new_item.get_parent() == ui:
+		ui.remove_child(new_item)
+
+	# In Slot hängen
+	add_child(new_item)
+
+	if new_item is CanvasItem:
+		var ci := new_item as CanvasItem
+		ci.top_level = false
+		ci.z_index = 0
+		ci.visible = true
+
+	new_item.position = Vector2.ZERO
+	item = new_item
+	refresh_style()
+
+
+
+func clear_slot() -> void:
+	if item != null and is_instance_valid(item):
+		item.queue_free()
 	item = null
 	refresh_style()
-	
-func putIntoSlot(new_item):
-	item = new_item
-	item.position = Vector2(0, 0)
-	find_parent("UserInterface").remove_child(item)
-	add_child(item)
-	refresh_style()
-	
-func initialize_item(item_name, item_quantity):
+
+
+func initialize_item(item_name: String, item_quantity: int) -> void:
 	if item == null:
-		item = ItemClass.instantiate()
+		item = ItemScene.instantiate()
 		add_child(item)
-		item.set_item(item_name, item_quantity)
+
+	# Erwartet dass dein Item Node eine set_item(name, qty) Methode besitzt
+	if item.has_method("set_item"):
+		item.call("set_item", item_name, item_quantity)
 	else:
-		item.set_item(item_name, item_quantity)
+		push_error("Item Scene hat keine Methode set_item(item_name, item_quantity)")
+
 	refresh_style()

@@ -1,42 +1,161 @@
 extends Node
 
-const NUM_INVENTORY_SLOTS := 20
-const SlotClass = preload("res://scenes/Slot.gd")
-const ItemClass = preload("res://item.gd")
-# slot_index -> [item_name, item_quantity]
-var inventory := {}
-
 signal inventory_changed
 
+const NUM_INVENTORY_SLOTS: int = 20
+
+# slot_index -> [item_name: String, item_quantity: int]
+var inventory: Dictionary = {}
+
+var suppress_signal: bool = false
 
 func _ready() -> void:
-	# optional: test item
-	# inventory[0] = ["Iron Sword", 1]
 	pass
 
 
+# ------------------------------------------------------
+# Core Helpers
+# ------------------------------------------------------
+func _get_stack_size(item_name: String) -> int:
+	if JsonData == null:
+		return 1
+	if not ("item_data" in JsonData):
+		return 1
+
+	var data: Dictionary = JsonData.item_data
+	if not data.has(item_name):
+		return 1
+
+	var info: Variant = data[item_name]
+	if typeof(info) != TYPE_DICTIONARY:
+		return 1
+
+	var stack_size: int = int((info as Dictionary).get("StackSize", 1))
+	return max(stack_size, 1)
+
+
+func _slot_index_from_slot(slot: Node) -> int:
+	# robust, typed-safe Zugriff
+	if slot == null:
+		return -1
+	if slot.has_method("get"):
+		var v: Variant = slot.get("slot_index")
+		if v != null:
+			return int(v)
+	return -1
+
+
+# ------------------------------------------------------
+# API for UI / Gameplay
+# ------------------------------------------------------
 func add_item(item_name: String, item_quantity: int = 1) -> void:
-	# 1) Wenn Item schon existiert: stacke es
-	print("before: ", inventory)
-	for slot in inventory.keys():
-		if inventory[slot][0] == item_name:
-			inventory[slot][1] += item_quantity
+	if item_quantity <= 0:
+		return
+
+	var stack_size: int = _get_stack_size(item_name)
+
+	# 1) vorhandene Stacks auffüllen
+	for k in inventory.keys():
+		var idx: int = int(k)
+		var data: Array = inventory[idx]
+
+		if data.size() < 2:
+			continue
+
+		if str(data[0]) != item_name:
+			continue
+
+		var current: int = int(data[1])
+		var able_to_add: int = stack_size - current
+		if able_to_add <= 0:
+			continue
+
+		var add_now: int = min(able_to_add, item_quantity)
+		data[1] = current + add_now
+		inventory[idx] = data
+		item_quantity -= add_now
+
+		if item_quantity <= 0:
 			inventory_changed.emit()
-			print("after: ", inventory)
 			return
-	# 2) Item existiert nicht -> erstes freies Slot suchen
+
+	# 2) neue Slots belegen
 	for i in range(NUM_INVENTORY_SLOTS):
 		if not inventory.has(i):
-			inventory[i] = [item_name, item_quantity]
-			inventory_changed.emit()
-			print("after: ", inventory)
-			return
+			var put_now: int = min(stack_size, item_quantity)
+			inventory[i] = [item_name, put_now]
+			item_quantity -= put_now
 
-	print("Inventar voll! Item nicht hinzugefuegt: ", item_name)
+			if item_quantity <= 0:
+				inventory_changed.emit()
+				return
+
+	# wenn wir hier sind: kein Platz
+	inventory_changed.emit()
+	push_warning("Inventar voll! Item nicht vollständig hinzugefügt: %s" % item_name)
+
+func _emit_changed() -> void:
+	if suppress_signal:
+		return
+	inventory_changed.emit()
+
+func add_item_to_empty_slot(item_node: Node, slot_node: Node) -> void:
+	# Wird beim Drop in leeren Slot genutzt.
+	if item_node == null or slot_node == null:
+		return
+
+	var idx: int = _slot_index_from_slot(slot_node)
+	if idx < 0:
+		push_error("add_item_to_empty_slot: Slot hat keinen gültigen slot_index")
+		return
+
+	# Item Infos aus Node holen
+	if not item_node.has_method("get"):
+		push_error("add_item_to_empty_slot: Item node hat keine Properties")
+		return
+
+	var nm: String = str(item_node.get("item_name"))
+	var qt: int = int(item_node.get("item_quantity"))
+	if nm == "" or qt <= 0:
+		return
+
+	inventory[idx] = [nm, qt]
+	inventory_changed.emit()
 
 
-func remove_item(slot: Node) -> void:
-	inventory.erase(slot.slot_index)
+func remove_item(slot_node: Node) -> void:
+	var idx: int = _slot_index_from_slot(slot_node)
+	if idx < 0:
+		return
+
+	inventory.erase(idx)
+	inventory_changed.emit()
+
+
+func add_item_quantity(slot_node: Node, amount: int) -> void:
+	if amount <= 0:
+		return
+
+	var idx: int = _slot_index_from_slot(slot_node)
+	if idx < 0:
+		return
+
+	if not inventory.has(idx):
+		return
+
+	var data: Array = inventory[idx]
+	if data.size() < 2:
+		return
+
+	var nm: String = str(data[0])
+	var stack_size: int = _get_stack_size(nm)
+
+	var current: int = int(data[1])
+	var new_value: int = min(stack_size, current + amount)
+
+	data[1] = new_value
+	inventory[idx] = data
+	inventory_changed.emit()
 
 
 func clear_inventory() -> void:
