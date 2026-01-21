@@ -1,4 +1,4 @@
-[gd_scene load_steps=56 format=3 uid="uid://bvfdv1snyoxhh"]
+[gd_scene load_steps=64 format=3 uid="uid://bvfdv1snyoxhh"]
 
 [ext_resource type="Script" uid="uid://dp4r7814o32x6" path="res://scripts/player_character.gd" id="1_no27k"]
 [ext_resource type="Texture2D" uid="uid://m57eoo6ogcf7" path="res://assets/player-character/16x16 Idle-Sheet.png" id="2_no27k"]
@@ -15,6 +15,8 @@
 [ext_resource type="Texture2D" uid="uid://sppwtd1lbmbe" path="res://assets/menu/UI_TravelBook_BookPageLeft01a.png" id="9_mbyut"]
 [ext_resource type="Texture2D" uid="uid://cyt6v2ro0ketk" path="res://assets/menu/UI_TravelBook_IconStar01a.png" id="9_x2d4g"]
 [ext_resource type="Texture2D" uid="uid://bxp7sedmunhcs" path="res://assets/menu/inventar_slot.png" id="10_j4pnj"]
+[ext_resource type="Texture2D" uid="uid://brlrimrh6sdx2" path="res://assets/menu/UI_TravelBook_FrameSelect01b.png" id="13_6k8oa"]
+[ext_resource type="Texture2D" uid="uid://drnogsosojksh" path="res://assets/menu/UI_TravelBook_Slot01b.png" id="15_nq0iv"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_r5wgn"]
 radius = 8.0
@@ -222,6 +224,24 @@ animations = [{
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_hfhf8"]
 
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_xn7nh"]
+texture = ExtResource("10_j4pnj")
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_pa76a"]
+texture = ExtResource("10_j4pnj")
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_creb6"]
+texture = ExtResource("15_nq0iv")
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_vqds4"]
+texture = ExtResource("10_j4pnj")
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_xqkyc"]
+texture = ExtResource("10_j4pnj")
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_qoi8r"]
+texture = ExtResource("10_j4pnj")
+
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_x2d4g"]
 texture = ExtResource("10_j4pnj")
 
@@ -372,6 +392,84 @@ offset_bottom = 78.0
 texture = ExtResource("9_mbyut")
 expand_mode = 1
 
+[node name="EquiptmentLabel" type="TextureRect" parent="UserInterface/Inventory"]
+layout_mode = 0
+offset_left = 11.0
+offset_top = -35.0
+offset_right = 62.0
+offset_bottom = -25.0
+texture = ExtResource("13_6k8oa")
+expand_mode = 1
+
+[node name="Label" type="Label" parent="UserInterface/Inventory/EquiptmentLabel"]
+layout_mode = 0
+offset_left = 9.0
+offset_top = -0.2
+offset_right = 65.0
+offset_bottom = 13.8
+scale = Vector2(0.6, 0.6)
+theme_override_fonts/font = ExtResource("9_6k8oa")
+text = "Equiptment"
+
+[node name="Equiptment" type="GridContainer" parent="UserInterface/Inventory"]
+layout_mode = 0
+offset_left = 5.0
+offset_top = -23.0
+offset_right = 67.0
+offset_bottom = 30.0
+columns = 3
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UserInterface/Inventory/Equiptment"]
+custom_minimum_size = Vector2(12, 0)
+layout_mode = 2
+
+[node name="Panel" type="Panel" parent="UserInterface/Inventory/Equiptment/VBoxContainer"]
+custom_minimum_size = Vector2(12, 12)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxTexture_xn7nh")
+
+[node name="Panel2" type="Panel" parent="UserInterface/Inventory/Equiptment/VBoxContainer"]
+custom_minimum_size = Vector2(12, 12)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxTexture_pa76a")
+
+[node name="VBoxContainer2" type="VBoxContainer" parent="UserInterface/Inventory/Equiptment"]
+custom_minimum_size = Vector2(30, 0)
+layout_mode = 2
+
+[node name="Panel" type="Panel" parent="UserInterface/Inventory/Equiptment/VBoxContainer2"]
+custom_minimum_size = Vector2(25, 37)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxTexture_creb6")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="UserInterface/Inventory/Equiptment/VBoxContainer2"]
+layout_mode = 2
+alignment = 1
+
+[node name="Panel" type="Panel" parent="UserInterface/Inventory/Equiptment/VBoxContainer2/HBoxContainer"]
+custom_minimum_size = Vector2(12, 12)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxTexture_vqds4")
+
+[node name="Panel2" type="Panel" parent="UserInterface/Inventory/Equiptment/VBoxContainer2/HBoxContainer"]
+custom_minimum_size = Vector2(12, 12)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxTexture_xqkyc")
+
+[node name="VBoxContainer3" type="VBoxContainer" parent="UserInterface/Inventory/Equiptment"]
+custom_minimum_size = Vector2(12, 0)
+layout_mode = 2
+
+[node name="Panel" type="Panel" parent="UserInterface/Inventory/Equiptment/VBoxContainer3"]
+custom_minimum_size = Vector2(12, 12)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxTexture_qoi8r")
+
+[node name="Panel2" type="Panel" parent="UserInterface/Inventory/Equiptment/VBoxContainer3"]
+custom_minimum_size = Vector2(12, 12)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxTexture_qoi8r")
+
 [node name="GridContainer" type="GridContainer" parent="UserInterface/Inventory"]
 layout_mode = 1
 anchors_preset = 8
@@ -379,13 +477,14 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -46.0
-offset_top = -35.0
-offset_right = 50.0
-offset_bottom = 35.0
+offset_left = -60.0
+offset_top = -33.5
+offset_right = 8.0
+offset_bottom = 58.5
 grow_horizontal = 2
 grow_vertical = 2
-columns = 4
+scale = Vector2(0.7, 0.7)
+columns = 3
 metadata/_edit_use_anchors_ = true
 
 [node name="Slot1" type="Panel" parent="UserInterface/Inventory/GridContainer"]
