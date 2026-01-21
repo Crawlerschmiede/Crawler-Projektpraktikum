@@ -7,7 +7,7 @@
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_p3feo"]
 size = Vector2(176, 176)
 
-[node name="Merchant Room 2" type="Node2D"]
+[node name="Merchant Room 2" type="Node2D" groups=["merchant_room"]]
 position = Vector2(4, 0)
 script = ExtResource("1_gl4b2")
 is_corridor = false
