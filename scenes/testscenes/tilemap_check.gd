@@ -13,6 +13,8 @@ var battle: CanvasLayer = null
 @onready var PlayerScene = preload("res://scenes/player-character-scene.tscn")
 @onready var dungeon_tilemap: TileMapLayer = $TileMapLayer
 
+var player: PlayerCharacter
+
 
 func _ready() -> void:
 	spawn_player()
@@ -74,6 +76,7 @@ func spawn_player():
 	var e = PlayerScene.instantiate()
 	e.name = "Player"
 	e.setup(dungeon_tilemap, 10, 3, 0)
+	player = e
 	add_child(e)
 
 
@@ -102,6 +105,7 @@ func enemy_defeated(enemy):
 		battle = null
 		enemy.queue_free()
 		get_tree().paused = false
+		player.level_up()
 
 
 func game_over():
