@@ -212,7 +212,7 @@ func add_skill(skill_name):
 
 
 func initiate_battle(player: Node, enemy: Node) -> bool:
-	var main = get_tree().root.get_node("MAIN Pet Dungeon2")
+	var main = get_tree().root.get_node("MAIN Pet Dungeon")
 	main.instantiate_battle(player, enemy)
 	return true
 

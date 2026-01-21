@@ -16,7 +16,7 @@ var _corridor_cache: Dictionary = {} # key: String(scene.resource_path) -> bool
 @export_range(0.0, 1.0, 0.01) var base_door_fill_chance: float = 1.0
 
 # --- Genetischer Ansatz ---
-@export var ga_total_evals: int = 50  # genau 500 Auswertungen
+@export var ga_total_evals: int = 10  # genau 500 Auswertungen
 @export var ga_population_size: int = 40  # 20 * 25 = 500
 @export var ga_generations: int = 25
 @export var ga_elite_keep: int = 4  # Top 4 bleiben
@@ -120,7 +120,8 @@ class EvalResult:
 	var seed: int = 0
 
 
-func _ready() -> void:
+func get_random_tilemap() -> TileMapLayer:
+	start_room = load("res://scenes/rooms/Rooms/room_11x11.tscn")
 	room_scenes = load_room_scenes_from_folder(rooms_folder)
 	print("=== MAP GENERATION START ===")
 
@@ -142,16 +143,13 @@ func _ready() -> void:
 		clear_children_rooms_only()
 		await generate_with_genome(best.genome, best.seed, true)
 
-		# 🔥 ALLE RÄUME IN EINE TILEMAP BACKEN
 		bake_rooms_into_world_tilemap()
 
 		# Räume optional ausblenden (empfohlen)
 		for r in placed_rooms:
 			r.visible = false
 
-	spawn_player()
-
-	print("=== MAP GENERATION END ===")
+	return world_tilemap
 
 
 func get_required_scenes() -> Array[PackedScene]:
@@ -878,43 +876,6 @@ func clear_children_rooms_only() -> void:
 		c.queue_free()
 	placed_rooms.clear()
 	corridor_count = 0
-
-
-func spawn_player():
-	if player_scene == null:
-		push_error("❌ player_scene ist NULL")
-		return
-
-	if world_tilemap == null:
-		push_error("❌ WorldTileMap existiert nicht – Bake vergessen?")
-		return
-
-	player = player_scene.instantiate() as MoveableEntity
-	if player == null:
-		push_error("❌ Player ist kein MoveableEntity")
-		return
-
-	add_child(player)
-	player.z_index = 10
-
-	player.setup(world_tilemap, 100, 10, 5)
-
-	# 🔍 WALKABLE TILE SUCHEN
-	for cell in world_tilemap.get_used_cells():
-		var td := world_tilemap.get_cell_tile_data(cell)
-		if td and not td.get_custom_data("non_walkable"):
-			player.grid_pos = cell
-			player.position = world_tilemap.map_to_local(cell)
-
-			var cam := player.get_node_or_null("Camera2D") as Camera2D
-			if cam:
-				cam.make_current()
-
-			print("✔ Player gespawnt auf WorldTile:", cell)
-			return
-
-	push_error("❌ Kein walkable Tile in WorldTileMap gefunden")
-
 
 func get_main_tilemap() -> TileMapLayer:
 	for room in placed_rooms:
