@@ -55,7 +55,11 @@ func chase():
 	if !chasing:
 		if "burrowing" in types:
 			if !burrowed:
-				sprite.play(used_animation["teleport_start"])
+				if animations != null and animations.has("teleport_start"):
+					sprite.play(animations["teleport_start"])
+				else:
+					# fallback
+					sprite.play("default")
 				burrowed = true
 				return
 			else:

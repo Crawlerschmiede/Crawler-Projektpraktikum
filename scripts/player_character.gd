@@ -1,7 +1,7 @@
 class_name PlayerCharacter
-
 extends MoveableEntity
 
+signal exit_reached
 signal player_moved
 
 # Time (in seconds) the character pauses on a tile before taking the next step
@@ -54,6 +54,8 @@ func _physics_process(delta: float):
 			move_to_tile(input_direction)
 			# Reset the cooldown timer immediately after starting the move
 			step_timer = STEP_COOLDOWN
+			if _check_exit_tile():
+				exit_reached.emit()
 			player_moved.emit()
 
 
@@ -75,6 +77,8 @@ func get_held_direction() -> Vector2i:
 
 
 func update_animation(direction: Vector2i):
+	if sprite == null:
+		return
 	if direction != Vector2i.ZERO:
 		var walk_animation_name = ""
 		match direction:
@@ -133,13 +137,22 @@ func _on_area_2d_area_entered(area: Area2D):
 	if area.has_method("collect"):
 		area.collect(self)  # dem Item den Player übergen
 
-
 func level_up():
 	self.max_hp = self.max_hp + 1
 	self.hp = self.max_hp
 	existing_skilltrees.increase_tree_level("unarmed")
 	update_unlocked_skills()
 
+func _check_exit_tile() -> bool:
+	if tilemap == null:
+		return false
+
+	var td := tilemap.get_cell_tile_data(grid_pos)
+	if td == null:
+		return false
+
+	# Custom Data "exit" muss im Tileset gesetzt sein (bool)
+	return td.get_custom_data("exit") == true
 
 func update_unlocked_skills():
 	abilities = []
