@@ -11,12 +11,15 @@ var slot_group_by_index: Dictionary = {}
 
 var suppress_signal: bool = false
 
+
 func _ready() -> void:
 	pass
+
 
 func register_slot_index(idx: int, groups: Array[StringName]) -> void:
 	slot_group_by_index[idx] = groups
 	print(slot_group_by_index, idx, groups)
+
 
 func _get_item_group(item_name: String) -> String:
 	if JsonData == null or not ("item_data" in JsonData):
@@ -32,6 +35,7 @@ func _get_item_group(item_name: String) -> String:
 
 	return str((info as Dictionary).get("group", "Inventory"))
 
+
 func _slot_accepts_item(slot_node: Node, item_name: String) -> bool:
 	if slot_node == null:
 		print("[INV] slot_accepts_item: slot_node=null")
@@ -41,10 +45,16 @@ func _slot_accepts_item(slot_node: Node, item_name: String) -> bool:
 
 	# Debug Infos
 	var slot_groups: Array[StringName] = slot_node.get_groups()
-	print("[INV] CHECK groups: slot=", slot_node.name,
-		" slot_groups=", slot_groups,
-		" item=", item_name,
-		" item_group=", item_group)
+	print(
+		"[INV] CHECK groups: slot=",
+		slot_node.name,
+		" slot_groups=",
+		slot_groups,
+		" item=",
+		item_name,
+		" item_group=",
+		item_group
+	)
 
 	# Slot muss passende Gruppe haben
 	if slot_node.is_in_group(item_group):
@@ -58,7 +68,6 @@ func _slot_accepts_item(slot_node: Node, item_name: String) -> bool:
 
 	print("[INV] ❌ DENY: group mismatch")
 	return false
-
 
 
 # ------------------------------------------------------
@@ -155,12 +164,13 @@ func add_item(item_name: String, item_quantity: int = 1) -> void:
 		if item_quantity <= 0:
 			return
 
-
 	# wenn wir hier sind: kein Platz
 	_emit_changed()
 	push_warning("Inventar voll! Item nicht vollständig hinzugefügt: %s" % item_name)
 
+
 var _emit_pending: bool = false
+
 
 func _emit_changed() -> void:
 	if suppress_signal:
@@ -193,14 +203,17 @@ func add_item_to_empty_slot(item_node: Node, slot_node: Node) -> bool:
 		return false
 
 	if not _slot_accepts_item(slot_node, nm):
-		push_warning("Slot akzeptiert Item nicht (Group mismatch)! item='%s' group='%s'" % [nm, _get_item_group(nm)])
+		push_warning(
+			(
+				"Slot akzeptiert Item nicht (Group mismatch)! item='%s' group='%s'"
+				% [nm, _get_item_group(nm)]
+			)
+		)
 		return false
 
 	inventory[idx] = [nm, qt]
 	_emit_changed()
 	return true
-
-
 
 
 func remove_item(slot_node: Node) -> void:
@@ -241,6 +254,7 @@ func add_item_quantity(slot_node: Node, amount: int) -> void:
 func clear_inventory() -> void:
 	inventory.clear()
 	_emit_changed()
+
 
 func _rebuild_inventory() -> void:
 	var new_inv: Dictionary = {}

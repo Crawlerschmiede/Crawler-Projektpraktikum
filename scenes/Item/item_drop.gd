@@ -7,7 +7,7 @@ const MAX_SPEED: float = 225.0
 
 var player: Node2D = null
 var being_picked_up: bool = false
-var data: Dictionary = {}   # wird in _ready gesetzt
+var data: Dictionary = {}  # wird in _ready gesetzt
 
 
 func _ready() -> void:

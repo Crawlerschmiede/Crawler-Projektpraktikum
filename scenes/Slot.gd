@@ -2,11 +2,11 @@ extends Panel
 class_name Slot
 
 @export var slot_index: int = -1
-@export var slotType: int = 0 # SlotType enum value
+@export var slotType: int = 0  # SlotType enum value
 
 # Textures
 @export var default_tex: Texture2D = preload("res://assets/menu/UI_TravelBook_Slot01b.png")
-@export var empty_tex: Texture2D   = preload("res://assets/menu/UI_TravelBook_Slot01b.png")
+@export var empty_tex: Texture2D = preload("res://assets/menu/UI_TravelBook_Slot01b.png")
 @export var selected_tex: Texture2D = preload("res://assets/menu/UI_TravelBook_Slot01b.png")
 
 var default_style: StyleBoxTexture
@@ -41,6 +41,7 @@ func _ready() -> void:
 
 	refresh_style()
 
+
 func _fit_item_to_slot(it: Node) -> void:
 	if it == null:
 		return
@@ -61,6 +62,7 @@ func _fit_item_to_slot(it: Node) -> void:
 	c.size = size
 	c.position = Vector2.ZERO
 
+
 func refresh_style() -> void:
 	print(item)
 	if item != null and (not is_instance_valid(item) or item.get_parent() != self):
@@ -70,7 +72,8 @@ func refresh_style() -> void:
 		set("theme_override_styles/panel", empty_style)
 	else:
 		set("theme_override_styles/panel", default_style)
-		
+
+
 func pickFromSlot() -> void:
 	if item == null:
 		return
@@ -97,8 +100,6 @@ func pickFromSlot() -> void:
 	refresh_style()
 
 
-
-
 func putIntoSlot(new_item: Node) -> void:
 	if new_item == null:
 		return
@@ -109,19 +110,18 @@ func putIntoSlot(new_item: Node) -> void:
 
 	# In Slot hängen
 	add_child(new_item)
-	
+
 	if new_item is CanvasItem:
 		var ci := new_item as CanvasItem
 		ci.top_level = false
 		ci.z_index = 0
 		ci.visible = true
-	
+
 	_fit_item_to_slot(new_item)
-	
+
 	new_item.position = Vector2.ZERO
 	item = new_item
 	refresh_style()
-
 
 
 func clear_slot() -> void:
