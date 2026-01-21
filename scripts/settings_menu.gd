@@ -18,6 +18,7 @@ const PATH_HOTKEY_HINT := NodePath("PanelContainer/VBoxContainer/TabContainer/Ho
 var _rebind_action: String = ""
 var _rows_by_action: Dictionary = {}
 var _resolution_items: Array[Vector2i] = []
+var custom_font = load("res://assets/font/PixelPurl.ttf")
 
 @onready var tab_container: TabContainer = get_node(PATH_TAB_CONTAINER)
 
@@ -41,7 +42,17 @@ func _ready() -> void:
 	_build_resolution_items()
 	_refresh_from_settings()
 	_build_hotkey_rows()
-
+	
+	#Thene overrides
+	window_mode.get_popup().add_theme_font_override("font", custom_font)
+	resolution.get_popup().add_theme_font_override("font", custom_font)
+	# Sound Tab
+	mute.add_theme_font_override("font", custom_font)
+	# Hotkeys Hint
+	hotkey_hint.add_theme_font_override("font", custom_font)
+	# TabContainer Headers
+	tab_container.add_theme_font_override("font", custom_font)
+	
 	window_mode.item_selected.connect(_on_window_mode_changed)
 	resolution.item_selected.connect(_on_resolution_changed)
 	vsync.toggled.connect(_on_vsync_toggled)
@@ -55,11 +66,13 @@ func _ensure_window_mode_items() -> void:
 	window_mode.add_item("Windowed")
 	window_mode.add_item("Borderless Fullscreen")
 	window_mode.add_item("Exclusive Fullscreen")
+	window_mode.add_theme_font_override("font", custom_font)
 
 
 func _build_resolution_items() -> void:
 	resolution.clear()
 	_resolution_items.clear()
+	resolution.add_theme_font_override("font", custom_font)
 
 	var available: Array[Vector2i] = _get_available_resolutions()
 	for res_size in available:
@@ -126,16 +139,19 @@ func _build_hotkey_rows() -> void:
 
 		var name_label := Label.new()
 		name_label.text = action_name
+		name_label.add_theme_font_override("font", custom_font)
 		name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		row.add_child(name_label)
 
 		var key_label := Label.new()
 		key_label.text = mgr.get_current_key_text(action_name)
+		key_label.add_theme_font_override("font", custom_font)
 		key_label.custom_minimum_size = Vector2(90, 0)
 		row.add_child(key_label)
 
 		var rebind := Button.new()
 		rebind.text = "Rebind"
+		rebind.add_theme_font_override("font", custom_font)
 		rebind.pressed.connect(_begin_rebind.bind(action_name))
 		row.add_child(rebind)
 
@@ -225,6 +241,7 @@ func _begin_rebind(action_name: String) -> void:
 	if _rows_by_action.has(action_name):
 		var btn: Button = _rows_by_action[action_name]["button"]
 		btn.text = "Press key..."
+		btn.add_theme_font_override("font", custom_font)
 	_update_rebind_hint()
 
 
@@ -248,6 +265,7 @@ func _cancel_rebind() -> void:
 	if _rows_by_action.has(_rebind_action):
 		var btn: Button = _rows_by_action[_rebind_action]["button"]
 		btn.text = "Rebind"
+		btn.add_theme_font_override("font", custom_font)
 	_rebind_action = ""
 	_update_rebind_hint()
 
@@ -255,6 +273,7 @@ func _cancel_rebind() -> void:
 func _update_rebind_hint() -> void:
 	if _rebind_action.is_empty():
 		hotkey_hint.text = "Click Rebind, then press a key (Esc cancels)."
+		hotkey_hint.add_theme_font_override("font", custom_font)
 	else:
 		hotkey_hint.text = "Rebinding: %s (press a key, Esc cancels)." % _rebind_action
 
