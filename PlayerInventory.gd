@@ -76,7 +76,7 @@ func add_item(item_name: String, item_quantity: int = 1) -> void:
 		item_quantity -= add_now
 
 		if item_quantity <= 0:
-			inventory_changed.emit()
+			_emit_changed()
 			return
 
 	# 2) neue Slots belegen
@@ -87,20 +87,32 @@ func add_item(item_name: String, item_quantity: int = 1) -> void:
 			item_quantity -= put_now
 
 			if item_quantity <= 0:
-				inventory_changed.emit()
+				_emit_changed()
 				return
 
 	# wenn wir hier sind: kein Platz
-	inventory_changed.emit()
+	_emit_changed()
 	push_warning("Inventar voll! Item nicht vollständig hinzugefügt: %s" % item_name)
+
+var _emit_pending: bool = false
 
 func _emit_changed() -> void:
 	if suppress_signal:
 		return
+	if _emit_pending:
+		return
+
+	_emit_pending = true
+	call_deferred("_emit_changed_deferred")
+
+
+func _emit_changed_deferred() -> void:
+	_emit_pending = false
+	_rebuild_inventory()
 	inventory_changed.emit()
 
+
 func add_item_to_empty_slot(item_node: Node, slot_node: Node) -> void:
-	# Wird beim Drop in leeren Slot genutzt.
 	if item_node == null or slot_node == null:
 		return
 
@@ -109,18 +121,13 @@ func add_item_to_empty_slot(item_node: Node, slot_node: Node) -> void:
 		push_error("add_item_to_empty_slot: Slot hat keinen gültigen slot_index")
 		return
 
-	# Item Infos aus Node holen
-	if not item_node.has_method("get"):
-		push_error("add_item_to_empty_slot: Item node hat keine Properties")
-		return
-
 	var nm: String = str(item_node.get("item_name"))
 	var qt: int = int(item_node.get("item_quantity"))
 	if nm == "" or qt <= 0:
 		return
 
 	inventory[idx] = [nm, qt]
-	inventory_changed.emit()
+	_emit_changed()
 
 
 func remove_item(slot_node: Node) -> void:
@@ -129,7 +136,7 @@ func remove_item(slot_node: Node) -> void:
 		return
 
 	inventory.erase(idx)
-	inventory_changed.emit()
+	_emit_changed()
 
 
 func add_item_quantity(slot_node: Node, amount: int) -> void:
@@ -155,9 +162,36 @@ func add_item_quantity(slot_node: Node, amount: int) -> void:
 
 	data[1] = new_value
 	inventory[idx] = data
-	inventory_changed.emit()
+	_emit_changed()
 
 
 func clear_inventory() -> void:
 	inventory.clear()
-	inventory_changed.emit()
+	_emit_changed()
+
+func _rebuild_inventory() -> void:
+	var new_inv: Dictionary = {}
+
+	for k: Variant in inventory.keys():
+		var idx: int = int(k)
+		if idx < 0 or idx >= NUM_INVENTORY_SLOTS:
+			continue
+
+		var v: Variant = inventory[k]
+		if typeof(v) != TYPE_ARRAY:
+			continue
+
+		var arr: Array = v as Array
+		if arr.size() < 2:
+			continue
+
+		var nm: String = str(arr[0])
+		var qt: int = int(arr[1])
+
+		if nm == "" or qt <= 0:
+			continue
+
+		# normalisierte Form erzwingen
+		new_inv[idx] = [nm, qt]
+
+	inventory = new_inv
