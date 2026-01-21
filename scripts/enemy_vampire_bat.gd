@@ -17,6 +17,7 @@ var behaviour = "idle"
 var chase_target: PlayerCharacter
 var chasing: bool = false
 
+
 @onready var sight_area: Area2D = $SightArea
 
 
@@ -135,18 +136,31 @@ func _process(delta: float) -> void:
 	roam_timer -= delta
 	
 func move_it(): 
-	var saw_player = check_sight()
-	if saw_player:
-		if "hostile" in types:
-			behaviour = "chase"
-	else:
-		behaviour = "idle"
-		chase_target = null
+	if multi_turn_action == null:
+		var saw_player = check_sight()
+		if saw_player:
+			if "hostile" in types:
+				behaviour = "chase"
+		else:
+			behaviour = "idle"
+			chase_target = null
 
-	if behaviour == "idle":
-		roam()
-	elif behaviour == "chase":
-		chase()
+		if behaviour == "idle":
+			roam()
+		elif behaviour == "chase":
+			chase()
+	else:
+		if multi_turn_action["countdown"]>0:
+			multi_turn_action["countdown"]=multi_turn_action["countdown"]-1
+		else:
+			match multi_turn_action["name"]:
+				"dig_to":
+					teleport_to_tile(multi_turn_action["target"])
+					if has_animation(sprite, "dig_up"):
+						sprite.play("dig_up")
+						await sprite.animation_finished
+						sprite.play("default")
+			multi_turn_action=null
 
 
 func check_sight():

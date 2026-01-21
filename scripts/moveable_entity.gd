@@ -11,6 +11,7 @@ var is_player: bool = false
 var types = ["passive"]
 var existing_skills = SKILLS.new()
 var abilities_this_has: Array = []
+var multi_turn_action = null
 var sprites = {
 	"bat":
 	[
@@ -146,10 +147,16 @@ func move_to_tile(direction: Vector2i):
 	var target_cell = grid_pos + direction
 	if not is_cell_walkable(target_cell):
 		if "burrowing" in types:
-			print("I could dig under this...")
 			var new_target = target_cell + direction
 			if is_cell_walkable(new_target):
-				target_cell = new_target
+				if has_animation(sprite, "dig_down"):
+					sprite.play("dig_down")
+				multi_turn_action = {
+										"name":"dig_to",
+										"target":new_target,
+										"countdown": 2
+									}
+				return
 			else:
 				return
 		else:
@@ -275,3 +282,8 @@ func deal_with_status_effects() -> Array:
 			poisoned = 0
 		things_that_happened.append("Target" + message[0] + " from poison! Target" + message[1])
 	return [gets_a_turn, things_that_happened]
+	
+	
+# --- helpers --- 
+func has_animation(sprite: AnimatedSprite2D, anim_name: String) -> bool:
+	return sprite.sprite_frames.has_animation(anim_name)
