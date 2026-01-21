@@ -2,7 +2,7 @@ extends Node2D
 
 @export var room_scenes: Array[PackedScene]
 @export var start_room: PackedScene
-@export var max_rooms := 15
+@export var max_rooms := 10
 
 var placed_rooms := []
 

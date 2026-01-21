@@ -1,0 +1,112 @@
+[gd_scene load_steps=13 format=3 uid="uid://buwc6nchgbgf3"]
+
+[ext_resource type="Shader" uid="uid://do682u7jbuev1" path="res://shaders/IntroScreen.gdshader" id="1_hy7k6"]
+[ext_resource type="Script" uid="uid://blinqwuxdm5f8" path="res://scripts/intro_screen.gd" id="1_idkc3"]
+[ext_resource type="Shader" uid="uid://d0lahbhlou0jq" path="res://shaders/Invert.gdshader" id="1_l8b2p"]
+[ext_resource type="FontFile" uid="uid://d4fqcjicieold" path="res://assets/font/PixelPurl.ttf" id="1_n8ope"]
+[ext_resource type="Shader" uid="uid://dv3ct0r5iuce2" path="res://shaders/tvNoiseAndFlicker.gdshader" id="2_2cghm"]
+[ext_resource type="Script" uid="uid://dxf3wdjr71lje" path="res://shaders/shake.gd" id="3_kx4lv"]
+[ext_resource type="Shader" uid="uid://gyst23ycxtyp" path="res://shaders/glitchburn.gdshader" id="7_kx4lv"]
+[ext_resource type="AudioStream" uid="uid://bwwcq2qljp32u" path="res://assets/sfx/tv noise mix.mp3" id="8_idkc3"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ssdy7"]
+shader = ExtResource("1_l8b2p")
+shader_parameter/intensity = 0.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_hj8lj"]
+shader = ExtResource("2_2cghm")
+shader_parameter/noise_intensity = 1.0
+shader_parameter/flicker_speed = 20.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_idkc3"]
+shader = ExtResource("1_hy7k6")
+shader_parameter/scanline_count = 300.0
+shader_parameter/scanline_intensity = 0.1
+shader_parameter/curvature = 0.05
+shader_parameter/vignette_intensity = 0.4
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_p2erm"]
+shader = ExtResource("7_kx4lv")
+shader_parameter/r_offset = 0.002
+shader_parameter/b_offset = -0.002
+shader_parameter/burn_intensity = 0.1
+shader_parameter/circle_radius = 0.550000026125
+shader_parameter/circle_softness = 0.5
+
+[node name="Control" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 640.0
+offset_bottom = 480.0
+script = ExtResource("1_idkc3")
+
+[node name="Background" type="ColorRect" parent="."]
+visible = false
+layout_mode = 0
+offset_right = 640.0
+offset_bottom = 480.0
+color = Color(0.9779369, 0.97793704, 0.9779369, 1)
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+layout_mode = 0
+offset_right = 160.0
+offset_bottom = 120.0
+scale = Vector2(4.2, 4.2)
+
+[node name="Label" type="Label" parent="CenterContainer"]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75686276, 0, 0, 1)
+theme_override_fonts/font = ExtResource("1_n8ope")
+text = "TeamName"
+script = ExtResource("3_kx4lv")
+
+[node name="LabelShadow" type="Label" parent="."]
+visible = false
+modulate = Color(0, 1, 1, 1)
+layout_mode = 0
+offset_left = 240.0
+offset_top = 225.0
+offset_right = 296.0
+offset_bottom = 239.0
+scale = Vector2(4, 4)
+theme_override_colors/font_color = Color(0.75686276, 0, 0, 1)
+theme_override_fonts/font = ExtResource("1_n8ope")
+text = "TeamName"
+script = ExtResource("3_kx4lv")
+
+[node name="InvertLayer" type="ColorRect" parent="."]
+material = SubResource("ShaderMaterial_ssdy7")
+layout_mode = 0
+offset_left = 320.0
+offset_top = 240.0
+offset_right = 320.0
+offset_bottom = 240.0
+
+[node name="StaticOverlay" type="ColorRect" parent="."]
+material = SubResource("ShaderMaterial_hj8lj")
+layout_mode = 0
+offset_right = 640.0
+offset_bottom = 480.0
+scale = Vector2(1, 0.001)
+pivot_offset = Vector2(320, 240)
+
+[node name="BackBufferCopy" type="BackBufferCopy" parent="."]
+copy_mode = 2
+
+[node name="CRTOverlay" type="ColorRect" parent="."]
+material = SubResource("ShaderMaterial_idkc3")
+layout_mode = 0
+offset_right = 640.0
+offset_bottom = 480.0
+pivot_offset = Vector2(320, 240)
+color = Color(0.003921569, 0.003921569, 0.003921569, 1)
+
+[node name="ColorRect" type="ColorRect" parent="."]
+material = SubResource("ShaderMaterial_p2erm")
+layout_mode = 0
+offset_right = 640.0
+offset_bottom = 480.0
+
+[node name="tv_noise" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("8_idkc3")

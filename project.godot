@@ -25,7 +25,6 @@ PlayerInventory="*res://PlayerInventory.gd"
 
 window/size/viewport_width=640
 window/size/viewport_height=480
-window/size/resizable=false
 window/stretch/mode="viewport"
 window/stretch/aspect="keep_height"
 window/stretch/scale_mode="integer"
@@ -45,6 +44,8 @@ version_control/autoload_on_startup=true
 item=""
 Inventar=""
 Equipment=""
+boss_room=""
+merchant_room=""
 
 [input]
 

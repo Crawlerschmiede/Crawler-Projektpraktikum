@@ -2,12 +2,20 @@ class_name PlayerCharacter
 
 extends MoveableEntity
 
+signal player_moved
+
 # Time (in seconds) the character pauses on a tile before taking the next step
 const STEP_COOLDOWN: float = 0.01
 var step_timer: float = 0.01
 var inventory := {}
+var base_actions = ["Move Up", "Move Down", "Move Left", "Move Right"]
+var actions = []
 
 @onready var camera: Camera2D = $Camera2D
+const SKILLTREES := preload("res://scripts/premade_skilltrees.gd")
+var existing_skilltrees = SKILLTREES.new()
+
+const active_skilltrees = ["unarmed"]
 
 
 func _ready() -> void:
@@ -17,10 +25,15 @@ func _ready() -> void:
 		return
 
 	camera.make_current()
-	abilities_this_has = ["Punch", "Right Pivot", "Left Pivot", "Full Power Punch"]
-	super_ready("pc")
+	super_ready("pc", ["pc"])
 	is_player = true
+	for action in base_actions:
+		add_action(action)
+	for active_tree in active_skilltrees:
+		existing_skilltrees.increase_tree_level(active_tree)
+	update_unlocked_skills()
 	setup(tilemap, 10, 1, 0)
+	add_to_group("player")
 
 
 # --- Input Handling with Cooldown ---
@@ -41,6 +54,7 @@ func _physics_process(delta: float):
 			move_to_tile(input_direction)
 			# Reset the cooldown timer immediately after starting the move
 			step_timer = STEP_COOLDOWN
+			player_moved.emit()
 
 
 # Function to get the current input direction vector
@@ -106,7 +120,29 @@ func add_to_inventory(item_name: String, amount: int):
 	print("Inventory:", inventory)
 
 
+func add_action(skill_name):
+	var skill = existing_skills.get_skill(skill_name)
+	if skill != null:
+		actions.append(skill)
+	else:
+		print(skill_name + "doesn't exist!")
+
+
 func _on_area_2d_area_entered(area: Area2D):
 	# Prüfen, ob das Objekt eine Funktion "collect" besitzt
 	if area.has_method("collect"):
 		area.collect(self)  # dem Item den Player übergen
+
+
+func level_up():
+	self.max_hp = self.max_hp + 1
+	self.hp = self.max_hp
+	existing_skilltrees.increase_tree_level("unarmed")
+	update_unlocked_skills()
+
+
+func update_unlocked_skills():
+	abilities = []
+	var gotten_skills = existing_skilltrees.get_active_skills()
+	for ability in gotten_skills:
+		add_skill(ability)
