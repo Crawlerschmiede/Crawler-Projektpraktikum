@@ -15,7 +15,8 @@ var actions = []
 const SKILLTREES := preload("res://scripts/premade_skilltrees.gd")
 var existing_skilltrees = SKILLTREES.new()
 
-const active_skilltrees =["unarmed"]
+const active_skilltrees = ["unarmed"]
+
 
 func _ready() -> void:
 	if camera == null:
@@ -131,15 +132,17 @@ func _on_area_2d_area_entered(area: Area2D):
 	# Prüfen, ob das Objekt eine Funktion "collect" besitzt
 	if area.has_method("collect"):
 		area.collect(self)  # dem Item den Player übergen
-		
+
+
 func level_up():
-	self.max_hp = self.max_hp+1
-	self.hp=self.max_hp
+	self.max_hp = self.max_hp + 1
+	self.hp = self.max_hp
 	existing_skilltrees.increase_tree_level("unarmed")
 	update_unlocked_skills()
-		
+
+
 func update_unlocked_skills():
-	abilities=[]
+	abilities = []
 	var gotten_skills = existing_skilltrees.get_active_skills()
 	for ability in gotten_skills:
 		add_skill(ability)

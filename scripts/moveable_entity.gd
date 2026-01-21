@@ -31,10 +31,7 @@ var sprites = {
 		["Screech", "Rabies"],
 		{"idle": "default", "teleport_start": "dig_down", "teleport_end": "dig_up"}
 	],
-	"pc":
-	[
-		preload("res://scenes/sprite_scenes/player_sprite_scene.tscn")
-	]
+	"pc": [preload("res://scenes/sprite_scenes/player_sprite_scene.tscn")]
 }
 
 var grid_pos: Vector2i

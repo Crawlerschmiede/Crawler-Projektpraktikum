@@ -13,7 +13,7 @@ var battle: CanvasLayer = null
 @onready var PlayerScene = preload("res://scenes/player-character-scene.tscn")
 @onready var dungeon_tilemap: TileMapLayer = $TileMapLayer
 
-var player:PlayerCharacter
+var player: PlayerCharacter
 
 
 func _ready() -> void:
@@ -76,7 +76,7 @@ func spawn_player():
 	var e = PlayerScene.instantiate()
 	e.name = "Player"
 	e.setup(dungeon_tilemap, 10, 3, 0)
-	player=e
+	player = e
 	add_child(e)
 
 
