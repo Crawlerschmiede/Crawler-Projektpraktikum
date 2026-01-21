@@ -16,8 +16,14 @@ var battle: CanvasLayer = null
 
 func _ready() -> void:
 	spawn_player()
-	for i in range(10):
-		spawn_enemy()
+	for i in range(3):
+		spawn_enemy("what", ["hostile", "wallbound"])
+	for i in range(3):
+		spawn_enemy("bat", ["passive", "enemy_flying"])
+	for i in range(3):
+		spawn_enemy("skeleton", ["hostile", "enemy_walking"])
+	for i in range(3):
+		spawn_enemy("base_zombie", ["hostile", "enemy_walking", "burrowing"])
 
 
 func _process(_delta):
@@ -56,9 +62,11 @@ func on_menu_closed():
 		get_tree().paused = false
 
 
-func spawn_enemy():
+func spawn_enemy(sprite_type, behaviour):
 	var e = ENEMY_SCENE.instantiate()
-	e.setup(dungeon_tilemap, 1, 1, 0)
+	e.types = behaviour
+	e.sprite_type = sprite_type
+	e.setup(dungeon_tilemap, 3, 1, 0)
 	add_child(e)
 
 
