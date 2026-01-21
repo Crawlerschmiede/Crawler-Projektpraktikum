@@ -1,0 +1,110 @@
+[gd_scene load_steps=16 format=3 uid="uid://ge2ea3y4rrek"]
+
+[ext_resource type="Texture2D" uid="uid://cf4bns5mu02mp" path="res://assets/enemies/base_zombie.png" id="1_gk6ds"]
+[ext_resource type="Texture2D" uid="uid://dfbmcchyt1doi" path="res://assets/enemies/zombie_burrow_burst.png" id="2_1ecye"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1ecye"]
+atlas = ExtResource("1_gk6ds")
+region = Rect2(0, 2, 20, 19)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6rblh"]
+atlas = ExtResource("1_gk6ds")
+region = Rect2(20, 2, 20, 19)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_idte7"]
+atlas = ExtResource("1_gk6ds")
+region = Rect2(40, 2, 20, 19)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_f4dm8"]
+atlas = ExtResource("1_gk6ds")
+region = Rect2(60, 2, 20, 19)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_xtrj1"]
+atlas = ExtResource("2_1ecye")
+region = Rect2(0, 44, 20, 22)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hl02m"]
+atlas = ExtResource("2_1ecye")
+region = Rect2(20, 44, 20, 22)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_w770s"]
+atlas = ExtResource("2_1ecye")
+region = Rect2(40, 44, 20, 22)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_gkusv"]
+atlas = ExtResource("2_1ecye")
+region = Rect2(60, 44, 20, 22)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3jtjn"]
+atlas = ExtResource("2_1ecye")
+region = Rect2(0, 0, 20, 23)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_bv5e7"]
+atlas = ExtResource("2_1ecye")
+region = Rect2(20, 0, 20, 23)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_o614y"]
+atlas = ExtResource("2_1ecye")
+region = Rect2(40, 0, 20, 23)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_8fy3s"]
+atlas = ExtResource("2_1ecye")
+region = Rect2(60, 0, 20, 23)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_xtrj1"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1ecye")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_6rblh")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_idte7")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_f4dm8")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_xtrj1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_hl02m")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_w770s")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_gkusv")
+}],
+"loop": false,
+"name": &"dig_down",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3jtjn")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_bv5e7")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_o614y")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_8fy3s")
+}],
+"loop": false,
+"name": &"dig_up",
+"speed": 5.0
+}]
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D"]
+sprite_frames = SubResource("SpriteFrames_xtrj1")
+animation = &"dig_down"

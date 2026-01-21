@@ -1,11 +1,12 @@
-[gd_scene load_steps=9 format=4 uid="uid://dpkotk4tqkdwt"]
+[gd_scene load_steps=10 format=4 uid="uid://dpkotk4tqkdwt"]
 
 [ext_resource type="Script" uid="uid://cgbawrr63ac08" path="res://scenes/testscenes/tilemap_check.gd" id="1_1jc7e"]
 [ext_resource type="Texture2D" uid="uid://bkugys8878hd" path="res://assets/testsprites/placeholder_floornwall_goodsize.png" id="1_n7skb"]
 [ext_resource type="PackedScene" uid="uid://ceokrukww4ic8" path="res://scenes/popup-menu.tscn" id="2_ohj5c"]
 [ext_resource type="Texture2D" uid="uid://b66gb5qt40wlo" path="res://assets/testsprites/rat.png" id="3_lm1w0"]
 [ext_resource type="Script" uid="uid://dyn03ub2767ou" path="res://scenes/testscenes/sub_viewport.gd" id="4_n7skb"]
-[ext_resource type="PackedScene" uid="uid://ctw147xj16x67" path="res://scenes/Item/item_drop.tscn" id="6_h7b1f"]
+[ext_resource type="PackedScene" uid="uid://c55eb1fq2fk8t" path="res://items/item.tscn" id="5_lm1w0"]
+[ext_resource type="Script" uid="uid://u8iasqm4625a" path="res://scenes/testscenes/minimap.gd" id="6_1jc7e"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_h7b1f"]
 texture = ExtResource("1_n7skb")
@@ -20,7 +21,7 @@ custom_data_layer_0/name = "non_walkable"
 custom_data_layer_0/type = 1
 sources/1 = SubResource("TileSetAtlasSource_h7b1f")
 
-[node name="MAIN Pet Dungeon" type="Node2D"]
+[node name="MAIN Pet Dungeon2" type="Node2D"]
 script = ExtResource("1_1jc7e")
 menu_scene = ExtResource("2_ohj5c")
 
@@ -32,6 +33,7 @@ tile_set = SubResource("TileSet_ff7r8")
 texture = ExtResource("3_lm1w0")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
+script = ExtResource("6_1jc7e")
 
 [node name="SubViewportContainer" type="SubViewportContainer" parent="CanvasLayer"]
 anchors_preset = 15

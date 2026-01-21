@@ -4,9 +4,11 @@ extends Control
 
 const DEBUG: bool = true
 
+
 func dbg(msg: String) -> void:
 	if DEBUG:
 		print("[Inventory] ", msg)
+
 
 # Slot Script (Pfad prüfen!)
 const SlotScript: GDScript = preload("res://scenes/Slot.gd")
@@ -32,7 +34,7 @@ func _get_all_slots() -> Array[Node]:
 
 
 var _ui: Node = null
-var _slot_callables: Dictionary = {} # key: Node (slot), value: Callable
+var _slot_callables: Dictionary = {}  # key: Node (slot), value: Callable
 
 
 # -------------------------
@@ -119,12 +121,19 @@ func _setup_slots(slots: Array[Node]) -> void:
 		if _has_property(s, &"slot_index"):
 			s.set("slot_index", i)
 		else:
-			push_error("Slot %d hat keine Property 'slot_index' (in Slot.gd: @export var slot_index:int)" % i)
+			push_error(
+				(
+					"Slot %d hat keine Property 'slot_index' (in Slot.gd: @export var slot_index:int)"
+					% i
+				)
+			)
 
 		if _has_property(s, &"slotType"):
 			s.set("slotType", SlotScript.SlotType.INVENTORY)
 		else:
-			push_error("Slot %d hat keine Property 'slotType' (in Slot.gd: @export var slotType:int)" % i)
+			push_error(
+				"Slot %d hat keine Property 'slotType' (in Slot.gd: @export var slotType:int)" % i
+			)
 
 
 func _connect_inventory_signal() -> void:
@@ -149,7 +158,7 @@ func initialize_inventory() -> void:
 	var ui := _get_ui()
 	var holding: Node = null
 	if ui != null and _has_property(ui, &"holding_item"):
-		var hv : Node = ui.get("holding_item")
+		var hv: Node = ui.get("holding_item")
 		if hv is Node:
 			holding = hv as Node
 
@@ -194,7 +203,9 @@ func initialize_inventory() -> void:
 		var idx: int = int(k)
 
 		if idx < 0 or idx >= slots.size():
-			push_error("Inventory enthält slot_index %s, aber UI hat nur %d Slots" % [str(k), slots.size()])
+			push_error(
+				"Inventory enthält slot_index %s, aber UI hat nur %d Slots" % [str(k), slots.size()]
+			)
 			continue
 
 		var slot: Node = slots[idx]
@@ -217,7 +228,9 @@ func initialize_inventory() -> void:
 		if slot.has_method("initialize_item"):
 			slot.call("initialize_item", item_name, item_qty)
 		else:
-			push_error("Slot %d hat initialize_item() nicht – Item kann nicht angezeigt werden" % idx)
+			push_error(
+				"Slot %d hat initialize_item() nicht – Item kann nicht angezeigt werden" % idx
+			)
 
 
 # -------------------------
@@ -288,7 +301,16 @@ func _process(_delta: float) -> void:
 			dbg("MOVE holding: parent=" + str(hn.get_parent()) + " pos=" + str(hn.global_position))
 			if hn is CanvasItem:
 				var hci := hn as CanvasItem
-				dbg("  visible=" + str(hci.visible) + " z=" + str(hci.z_index) + " top=" + str(hci.top_level))
+				dbg(
+					(
+						"  visible="
+						+ str(hci.visible)
+						+ " z="
+						+ str(hci.z_index)
+						+ " top="
+						+ str(hci.top_level)
+					)
+				)
 
 
 func able_to_put_into_slot(_slot: Node) -> bool:
@@ -388,7 +410,10 @@ func left_click_same_item(slot: Node) -> void:
 		if not item_data.has(name):
 			push_error("JsonData.item_data hat kein Item '%s'" % name)
 			return
-		if not (item_data[name] is Dictionary) or not (item_data[name] as Dictionary).has("StackSize"):
+		if (
+			not (item_data[name] is Dictionary)
+			or not (item_data[name] as Dictionary).has("StackSize")
+		):
 			push_error("Item '%s' hat keinen StackSize Eintrag" % name)
 			return
 
@@ -457,7 +482,6 @@ func left_click_not_holding(slot: Node) -> void:
 	PlayerInventory.remove_item(slot)
 	PlayerInventory.set_block_signals(false)
 
-
 	# UI-State
 	ui.set("holding_item", slot_item)
 	dbg("UI holding_item gesetzt: " + str(ui.get("holding_item")))
@@ -493,7 +517,6 @@ func left_click_not_holding(slot: Node) -> void:
 
 	if DEBUG:
 		_validate_slot(slot)
-
 
 
 # -------------------------

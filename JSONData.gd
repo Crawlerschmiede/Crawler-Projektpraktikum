@@ -2,8 +2,10 @@ extends Node
 
 var item_data: Dictionary
 
+
 func _ready():
 	item_data = load_data("res://data/itemData.json")
+
 
 func load_data(file_path: String) -> Dictionary:
 	var file = FileAccess.open(file_path, FileAccess.READ)
