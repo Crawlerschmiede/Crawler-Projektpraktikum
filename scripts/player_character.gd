@@ -2,6 +2,8 @@ class_name PlayerCharacter
 
 extends MoveableEntity
 
+signal player_moved
+
 # Time (in seconds) the character pauses on a tile before taking the next step
 const STEP_COOLDOWN: float = 0.01
 var step_timer: float = 0.01
@@ -24,6 +26,7 @@ func _ready() -> void:
 	for action in base_actions:
 		add_action(action)
 	setup(tilemap, 10, 1, 0)
+	add_to_group("player")
 
 
 # --- Input Handling with Cooldown ---
@@ -44,6 +47,7 @@ func _physics_process(delta: float):
 			move_to_tile(input_direction)
 			# Reset the cooldown timer immediately after starting the move
 			step_timer = STEP_COOLDOWN
+			player_moved.emit()
 
 
 # Function to get the current input direction vector

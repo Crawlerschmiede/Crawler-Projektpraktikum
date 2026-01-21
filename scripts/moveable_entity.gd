@@ -15,7 +15,8 @@ var sprites = {
 	"bat":
 	[
 		preload("res://scenes/sprite_scenes/bat_sprite_scene.tscn"), 
-		["Screech", "Swoop", "Rabies"]],
+		["Screech", "Swoop", "Rabies"]
+	],
 	"skeleton":
 	[
 		preload("res://scenes/sprite_scenes/skeleton_sprite_scene.tscn"),
@@ -29,7 +30,12 @@ var sprites = {
 	"base_zombie":
 	[
 		preload("res://scenes/sprite_scenes/base_zombie_sprite_scene.tscn"), 
-		["Screech", "Rabies"]
+		["Screech", "Rabies"],
+		{
+			"idle": "default",
+			"teleport_start": "dig_down",
+			"teleport_end":"dig_up"
+		}
 	],
 	"pc":
 	[
@@ -63,6 +69,7 @@ var poison_recovery = 1
 
 @onready var collision_area: Area2D = $CollisionArea
 @onready var sprite: AnimatedSprite2D
+var animations = null
 
 
 # --- Setup ---
@@ -99,7 +106,7 @@ func super_ready(sprite_type: String, entity_type: Array):
 							possible_spawns.append(cell)
 					else:
 						possible_spawns.append(cell)
-			# TODO: add logic for fyling enemies, so they can enter certain tiles
+			# TODO: add logic for flying enemies, so they can enter certain tiles
 			#if entity_type == "enemy_flying":
 			#	add water/lava/floor trap tiles as possible spawns
 
@@ -114,6 +121,8 @@ func super_ready(sprite_type: String, entity_type: Array):
 	abilities_this_has = sprite_scene[1]
 	for ability in abilities_this_has:
 		add_skill(ability)
+	if len(sprite_scene) > 2:
+		animations =  sprite_scene[2]
 
 
 # --- Movement Logic ---
@@ -155,13 +164,17 @@ func move_to_tile(direction: Vector2i):
 	tween.tween_property(self, "position", target_position, 0.15)
 	tween.finished.connect(_on_move_finished)
 	
-func teleport_to_tile(coordinates: Vector2i, animation = null):
-	if animation!=null:
-		sprite.play(animation)
+func teleport_to_tile(coordinates: Vector2i, animation = null)->void:
 	if not is_cell_walkable(coordinates):
+		sprite.play("default")
 		return
 	self.grid_pos = coordinates
 	self.position = tilemap.map_to_local(grid_pos)
+	if animation!=null:
+		sprite.play(animation[0])
+		await sprite.animation_finished
+		sprite.play("default")
+	return
 	
 	
 

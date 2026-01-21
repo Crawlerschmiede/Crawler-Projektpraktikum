@@ -63,11 +63,11 @@ func on_menu_closed():
 		get_tree().paused = false
 
 
-func spawn_enemy(sprite_type, types):
+func spawn_enemy(sprite_type, behaviour):
 	var e = ENEMY_SCENE.instantiate()
-	e.types = types
+	e.types = behaviour
 	e.sprite_type = sprite_type
-	e.setup(dungeon_tilemap, 1, 1, 0)
+	e.setup(dungeon_tilemap, 3, 1, 0)
 	add_child(e)
 
 
