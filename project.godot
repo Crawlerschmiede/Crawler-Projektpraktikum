@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="Crawler-Projektpraktikum"
-run/main_scene="uid://dpkotk4tqkdwt"
+run/main_scene="uid://dwghrpbxefkax"
 config/features=PackedStringArray("4.5", "Mobile")
 config/icon="res://icon.svg"
 
@@ -41,11 +41,11 @@ version_control/autoload_on_startup=true
 
 [global_group]
 
+boss_room=""
+merchant_room=""
 item=""
 Inventar=""
 Equipment=""
-boss_room=""
-merchant_room=""
 
 [input]
 
