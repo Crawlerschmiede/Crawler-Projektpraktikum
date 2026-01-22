@@ -10,7 +10,7 @@ var _closed_door_cache: Dictionary = {}
 var room_scenes: Array[PackedScene] = []
 @export var start_room: PackedScene
 @export var boss_room: PackedScene
-@export var max_rooms: int = 20
+@export var max_rooms: int = 10
 
 @export var player_scene: PackedScene
 var _corridor_cache: Dictionary = {} # key: String(scene.resource_path) -> bool
