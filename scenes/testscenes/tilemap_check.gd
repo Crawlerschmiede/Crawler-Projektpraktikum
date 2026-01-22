@@ -6,6 +6,11 @@ const BATTLE_SCENE := preload("res://scenes/battle.tscn")
 # packed scene resource for the menu
 @export var menu_scene: PackedScene
 
+@export var lootbox_scene: PackedScene
+@export_range(0.0, 1.0, 0.01) var lootbox_spawn_chance := 0.5
+@export var lootbox_max_count := 50
+
+
 # A variable to hold the instance of the menu once it's created
 var menu_instance: CanvasLayer = null
 var battle: CanvasLayer = null
@@ -17,6 +22,7 @@ var player: PlayerCharacter
 
 
 func _ready() -> void:
+	spawn_lootboxes_from_tiles(dungeon_tilemap)
 	spawn_player()
 	for i in range(3):
 		spawn_enemy("what", ["hostile", "wallbound"])
@@ -107,6 +113,57 @@ func enemy_defeated(enemy):
 		get_tree().paused = false
 		player.level_up()
 
+func spawn_lootboxes_from_tiles(tilemap: TileMapLayer) -> void:
+	if lootbox_scene == null:
+		push_error("lootbox_scene ist NULL")
+		return
+	if tilemap == null:
+		push_error("tilemap ist NULL")
+		return
+
+	var rng := RandomNumberGenerator.new()
+	rng.randomize()
+
+	var spawned := 0
+	for cell in tilemap.get_used_cells():
+		var can_spawn := false
+
+		if spawned >= lootbox_max_count:
+			break
+
+		var td := tilemap.get_cell_tile_data(cell)
+		
+		if td.get_custom_data("lootbox_spawnable") != null:
+			can_spawn = bool(td.get_custom_data("lootbox_spawnable"))
+
+		if not can_spawn:
+			continue
+			
+		if td == null:
+			continue
+
+		# optional: nur auf begehbaren Tiles
+		if bool(td.get_custom_data("non_walkable")):
+			continue
+
+		# dein Flag aus dem TileSet
+		if not td.get_custom_data("lootbox_spawnable") == true:
+			continue
+		print("lootbox_spawnable")
+
+		# 50% Chance
+		if rng.randf() > lootbox_spawn_chance:
+			continue
+
+		var inst := lootbox_scene.instantiate() as Node2D
+		add_child(inst)
+
+		# Spawn genau auf der Tile-Mitte
+		inst.global_position = tilemap.to_global(tilemap.map_to_local(cell))
+
+		spawned += 1
+
+	print("✔ Lootboxen gespawnt:", spawned)
 
 func game_over():
 	get_tree().quit()
