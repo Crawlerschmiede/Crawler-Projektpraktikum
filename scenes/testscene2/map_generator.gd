@@ -10,7 +10,7 @@ var _closed_door_cache: Dictionary = {}
 var room_scenes: Array[PackedScene] = []
 @export var start_room: PackedScene
 @export var boss_room: PackedScene
-@export var max_rooms: int = 10
+@export var max_rooms: int = 1
 
 @export var player_scene: PackedScene
 var _corridor_cache: Dictionary = {} # key: String(scene.resource_path) -> bool
@@ -118,17 +118,62 @@ func close_free_doors(parent_node: Node) -> void:
 			var closed_door := door_scene.instantiate() as Node2D
 			parent_node.add_child(closed_door)
 
-			# ✅ Snap direkt auf die Tür
 			closed_door.global_position = door.global_position
-			closed_door.global_rotation = door.global_rotation  # falls Türen rotiert sind
+			closed_door.global_rotation = door.global_rotation
 
-			# ✅ Tür markieren als benutzt
 			door.used = true
 
 			total += 1
 
 	print("✔ Closed Doors gesetzt:", total)
-	
+
+func bake_closed_doors_into_world_simple() -> void:
+	if world_tilemap == null:
+		push_error("world_tilemap ist null!")
+		return
+
+	var tile_size := world_tilemap.tile_set.tile_size
+	var total := 0
+
+	for room in placed_rooms:
+		if room == null or not room.has_method("get_free_doors"):
+			continue
+
+		for door in room.get_free_doors():
+			if door == null or door.used:
+				continue
+
+			var door_scene := get_closed_door_for_direction(str(door.direction))
+			if door_scene == null:
+				continue
+
+			# nur instanziieren um tiles zu kopieren
+			var inst := door_scene.instantiate() as Node2D
+			add_child(inst)
+
+			# snap an echte Tür
+			inst.global_position = door.global_position
+			inst.force_update_transform()
+
+			# tile_origin aus position
+			var tile_origin := Vector2i(
+				int(round(inst.global_position.x / tile_size.x)),
+				int(round(inst.global_position.y / tile_size.y))
+			)
+
+			# closed-door tilemap holen
+			var src_floor := inst.get_node_or_null("TileMapLayer") as TileMapLayer
+			if src_floor != null:
+				copy_layer_into_world(src_floor, world_tilemap, tile_origin)
+
+			inst.queue_free()
+
+			door.used = true
+			total += 1
+			print("door backed")
+
+	print("✅ Closed doors gebacken:", total)
+
 func debug_print_free_doors() -> void:
 	var total := 0
 	for r in placed_rooms:
@@ -223,7 +268,7 @@ class EvalResult:
 
 
 func get_random_tilemap() -> Dictionary:
-	start_room = load("res://scenes/rooms/Rooms/room_11x11.tscn")
+	start_room = load("res://scenes/rooms/Rooms/room_11x11_4.tscn")
 	room_scenes = load_room_scenes_from_folder(rooms_folder)
 	closed_door_scenes = load_room_scenes_from_folder(closed_doors_folder)
 	for s in closed_door_scenes:
@@ -972,7 +1017,7 @@ func bake_rooms_into_world_tilemap() -> void:
 		if floor_tm != null:
 			add_room_layer_to_minimap(room)
 			copy_layer_into_world(floor_tm, world_tilemap, room_offset)
-			bake_closed_doors_into_world()
+			#bake_closed_doors_into_world()
 
 		# TOP kopieren
 		if top_tm != null:
@@ -984,6 +1029,8 @@ func bake_rooms_into_world_tilemap() -> void:
 		"| Top tiles:",
 		world_tilemap_top.get_used_cells().size()
 	)
+	bake_closed_doors_into_world_simple()
+
 
 func bake_closed_doors_into_world() -> void:
 	if world_tilemap == null or world_tilemap_top == null:

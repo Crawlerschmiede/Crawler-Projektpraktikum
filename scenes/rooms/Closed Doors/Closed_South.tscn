@@ -1,4 +1,4 @@
-[gd_scene load_steps=4 format=3 uid="uid://beyedypvswnxs"]
+[gd_scene load_steps=4 format=4 uid="uid://beyedypvswnxs"]
 
 [ext_resource type="Script" uid="uid://bt7qirgdptbwu" path="res://scenes/rooms/Scripts/RoomTemplate.gd" id="1_7vs3j"]
 [ext_resource type="TileSet" uid="uid://rc7plds60u7s" path="res://scenes/rooms/Rooms/roomtiles.tres" id="1_sxlka"]
@@ -9,7 +9,7 @@ position = Vector2(9, 0)
 script = ExtResource("1_7vs3j")
 
 [node name="TileMapLayer" type="TileMapLayer" parent="."]
-tile_map_data = PackedByteArray(0, 0, 255, 255, 255, 255, 2, 0, 2, 0, 2, 0, 0, 0, 0, 0, 255, 255, 2, 0, 2, 0, 2, 0, 0, 0, 1, 0, 255, 255, 2, 0, 2, 0, 2, 0, 0, 0, 2, 0, 255, 255, 2, 0, 2, 0, 2, 0, 0, 0, 254, 255, 255, 255, 2, 0, 2, 0, 2, 0, 0, 0)
+tile_map_data = PackedByteArray("AAD/////AgACAAIAAAAAAP//AgACAAIAAAABAP//AgACAAIAAAACAP//AgACAAIAAAD+////AgACAAIAAAD9////AgACAAIAAAA=")
 tile_set = ExtResource("1_sxlka")
 
 [node name="Doors" type="Node2D" parent="."]

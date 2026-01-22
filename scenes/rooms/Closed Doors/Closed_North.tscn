@@ -9,14 +9,15 @@ position = Vector2(9, 0)
 script = ExtResource("1_15hsl")
 
 [node name="TileMapLayer" type="TileMapLayer" parent="."]
-tile_map_data = PackedByteArray("AAAAAAAAAgACAAcAAAD//wAAAgACAAcAAAD+/wAAAgACAAcAAAD9/wAAAgAGAAcAAAABAAAAAgAGAAcAAAD9////AgACAAYAAAD+////AgACAAYAAAD/////AgACAAYAAAAAAP//AgACAAYAAAABAP//AgACAAYAAAA=")
+tile_map_data = PackedByteArray("AAD9/wAAAgACAAYAAAD+/wAAAgACAAYAAAD//wAAAgACAAYAAAAAAAAAAgACAAYAAAABAAAAAgACAAYAAAD9/wEAAgAGAAcAAAD+/wEAAgACAAcAAAD//wEAAgACAAcAAAAAAAEAAgACAAcAAAABAAEAAgAGAAcAAAA=")
 tile_set = ExtResource("1_fsir2")
 
 [node name="Doors" type="Node2D" parent="."]
 position = Vector2(-17, -8)
 
 [node name="Door" type="Marker2D" parent="Doors"]
-position = Vector2(8, -8)
+position = Vector2(8, -37)
+gizmo_extents = 20.0
 script = ExtResource("2_ibds5")
 direction = "north"
 metadata/_custom_type_script = "uid://ceq1h6lr3m33w"

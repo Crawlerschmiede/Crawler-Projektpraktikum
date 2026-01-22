@@ -176,6 +176,7 @@ func on_menu_closed():
 # SPAWNING
 # ---------------------------------------
 func spawn_enemies() -> void:
+	return
 	for i in range(3):
 		spawn_enemy("what", ["hostile", "wallbound"])
 	for i in range(3):
