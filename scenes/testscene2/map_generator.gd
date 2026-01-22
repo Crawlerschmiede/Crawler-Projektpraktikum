@@ -2,12 +2,18 @@
 
 extends Node2D
 
-@export var room_scenes: Array[PackedScene]
+@export var closed_doors_folder: String = "res://scenes/rooms/Closed Doors/"
+var closed_door_scenes: Array[PackedScene] = []
+var _closed_door_cache: Dictionary = {}
+
+@export var rooms_folder: String = "res://scenes/rooms/Rooms/"
+var room_scenes: Array[PackedScene] = []
 @export var start_room: PackedScene
 @export var boss_room: PackedScene
 @export var max_rooms: int = 10
 
 @export var player_scene: PackedScene
+var _corridor_cache: Dictionary = {} # key: String(scene.resource_path) -> bool
 
 # --- Basis-Regeln (werden vom GA überschrieben / mutiert) ---
 @export var base_max_corridors: int = 10
@@ -15,7 +21,7 @@ extends Node2D
 @export_range(0.0, 1.0, 0.01) var base_door_fill_chance: float = 1.0
 
 # --- Genetischer Ansatz ---
-@export var ga_total_evals: int = 50  # genau 500 Auswertungen
+@export var ga_total_evals: int = 10  # genau 500 Auswertungen
 @export var ga_population_size: int = 40  # 20 * 25 = 500
 @export var ga_generations: int = 25
 @export var ga_elite_keep: int = 4  # Top 4 bleiben
@@ -29,7 +35,7 @@ extends Node2D
 var player: MoveableEntity
 var world_tilemap: TileMapLayer
 var world_tilemap_top: TileMapLayer
-
+var minimap: TileMapLayer
 var room_type_counts: Dictionary = {}
 
 # Laufzeit
@@ -39,9 +45,149 @@ var corridor_count: int = 0
 var boss_room_spawned := false
 
 
+func _get_closed_door_direction(scene: PackedScene) -> String:
+	if scene == null:
+		return ""
+
+	var key := scene.resource_path
+	if _closed_door_cache.has(key):
+		return str(_closed_door_cache[key])
+
+	var inst := scene.instantiate()
+	var dir := ""
+
+	if inst != null:
+		# 1) Falls die Szene selbst direction export hat -> nutzen
+		if "direction" in inst:
+			dir = str(inst.get("direction")).to_lower()
+
+		# 2) Sonst: Richtung aus Doors/ Door child lesen
+		elif inst.has_node("Doors"):
+			var doors_node := inst.get_node("Doors")
+			for d in doors_node.get_children():
+				# dein Door script hat direction property
+				if d != null and "direction" in d:
+					dir = str(d.get("direction")).to_lower()
+					break
+
+		inst.queue_free()
+
+	_closed_door_cache[key] = dir
+	return dir
+
+	
+func get_closed_door_for_direction(dir: String) -> PackedScene:
+	dir = dir.to_lower()
+
+	var candidates: Array[PackedScene] = []
+	for s in closed_door_scenes:
+		if _get_closed_door_direction(s) == dir:
+			candidates.append(s)
+
+	if candidates.is_empty():
+		return null
+	return candidates.pick_random()
+
+	
+func load_closed_door_scenes_from_folder(path: String) -> Array[PackedScene]:
+	return load_room_scenes_from_folder(path)
+
+func close_free_doors(parent_node: Node) -> void:
+	if closed_door_scenes.is_empty():
+		push_warning("⚠ closed_door_scenes leer - lade closed doors zuerst!")
+		return
+
+	var total := 0
+
+	for room in placed_rooms:
+		if room == null:
+			continue
+		if not room.has_method("get_free_doors"):
+			continue
+
+		var free_doors = room.get_free_doors()
+		for door in free_doors:
+			if door == null or door.used:
+				continue
+
+			var door_scene := get_closed_door_for_direction(door.direction)
+			if door_scene == null:
+				push_warning("⚠ Keine ClosedDoor Scene für Richtung: " + str(door.direction))
+				continue
+
+			var closed_door := door_scene.instantiate() as Node2D
+			parent_node.add_child(closed_door)
+
+			# ✅ Snap direkt auf die Tür
+			closed_door.global_position = door.global_position
+			closed_door.global_rotation = door.global_rotation  # falls Türen rotiert sind
+
+			# ✅ Tür markieren als benutzt
+			door.used = true
+
+			total += 1
+
+	print("✔ Closed Doors gesetzt:", total)
+	
+func debug_print_free_doors() -> void:
+	var total := 0
+	for r in placed_rooms:
+		if r == null or not r.has_method("get_free_doors"):
+			continue
+		var free = r.get_free_doors()
+		if free.size() > 0:
+			print("ROOM:", r.name, "free doors:", free.size())
+			for d in free:
+				print("  -", d.name, "dir:", d.direction, "used:", d.used)
+				total += 1
+	print("TOTAL FREE DOORS:", total)
+
 # -----------------------------
 # GA: Genome / Ergebnis
 # -----------------------------
+func load_room_scenes_from_folder(path: String) -> Array[PackedScene]:
+	var result: Array[PackedScene] = []
+
+	var dir := DirAccess.open(path)
+	if dir == null:
+		push_error("Folder not found: " + path)
+		return result
+
+	dir.list_dir_begin()
+	var file := dir.get_next()
+
+	while file != "":
+		if not dir.current_is_dir():
+			if file.ends_with(".tscn"):
+				var full_path := path + file
+				var ps := load(full_path)
+				if ps is PackedScene:
+					result.append(ps)
+				else:
+					push_warning("Not a PackedScene: " + full_path)
+		file = dir.get_next()
+
+	dir.list_dir_end()
+	return result
+
+func _scene_is_corridor(scene: PackedScene) -> bool:
+	if scene == null:
+		return false
+
+	var key := scene.resource_path
+	if _corridor_cache.has(key):
+		return bool(_corridor_cache[key])
+
+	# EINMAL instantiaten zum checken (und sofort free)
+	var inst := scene.instantiate()
+	var is_corr := false
+	if inst != null:
+		is_corr = ("is_corridor" in inst) and bool(inst.get("is_corridor"))
+		inst.queue_free()
+
+	_corridor_cache[key] = is_corr
+	return is_corr
+
 class Genome:
 	var door_fill_chance: float
 	var max_corridors: int
@@ -76,7 +222,12 @@ class EvalResult:
 	var seed: int = 0
 
 
-func _ready() -> void:
+func get_random_tilemap() -> Dictionary:
+	start_room = load("res://scenes/rooms/Rooms/room_11x11.tscn")
+	room_scenes = load_room_scenes_from_folder(rooms_folder)
+	closed_door_scenes = load_room_scenes_from_folder(closed_doors_folder)
+	for s in closed_door_scenes:
+		print(" -", s.resource_path, "dir:", _get_closed_door_direction(s))
 	print("=== MAP GENERATION START ===")
 
 	# 1) genetische Suche
@@ -91,22 +242,25 @@ func _ready() -> void:
 		"| seed:",
 		best.seed
 	)
+	
+	minimap = TileMapLayer.new()
+	minimap.name = "Minimap"
+	minimap.visibility_layer = 1 << 1
 
+	
 	# 2) beste Map wirklich bauen
 	if build_best_map_after_ga:
+		clear_world_tilemaps()
 		clear_children_rooms_only()
 		await generate_with_genome(best.genome, best.seed, true)
-
-		# 🔥 ALLE RÄUME IN EINE TILEMAP BACKEN
+		debug_print_free_doors()
 		bake_rooms_into_world_tilemap()
 
 		# Räume optional ausblenden (empfohlen)
 		for r in placed_rooms:
 			r.visible = false
 
-	spawn_player()
-
-	print("=== MAP GENERATION END ===")
+	return {"floor": world_tilemap, "top": world_tilemap_top, "minimap": minimap}
 
 
 func get_required_scenes() -> Array[PackedScene]:
@@ -429,20 +583,16 @@ func generate_with_genome(
 		# corridor_bias > 1: Corridors eher nach vorne
 		# corridor_bias < 1: Corridors eher nach hinten
 		if abs(genome.corridor_bias - 1.0) > 0.01:
-			candidates.sort_custom(
-				func(a: PackedScene, b: PackedScene) -> bool:
-					var ra := a.instantiate() as Node
-					var rb := b.instantiate() as Node
-					var ca := is_corridor_room(ra)
-					var cb := is_corridor_room(rb)
-					if ra != null:
-						ra.queue_free()
-					if rb != null:
-						rb.queue_free()
-					# wenn bias > 1: corridor zuerst, sonst umgekehrt
-					if genome.corridor_bias > 1.0:
-						return int(ca) > int(cb)
-					return int(ca) < int(cb)
+			candidates.sort_custom(func(a: PackedScene, b: PackedScene) -> bool:
+				var ca := _scene_is_corridor(a)
+				var cb := _scene_is_corridor(b)
+
+				# bias > 1: corridors nach vorne
+				if genome.corridor_bias > 1.0:
+					return int(ca) > int(cb)
+
+				# bias < 1: corridors nach hinten
+				return int(ca) < int(cb)
 			)
 
 		var placed := false
@@ -669,45 +819,55 @@ class OverlapResult:
 	var overlaps: bool = false
 	var other_name: String = ""
 
+func _get_room_rects(room: Node2D) -> Array[Rect2]:
+	var rects: Array[Rect2] = []
 
+	var area := room.get_node_or_null("Area2D") as Area2D
+	if area == null:
+		return rects
+
+	for child in area.get_children():
+		if child is CollisionShape2D:
+			var cs := child as CollisionShape2D
+			var shape := cs.shape as RectangleShape2D
+			if shape == null:
+				continue
+
+			# ✅ Achtung: CollisionShape2D kann verschoben sein!
+			var center := cs.global_position
+			rects.append(Rect2(center - shape.extents, shape.extents * 2.0))
+
+	return rects
+	
 func check_overlap_aabb(new_room: Node2D, against: Array[Node2D]) -> OverlapResult:
 	var result := OverlapResult.new()
 
-	var new_cs := new_room.get_node_or_null("Area2D/CollisionShape2D") as CollisionShape2D
-	if new_cs == null:
+	# ✅ Alle rects vom neuen room holen
+	var new_rects := _get_room_rects(new_room)
+
+	# Wenn gar keine Shapes vorhanden -> als Fehler behandeln
+	if new_rects.is_empty():
 		result.overlaps = true
 		result.other_name = "missing_collision"
 		return result
-
-	var new_shape: RectangleShape2D = new_cs.shape as RectangleShape2D
-	if new_shape == null:
-		result.overlaps = true
-		result.other_name = "wrong_shape"
-		return result
-
-	var new_rect := Rect2(new_room.global_position - new_shape.extents, new_shape.extents * 2.0)
 
 	for room in against:
 		if room == null or room == new_room:
 			continue
 
-		var cs := room.get_node_or_null("Area2D/CollisionShape2D") as CollisionShape2D
-		if cs == null:
+		var rects := _get_room_rects(room)
+		if rects.is_empty():
 			continue
 
-		var shape: RectangleShape2D = cs.shape as RectangleShape2D
-		if shape == null:
-			continue
-
-		var rect := Rect2(room.global_position - shape.extents, shape.extents * 2.0)
-
-		if new_rect.intersects(rect):
-			result.overlaps = true
-			result.other_name = room.name
-			return result
+		# ✅ Jede neue Shape gegen jede alte Shape testen
+		for a in new_rects:
+			for b in rects:
+				if a.intersects(b):
+					result.overlaps = true
+					result.other_name = room.name
+					return result
 
 	return result
-
 
 # -----------------------------
 # GA Helpers
@@ -777,7 +937,7 @@ func bake_rooms_into_world_tilemap() -> void:
 			return
 
 		world_tilemap.tile_set = first_floor.tile_set
-		add_child(world_tilemap)
+		#add_child(world_tilemap)
 
 	# --- WORLD TOP ---
 	if world_tilemap_top == null:
@@ -791,7 +951,7 @@ func bake_rooms_into_world_tilemap() -> void:
 		else:
 			world_tilemap_top.tile_set = world_tilemap.tile_set
 
-		add_child(world_tilemap_top)
+		#add_child(world_tilemap_top)
 
 	world_tilemap.clear()
 	world_tilemap_top.clear()
@@ -805,7 +965,9 @@ func bake_rooms_into_world_tilemap() -> void:
 
 		# FLOOR kopieren
 		if floor_tm != null:
+			add_room_layer_to_minimap(room)
 			copy_layer_into_world(floor_tm, world_tilemap, room_offset)
+			bake_closed_doors_into_world()
 
 		# TOP kopieren
 		if top_tm != null:
@@ -818,14 +980,129 @@ func bake_rooms_into_world_tilemap() -> void:
 		world_tilemap_top.get_used_cells().size()
 	)
 
+func bake_closed_doors_into_world() -> void:
+	if world_tilemap == null or world_tilemap_top == null:
+		push_error("❌ world_tilemap/world_tilemap_top ist null - bake_rooms_into_world_tilemap zuerst!")
+		return
 
+	var total := 0
+
+	for room in placed_rooms:
+		if room == null or not room.has_method("get_free_doors"):
+			continue
+
+		var room_offset: Vector2i = room.get_meta("tile_origin", Vector2i.ZERO)
+
+		for door in room.get_free_doors():
+			if door == null or door.used:
+				continue
+
+			var door_scene := get_closed_door_for_direction(str(door.direction))
+			if door_scene == null:
+				push_warning("⚠ Keine ClosedDoor Scene für Richtung: " + str(door.direction))
+				continue
+
+			var inst := door_scene.instantiate() as Node2D
+			if inst == null:
+				continue
+			add_child(inst)
+
+			# ✅ matching door IN closed-door scene finden
+			var matching := _find_any_door_node(inst)
+			if matching == null:
+				push_warning("⚠ ClosedDoor hat keine Door Nodes: " + door_scene.resource_path)
+				inst.queue_free()
+				continue
+
+			# ✅ SNAPPEN wie bei Räumen:
+			# closed door so bewegen, dass matching door genau auf echte Tür liegt
+			var offset: Vector2 = matching.global_position - inst.global_position
+			inst.global_position = door.global_position - offset
+			inst.force_update_transform()
+
+			# tile_origin bestimmen (wie bei rooms)
+			var tile_size := world_tilemap.tile_set.tile_size
+			var tile_origin := Vector2i(
+				int(round(inst.global_position.x / tile_size.x)),
+				int(round(inst.global_position.y / tile_size.y))
+			)
+
+			# TileMaps holen
+			var src_floor := inst.get_node_or_null("TileMapLayer") as TileMapLayer
+			var src_top := inst.get_node_or_null("TopLayer") as TileMapLayer
+
+			if src_floor != null:
+				copy_layer_into_world(src_floor, world_tilemap, tile_origin)
+			if src_top != null:
+				copy_layer_into_world(src_top, world_tilemap_top, tile_origin)
+
+			inst.queue_free()
+
+			door.used = true
+			total += 1
+
+	print("✔ [BAKE] Closed Doors gebacken:", total)
+
+
+func _find_any_door_node(root: Node) -> Node:
+	if root == null:
+		return null
+
+	if root.has_node("Doors"):
+		var doors := root.get_node("Doors")
+		for d in doors.get_children():
+			if d != null and ("direction" in d):
+				return d
+	return null
+
+var room_id = 0
 func copy_layer_into_world(src: TileMapLayer, dst: TileMapLayer, offset: Vector2i) -> void:
 	for cell in src.get_used_cells():
 		var source_id := src.get_cell_source_id(cell)
 		var atlas := src.get_cell_atlas_coords(cell)
 		var alt := src.get_cell_alternative_tile(cell)
+		dst.set_cell(cell + offset, source_id, atlas, alt)           
 
-		dst.set_cell(cell + offset, source_id, atlas, alt)
+func add_room_layer_to_minimap(room: Node2D) -> void:
+	if minimap == null:
+		return
+
+	var floor_tm := room.get_node_or_null("TileMapLayer") as TileMapLayer
+	if floor_tm == null:
+		return
+
+	# Tileset 1x setzen
+	if minimap.tile_set == null:
+		minimap.tile_set = floor_tm.tile_set
+
+	# origin ist WORLD cell origin
+	var origin: Vector2i = room.get_meta("tile_origin", Vector2i.ZERO)
+	var layer_name := "Room_%s_%s" % [origin.x, origin.y]
+
+	if minimap.has_node(layer_name):
+		return
+
+	# --- Raumlayer erstellen ---
+	var room_layer := TileMapLayer.new()
+	room_layer.name = layer_name
+	room_layer.tile_set = floor_tm.tile_set
+	room_layer.visible = false
+	room_layer.visibility_layer = 1 << 1
+
+	room_layer.set_meta("tile_origin", origin)
+
+	var tile_size: Vector2i = floor_tm.tile_set.tile_size
+	room_layer.position = Vector2(origin.x * tile_size.x, origin.y * tile_size.y)
+
+	minimap.add_child(room_layer)
+
+	# ✅ Tiles 1:1 kopieren (ohne Offset!)
+	for cell in floor_tm.get_used_cells():
+		var source_id := floor_tm.get_cell_source_id(cell)
+		var atlas := floor_tm.get_cell_atlas_coords(cell)
+		var alt := floor_tm.get_cell_alternative_tile(cell)
+		room_layer.set_cell(cell, source_id, atlas, alt)
+
 
 
 func clear_children_rooms_only() -> void:
@@ -838,41 +1115,14 @@ func clear_children_rooms_only() -> void:
 	placed_rooms.clear()
 	corridor_count = 0
 
+func clear_world_tilemaps() -> void:
+	if world_tilemap != null and is_instance_valid(world_tilemap):
+		world_tilemap.queue_free()
+	world_tilemap = null
 
-func spawn_player():
-	if player_scene == null:
-		push_error("❌ player_scene ist NULL")
-		return
-
-	if world_tilemap == null:
-		push_error("❌ WorldTileMap existiert nicht – Bake vergessen?")
-		return
-
-	player = player_scene.instantiate() as MoveableEntity
-	if player == null:
-		push_error("❌ Player ist kein MoveableEntity")
-		return
-
-	add_child(player)
-	player.z_index = 10
-
-	player.setup(world_tilemap, 100, 10, 5)
-
-	# 🔍 WALKABLE TILE SUCHEN
-	for cell in world_tilemap.get_used_cells():
-		var td := world_tilemap.get_cell_tile_data(cell)
-		if td and not td.get_custom_data("non_walkable"):
-			player.grid_pos = cell
-			player.position = world_tilemap.map_to_local(cell)
-
-			var cam := player.get_node_or_null("Camera2D") as Camera2D
-			if cam:
-				cam.make_current()
-
-			print("✔ Player gespawnt auf WorldTile:", cell)
-			return
-
-	push_error("❌ Kein walkable Tile in WorldTileMap gefunden")
+	if world_tilemap_top != null and is_instance_valid(world_tilemap_top):
+		world_tilemap_top.queue_free()
+	world_tilemap_top = null
 
 
 func get_main_tilemap() -> TileMapLayer:

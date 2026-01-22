@@ -1,0 +1,22 @@
+[gd_scene load_steps=4 format=4 uid="uid://ipgn4s0hckuw"]
+
+[ext_resource type="Script" uid="uid://bt7qirgdptbwu" path="res://scenes/rooms/Scripts/RoomTemplate.gd" id="1_edkuv"]
+[ext_resource type="TileSet" uid="uid://rc7plds60u7s" path="res://scenes/rooms/Rooms/roomtiles.tres" id="1_y17hc"]
+[ext_resource type="Script" uid="uid://ceq1h6lr3m33w" path="res://scenes/rooms/Scripts/north.gd" id="2_edkuv"]
+
+[node name="Closed" type="Node2D"]
+position = Vector2(9, 0)
+script = ExtResource("1_edkuv")
+
+[node name="TileMapLayer" type="TileMapLayer" parent="."]
+tile_map_data = PackedByteArray("AAD+//3/AgADAAQAAAD+//7/AgADAAUAAAD+////AgADAAUAAAD+/wAAAgADAAQAAAD+/wEAAgADAAUAAAD+//z/AgADAAMAAAA=")
+tile_set = ExtResource("1_y17hc")
+
+[node name="Doors" type="Node2D" parent="."]
+position = Vector2(-17, -8)
+
+[node name="Door" type="Marker2D" parent="Doors"]
+position = Vector2(-15, 0)
+script = ExtResource("2_edkuv")
+direction = "west"
+metadata/_custom_type_script = "uid://ceq1h6lr3m33w"
