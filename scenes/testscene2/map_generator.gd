@@ -932,7 +932,7 @@ func bake_rooms_into_world_tilemap() -> void:
 			return
 
 		world_tilemap.tile_set = first_floor.tile_set
-		add_child(world_tilemap)
+		#add_child(world_tilemap)
 
 	# --- WORLD TOP ---
 	if world_tilemap_top == null:
@@ -946,7 +946,7 @@ func bake_rooms_into_world_tilemap() -> void:
 		else:
 			world_tilemap_top.tile_set = world_tilemap.tile_set
 
-		add_child(world_tilemap_top)
+		#add_child(world_tilemap_top)
 
 	world_tilemap.clear()
 	world_tilemap_top.clear()

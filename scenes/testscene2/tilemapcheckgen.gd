@@ -46,12 +46,12 @@ func _load_world(idx: int) -> void:
 
 	var gen := generators[idx]
 
-	# ✅ neuer Root für die komplette Welt
+	# neuer Root für die komplette Welt
 	world_root = Node2D.new()
 	world_root.name = "WorldRoot"
 	add_child(world_root)
 
-	# ✅ Generator liefert jetzt ein Dictionary: {floor, top}
+	# Generator liefert jetzt ein Dictionary: {floor, top}
 	var maps: Dictionary = await gen.get_random_tilemap()
 	if maps.is_empty():
 		push_error("Generator returned empty dictionary!")
@@ -66,7 +66,6 @@ func _load_world(idx: int) -> void:
 		get_tree().paused = false
 		return
 
-	# ✅ Beide Tilemaps in Root hängen
 	if dungeon_floor.get_parent() == null:
 		world_root.add_child(dungeon_floor)
 
@@ -202,8 +201,11 @@ func spawn_player() -> void:
 
 	# Spawn Position
 	var start_pos := Vector2i(2, 2)
+
+	# erst tilemap, dann gridpos, dann position
+	player.setup(dungeon_floor, 10, 3, 0)
 	player.grid_pos = start_pos
-	player.position = dungeon_floor.map_to_local(start_pos)
+	player.global_position = dungeon_floor.to_global(dungeon_floor.map_to_local(start_pos))
 
 	# Exit-Signal verbinden
 	if player.has_signal("exit_reached"):
