@@ -10,7 +10,7 @@ script = ExtResource("1_15hsl")
 
 [node name="TileMapLayer" type="TileMapLayer" parent="."]
 position = Vector2(-1, 0)
-tile_map_data = PackedByteArray("AAD+/wAAAgACAAYAAAD//wAAAgACAAYAAAAAAAAAAgACAAYAAAABAAAAAgACAAYAAAD+/wEAAgACAAcAAAD//wEAAgACAAcAAAAAAAEAAgACAAcAAAABAAEAAgAGAAcAAAD9/wAAAgACAAYAAAD9/wEAAgAGAAcAAAA=")
+tile_map_data = PackedByteArray("AAD+/wAAAgACAAYAAAD//wAAAgACAAYAAAAAAAAAAgACAAYAAAABAAAAAgACAAYAAAD+/wEAAgACAAcAAAD//wEAAgACAAcAAAAAAAEAAgACAAcAAAD9/wAAAgACAAYAAAACAAAAAgACAAYAAAD8/wAAAgACAAYAAAA=")
 tile_set = ExtResource("1_fsir2")
 
 [node name="Doors" type="Node2D" parent="."]

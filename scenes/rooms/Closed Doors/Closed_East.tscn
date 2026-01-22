@@ -18,5 +18,5 @@ direction = "east"
 metadata/_custom_type_script = "uid://ceq1h6lr3m33w"
 
 [node name="TileMapLayer" type="TileMapLayer" parent="."]
-tile_map_data = PackedByteArray("AAD//wAAAgABAAMAAAD/////AgABAAUAAAD///7/AgABAAQAAAD//wEAAgABAAQAAAD///3/AgABAAMAAAD///z/AgABAAQAAAA=")
+tile_map_data = PackedByteArray("AAD//wAAAgABAAMAAAD/////AgABAAUAAAD///7/AgABAAQAAAD//wEAAgABAAQAAAD///3/AgABAAMAAAD///z/AgABAAQAAAD//wIAAgABAAMAAAA=")
 tile_set = ExtResource("1_w0vm3")

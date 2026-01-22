@@ -10,7 +10,7 @@ script = ExtResource("1_edkuv")
 
 [node name="TileMapLayer" type="TileMapLayer" parent="."]
 position = Vector2(15, 0)
-tile_map_data = PackedByteArray("AAAAAP3/AgADAAMAAAAAAP7/AgADAAQAAAAAAP//AgADAAUAAAAAAAAAAgADAAUAAAAAAAEAAgADAAQAAAAAAPz/AgADAAUAAAA=")
+tile_map_data = PackedByteArray("AAAAAP3/AgADAAMAAAAAAP7/AgADAAQAAAAAAP//AgADAAUAAAAAAAAAAgADAAUAAAAAAAEAAgADAAQAAAAAAPz/AgADAAUAAAAAAAIAAgADAAUAAAA=")
 tile_set = ExtResource("1_y17hc")
 
 [node name="Doors" type="Node2D" parent="."]
