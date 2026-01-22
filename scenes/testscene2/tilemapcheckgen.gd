@@ -31,10 +31,6 @@ func _ready() -> void:
 	generators = [generator1, generator2, generator3]
 	await _load_world(world_index)
 
-
-# ---------------------------------------
-#  WORLD LOAD / SWITCH
-# ---------------------------------------
 func _load_world(idx: int) -> void:
 	get_tree().paused = true
 	_clear_world()
@@ -71,7 +67,9 @@ func _load_world(idx: int) -> void:
 
 	if dungeon_top != null and dungeon_top.get_parent() == null:
 		world_root.add_child(dungeon_top)
-
+	
+	dungeon_floor.visibility_layer = 1
+	
 	# Colorfilter updaten
 	update_color_filter()
 
@@ -137,7 +135,7 @@ func _on_player_exit_reached() -> void:
 # ---------------------------------------
 # UI / MENU
 # ---------------------------------------
-func _process(_delta):
+func _process(_delta) -> void:
 	if Input.is_action_just_pressed("ui_menu"):
 		toggle_menu()
 
