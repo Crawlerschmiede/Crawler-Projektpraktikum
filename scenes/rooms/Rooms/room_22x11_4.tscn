@@ -8,7 +8,7 @@
 size = Vector2(352, 176)
 
 [node name="Room 22x11" type="Node2D"]
-position = Vector2(4, 0)
+position = Vector2(16, 32)
 script = ExtResource("1_0md6l")
 is_corridor = false
 

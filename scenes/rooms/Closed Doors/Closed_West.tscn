@@ -9,15 +9,15 @@ position = Vector2(9, 0)
 script = ExtResource("1_edkuv")
 
 [node name="TileMapLayer" type="TileMapLayer" parent="."]
-position = Vector2(19, 2)
-tile_map_data = PackedByteArray("AAAAAP3/AgADAAMAAAAAAP7/AgADAAQAAAAAAP//AgADAAUAAAAAAAAAAgADAAUAAAAAAAEAAgADAAQAAAAAAAIAAgADAAUAAAA=")
+position = Vector2(15, 0)
+tile_map_data = PackedByteArray("AAAAAP3/AgADAAMAAAAAAP7/AgADAAQAAAAAAP//AgADAAUAAAAAAAAAAgADAAUAAAAAAAEAAgADAAQAAAAAAPz/AgADAAUAAAA=")
 tile_set = ExtResource("1_y17hc")
 
 [node name="Doors" type="Node2D" parent="."]
 position = Vector2(-17, -8)
 
 [node name="Door" type="Marker2D" parent="Doors"]
-position = Vector2(-36, 0)
+position = Vector2(32, 0)
 script = ExtResource("2_edkuv")
 direction = "west"
 metadata/_custom_type_script = "uid://ceq1h6lr3m33w"

@@ -8,7 +8,7 @@
 size = Vector2(176, 176)
 
 [node name="Merchant Room 3" type="Node2D" groups=["merchant_room"]]
-position = Vector2(4, 0)
+position = Vector2(0, 32)
 script = ExtResource("1_1ac81")
 max_count = 1
 min_rooms_before_spawn = 7

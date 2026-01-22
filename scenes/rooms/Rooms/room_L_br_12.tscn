@@ -11,7 +11,7 @@ size = Vector2(352, 176)
 size = Vector2(176, 192)
 
 [node name="Room L br" type="Node2D"]
-position = Vector2(4, 0)
+position = Vector2(16, 64)
 script = ExtResource("1_b3egr")
 is_corridor = false
 
