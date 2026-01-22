@@ -9,17 +9,22 @@ const PLAYER_SCENE := preload("res://scenes/player-character-scene.tscn")
 @onready var generator3: Node2D = $World3
 
 @onready var colorfilter: ColorRect = $ColorFilter
-var dungeon_tilemap: TileMapLayer
 
 @export var menu_scene: PackedScene
+
+# --- World state ---
+var world_index: int = 0
+var generators: Array[Node2D] = []
+
+var world_root: Node2D = null
+var dungeon_floor: TileMapLayer = null
+var dungeon_top: TileMapLayer = null
+
+var player: PlayerCharacter = null
 var menu_instance: CanvasLayer = null
 var battle: CanvasLayer = null
 
-var player: PlayerCharacter = null
-
-#  Welt Reihenfolge
-var world_index: int = 0
-var generators: Array[Node2D] = []
+var switching_world := false
 
 
 func _ready() -> void:
@@ -32,7 +37,6 @@ func _ready() -> void:
 # ---------------------------------------
 func _load_world(idx: int) -> void:
 	get_tree().paused = true
-
 	_clear_world()
 
 	if idx < 0 or idx >= generators.size():
@@ -42,27 +46,44 @@ func _load_world(idx: int) -> void:
 
 	var gen := generators[idx]
 
-	dungeon_tilemap = await gen.get_random_tilemap()
-	if dungeon_tilemap == null:
-		push_error("Generator returned null tilemap!")
+	# ✅ neuer Root für die komplette Welt
+	world_root = Node2D.new()
+	world_root.name = "WorldRoot"
+	add_child(world_root)
+
+	# ✅ Generator liefert jetzt ein Dictionary: {floor, top}
+	var maps: Dictionary = await gen.get_random_tilemap()
+	if maps.is_empty():
+		push_error("Generator returned empty dictionary!")
 		get_tree().paused = false
 		return
 
-	#  Tilemap muss im Tree sein
-	if dungeon_tilemap.get_parent() == null:
-		add_child(dungeon_tilemap)
+	dungeon_floor = maps.get("floor", null)
+	dungeon_top = maps.get("top", null)
+
+	if dungeon_floor == null:
+		push_error("Generator returned null floor tilemap!")
+		get_tree().paused = false
+		return
+
+	# ✅ Beide Tilemaps in Root hängen
+	if dungeon_floor.get_parent() == null:
+		world_root.add_child(dungeon_floor)
+
+	if dungeon_top != null and dungeon_top.get_parent() == null:
+		world_root.add_child(dungeon_top)
+
+	# Colorfilter updaten
 	update_color_filter()
-	#  Erst Player, dann Enemies
+
+	# Erst Player, dann Enemies
 	spawn_player()
 	spawn_enemies()
 
 	get_tree().paused = false
 
-func update_color_filter() -> void:
-	# World 0 = Level 1
-	# World 1 = Level 2
-	# World 2 = Level 3
 
+func update_color_filter() -> void:
 	if world_index == 0:
 		colorfilter.visible = false
 		return
@@ -70,13 +91,9 @@ func update_color_filter() -> void:
 	colorfilter.visible = true
 
 	if world_index == 1:
-		# gelb (leicht transparent)
 		colorfilter.color = Color(1.0, 0.9, 0.3, 0.20)
 	elif world_index == 2:
-		# rot (etwas stärker)
 		colorfilter.color = Color(1.0, 0.2, 0.2, 0.25)
-	else:
-		pass
 
 
 func _clear_world() -> void:
@@ -85,30 +102,37 @@ func _clear_world() -> void:
 		battle.queue_free()
 		battle = null
 
+	# menu weg (optional)
+	if menu_instance != null and is_instance_valid(menu_instance):
+		menu_instance.queue_free()
+		menu_instance = null
+
 	# player weg
 	if player != null and is_instance_valid(player):
-		player.set_physics_process(false)
-		player.set_process(false)
 		player.queue_free()
 		player = null
 
-	# enemies weg
-	for n in get_tree().get_nodes_in_group("enemy"):
-		if n != null and is_instance_valid(n):
-			n.queue_free()
+	# ✅ komplette Welt weg (enthält Tilemaps + Enemies + alles)
+	if world_root != null and is_instance_valid(world_root):
+		world_root.queue_free()
+		world_root = null
 
-	# tilemap weg
-	if dungeon_tilemap != null and is_instance_valid(dungeon_tilemap):
-		if dungeon_tilemap.get_parent() != null:
-			dungeon_tilemap.queue_free()
-
-	dungeon_tilemap = null
+	dungeon_floor = null
+	dungeon_top = null
 
 
 func _on_player_exit_reached() -> void:
+	# ✅ verhindert doppelte Trigger
+	if switching_world:
+		return
+	switching_world = true
+
 	print("EXIT reached -> switching world")
+
 	world_index += 1
 	await _load_world(world_index)
+
+	switching_world = false
 
 
 # ---------------------------------------
@@ -123,7 +147,9 @@ func toggle_menu():
 	if menu_instance == null:
 		menu_instance = menu_scene.instantiate()
 		add_child(menu_instance)
+
 		get_tree().paused = true
+
 		if menu_instance.has_signal("menu_closed"):
 			menu_instance.menu_closed.connect(on_menu_closed)
 	else:
@@ -131,10 +157,10 @@ func toggle_menu():
 
 
 func on_menu_closed():
-	if menu_instance != null:
+	if menu_instance != null and is_instance_valid(menu_instance):
 		menu_instance.queue_free()
 		menu_instance = null
-		get_tree().paused = false
+	get_tree().paused = false
 
 
 # ---------------------------------------
@@ -156,24 +182,30 @@ func spawn_enemy(sprite_type: String, behaviour: Array) -> void:
 	e.add_to_group("enemy")
 	e.types = behaviour
 	e.sprite_type = sprite_type
-	e.setup(dungeon_tilemap, 3, 1, 0)
-	add_child(e)
+
+	# ✅ setup mit Floor Tilemap
+	e.setup(dungeon_floor, 3, 1, 0)
+
+	# ✅ Enemies immer in WorldRoot
+	world_root.add_child(e)
 
 
 func spawn_player() -> void:
 	var e: PlayerCharacter = PLAYER_SCENE.instantiate()
 	e.name = "Player"
-	#  setup nach add_child
-	e.setup(dungeon_tilemap, 10, 3, 0)
-	add_child(e)
+
+	# ✅ setup mit Floor Tilemap
+	e.setup(dungeon_floor, 10, 3, 0)
+
+	world_root.add_child(e)
 	player = e
 
-	#  Spawn Position
+	# Spawn Position
 	var start_pos := Vector2i(2, 2)
 	player.grid_pos = start_pos
-	player.position = dungeon_tilemap.map_to_local(start_pos)
+	player.position = dungeon_floor.map_to_local(start_pos)
 
-	#  Exit-Signal verbinden
+	# Exit-Signal verbinden
 	if player.has_signal("exit_reached"):
 		if not player.exit_reached.is_connected(_on_player_exit_reached):
 			player.exit_reached.connect(_on_player_exit_reached)

@@ -222,7 +222,7 @@ class EvalResult:
 	var seed: int = 0
 
 
-func get_random_tilemap() -> TileMapLayer:
+func get_random_tilemap() -> Dictionary:
 	start_room = load("res://scenes/rooms/Rooms/room_11x11.tscn")
 	room_scenes = load_room_scenes_from_folder(rooms_folder)
 	closed_door_scenes = load_room_scenes_from_folder(closed_doors_folder)
@@ -245,6 +245,7 @@ func get_random_tilemap() -> TileMapLayer:
 
 	# 2) beste Map wirklich bauen
 	if build_best_map_after_ga:
+		clear_world_tilemaps()
 		clear_children_rooms_only()
 		await generate_with_genome(best.genome, best.seed, true)
 		debug_print_free_doors()
@@ -254,7 +255,7 @@ func get_random_tilemap() -> TileMapLayer:
 		for r in placed_rooms:
 			r.visible = false
 
-	return world_tilemap
+	return {"floor": world_tilemap, "top": world_tilemap_top}
 
 
 func get_required_scenes() -> Array[PackedScene]:
@@ -1067,6 +1068,16 @@ func clear_children_rooms_only() -> void:
 		c.queue_free()
 	placed_rooms.clear()
 	corridor_count = 0
+
+func clear_world_tilemaps() -> void:
+	if world_tilemap != null and is_instance_valid(world_tilemap):
+		world_tilemap.queue_free()
+	world_tilemap = null
+
+	if world_tilemap_top != null and is_instance_valid(world_tilemap_top):
+		world_tilemap_top.queue_free()
+	world_tilemap_top = null
+
 
 func get_main_tilemap() -> TileMapLayer:
 	for room in placed_rooms:
