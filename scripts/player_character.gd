@@ -115,19 +115,22 @@ func update_animation(direction: Vector2i):
 
 	else:
 		var idle_animation_name = ""
-		match latest_direction:
-			Vector2i.UP:
-				idle_animation_name = "idle_up"
-			Vector2i.DOWN:
-				idle_animation_name = "idle_down"
-			Vector2i.RIGHT:
-				idle_animation_name = "idle_right"
-				sprite.flip_h = false
-			Vector2i.LEFT:
-				idle_animation_name = "idle_right"
-				sprite.flip_h = true
-			_:
-				idle_animation_name = "idle_down"
+		if Input.is_action_pressed("tea_bag"):
+			idle_animation_name = "tea_bag"
+		else:
+			match latest_direction:
+				Vector2i.UP:
+					idle_animation_name = "idle_up"
+				Vector2i.DOWN:
+					idle_animation_name = "idle_down"
+				Vector2i.RIGHT:
+					idle_animation_name = "idle_right"
+					sprite.flip_h = false
+				Vector2i.LEFT:
+					idle_animation_name = "idle_right"
+					sprite.flip_h = true
+				_:
+					idle_animation_name = "idle_down"
 
 		# Play the determined idle animation
 		sprite.play(idle_animation_name)

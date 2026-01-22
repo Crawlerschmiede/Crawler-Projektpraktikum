@@ -137,14 +137,15 @@ func move_to_tile(direction: Vector2i):
 	var target_cell = grid_pos + direction
 	if not is_cell_walkable(target_cell):
 		if "burrowing" in types:
-			var new_target = target_cell + direction
-			if is_cell_walkable(new_target):
-				if has_animation(sprite, "dig_down"):
-					sprite.play("dig_down")
-				multi_turn_action = {"name": "dig_to", "target": new_target, "countdown": 2}
-				return
-			else:
-				return
+			var new_target = target_cell
+			for i in range(3):
+				new_target = new_target + direction
+				if is_cell_walkable(new_target):
+					if has_animation(sprite, "dig_down"):
+						sprite.play("dig_down")
+					multi_turn_action = {"name": "dig_to", "target": new_target, "countdown": 2}
+					return
+			return
 		else:
 			return
 
