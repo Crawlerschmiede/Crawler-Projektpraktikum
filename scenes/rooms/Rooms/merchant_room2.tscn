@@ -10,6 +10,8 @@ size = Vector2(176, 176)
 [node name="Merchant Room 2" type="Node2D" groups=["merchant_room"]]
 position = Vector2(4, 0)
 script = ExtResource("1_gl4b2")
+max_count = 1
+min_rooms_before_spawn = 7
 is_corridor = false
 
 [node name="TileMapLayer" type="TileMapLayer" parent="."]

@@ -10,6 +10,8 @@ size = Vector2(352, 176)
 [node name="Boss Room 2" type="Node2D" groups=["boss_room"]]
 position = Vector2(4, 0)
 script = ExtResource("1_qrq8k")
+max_count = 1
+min_rooms_before_spawn = 10
 is_corridor = false
 
 [node name="TileMapLayer" type="TileMapLayer" parent="."]

@@ -339,8 +339,13 @@ func ensure_required_rooms(
 
 
 func get_room_key(scene: PackedScene) -> String:
+	var key = scene.resource_path
 	if scene == null:
 		return ""
+	var inst := scene.instantiate()
+	if inst.get_groups():
+		key = inst.get_groups()[0]
+		print("use key: ", key)
 	# resource_path ist stabil -> perfekt als key
 	return scene.resource_path
 
