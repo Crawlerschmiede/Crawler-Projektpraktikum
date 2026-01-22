@@ -9,7 +9,7 @@ position = Vector2(9, 0)
 script = ExtResource("1_7vs3j")
 
 [node name="TileMapLayer" type="TileMapLayer" parent="."]
-tile_map_data = PackedByteArray(0, 0, 255, 255, 255, 255, 2, 0, 4, 0, 11, 0, 0, 0, 0, 0, 255, 255, 2, 0, 4, 0, 11, 0, 0, 0, 1, 0, 255, 255, 2, 0, 4, 0, 11, 0, 0, 0)
+tile_map_data = PackedByteArray(0, 0, 255, 255, 255, 255, 2, 0, 2, 0, 2, 0, 0, 0, 0, 0, 255, 255, 2, 0, 2, 0, 2, 0, 0, 0, 1, 0, 255, 255, 2, 0, 2, 0, 2, 0, 0, 0, 2, 0, 255, 255, 2, 0, 2, 0, 2, 0, 0, 0, 254, 255, 255, 255, 2, 0, 2, 0, 2, 0, 0, 0)
 tile_set = ExtResource("1_sxlka")
 
 [node name="Doors" type="Node2D" parent="."]
