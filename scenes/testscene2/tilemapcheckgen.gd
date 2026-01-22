@@ -109,7 +109,6 @@ func _clear_world() -> void:
 		player.queue_free()
 		player = null
 
-	# ✅ komplette Welt weg (enthält Tilemaps + Enemies + alles)
 	if world_root != null and is_instance_valid(world_root):
 		world_root.queue_free()
 		world_root = null
@@ -191,7 +190,6 @@ func spawn_player() -> void:
 	var e: PlayerCharacter = PLAYER_SCENE.instantiate()
 	e.name = "Player"
 
-	# ✅ setup mit Floor Tilemap
 	e.setup(dungeon_floor, 10, 3, 0)
 
 	world_root.add_child(e)
@@ -204,7 +202,7 @@ func spawn_player() -> void:
 	player.setup(dungeon_floor, 10, 3, 0)
 	player.grid_pos = start_pos
 	player.global_position = dungeon_floor.to_global(dungeon_floor.map_to_local(start_pos))
-
+	
 	# Exit-Signal verbinden
 	if player.has_signal("exit_reached"):
 		if not player.exit_reached.is_connected(_on_player_exit_reached):
