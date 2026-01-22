@@ -35,7 +35,7 @@ var _corridor_cache: Dictionary = {} # key: String(scene.resource_path) -> bool
 var player: MoveableEntity
 var world_tilemap: TileMapLayer
 var world_tilemap_top: TileMapLayer
-
+var minimap: TileMapLayer
 var room_type_counts: Dictionary = {}
 
 # Laufzeit
@@ -242,7 +242,12 @@ func get_random_tilemap() -> Dictionary:
 		"| seed:",
 		best.seed
 	)
+	
+	minimap = TileMapLayer.new()
+	minimap.name = "Minimap"
+	minimap.visibility_layer = 1 << 1
 
+	
 	# 2) beste Map wirklich bauen
 	if build_best_map_after_ga:
 		clear_world_tilemaps()
@@ -255,7 +260,7 @@ func get_random_tilemap() -> Dictionary:
 		for r in placed_rooms:
 			r.visible = false
 
-	return {"floor": world_tilemap, "top": world_tilemap_top}
+	return {"floor": world_tilemap, "top": world_tilemap_top, "minimap": minimap}
 
 
 func get_required_scenes() -> Array[PackedScene]:
@@ -960,6 +965,7 @@ func bake_rooms_into_world_tilemap() -> void:
 
 		# FLOOR kopieren
 		if floor_tm != null:
+			add_room_layer_to_minimap(room)
 			copy_layer_into_world(floor_tm, world_tilemap, room_offset)
 			bake_closed_doors_into_world()
 
@@ -1049,14 +1055,54 @@ func _find_any_door_node(root: Node) -> Node:
 				return d
 	return null
 
-
+var room_id = 0
 func copy_layer_into_world(src: TileMapLayer, dst: TileMapLayer, offset: Vector2i) -> void:
 	for cell in src.get_used_cells():
 		var source_id := src.get_cell_source_id(cell)
 		var atlas := src.get_cell_atlas_coords(cell)
 		var alt := src.get_cell_alternative_tile(cell)
+		dst.set_cell(cell + offset, source_id, atlas, alt)           
 
-		dst.set_cell(cell + offset, source_id, atlas, alt)
+func add_room_layer_to_minimap(room: Node2D) -> void:
+	if minimap == null:
+		return
+
+	var floor_tm := room.get_node_or_null("TileMapLayer") as TileMapLayer
+	if floor_tm == null:
+		return
+
+	# Tileset 1x setzen
+	if minimap.tile_set == null:
+		minimap.tile_set = floor_tm.tile_set
+
+	# origin ist WORLD cell origin
+	var origin: Vector2i = room.get_meta("tile_origin", Vector2i.ZERO)
+	var layer_name := "Room_%s_%s" % [origin.x, origin.y]
+
+	if minimap.has_node(layer_name):
+		return
+
+	# --- Raumlayer erstellen ---
+	var room_layer := TileMapLayer.new()
+	room_layer.name = layer_name
+	room_layer.tile_set = floor_tm.tile_set
+	room_layer.visible = false
+	room_layer.visibility_layer = 1 << 1
+
+	room_layer.set_meta("tile_origin", origin)
+
+	var tile_size: Vector2i = floor_tm.tile_set.tile_size
+	room_layer.position = Vector2(origin.x * tile_size.x, origin.y * tile_size.y)
+
+	minimap.add_child(room_layer)
+
+	# ✅ Tiles 1:1 kopieren (ohne Offset!)
+	for cell in floor_tm.get_used_cells():
+		var source_id := floor_tm.get_cell_source_id(cell)
+		var atlas := floor_tm.get_cell_atlas_coords(cell)
+		var alt := floor_tm.get_cell_alternative_tile(cell)
+		room_layer.set_cell(cell, source_id, atlas, alt)
+
 
 
 func clear_children_rooms_only() -> void:

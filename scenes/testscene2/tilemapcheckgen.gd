@@ -4,6 +4,10 @@ const ENEMY_SCENE := preload("res://scenes/enemy_vampire_bat.tscn")
 const BATTLE_SCENE := preload("res://scenes/battle.tscn")
 const PLAYER_SCENE := preload("res://scenes/player-character-scene.tscn")
 
+@onready var backgroundtile = $TileMapLayer
+
+@onready var minimap: TileMapLayer
+
 @onready var generator1: Node2D = $World1
 @onready var generator2: Node2D = $World2
 @onready var generator3: Node2D = $World3
@@ -56,7 +60,16 @@ func _load_world(idx: int) -> void:
 
 	dungeon_floor = maps.get("floor", null)
 	dungeon_top = maps.get("top", null)
-
+	minimap = maps.get("minimap", null)
+	
+	if minimap != null and backgroundtile != null:
+		var bg := backgroundtile.duplicate() as TileMapLayer
+		bg.name = "MinimapBackground"
+		bg.visibility_layer = 1 << 1
+		bg.z_index = -100
+		minimap.add_child(bg)
+		minimap.move_child(bg, -1)
+	
 	if dungeon_floor == null:
 		push_error("Generator returned null floor tilemap!")
 		get_tree().paused = false
@@ -194,7 +207,8 @@ func spawn_player() -> void:
 
 	world_root.add_child(e)
 	player = e
-
+	
+	player.set_minimap(minimap)
 	# Spawn Position
 	var start_pos := Vector2i(2, 2)
 
@@ -207,6 +221,41 @@ func spawn_player() -> void:
 	if player.has_signal("exit_reached"):
 		if not player.exit_reached.is_connected(_on_player_exit_reached):
 			player.exit_reached.connect(_on_player_exit_reached)
+			push_warning("player has no exit_reached signal")
+			
+	if player.has_signal("player_moved"):
+		if not player.player_moved.is_connected(_on_player_moved):
+			player.player_moved.connect(_on_player_moved)
+
+func _on_player_moved() -> void:
+	print("moved")
+	if minimap == null or dungeon_floor == null or player == null:
+		return
+	print("moved1")
+	# 1) Player -> Cell in FLOOR Tilemap
+	var world_cell: Vector2i = dungeon_floor.local_to_map(
+		dungeon_floor.to_local(player.global_position)
+	)
+	print("moved2")
+	# 2) passende RoomLayer finden, deren tile_origin passt
+	for child in minimap.get_children():
+		if not (child is TileMapLayer):
+			continue
+		print(child.name)
+		var room_layer := child as TileMapLayer
+
+		# RoomOrigin steht im Namen: Room_x_y
+		# oder du speicherst es als Meta beim Erstellen (besser)
+		var origin: Vector2i = room_layer.get_meta("tile_origin", Vector2i.ZERO)
+
+		# Player Cell relativ zum RoomLayer
+		var local_cell := world_cell - origin
+
+		if room_layer.get_cell_source_id(local_cell) != -1:
+			print(room_layer.get_cell_source_id(local_cell))
+			room_layer.visible = true
+			return
+
 
 
 # ---------------------------------------

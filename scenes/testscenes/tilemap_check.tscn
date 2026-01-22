@@ -5,7 +5,7 @@
 [ext_resource type="PackedScene" uid="uid://ceokrukww4ic8" path="res://scenes/popup-menu.tscn" id="2_ohj5c"]
 [ext_resource type="Texture2D" uid="uid://b66gb5qt40wlo" path="res://assets/testsprites/rat.png" id="3_lm1w0"]
 [ext_resource type="Script" uid="uid://dyn03ub2767ou" path="res://scenes/testscenes/sub_viewport.gd" id="4_n7skb"]
-[ext_resource type="Script" path="res://scenes/testscenes/minimap.gd" id="6_1jc7e"]
+[ext_resource type="Script" uid="uid://u8iasqm4625a" path="res://scenes/testscenes/minimap.gd" id="6_1jc7e"]
 [ext_resource type="PackedScene" uid="uid://ctw147xj16x67" path="res://scenes/Item/item_drop.tscn" id="6_h7b1f"]
 [ext_resource type="PackedScene" uid="uid://b7ipllkuce5ui" path="res://scenes/Lootbox/Lootbox.tscn" id="8_ohj5c"]
 

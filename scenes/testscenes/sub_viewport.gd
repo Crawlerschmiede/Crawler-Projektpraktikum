@@ -5,20 +5,19 @@ extends SubViewport
 var player: Node2D
 @onready var cam: Camera2D = $MiniCam
 
-
-# Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	world_2d = get_tree().root.world_2d
+	world_2d = World2D.new() 
+	cam.make_current()
+	# nur Layer 2 rendern
+	canvas_cull_mask = 1 << 1
+	
 	_resolve_player()
 
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(_delta: float) -> void:
 	if player != null:
-		cam.position = player.position
+		cam.global_position = player.global_position
 	else:
 		_resolve_player()
-
 
 func _resolve_player() -> void:
 	if player_path != NodePath():

@@ -14,6 +14,9 @@ var actions = []
 @onready var camera: Camera2D = $Camera2D
 const SKILLTREES := preload("res://scripts/premade_skilltrees.gd")
 var existing_skilltrees = SKILLTREES.new()
+var minimap
+@onready var minimap_viewport: SubViewport = $CanvasLayer/SubViewportContainer/SubViewport
+
 
 const active_skilltrees = ["unarmed"]
 
@@ -34,7 +37,18 @@ func _ready() -> void:
 	update_unlocked_skills()
 	setup(tilemap, 10, 1, 0)
 	add_to_group("player")
+	
+func set_minimap(mm: TileMapLayer) -> void:
+	minimap = mm
 
+	if minimap == null:
+		return
+
+	# falls minimap irgendwo anders hängt -> umhängen
+	if minimap.get_parent() != null:
+		minimap.get_parent().remove_child(minimap)
+
+	minimap_viewport.add_child(minimap)
 
 # --- Input Handling with Cooldown ---
 
