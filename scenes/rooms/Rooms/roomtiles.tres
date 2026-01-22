@@ -280,6 +280,7 @@ texture = ExtResource("1_m7st2")
 13:6/0 = 0
 13:6/0/custom_data_0 = true
 14:6/0 = 0
+14:6/0/custom_data_8 = true
 15:6/0 = 0
 0:7/0 = 0
 0:7/0/custom_data_0 = true
