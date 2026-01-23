@@ -90,7 +90,7 @@ func _load_world(idx: int) -> void:
 	# Erst Player, dann Enemies
 	spawn_player()
 	spawn_enemies()
-	#spawn_lootbox()
+	spawn_lootbox()
 	spawn_traps()
 	get_tree().paused = false
 

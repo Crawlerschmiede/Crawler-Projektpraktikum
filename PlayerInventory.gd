@@ -125,7 +125,7 @@ func add_item(item_name: String, item_quantity: int = 1) -> void:
 	for k in inventory.keys():
 		var idx: int = int(k)
 		var data: Array = inventory[idx]
-
+			
 		if data.size() < 2:
 			continue
 
@@ -154,7 +154,10 @@ func add_item(item_name: String, item_quantity: int = 1) -> void:
 
 	for k in indices:
 		var i: int = int(k)
-
+		
+		if i == 17:
+			continue
+		
 		if inventory.has(i):
 			continue
 
