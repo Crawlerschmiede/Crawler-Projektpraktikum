@@ -1,4 +1,4 @@
-extends Node2D
+extends CanvasLayer
 
 var tips: Array = [
 	"Torches keep the shadows at bay, but they don't last forever.",

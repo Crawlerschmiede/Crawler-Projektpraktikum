@@ -5,6 +5,10 @@ const BATTLE_SCENE := preload("res://scenes/battle.tscn")
 const PLAYER_SCENE := preload("res://scenes/player-character-scene.tscn")
 const LOOTBOX := preload("res://scenes/Lootbox/Lootbox.tscn")
 const TRAP := preload("res://scenes/traps/Trap.tscn")
+
+const LOADING_SCENE:= preload("res://scenes/loadings_screen/loading_screen.tscn")
+var loading_screen: CanvasLayer = null
+
 @onready var backgroundtile = $TileMapLayer
 
 @onready var minimap: TileMapLayer
@@ -38,31 +42,44 @@ func _ready() -> void:
 
 func _load_world(idx: int) -> void:
 	get_tree().paused = true
+	await _show_loading()
+
+	# sorgt dafür, dass Loading immer weggeht
+	var success := false
+
 	_clear_world()
 
 	if idx < 0 or idx >= generators.size():
 		push_error("No more worlds left!")
+		_hide_loading()
 		get_tree().paused = false
 		return
 
 	var gen := generators[idx]
 
-	# neuer Root für die komplette Welt
 	world_root = Node2D.new()
 	world_root.name = "WorldRoot"
 	add_child(world_root)
 
-	# Generator liefert jetzt ein Dictionary: {floor, top}
 	var maps: Dictionary = await gen.get_random_tilemap()
+
 	if maps.is_empty():
 		push_error("Generator returned empty dictionary!")
+		_hide_loading()
 		get_tree().paused = false
 		return
 
 	dungeon_floor = maps.get("floor", null)
 	dungeon_top = maps.get("top", null)
 	minimap = maps.get("minimap", null)
-	
+
+	if dungeon_floor == null:
+		push_error("Generator returned null floor tilemap!")
+		_hide_loading()
+		get_tree().paused = false
+		return
+
+	# minimap background
 	if minimap != null and backgroundtile != null:
 		var bg := backgroundtile.duplicate() as TileMapLayer
 		bg.name = "MinimapBackground"
@@ -70,29 +87,44 @@ func _load_world(idx: int) -> void:
 		bg.z_index = -100
 		minimap.add_child(bg)
 		minimap.move_child(bg, -1)
-	
-	if dungeon_floor == null:
-		push_error("Generator returned null floor tilemap!")
-		get_tree().paused = false
-		return
 
 	if dungeon_floor.get_parent() == null:
 		world_root.add_child(dungeon_floor)
-
 	if dungeon_top != null and dungeon_top.get_parent() == null:
 		world_root.add_child(dungeon_top)
-	
+
 	dungeon_floor.visibility_layer = 1
-	
-	# Colorfilter updaten
 	update_color_filter()
 
-	# Erst Player, dann Enemies
 	spawn_player()
 	spawn_enemies()
 	spawn_lootbox()
 	spawn_traps()
+
+	_hide_loading()
 	get_tree().paused = false
+
+
+func _show_loading() -> void:
+	if loading_screen == null:
+		loading_screen = LOADING_SCENE.instantiate() as CanvasLayer
+		add_child(loading_screen)
+
+	loading_screen.layer = 100
+	loading_screen.visible = true
+	loading_screen.process_mode = Node.PROCESS_MODE_ALWAYS
+
+	move_child(loading_screen, get_child_count() - 1)
+
+	await get_tree().process_frame
+	await get_tree().process_frame
+
+
+
+func _hide_loading() -> void:
+	if loading_screen != null and is_instance_valid(loading_screen):
+		loading_screen.visible = false
+
 
 func spawn_traps() -> void:
 	if dungeon_floor == null or world_root == null:
