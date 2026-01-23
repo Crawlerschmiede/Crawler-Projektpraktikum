@@ -4,6 +4,7 @@ const ENEMY_SCENE := preload("res://scenes/enemy_vampire_bat.tscn")
 const BATTLE_SCENE := preload("res://scenes/battle.tscn")
 const PLAYER_SCENE := preload("res://scenes/player-character-scene.tscn")
 const LOOTBOX := preload("res://scenes/Lootbox/Lootbox.tscn")
+const TRAP := preload("res://scenes/traps/Trap.tscn")
 @onready var backgroundtile = $TileMapLayer
 
 @onready var minimap: TileMapLayer
@@ -89,10 +90,51 @@ func _load_world(idx: int) -> void:
 	# Erst Player, dann Enemies
 	spawn_player()
 	spawn_enemies()
-	spawn_lootbox()
-	
+	#spawn_lootbox()
+	spawn_traps()
 	get_tree().paused = false
 
+func spawn_traps() -> void:
+	if dungeon_floor == null or world_root == null:
+		return
+
+	# alte Lootboxen entfernen
+	for c in world_root.get_children():
+		if c != null and c.name.begins_with("Trap"):
+			c.queue_free()
+
+	# alle möglichen Lootbox-Spawns sammeln
+	var candidates: Array[Vector2i] = []
+	for cell in dungeon_floor.get_used_cells():
+		var td := dungeon_floor.get_cell_tile_data(cell)
+		if td == null:
+			continue
+
+		# Tileset Custom Data Bool
+		if td.get_custom_data("lootbox_spawnable") == true:
+			candidates.append(cell)
+
+	if candidates.is_empty():
+		print("⚠️ Keine lootbox_spawnable Tiles gefunden!")
+		return
+
+	# maximal 20 Lootboxen
+	candidates.shuffle()
+	var amount = min(20, candidates.size())
+
+	for i in range(amount):
+		var spawn_cell := candidates[i]
+		var world_pos := dungeon_floor.to_global(dungeon_floor.map_to_local(spawn_cell))
+
+		var loot := TRAP.instantiate() as Node2D
+		loot.name = "Trap_%s" % i
+		world_root.add_child(loot)
+		loot.global_position = world_pos
+
+		# ✅ Lootbox darf NICHT blockieren:
+		#e_disable_lootbox_blocking(loot)
+
+	print("✅ Lootboxen gespawnt:", amount)
 func spawn_lootbox() -> void:
 	if dungeon_floor == null or world_root == null:
 		return
