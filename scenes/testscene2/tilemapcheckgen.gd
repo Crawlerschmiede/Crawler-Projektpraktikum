@@ -267,11 +267,14 @@ func spawn_enemy(sprite_type: String, behaviour: Array) -> void:
 
 
 func spawn_player() -> void:
+	for n in get_tree().get_nodes_in_group("player"):
+		if n != null and is_instance_valid(n):
+			n.queue_free()
 	var e: PlayerCharacter = PLAYER_SCENE.instantiate()
 	e.name = "Player"
 
 	e.setup(dungeon_floor, 10, 3, 0)
-
+	e.add_to_group("player")
 	world_root.add_child(e)
 	player = e
 	
@@ -283,6 +286,8 @@ func spawn_player() -> void:
 	player.setup(dungeon_floor, 10, 3, 0)
 	player.grid_pos = start_pos
 	player.global_position = dungeon_floor.to_global(dungeon_floor.map_to_local(start_pos))
+	player.add_to_group("player")
+
 	
 	# Exit-Signal verbinden
 	if player.has_signal("exit_reached"):

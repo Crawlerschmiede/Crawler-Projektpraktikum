@@ -122,9 +122,43 @@ func chase():
 
 func _ready() -> void:
 	super_ready(sprite_type, types)
-	var player = get_tree().get_first_node_in_group("player")
-	player.player_moved.connect(move_it)
 
+	var p := get_best_player()
+	print("Enemy ready:", name, " found player:", p)
+
+	if p == null:
+		push_warning("❌ Enemy found NO player in group 'player' -> cannot connect player_moved")
+		return
+
+	if not p.player_moved.is_connected(move_it):
+		p.player_moved.connect(move_it)
+		print("✅ Connected player_moved -> move_it")
+
+func get_best_player() -> PlayerCharacter:
+	var players := get_tree().get_nodes_in_group("player")
+	if players.is_empty():
+		return null
+
+	# 1) nur gültige PlayerCharacter
+	var valid: Array[PlayerCharacter] = []
+	for p in players:
+		if p != null and is_instance_valid(p) and p is PlayerCharacter:
+			valid.append(p)
+
+	if valid.is_empty():
+		return null
+
+	# 2) Nimm den nähesten (falls mehrere)
+	var best := valid[0]
+	var best_dist := global_position.distance_squared_to(best.global_position)
+
+	for p in valid:
+		var d := global_position.distance_squared_to(p.global_position)
+		if d < best_dist:
+			best = p
+			best_dist = d
+
+	return best
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
@@ -133,9 +167,12 @@ func _process(delta: float) -> void:
 
 
 func move_it():
+	print("Move1")
 	if multi_turn_action == null:
+		print("Move2")
 		var saw_player = check_sight()
 		if saw_player:
+			print("Move3")
 			if "hostile" in types:
 				behaviour = "chase"
 		else:
@@ -160,16 +197,83 @@ func move_it():
 			multi_turn_action = null
 
 
-func check_sight():
-	var saw_player = false
-	for body in sight_area.get_overlapping_bodies():
-		if body == self:
+func check_sight() -> bool:
+	var bodies := sight_area.get_overlapping_bodies()
+
+	print("\n============================")
+	print("👁️ CHECK_SIGHT START: ", self.name, " | grid_pos:", grid_pos)
+	print("SightArea:", sight_area.name, " bodies_count:", bodies.size())
+
+	var saw_player := false
+	chase_target = null
+
+	for i in range(bodies.size()):
+		var body = bodies[i]
+
+		print("\n--- BODY #", i, " ----------------------")
+
+		if body == null:
+			print("❌ body is NULL")
 			continue
+
+		print("Node:", body)
+		print("Name:", body.name)
+		print("Class:", body.get_class())
+		print("SceneFile:", body.scene_file_path if "scene_file_path" in body else "(no scene_file_path)")
+
+		if body == self:
+			print("⚠️ body is SELF -> skip")
+			continue
+
+		# --- Gruppen ausgeben ---
+		print("Groups:", body.get_groups())
+
+		# --- is_player property check ---
+		var has_is_player := body.get("is_player") != null or body.has_method("get") # fallback
+		print("Has property 'is_player'?", body.has_meta("is_player") if body.has_method("has_meta") else "?", " | raw get('is_player'):", body.get("is_player"))
+
+		# Sicherer: property via `get`
+		var is_player_value = null
+		if body.has_method("get"):
+			is_player_value = body.get("is_player")
+		print("body.get('is_player'):", is_player_value)
+
+		# Direkter Zugriff (kann crashen wenn property nicht existiert)
+		if "is_player" in body:
+			print("✅ 'is_player' in body → body.is_player =", body.is_player)
 		else:
-			if body != null and ("is_player" in body) and body.is_player:
-				saw_player = true
-				chase_target = body
+			print("❌ 'is_player' NOT in body")
+
+		# --- Gruppencheck ---
+		var in_player_group := false
+		if body.has_method("is_in_group"):
+			in_player_group = body.is_in_group("player")
+		print("Is in group 'player'?", in_player_group)
+
+		# --- Typcheck ---
+		var is_player_character := body is PlayerCharacter
+		print("Is PlayerCharacter?", is_player_character)
+
+		# --- Collision Info (falls PhysicsBody2D) ---
+		if body is PhysicsBody2D:
+			print("PhysicsBody2D collision_layer:", body.collision_layer, " collision_mask:", body.collision_mask)
+		elif body is Area2D:
+			print("Area2D collision_layer:", body.collision_layer, " collision_mask:", body.collision_mask)
+
+		# --- finale Entscheidung ---
+		if in_player_group or is_player_character or (("is_player" in body) and body.is_player):
+			print("✅✅✅ PLAYER DETECTED! -> setting chase_target =", body.name)
+			saw_player = true
+			chase_target = body
+			break
+		else:
+			print("❌ not player (did not match any criteria)")
+
+	print("\nRESULT: saw_player =", saw_player, " chase_target =", chase_target)
+	print("============================\n")
+
 	return saw_player
+
 
 
 func decide_attack() -> void:
