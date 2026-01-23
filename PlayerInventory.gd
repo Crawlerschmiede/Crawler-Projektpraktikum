@@ -1,6 +1,7 @@
 extends Node
 
 signal inventory_changed
+signal item_picked_up(item_name: String, amount: int)
 
 const NUM_INVENTORY_SLOTS: int = 25
 
@@ -125,6 +126,7 @@ func add_item(item_name: String, item_quantity: int = 1) -> void:
 		return
 
 	var stack_size: int = _get_stack_size(item_name)
+	item_picked_up.emit(item_name, item_quantity)
 
 	# 1) vorhandene Stacks auffüllen
 	for k in inventory.keys():
