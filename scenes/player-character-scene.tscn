@@ -9,7 +9,6 @@
 [ext_resource type="Script" path="res://scenes/inventory.gd" id="6_7x6uh"]
 [ext_resource type="Texture2D" uid="uid://b1tw3icp8tm6x" path="res://assets/menu/InventoryLabel.png" id="7_x2d4g"]
 [ext_resource type="Script" path="res://scenes/pickup_zone.gd" id="8_jjy7y"]
-[ext_resource type="Script" path="res://scenes/pickup_zone.gd" id="8_jjy7y"]
 [ext_resource type="Texture2D" uid="uid://do8wsaes8sy12" path="res://assets/menu/UI_TravelBook_BookPageRight01a.png" id="8_lsi2u"]
 [ext_resource type="FontFile" uid="uid://d4fqcjicieold" path="res://assets/font/PixelPurl.ttf" id="9_6k8oa"]
 [ext_resource type="Texture2D" uid="uid://sppwtd1lbmbe" path="res://assets/menu/UI_TravelBook_BookPageLeft01a.png" id="9_mbyut"]

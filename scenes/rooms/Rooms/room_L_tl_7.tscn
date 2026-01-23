@@ -11,7 +11,7 @@ size = Vector2(352, 176)
 size = Vector2(176, 192)
 
 [node name="Room L tl" type="Node2D"]
-position = Vector2(4, 0)
+position = Vector2(0, 32)
 script = ExtResource("1_fivfu")
 
 [node name="TileMapLayer" type="TileMapLayer" parent="."]

@@ -11,7 +11,7 @@ size = Vector2(352, 176)
 size = Vector2(176, 208)
 
 [node name="Room L tr" type="Node2D"]
-position = Vector2(4, 0)
+position = Vector2(16, 32)
 script = ExtResource("1_1j0jh")
 is_corridor = false
 
@@ -43,7 +43,7 @@ direction = "east"
 [node name="West" type="Marker2D" parent="Doors"]
 position = Vector2(-16, 56)
 script = ExtResource("3_v8e5r")
-direction = "east"
+direction = "west"
 
 [node name="South" type="Marker2D" parent="Doors"]
 position = Vector2(72, 320)

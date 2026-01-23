@@ -118,17 +118,64 @@ func close_free_doors(parent_node: Node) -> void:
 			var closed_door := door_scene.instantiate() as Node2D
 			parent_node.add_child(closed_door)
 
-			# ✅ Snap direkt auf die Tür
 			closed_door.global_position = door.global_position
-			closed_door.global_rotation = door.global_rotation  # falls Türen rotiert sind
+			closed_door.global_rotation = door.global_rotation
 
-			# ✅ Tür markieren als benutzt
 			door.used = true
 
 			total += 1
 
 	print("✔ Closed Doors gesetzt:", total)
-	
+
+func bake_closed_doors_into_world_simple() -> void:
+	if world_tilemap == null:
+		push_error("world_tilemap ist null!")
+		return
+
+	var tile_size := world_tilemap.tile_set.tile_size
+	var total := 0
+
+	for room in placed_rooms:
+		if room == null or not room.has_method("get_free_doors"):
+			continue
+
+		for door in room.get_free_doors():
+			if door == null or door.used:
+				continue
+
+			var door_scene := get_closed_door_for_direction(str(door.direction))
+			if door_scene == null:
+				continue
+
+			# nur instanziieren um tiles zu kopieren
+			var inst := door_scene.instantiate() as Node2D
+			add_child(inst)
+
+			# snap an echte Tür
+			inst.global_position = door.global_position
+			inst.force_update_transform()
+
+			# tile_origin aus position
+			var tile_origin := Vector2i(
+				int(round(inst.global_position.x / tile_size.x)),
+				int(round(inst.global_position.y / tile_size.y))
+			)
+
+			# closed-door tilemap holen
+			var src_floor := inst.get_node_or_null("TileMapLayer") as TileMapLayer
+			if src_floor != null:
+				copy_layer_into_world(src_floor, world_tilemap, tile_origin)
+
+			inst.queue_free()
+
+			door.used = true
+			total += 1
+			print("door backed")
+
+	print("✅ Closed doors gebacken:", total)
+
+
+
 func debug_print_free_doors() -> void:
 	var total := 0
 	for r in placed_rooms:
@@ -223,7 +270,7 @@ class EvalResult:
 
 
 func get_random_tilemap() -> Dictionary:
-	start_room = load("res://scenes/rooms/Rooms/room_11x11.tscn")
+	start_room = load("res://scenes/rooms/Rooms/room_11x11_4.tscn")
 	room_scenes = load_room_scenes_from_folder(rooms_folder)
 	closed_door_scenes = load_room_scenes_from_folder(closed_doors_folder)
 	for s in closed_door_scenes:
@@ -339,10 +386,103 @@ func ensure_required_rooms(
 
 
 func get_room_key(scene: PackedScene) -> String:
+	var key = scene.resource_path
 	if scene == null:
 		return ""
+	var inst := scene.instantiate()
+	if inst.get_groups():
+		key = inst.get_groups()[0]
+		print("use key: ", key)
 	# resource_path ist stabil -> perfekt als key
 	return scene.resource_path
+
+func bake_closed_doors_into_minimap() -> void:
+	if minimap == null:
+		push_error("minimap ist null!")
+		return
+	if world_tilemap == null:
+		push_error("world_tilemap ist null!")
+		return
+
+	var tile_size := world_tilemap.tile_set.tile_size
+	var total := 0
+
+	for room in placed_rooms:
+		if room == null or not room.has_method("get_free_doors"):
+			continue
+
+		for door in room.get_free_doors():
+			if door == null:
+				continue
+
+			# ❗in minimap wollen wir trotzdem backen, auch wenn world door.used schon true ist
+			# deswegen NICHT: if door.used: continue
+
+			var door_scene := get_closed_door_for_direction(str(door.direction))
+			if door_scene == null:
+				continue
+
+			# 1) Instanz nur für TileCopy
+			var inst := door_scene.instantiate() as Node2D
+			add_child(inst)
+
+			# 2) Snap auf Door
+			inst.global_position = door.global_position
+			inst.force_update_transform()
+
+			# 3) Welt-Zelle berechnen
+			var world_cell := Vector2i(
+				int(round(inst.global_position.x / tile_size.x)),
+				int(round(inst.global_position.y / tile_size.y))
+			)
+
+			# 4) closed-door tiles holen
+			var src_floor := inst.get_node_or_null("TileMapLayer") as TileMapLayer
+			if src_floor == null:
+				inst.queue_free()
+				continue
+
+			# 5) passenden Minimap-RoomLayer finden
+			var target_layer: TileMapLayer = null
+			var target_origin: Vector2i = Vector2i.ZERO
+
+			for child in minimap.get_children():
+				if not (child is TileMapLayer):
+					continue
+				var layer := child as TileMapLayer
+
+				var origin: Vector2i = layer.get_meta("tile_origin", Vector2i.ZERO)
+				var rect: Rect2i = layer.get_meta("room_rect", Rect2i())
+
+				var local_cell := world_cell - origin
+
+				# enthält dieser Raum diese Zelle?
+				if rect.has_point(local_cell):
+					target_layer = layer
+					target_origin = origin
+					break
+
+			if target_layer == null:
+				print("❌ kein minimap-roomlayer gefunden für door cell:", world_cell)
+				inst.queue_free()
+				continue
+
+			# 6) TileOffset relativ zum Raum
+			var offset := world_cell - target_origin
+
+			# 7) Door Tiles kopieren in Minimap RoomLayer
+			for cell in src_floor.get_used_cells():
+				var source_id := src_floor.get_cell_source_id(cell)
+				var atlas := src_floor.get_cell_atlas_coords(cell)
+				var alt := src_floor.get_cell_alternative_tile(cell)
+
+				target_layer.set_cell(cell + offset, source_id, atlas, alt)
+
+			inst.queue_free()
+			total += 1
+			print("✅ minimap door baked into:", target_layer.name)
+
+	print("✅ Closed doors gebacken in MINIMAP:", total)
 
 
 func get_rule(room_instance: Node, var_name: String, default_value):
@@ -967,7 +1107,7 @@ func bake_rooms_into_world_tilemap() -> void:
 		if floor_tm != null:
 			add_room_layer_to_minimap(room)
 			copy_layer_into_world(floor_tm, world_tilemap, room_offset)
-			bake_closed_doors_into_world()
+			#bake_closed_doors_into_world()
 
 		# TOP kopieren
 		if top_tm != null:
@@ -979,6 +1119,9 @@ func bake_rooms_into_world_tilemap() -> void:
 		"| Top tiles:",
 		world_tilemap_top.get_used_cells().size()
 	)
+	bake_closed_doors_into_world_simple()
+	bake_closed_doors_into_minimap()
+
 
 func bake_closed_doors_into_world() -> void:
 	if world_tilemap == null or world_tilemap_top == null:
@@ -1066,7 +1209,7 @@ func copy_layer_into_world(src: TileMapLayer, dst: TileMapLayer, offset: Vector2
 func add_room_layer_to_minimap(room: Node2D) -> void:
 	if minimap == null:
 		return
-
+	
 	var floor_tm := room.get_node_or_null("TileMapLayer") as TileMapLayer
 	if floor_tm == null:
 		return
@@ -1088,7 +1231,7 @@ func add_room_layer_to_minimap(room: Node2D) -> void:
 	room_layer.tile_set = floor_tm.tile_set
 	room_layer.visible = false
 	room_layer.visibility_layer = 1 << 1
-
+	room_layer.set_meta("room_rect", floor_tm.get_used_rect())
 	room_layer.set_meta("tile_origin", origin)
 
 	var tile_size: Vector2i = floor_tm.tile_set.tile_size
