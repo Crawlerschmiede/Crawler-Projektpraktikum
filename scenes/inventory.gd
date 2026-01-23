@@ -13,8 +13,9 @@ func dbg(msg: String) -> void:
 # Slot Script (Pfad prüfen!)
 const SlotScript: GDScript = preload("res://scenes/Slot.gd")
 
-@onready var inv_grid: GridContainer = $Equiptment
-@onready var equip_grid: GridContainer = $GridContainer
+@onready var inv_grid: GridContainer = $Inner/Equiptment
+@onready var equip_grid: GridContainer = $Inner/GridContainer
+@onready var hotbar_grid: GridContainer = $Hotbar/HotContainer
 
 
 func _collect_slots_recursive(root: Node, out: Array[Node]) -> void:
@@ -34,6 +35,7 @@ func _get_all_slots() -> Array[Node]:
 	var out: Array[Node] = []
 	_collect_slots_recursive(inv_grid, out)
 	_collect_slots_recursive(equip_grid, out)
+	_collect_slots_recursive(hotbar_grid, out)
 	return out
 
 
