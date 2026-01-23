@@ -2,7 +2,7 @@ extends Node
 
 signal inventory_changed
 
-const NUM_INVENTORY_SLOTS: int = 20
+const NUM_INVENTORY_SLOTS: int = 25
 
 # slot_index -> [item_name: String, item_quantity: int]
 var inventory: Dictionary = {}
