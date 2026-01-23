@@ -111,7 +111,7 @@ func spawn_traps() -> void:
 			continue
 
 		# Tileset Custom Data Bool
-		if td.get_custom_data("lootbox_spawnable") == true:
+		if td.get_custom_data("trap_spawnable") == true:
 			candidates.append(cell)
 
 	if candidates.is_empty():
