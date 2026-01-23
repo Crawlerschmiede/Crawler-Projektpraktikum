@@ -12,7 +12,7 @@ const MAX_SPEED = 225.0
 
 var player: Node2D = null
 var being_picked_up = false
-var data: Dictionary = {} # JsonData.item_data
+var data: Dictionary = {}  # JsonData.item_data
 
 
 func _ready() -> void:
@@ -67,8 +67,10 @@ func _collect_loot() -> void:
 #  OPTIONAL: von außen Loot setzen (Boss Drop etc.)
 # ============================================================
 
+
 func set_loot(new_loot: Dictionary) -> void:
 	loot_table = _clean_loot(new_loot)
+
 
 func add_loot(item_name: String, amount: int = 1) -> void:
 	if amount <= 0:
@@ -81,6 +83,7 @@ func add_loot(item_name: String, amount: int = 1) -> void:
 # ============================================================
 #  RANDOM LOOT GENERATOR (aus JSON loot_stats)
 # ============================================================
+
 
 func _generate_random_loot(min_weight: int, max_weight: int) -> Dictionary:
 	var weight_limit = randi_range(min_weight, max_weight)
@@ -139,6 +142,7 @@ func _generate_random_loot(min_weight: int, max_weight: int) -> Dictionary:
 # ============================================================
 #  Loot Bereinigung
 # ============================================================
+
 
 func _clean_loot(input: Dictionary) -> Dictionary:
 	var cleaned = {}

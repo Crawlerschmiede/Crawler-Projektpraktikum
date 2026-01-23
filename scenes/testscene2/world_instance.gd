@@ -12,6 +12,7 @@ var dungeon_top: TileMapLayer
 var minimap: TileMapLayer
 var player: PlayerCharacter
 
+
 func load_from_generator(gen: Node) -> void:
 	var maps: Dictionary = await gen.get_random_tilemap()
 
@@ -40,7 +41,7 @@ func spawn_player() -> void:
 	player = PLAYER_SCENE.instantiate()
 	add_child(player)
 
-	var start_pos := Vector2i(2,2)
+	var start_pos := Vector2i(2, 2)
 	player.setup(dungeon_floor, 10, 3, 0)
 	player.grid_pos = start_pos
 	player.global_position = dungeon_floor.to_global(dungeon_floor.map_to_local(start_pos))
@@ -49,6 +50,7 @@ func spawn_player() -> void:
 	if player.has_signal("exit_reached"):
 		if not player.exit_reached.is_connected(_on_player_exit_reached):
 			player.exit_reached.connect(_on_player_exit_reached)
+
 
 func _on_player_exit_reached() -> void:
 	emit_signal("exit_reached")

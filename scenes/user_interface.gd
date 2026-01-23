@@ -4,6 +4,7 @@ var holding_item = null
 
 @onready var hot_container := $Inventory/Hotbar/HotContainer
 
+
 func _input(event):
 	if event.is_action_pressed("open_inventory"):
 		$Inventory/Inner.visible = !$Inventory/Inner.visible

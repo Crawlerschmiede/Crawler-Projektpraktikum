@@ -120,20 +120,6 @@ func chase():
 			return
 
 
-func _ready() -> void:
-	super_ready(sprite_type, types)
-
-	var p := get_best_player()
-	print("Enemy ready:", name, " found player:", p)
-
-	if p == null:
-		push_warning("❌ Enemy found NO player in group 'player' -> cannot connect player_moved")
-		return
-
-	if not p.player_moved.is_connected(move_it):
-		p.player_moved.connect(move_it)
-		print("✅ Connected player_moved -> move_it")
-
 func get_best_player() -> PlayerCharacter:
 	var players := get_tree().get_nodes_in_group("player")
 	if players.is_empty():
@@ -159,6 +145,22 @@ func get_best_player() -> PlayerCharacter:
 			best_dist = d
 
 	return best
+
+
+func _ready() -> void:
+	super_ready(sprite_type, types)
+
+	var p := get_best_player()
+	print("Enemy ready:", name, " found player:", p)
+
+	if p == null:
+		push_warning("❌ Enemy found NO player in group 'player' -> cannot connect player_moved")
+		return
+
+	if not p.player_moved.is_connected(move_it):
+		p.player_moved.connect(move_it)
+		print("✅ Connected player_moved -> move_it")
+
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
@@ -219,7 +221,10 @@ func check_sight() -> bool:
 		print("Node:", body)
 		print("Name:", body.name)
 		print("Class:", body.get_class())
-		print("SceneFile:", body.scene_file_path if "scene_file_path" in body else "(no scene_file_path)")
+		print(
+			"SceneFile:",
+			body.scene_file_path if "scene_file_path" in body else "(no scene_file_path)"
+		)
 
 		if body == self:
 			print("⚠️ body is SELF -> skip")
@@ -229,8 +234,13 @@ func check_sight() -> bool:
 		print("Groups:", body.get_groups())
 
 		# --- is_player property check ---
-		var has_is_player := body.get("is_player") != null or body.has_method("get") # fallback
-		print("Has property 'is_player'?", body.has_meta("is_player") if body.has_method("has_meta") else "?", " | raw get('is_player'):", body.get("is_player"))
+		var has_is_player := body.get("is_player") != null or body.has_method("get")  # fallback
+		print(
+			"Has property 'is_player'?",
+			body.has_meta("is_player") if body.has_method("has_meta") else "?",
+			" | raw get('is_player'):",
+			body.get("is_player")
+		)
 
 		# Sicherer: property via `get`
 		var is_player_value = null
@@ -256,9 +266,19 @@ func check_sight() -> bool:
 
 		# --- Collision Info (falls PhysicsBody2D) ---
 		if body is PhysicsBody2D:
-			print("PhysicsBody2D collision_layer:", body.collision_layer, " collision_mask:", body.collision_mask)
+			print(
+				"PhysicsBody2D collision_layer:",
+				body.collision_layer,
+				" collision_mask:",
+				body.collision_mask
+			)
 		elif body is Area2D:
-			print("Area2D collision_layer:", body.collision_layer, " collision_mask:", body.collision_mask)
+			print(
+				"Area2D collision_layer:",
+				body.collision_layer,
+				" collision_mask:",
+				body.collision_mask
+			)
 
 		# --- finale Entscheidung ---
 		if in_player_group or is_player_character or (("is_player" in body) and body.is_player):
@@ -273,7 +293,6 @@ func check_sight() -> bool:
 	print("============================\n")
 
 	return saw_player
-
 
 
 func decide_attack() -> void:
