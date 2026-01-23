@@ -218,6 +218,26 @@ func _process(_delta) -> void:
 	if Input.is_action_just_pressed("ui_menu"):
 		toggle_menu()
 
+func update_minimap_player_marker() -> void:
+	if minimap == null or dungeon_floor == null or player == null:
+		return
+
+	var marker := minimap.get_node_or_null("PlayerMarker")
+	if marker == null:
+		push_warning("Minimap has no PlayerMarker node")
+		return
+
+	# 1) Player global -> floor local -> map cell
+	var world_cell: Vector2i = dungeon_floor.local_to_map(
+		dungeon_floor.to_local(player.global_position)
+	)
+
+	# 2) world_cell -> minimap local position
+	# minimap.map_to_local gibt dir Pixelposition im Minimap-Tilegrid
+	var mini_pos: Vector2 = minimap.map_to_local(world_cell)
+
+	# 3) Marker setzen (lokal zur minimap)
+	marker.position = mini_pos
 
 func toggle_menu():
 	if menu_instance == null:

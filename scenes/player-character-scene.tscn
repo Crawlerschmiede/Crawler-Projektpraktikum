@@ -93,6 +93,10 @@ script = ExtResource("8_jjy7y")
 [node name="CollisionShape2D" type="CollisionShape2D" parent="PickupZone"]
 shape = SubResource("RectangleShape2D_jmui6")
 
+[node name="Camera2D" type="Camera2D" parent="."]
+zoom = Vector2(2, 2)
+script = ExtResource("4_0cvhd")
+
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
 [node name="SubViewportContainer" type="SubViewportContainer" parent="CanvasLayer"]
@@ -109,10 +113,6 @@ render_target_update_mode = 4
 
 [node name="MiniCam" type="Camera2D" parent="CanvasLayer/SubViewportContainer/SubViewport"]
 zoom = Vector2(0.2, 0.2)
-
-[node name="Camera2D" type="Camera2D" parent="."]
-zoom = Vector2(2, 2)
-script = ExtResource("4_0cvhd")
 
 [node name="UserInterface" type="CanvasLayer" parent="."]
 script = ExtResource("5_jmui6")

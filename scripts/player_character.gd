@@ -71,6 +71,9 @@ func _physics_process(delta: float):
 			if _check_exit_tile():
 				exit_reached.emit()
 			player_moved.emit()
+			minimap.global_position = -1 * global_position
+
+
 
 
 # Function to get the current input direction vector
