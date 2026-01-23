@@ -43,6 +43,13 @@ var _yield_counter := 0
 signal generation_progress(p: float, text: String)
 
 
+func _emit_progress_mapped(start: float, end: float, local_p: float, text: String) -> void:
+	# Map local_p (0..1) into global range [start..end] and emit
+	var lp = clamp(local_p, 0.0, 1.0)
+	var p = clamp(start + (end - start) * lp, 0.0, 1.0)
+	generation_progress.emit(p, text)
+
+
 func _yield_if_needed(step: int = 200) -> void:
 	_yield_counter += 1
 	if _yield_counter % step == 0:
@@ -285,7 +292,7 @@ class EvalResult:
 
 func get_random_tilemap() -> Dictionary:
 	_yield_counter = 0
-	generation_progress.emit(0.0, "Preparing scenes...")
+	_emit_progress_mapped(0.0, 0.05, 0.0, "Preparing scenes...")
 	await get_tree().process_frame
 
 	start_room = load("res://scenes/rooms/Rooms/room_11x11_4.tscn")
@@ -296,9 +303,9 @@ func get_random_tilemap() -> Dictionary:
 	print("=== MAP GENERATION START ===")
 
 	# 1) genetische Suche (chunked + progress)
-	generation_progress.emit(0.05, "Running GA...")
+	_emit_progress_mapped(0.05, 0.45, 0.0, "Running GA...")
 	var best := await genetic_search_best()
-	generation_progress.emit(0.45, "GA finished")
+	_emit_progress_mapped(0.05, 0.45, 1.0, "GA finished")
 	await get_tree().process_frame
 	print(
 		"\n🏆 BEST GENOME:",
@@ -647,7 +654,7 @@ func genetic_search_best() -> EvalResult:
 
 		# Emit GA progress and yield a frame so the engine can render / process input
 		var progress := float(eval_counter) / float(target)
-		generation_progress.emit(clamp(progress, 0.0, 1.0), "GA gen %d" % g_i)
+		_emit_progress_mapped(0.05, 0.45, clamp(progress, 0.0, 1.0), "GA gen %d" % g_i)
 		await get_tree().process_frame
 
 		if eval_counter >= target:
@@ -722,8 +729,8 @@ func generate_with_genome(
 	parent_node.add_child(first_room)
 	first_room.global_position = Vector2.ZERO
 	first_room.add_to_group("room")
-	# Progress: started placing rooms
-	generation_progress.emit(0.50, "Placing rooms...")
+	# Progress: started placing rooms (map into global range 0.45..0.75)
+	_emit_progress_mapped(0.45, 0.75, 0.0, "Placing rooms...")
 	await get_tree().process_frame
 
 	first_room.set_meta("corridor_chain", 0)
@@ -747,10 +754,11 @@ func generate_with_genome(
 	while current_doors.size() > 0 and local_placed.size() < max_rooms:
 		# emit progress periodically based on rooms placed
 		if loop_iter % 100 == 0:
-			var pct := 0.50
+			# local progress for placing rooms: 0..1
+			var local_p := 0.0
 			if max_rooms > 0:
-				pct = 0.50 + 0.35 * float(local_placed.size()) / float(max_rooms)
-			generation_progress.emit(clamp(pct, 0.50, 0.85), "Placing rooms: %d/%d" % [local_placed.size(), max_rooms])
+				local_p = float(local_placed.size()) / float(max_rooms)
+			_emit_progress_mapped(0.45, 0.75, clamp(local_p, 0.0, 1.0), "Placing rooms: %d/%d" % [local_placed.size(), max_rooms])
 			# allow engine to process
 			await get_tree().process_frame
 		var door = current_doors.pop_front()
@@ -900,8 +908,8 @@ func generate_with_genome(
 	stats.rooms = local_placed.size()
 	stats.corridors = local_corridor_count
 
-	# final progress for placement
-	generation_progress.emit(0.85, "Rooms placed: %d" % stats.rooms)
+	# final progress for placement (end of placement phase)
+	_emit_progress_mapped(0.45, 0.75, 1.0, "Rooms placed: %d" % stats.rooms)
 	await get_tree().process_frame
 
 	# Wenn es die echte Map ist, halten wir den finalen state global fest
@@ -1186,8 +1194,8 @@ func bake_rooms_into_world_tilemap() -> void:
 			# emit building progress
 			i += 1
 			if total_rooms > 0:
-				var pct := 0.85 + 0.10 * float(i) / float(total_rooms)
-				generation_progress.emit(clamp(pct, 0.85, 0.95), "Building tilemaps: %d/%d" % [i, total_rooms])
+				var local_p := float(i) / float(total_rooms)
+				_emit_progress_mapped(0.75, 0.92, clamp(local_p, 0.0, 1.0), "Building tilemaps: %d/%d" % [i, total_rooms])
 				await get_tree().process_frame
 			#bake_closed_doors_into_world()
 
@@ -1201,12 +1209,15 @@ func bake_rooms_into_world_tilemap() -> void:
 		"| Top tiles:",
 		world_tilemap_top.get_used_cells().size()
 	)
-	# finished building tilemaps, now bake closed doors
-	generation_progress.emit(0.96, "Baking doors...")
+	# finished building tilemaps, now bake closed doors (map to 0.92..0.98)
+	_emit_progress_mapped(0.92, 0.98, 0.0, "Baking doors...")
 	await get_tree().process_frame
 	await bake_closed_doors_into_world_simple()
 	await bake_closed_doors_into_minimap()
-	generation_progress.emit(0.99, "Finalizing...")
+	_emit_progress_mapped(0.92, 0.98, 1.0, "Baking doors...")
+	await get_tree().process_frame
+	# final
+	_emit_progress_mapped(0.98, 1.0, 1.0, "Done")
 	await get_tree().process_frame
 
 
