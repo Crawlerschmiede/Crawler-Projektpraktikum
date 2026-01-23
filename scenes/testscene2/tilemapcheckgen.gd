@@ -3,7 +3,7 @@ extends Node2D
 const ENEMY_SCENE := preload("res://scenes/enemy_vampire_bat.tscn")
 const BATTLE_SCENE := preload("res://scenes/battle.tscn")
 const PLAYER_SCENE := preload("res://scenes/player-character-scene.tscn")
-
+const LOOTBOX := preload("res://scenes/Lootbox/Lootbox.tscn")
 @onready var backgroundtile = $TileMapLayer
 
 @onready var minimap: TileMapLayer
@@ -89,9 +89,76 @@ func _load_world(idx: int) -> void:
 	# Erst Player, dann Enemies
 	spawn_player()
 	spawn_enemies()
-
+	spawn_lootbox()
+	
 	get_tree().paused = false
 
+func spawn_lootbox() -> void:
+	if dungeon_floor == null or world_root == null:
+		return
+
+	# alte Lootboxen entfernen
+	for c in world_root.get_children():
+		if c != null and c.name.begins_with("Lootbox"):
+			c.queue_free()
+
+	# alle möglichen Lootbox-Spawns sammeln
+	var candidates: Array[Vector2i] = []
+	for cell in dungeon_floor.get_used_cells():
+		var td := dungeon_floor.get_cell_tile_data(cell)
+		if td == null:
+			continue
+
+		# Tileset Custom Data Bool
+		if td.get_custom_data("lootbox_spawnable") == true:
+			candidates.append(cell)
+
+	if candidates.is_empty():
+		print("⚠️ Keine lootbox_spawnable Tiles gefunden!")
+		return
+
+	# maximal 20 Lootboxen
+	candidates.shuffle()
+	var amount = min(20, candidates.size())
+
+	for i in range(amount):
+		var spawn_cell := candidates[i]
+		var world_pos := dungeon_floor.to_global(dungeon_floor.map_to_local(spawn_cell))
+
+		var loot := LOOTBOX.instantiate() as Node2D
+		loot.name = "Lootbox_%s" % i
+		world_root.add_child(loot)
+		loot.global_position = world_pos
+
+		# ✅ Lootbox darf NICHT blockieren:
+		#e_disable_lootbox_blocking(loot)
+
+	print("✅ Lootboxen gespawnt:", amount)
+
+func _disable_lootbox_blocking(loot: Node) -> void:
+	if loot == null:
+		return
+
+	# Falls Lootbox StaticBody2D / CharacterBody2D etc. hat: deaktivieren
+	var bodies := loot.find_children("*", "PhysicsBody2D", true, false)
+	for b in bodies:
+		if b != null:
+			b.set_deferred("collision_layer", 0)
+			b.set_deferred("collision_mask", 0)
+
+	# Falls Lootbox Area2D hat: darf triggern, aber nicht blocken
+	var areas := loot.find_children("*", "Area2D", true, false)
+	for a in areas:
+		if a != null:
+			# Area darf nur "triggern", aber nix blocken
+			a.set_deferred("collision_layer", 0)
+			a.set_deferred("collision_mask", 0)
+
+	# Alle CollisionShapes deaktivieren (sicherster Weg)
+	var shapes := loot.find_children("*", "CollisionShape2D", true, false)
+	for s in shapes:
+		if s != null:
+			s.set_deferred("disabled", true)
 
 func update_color_filter() -> void:
 	if world_index == 0:
