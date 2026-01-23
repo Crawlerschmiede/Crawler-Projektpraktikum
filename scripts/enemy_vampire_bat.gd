@@ -119,21 +119,6 @@ func chase():
 			chase_timer = CHASE_COOLDOWN
 			return
 
-
-func _ready() -> void:
-	super_ready(sprite_type, types)
-
-	var p := get_best_player()
-	print("Enemy ready:", name, " found player:", p)
-
-	if p == null:
-		push_warning("❌ Enemy found NO player in group 'player' -> cannot connect player_moved")
-		return
-
-	if not p.player_moved.is_connected(move_it):
-		p.player_moved.connect(move_it)
-		print("✅ Connected player_moved -> move_it")
-
 func get_best_player() -> PlayerCharacter:
 	var players := get_tree().get_nodes_in_group("player")
 	if players.is_empty():
@@ -159,6 +144,21 @@ func get_best_player() -> PlayerCharacter:
 			best_dist = d
 
 	return best
+	
+func _ready() -> void:
+	super_ready(sprite_type, types)
+
+	var p := get_best_player()
+	print("Enemy ready:", name, " found player:", p)
+
+	if p == null:
+		push_warning("❌ Enemy found NO player in group 'player' -> cannot connect player_moved")
+		return
+
+	if not p.player_moved.is_connected(move_it):
+		p.player_moved.connect(move_it)
+		print("✅ Connected player_moved -> move_it")
+
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
