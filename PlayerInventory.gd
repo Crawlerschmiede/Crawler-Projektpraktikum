@@ -13,19 +13,24 @@ var suppress_signal: bool = false
 
 var selected_slot: int = 18
 
+
 func _ready() -> void:
 	pass
+
 
 func set_selectet_slot(slot: int) -> void:
 	selected_slot = slot
 
+
 func get_selected_slot() -> int:
 	return selected_slot
+
 
 func get_item_from_selected_slot():
 	var selected_slot = get_selected_slot()
 	return inventory[selected_slot]
-	
+
+
 func register_slot_index(idx: int, groups: Array[StringName]) -> void:
 	slot_group_by_index[idx] = groups
 	print(slot_group_by_index, idx, groups)
@@ -125,7 +130,7 @@ func add_item(item_name: String, item_quantity: int = 1) -> void:
 	for k in inventory.keys():
 		var idx: int = int(k)
 		var data: Array = inventory[idx]
-			
+
 		if data.size() < 2:
 			continue
 
@@ -154,10 +159,10 @@ func add_item(item_name: String, item_quantity: int = 1) -> void:
 
 	for k in indices:
 		var i: int = int(k)
-		
+
 		if i == 17:
 			continue
-		
+
 		if inventory.has(i):
 			continue
 

@@ -15,7 +15,7 @@ const TRAP := preload("res://scenes/traps/Trap.tscn")
 
 @onready var colorfilter: ColorRect = $ColorFilter
 
-@export var menu_scene:= preload("res://scenes/popup-menu.tscn")
+@export var menu_scene := preload("res://scenes/popup-menu.tscn")
 
 # --- World state ---
 var world_index: int = 0
@@ -35,6 +35,7 @@ var switching_world := false
 func _ready() -> void:
 	generators = [generator1, generator2, generator3]
 	await _load_world(world_index)
+
 
 func _load_world(idx: int) -> void:
 	get_tree().paused = true
@@ -62,7 +63,7 @@ func _load_world(idx: int) -> void:
 	dungeon_floor = maps.get("floor", null)
 	dungeon_top = maps.get("top", null)
 	minimap = maps.get("minimap", null)
-	
+
 	if minimap != null and backgroundtile != null:
 		var bg := backgroundtile.duplicate() as TileMapLayer
 		bg.name = "MinimapBackground"
@@ -70,7 +71,7 @@ func _load_world(idx: int) -> void:
 		bg.z_index = -100
 		minimap.add_child(bg)
 		minimap.move_child(bg, -1)
-	
+
 	if dungeon_floor == null:
 		push_error("Generator returned null floor tilemap!")
 		get_tree().paused = false
@@ -81,9 +82,9 @@ func _load_world(idx: int) -> void:
 
 	if dungeon_top != null and dungeon_top.get_parent() == null:
 		world_root.add_child(dungeon_top)
-	
+
 	dungeon_floor.visibility_layer = 1
-	
+
 	# Colorfilter updaten
 	update_color_filter()
 
@@ -93,6 +94,7 @@ func _load_world(idx: int) -> void:
 	spawn_lootbox()
 	spawn_traps()
 	get_tree().paused = false
+
 
 func spawn_traps() -> void:
 	if dungeon_floor == null or world_root == null:
@@ -135,6 +137,8 @@ func spawn_traps() -> void:
 		#e_disable_lootbox_blocking(loot)
 
 	print("✅ Lootboxen gespawnt:", amount)
+
+
 func spawn_lootbox() -> void:
 	if dungeon_floor == null or world_root == null:
 		return
@@ -177,6 +181,7 @@ func spawn_lootbox() -> void:
 
 	print("✅ Lootboxen gespawnt:", amount)
 
+
 func _disable_lootbox_blocking(loot: Node) -> void:
 	if loot == null:
 		return
@@ -201,6 +206,7 @@ func _disable_lootbox_blocking(loot: Node) -> void:
 	for s in shapes:
 		if s != null:
 			s.set_deferred("disabled", true)
+
 
 func update_color_filter() -> void:
 	if world_index == 0:
@@ -260,6 +266,7 @@ func _process(_delta) -> void:
 	if Input.is_action_just_pressed("ui_menu"):
 		toggle_menu()
 
+
 func update_minimap_player_marker() -> void:
 	if minimap == null or dungeon_floor == null or player == null:
 		return
@@ -280,6 +287,7 @@ func update_minimap_player_marker() -> void:
 
 	# 3) Marker setzen (lokal zur minimap)
 	marker.position = mini_pos
+
 
 func toggle_menu():
 	if menu_instance == null:
@@ -339,7 +347,7 @@ func spawn_player() -> void:
 	e.add_to_group("player")
 	world_root.add_child(e)
 	player = e
-	
+
 	player.set_minimap(minimap)
 	# Spawn Position
 	var start_pos := Vector2i(2, 2)
@@ -350,16 +358,16 @@ func spawn_player() -> void:
 	player.global_position = dungeon_floor.to_global(dungeon_floor.map_to_local(start_pos))
 	player.add_to_group("player")
 
-	
 	# Exit-Signal verbinden
 	if player.has_signal("exit_reached"):
 		if not player.exit_reached.is_connected(_on_player_exit_reached):
 			player.exit_reached.connect(_on_player_exit_reached)
 			push_warning("player has no exit_reached signal")
-			
+
 	if player.has_signal("player_moved"):
 		if not player.player_moved.is_connected(_on_player_moved):
 			player.player_moved.connect(_on_player_moved)
+
 
 func _on_player_moved() -> void:
 	print("moved")
@@ -389,7 +397,6 @@ func _on_player_moved() -> void:
 			print(room_layer.get_cell_source_id(local_cell))
 			room_layer.visible = true
 			return
-
 
 
 # ---------------------------------------

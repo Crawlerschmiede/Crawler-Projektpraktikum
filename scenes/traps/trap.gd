@@ -70,7 +70,7 @@ func _on_body_entered(body: Node) -> void:
 		anim.play("idle")
 
 	print("✅ Trap ready again")
-	
+
 
 func _apply_damage(player: Node) -> void:
 	if player == null:

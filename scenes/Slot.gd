@@ -41,6 +41,7 @@ func _ready() -> void:
 
 	refresh_style()
 
+
 func _fit_item_to_slot(it: Node) -> void:
 	if it == null:
 		return

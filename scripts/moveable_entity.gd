@@ -219,6 +219,7 @@ func initiate_battle(player: Node, enemy: Node) -> bool:
 	main.instantiate_battle(player, enemy)
 	return true
 
+
 func take_damage(damage):
 	print(self, " takes ", damage, " damage!")
 	var taken_damage = damage  #useless right now but just put here for later damage calculations

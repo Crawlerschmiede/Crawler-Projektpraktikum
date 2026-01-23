@@ -246,7 +246,7 @@ func slot_gui_input(event: InputEvent, slot: Node) -> void:
 	dbg("CLICK on slot " + str(slot.get("slot_index")))
 	if not (event is InputEventMouseButton):
 		return
-	
+
 	var mbe: InputEventMouseButton = event as InputEventMouseButton
 	dbg("InputEventMouseButton überprüfung")
 	if mbe.button_index != MOUSE_BUTTON_LEFT or not mbe.pressed:
@@ -268,7 +268,7 @@ func slot_gui_input(event: InputEvent, slot: Node) -> void:
 	if _has_property(slot, &"item"):
 		slot_item = slot.get("item")
 	dbg("holding startet?")
-	
+
 	# Wir halten was
 	if holding != null:
 		dbg("holding not empty")
@@ -289,7 +289,6 @@ func slot_gui_input(event: InputEvent, slot: Node) -> void:
 		left_click_not_holding(slot)
 
 
-
 func _process(_delta: float) -> void:
 	var ui: Node = _get_ui()
 	if ui == null:
@@ -300,9 +299,9 @@ func _process(_delta: float) -> void:
 	var holding: Variant = ui.get("holding_item")
 	if holding == null:
 		return
-	
+
 	PlayerInventory.inventory.erase(17)
-	
+
 	if holding is Node and is_instance_valid(holding as Node):
 		var hn := holding as Node
 		hn.global_position = get_global_mouse_position()
@@ -347,14 +346,14 @@ func left_click_empty_slot(slot: Node) -> void:
 	# ✅ nur wenn ok: UI ändern
 	slot.call("putIntoSlot", holding)
 	ui.set("holding_item", null)
-	
+
 	var idx: int = int(slot.get("slot_index"))
 	print("I", idx)
 	if idx == 17:
-		PlayerInventory.inventory.erase(17)   # <-- richtig löschen, kein null setzen!
-		PlayerInventory._emit_changed()       # UI refresh / signal
+		PlayerInventory.inventory.erase(17)  # <-- richtig löschen, kein null setzen!
+		PlayerInventory._emit_changed()  # UI refresh / signal
 		dbg("Slot 17 erased from inventory ✅")
-		
+
 	if DEBUG:
 		_validate_slot(slot)
 
