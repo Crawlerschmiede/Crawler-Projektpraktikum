@@ -14,7 +14,7 @@ const PLAYER_SCENE := preload("res://scenes/player-character-scene.tscn")
 
 @onready var colorfilter: ColorRect = $ColorFilter
 
-@export var menu_scene: PackedScene
+@export var menu_scene:= preload("res://scenes/popup-menu.tscn")
 
 # --- World state ---
 var world_index: int = 0
