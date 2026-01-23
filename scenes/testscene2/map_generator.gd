@@ -14,6 +14,7 @@ var room_scenes: Array[PackedScene] = []
 
 @export var player_scene: PackedScene
 var _corridor_cache: Dictionary = {}  # key: String(scene.resource_path) -> bool
+var _rng := RandomNumberGenerator.new()
 
 # --- Basis-Regeln (werden vom GA überschrieben / mutiert) ---
 @export var base_max_corridors: int = 10
@@ -37,6 +38,15 @@ var world_tilemap: TileMapLayer
 var world_tilemap_top: TileMapLayer
 var minimap: TileMapLayer
 var room_type_counts: Dictionary = {}
+var _yield_counter := 0
+
+signal generation_progress(p: float, text: String)
+
+
+func _yield_if_needed(step: int = 200) -> void:
+	_yield_counter += 1
+	if _yield_counter % step == 0:
+		await get_tree().process_frame
 
 # Laufzeit
 var placed_rooms: Array[Node2D] = []
@@ -166,7 +176,7 @@ func bake_closed_doors_into_world_simple() -> void:
 			# closed-door tilemap holen
 			var src_floor := inst.get_node_or_null("TileMapLayer") as TileMapLayer
 			if src_floor != null:
-				copy_layer_into_world(src_floor, world_tilemap, tile_origin)
+				await copy_layer_into_world(src_floor, world_tilemap, tile_origin)
 
 			inst.queue_free()
 
@@ -274,6 +284,10 @@ class EvalResult:
 
 
 func get_random_tilemap() -> Dictionary:
+	_yield_counter = 0
+	generation_progress.emit(0.0, "Preparing scenes...")
+	await get_tree().process_frame
+
 	start_room = load("res://scenes/rooms/Rooms/room_11x11_4.tscn")
 	room_scenes = load_room_scenes_from_folder(rooms_folder)
 	closed_door_scenes = load_room_scenes_from_folder(closed_doors_folder)
@@ -281,8 +295,11 @@ func get_random_tilemap() -> Dictionary:
 		print(" -", s.resource_path, "dir:", _get_closed_door_direction(s))
 	print("=== MAP GENERATION START ===")
 
-	# 1) genetische Suche
+	# 1) genetische Suche (chunked + progress)
+	generation_progress.emit(0.05, "Running GA...")
 	var best := await genetic_search_best()
+	generation_progress.emit(0.45, "GA finished")
+	await get_tree().process_frame
 	print(
 		"\n🏆 BEST GENOME:",
 		best.genome,
@@ -304,7 +321,7 @@ func get_random_tilemap() -> Dictionary:
 		clear_children_rooms_only()
 		await generate_with_genome(best.genome, best.seed, true)
 		debug_print_free_doors()
-		bake_rooms_into_world_tilemap()
+		await bake_rooms_into_world_tilemap()
 
 		# Räume optional ausblenden (empfohlen)
 		for r in placed_rooms:
@@ -514,7 +531,7 @@ func can_spawn_room(scene: PackedScene, room_instance: Node, placed_count: int) 
 		return false
 
 	# 4) Chance
-	if spawn_chance < 1.0 and randf() > spawn_chance:
+	if spawn_chance < 1.0 and _rng.randf() > spawn_chance:
 		return false
 
 	return true
@@ -545,7 +562,12 @@ func genetic_search_best() -> EvalResult:
 		ga_generations = gen
 		print("⚠ [GA] pop*gen != total. Setze generations auf:", gen, "(evals=", pop * gen, ")")
 
-	seed(ga_seed)
+	# Seed both the global RNG (legacy) and our local _rng for GA reproducibility.
+	var base_seed := ga_seed
+	if SettingsManager != null and SettingsManager.has_method("get_game_seed"):
+		base_seed = SettingsManager.get_game_seed()
+	seed(base_seed)
+	_rng.seed = int(base_seed)
 
 	# initial population
 	var population: Array[Genome] = []
@@ -609,19 +631,24 @@ func genetic_search_best() -> EvalResult:
 		# fill rest
 		while next_pop.size() < pop:
 			var child: Genome
-			if randf() < ga_crossover_rate and pool.size() >= 2:
-				var p1 := pool[randi() % pool.size()]
-				var p2 := pool[randi() % pool.size()]
+			if _rng.randf() < ga_crossover_rate and pool.size() >= 2:
+				var p1 := pool[_rng.randi_range(0, pool.size() - 1)]
+				var p2 := pool[_rng.randi_range(0, pool.size() - 1)]
 				child = crossover(p1, p2)
 			else:
-				child = pool[randi() % pool.size()].clone()
+				child = pool[_rng.randi_range(0, pool.size() - 1)].clone()
 
-			if randf() < ga_mutation_rate:
+			if _rng.randf() < ga_mutation_rate:
 				mutate(child)
 
 			next_pop.append(child)
 
 		population = next_pop
+
+		# Emit GA progress and yield a frame so the engine can render / process input
+		var progress := float(eval_counter) / float(target)
+		generation_progress.emit(clamp(progress, 0.0, 1.0), "GA gen %d" % g_i)
+		await get_tree().process_frame
 
 		if eval_counter >= target:
 			break
@@ -635,8 +662,21 @@ func evaluate_genome(genome: Genome, trial_seed: int) -> EvalResult:
 	container.name = "_GA_CONTAINER_"
 	add_child(container)
 
+	# Temporär SettingsManager-Seed setzen, damit alle Instanzen während dieser Trial-Ausführung
+	# denselben trial_seed nutzen (wird nachher wiederhergestellt in generate_with_genome caller).
+	var prev_seed := 0
+	if SettingsManager != null:
+		if SettingsManager.has_method("get_game_seed"):
+			prev_seed = SettingsManager.get_game_seed()
+		if SettingsManager.has_method("set_game_seed"):
+			SettingsManager.set_game_seed(trial_seed)
+
 	# echte Generierung (ohne Debug-Print spam)
 	var stats := await generate_with_genome(genome, trial_seed, false, container)
+
+	# restore previous seed
+	if SettingsManager != null and SettingsManager.has_method("set_game_seed"):
+		SettingsManager.set_game_seed(prev_seed)
 
 	container.queue_free()
 
@@ -659,7 +699,9 @@ class GenStats:
 func generate_with_genome(
 	genome: Genome, trial_seed: int, verbose: bool, parent_override: Node = null
 ) -> GenStats:
+	# seed global RNG for legacy code, and seed our local _rng
 	seed(trial_seed)
+	_rng.seed = int(trial_seed)
 	room_type_counts.clear()
 	var stats := GenStats.new()
 
@@ -680,6 +722,9 @@ func generate_with_genome(
 	parent_node.add_child(first_room)
 	first_room.global_position = Vector2.ZERO
 	first_room.add_to_group("room")
+	# Progress: started placing rooms
+	generation_progress.emit(0.50, "Placing rooms...")
+	await get_tree().process_frame
 
 	first_room.set_meta("corridor_chain", 0)
 	first_room.force_update_transform()
@@ -698,12 +743,26 @@ func generate_with_genome(
 	var next_doors: Array = []
 
 	# ---------- MAIN LOOP ----------
+	var loop_iter := 0
 	while current_doors.size() > 0 and local_placed.size() < max_rooms:
+		# emit progress periodically based on rooms placed
+		if loop_iter % 100 == 0:
+			var pct := 0.50
+			if max_rooms > 0:
+				pct = 0.50 + 0.35 * float(local_placed.size()) / float(max_rooms)
+			generation_progress.emit(clamp(pct, 0.50, 0.85), "Placing rooms: %d/%d" % [local_placed.size(), max_rooms])
+			# allow engine to process
+			await get_tree().process_frame
 		var door = current_doors.pop_front()
 		if door == null or door.used:
 			continue
 
-		if genome.door_fill_chance < 1.0 and randf() > genome.door_fill_chance:
+		# periodic yield so Godot can render / process input
+		loop_iter += 1
+		if loop_iter % 400 == 0:
+			await _yield_if_needed(1)
+
+		if genome.door_fill_chance < 1.0 and _rng.randf() > genome.door_fill_chance:
 			continue
 
 		# Raum-Root finden
@@ -744,6 +803,9 @@ func generate_with_genome(
 		for room_scene in candidates:
 			if room_scene == null:
 				continue
+			# occasionally yield inside candidate loop
+			if _yield_counter % 200 == 0:
+				await _yield_if_needed(1)
 
 			var new_room := room_scene.instantiate() as Node2D
 			if not can_spawn_room(room_scene, new_room, local_placed.size()):
@@ -837,6 +899,10 @@ func generate_with_genome(
 	# stats
 	stats.rooms = local_placed.size()
 	stats.corridors = local_corridor_count
+
+	# final progress for placement
+	generation_progress.emit(0.85, "Rooms placed: %d" % stats.rooms)
+	await get_tree().process_frame
 
 	# Wenn es die echte Map ist, halten wir den finalen state global fest
 	if parent_override == null:
@@ -1105,6 +1171,8 @@ func bake_rooms_into_world_tilemap() -> void:
 	world_tilemap_top.clear()
 
 	# --- Räume backen ---
+	var total_rooms := placed_rooms.size()
+	var i := 0
 	for room in placed_rooms:
 		var floor_tm := room.get_node_or_null("TileMapLayer") as TileMapLayer
 		var top_tm := room.get_node_or_null("TopLayer") as TileMapLayer  # <- Name anpassen falls anders!
@@ -1113,13 +1181,19 @@ func bake_rooms_into_world_tilemap() -> void:
 
 		# FLOOR kopieren
 		if floor_tm != null:
-			add_room_layer_to_minimap(room)
-			copy_layer_into_world(floor_tm, world_tilemap, room_offset)
+			await add_room_layer_to_minimap(room)
+			await copy_layer_into_world(floor_tm, world_tilemap, room_offset)
+			# emit building progress
+			i += 1
+			if total_rooms > 0:
+				var pct := 0.85 + 0.10 * float(i) / float(total_rooms)
+				generation_progress.emit(clamp(pct, 0.85, 0.95), "Building tilemaps: %d/%d" % [i, total_rooms])
+				await get_tree().process_frame
 			#bake_closed_doors_into_world()
 
 		# TOP kopieren
 		if top_tm != null:
-			copy_layer_into_world(top_tm, world_tilemap_top, room_offset)
+			await copy_layer_into_world(top_tm, world_tilemap_top, room_offset)
 
 	print(
 		"✔ [BAKE] WorldTileMaps erstellt | Floor tiles:",
@@ -1127,8 +1201,13 @@ func bake_rooms_into_world_tilemap() -> void:
 		"| Top tiles:",
 		world_tilemap_top.get_used_cells().size()
 	)
-	bake_closed_doors_into_world_simple()
-	bake_closed_doors_into_minimap()
+	# finished building tilemaps, now bake closed doors
+	generation_progress.emit(0.96, "Baking doors...")
+	await get_tree().process_frame
+	await bake_closed_doors_into_world_simple()
+	await bake_closed_doors_into_minimap()
+	generation_progress.emit(0.99, "Finalizing...")
+	await get_tree().process_frame
 
 
 func bake_closed_doors_into_world() -> void:
@@ -1185,9 +1264,9 @@ func bake_closed_doors_into_world() -> void:
 			var src_top := inst.get_node_or_null("TopLayer") as TileMapLayer
 
 			if src_floor != null:
-				copy_layer_into_world(src_floor, world_tilemap, tile_origin)
+				await copy_layer_into_world(src_floor, world_tilemap, tile_origin)
 			if src_top != null:
-				copy_layer_into_world(src_top, world_tilemap_top, tile_origin)
+				await copy_layer_into_world(src_top, world_tilemap_top, tile_origin)
 
 			inst.queue_free()
 
@@ -1213,11 +1292,16 @@ var room_id = 0
 
 
 func copy_layer_into_world(src: TileMapLayer, dst: TileMapLayer, offset: Vector2i) -> void:
+	var counter := 0
 	for cell in src.get_used_cells():
 		var source_id := src.get_cell_source_id(cell)
 		var atlas := src.get_cell_atlas_coords(cell)
 		var alt := src.get_cell_alternative_tile(cell)
 		dst.set_cell(cell + offset, source_id, atlas, alt)
+		counter += 1
+		# Chunked yield to avoid blocking the main loop for huge tile copies
+		if counter % 2000 == 0:
+			await _yield_if_needed(2000)
 
 
 func add_room_layer_to_minimap(room: Node2D) -> void:
@@ -1254,11 +1338,15 @@ func add_room_layer_to_minimap(room: Node2D) -> void:
 	minimap.add_child(room_layer)
 
 	# ✅ Tiles 1:1 kopieren (ohne Offset!)
+	var counter := 0
 	for cell in floor_tm.get_used_cells():
 		var source_id := floor_tm.get_cell_source_id(cell)
 		var atlas := floor_tm.get_cell_atlas_coords(cell)
 		var alt := floor_tm.get_cell_alternative_tile(cell)
 		room_layer.set_cell(cell, source_id, atlas, alt)
+		counter += 1
+		if counter % 2000 == 0:
+			await _yield_if_needed(2000)
 
 
 func clear_children_rooms_only() -> void:
