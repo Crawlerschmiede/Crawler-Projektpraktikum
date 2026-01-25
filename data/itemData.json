@@ -3,7 +3,8 @@
 	"ItemCategory": "Hund",
 	"StackSize": 99,
 	"Description": "A sturdy tree branch that can be used for crafting.",
-	"group": "Equipment",
-	"loot_stats": { "weight": 3, "chance": 1.0, "max_stack": 2 }
+	"group": "Inventory",
+	"loot_stats": { "weight": 3, "chance": 1.0, "max_stack": 2 },
+	"buy_price": { "min": 3, "max": 10 }
   }
 }

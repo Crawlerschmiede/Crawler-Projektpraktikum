@@ -428,6 +428,8 @@ columns = 3
 [node name="VBoxContainer" type="VBoxContainer" parent="UserInterface/Inventory/Inner/MerchantContainer"]
 layout_mode = 2
 script = ExtResource("16_72a5a")
+item_data_path = null
+price_icon_path = null
 
 [node name="Hotbar" type="Control" parent="UserInterface/Inventory"]
 anchors_preset = 0
@@ -481,18 +483,6 @@ size_flags_horizontal = 0
 size_flags_vertical = 4
 theme_override_styles/panel = SubResource("StyleBoxTexture_x2d4g")
 script = ExtResource("6_5c7wf")
-
-[node name="coin_sum" type="Panel" parent="UserInterface/Inventory" groups=["Equipment", "Inventory"]]
-custom_minimum_size = Vector2(20, 20)
-layout_mode = 0
-offset_left = 59.666668
-offset_top = 58.0
-offset_right = 79.66667
-offset_bottom = 78.0
-size_flags_horizontal = 0
-size_flags_vertical = 4
-script = ExtResource("6_5c7wf")
-has_background = false
 
 [node name="CanvasLayer2" type="CanvasLayer" parent="."]
 script = ExtResource("16_odrip")

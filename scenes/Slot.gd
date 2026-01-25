@@ -1,6 +1,5 @@
 extends Panel
 class_name Slot
-
 @export var slot_index: int = -1
 @export var slotType: int = 0  # SlotType enum value
 
@@ -8,7 +7,7 @@ class_name Slot
 @export var default_tex: Texture2D = preload("res://assets/menu/UI_TravelBook_Slot01b.png")
 @export var empty_tex: Texture2D = preload("res://assets/menu/UI_TravelBook_Slot01b.png")
 @export var selected_tex: Texture2D = preload("res://assets/menu/Selected_slot.png")
-
+@export var has_background: bool = true
 var default_style: StyleBoxTexture
 var empty_style: StyleBoxTexture
 var selected_style: StyleBoxTexture
@@ -30,14 +29,14 @@ var _ui: Node = null
 
 func _ready() -> void:
 	_ui = find_parent("UserInterface")
+	if has_background:
+		default_style = StyleBoxTexture.new()
+		empty_style = StyleBoxTexture.new()
+		selected_style = StyleBoxTexture.new()
 
-	default_style = StyleBoxTexture.new()
-	empty_style = StyleBoxTexture.new()
-	selected_style = StyleBoxTexture.new()
-
-	default_style.texture = default_tex
-	empty_style.texture = empty_tex
-	selected_style.texture = selected_tex
+		default_style.texture = default_tex
+		empty_style.texture = empty_tex
+		selected_style.texture = selected_tex
 
 	refresh_style()
 
@@ -68,13 +67,14 @@ func refresh_style() -> void:
 	print(item)
 	if item != null and (not is_instance_valid(item) or item.get_parent() != self):
 		item = null
-
-	if PlayerInventory.get_selected_slot() == slot_index:
-		set("theme_override_styles/panel", selected_style)
-	elif item == null:
-		set("theme_override_styles/panel", empty_style)
-	else:
-		set("theme_override_styles/panel", default_style)
+		
+	if has_background:
+		if PlayerInventory.get_selected_slot() == slot_index:
+			set("theme_override_styles/panel", selected_style)
+		elif item == null:
+			set("theme_override_styles/panel", empty_style)
+		else:
+			set("theme_override_styles/panel", default_style)
 
 
 func pickFromSlot() -> void:

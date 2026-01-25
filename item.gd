@@ -47,6 +47,11 @@ func decrease_item_quantity(amount_to_remove: int) -> void:
 # Internals
 # ---------------------------------------------------
 func _refresh() -> void:
+	# Special case: coins should only show an icon and the quantity
+	if item_name != null and str(item_name).to_lower().find("coin") != -1:
+		_set_coin_icon_and_qty()
+		return
+
 	_set_icon()
 
 	var stack_size: int = _get_stack_size(item_name)
@@ -74,7 +79,7 @@ func _get_stack_size(name: String) -> int:
 func _set_icon() -> void:
 	if item_name == "":
 		return
-
+		
 	var path: String = "res://assets/item_icons/%s.png" % item_name
 	var tex: Resource = load(path)
 
@@ -84,6 +89,31 @@ func _set_icon() -> void:
 
 	if tex is Texture2D:
 		icon.texture = tex as Texture2D
+
+
+func _set_coin_icon_and_qty() -> void:
+	# Try a few likely coin icon locations; don't query JsonData or other sources.
+	var candidates := [
+		"res://assets/item_icons/coin.png",
+		"res://assets/menu/UI_TravelBook_IconStar01a.png",
+		"res://assets/menu/coin.png",
+	]
+	var found: Texture = null
+	for p in candidates:
+		var r = ResourceLoader.load(p)
+		if r is Texture:
+			found = r
+			break
+
+	if found != null:
+		icon.texture = found
+	else:
+		# fallback: clear texture and don't spam warnings
+		icon.texture = null
+
+	# show quantity always for coins
+	qty_label.visible = true
+	qty_label.text = str(item_quantity)
 
 
 func _update_label(stack_size: int) -> void:

@@ -144,9 +144,10 @@ func _setup_slots(slots: Array[Node]) -> void:
 
 func _connect_inventory_signal() -> void:
 	if PlayerInventory != null and PlayerInventory.has_signal("inventory_changed"):
-		var sig: Signal = PlayerInventory.inventory_changed
-		if not sig.is_connected(_on_inventory_changed):
-			sig.connect(_on_inventory_changed)
+		var cb: Callable = Callable(self, "_on_inventory_changed")
+		# connect using Callable (Godot 4 compatible) and avoid double-connections
+		if not PlayerInventory.inventory_changed.is_connected(cb):
+			PlayerInventory.inventory_changed.connect(cb)
 			dbg("inventory_changed Signal verbunden ✅")
 	else:
 		dbg("PlayerInventory hat kein Signal inventory_changed (optional)")

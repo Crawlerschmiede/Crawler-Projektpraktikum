@@ -8,6 +8,8 @@ const NUM_INVENTORY_SLOTS: int = 25
 # slot_index -> [item_name: String, item_quantity: int]
 var inventory: Dictionary = {}
 
+var coins : int = 100
+
 var slot_group_by_index: Dictionary = {}
 
 var suppress_signal: bool = false
@@ -205,6 +207,8 @@ func _emit_changed() -> void:
 func _emit_changed_deferred() -> void:
 	_emit_pending = false
 	_rebuild_inventory()
+	# Debug: Ausgabe aktuelles Inventory zur Fehlersuche
+	print("[PlayerInventory] inventory after change: ", str(inventory))
 	inventory_changed.emit()
 
 
@@ -302,3 +306,26 @@ func _rebuild_inventory() -> void:
 		new_inv[idx] = [nm, qt]
 
 	inventory = new_inv
+
+
+# ----------------------
+# Coins API
+# ----------------------
+func has_coins(amount: int) -> bool:
+	return int(coins) >= int(amount)
+
+func spend_coins(amount: int) -> bool:
+	if amount <= 0:
+		return true
+	if not has_coins(amount):
+		return false
+	coins = int(coins) - int(amount)
+	# Optionally emit inventory_changed so UI updates coin display
+	_emit_changed()
+	return true
+
+func add_coins(amount: int) -> void:
+	if amount <= 0:
+		return
+	coins = int(coins) + int(amount)
+	_emit_changed()
