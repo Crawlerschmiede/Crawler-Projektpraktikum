@@ -4,6 +4,11 @@ const ENEMY_SCENE := preload("res://scenes/enemy_vampire_bat.tscn")
 const BATTLE_SCENE := preload("res://scenes/battle.tscn")
 const PLAYER_SCENE := preload("res://scenes/player-character-scene.tscn")
 const LOOTBOX := preload("res://scenes/Lootbox/Lootbox.tscn")
+const TRAP := preload("res://scenes/traps/Trap.tscn")
+
+const LOADING_SCENE:= preload("res://scenes/loadings_screen/loading_screen.tscn")
+var loading_screen: CanvasLayer = null
+
 @onready var backgroundtile = $TileMapLayer
 
 @onready var minimap: TileMapLayer
@@ -14,7 +19,7 @@ const LOOTBOX := preload("res://scenes/Lootbox/Lootbox.tscn")
 
 @onready var colorfilter: ColorRect = $ColorFilter
 
-@export var menu_scene:= preload("res://scenes/popup-menu.tscn")
+@export var menu_scene := preload("res://scenes/popup-menu.tscn")
 
 # --- World state ---
 var world_index: int = 0
@@ -35,33 +40,52 @@ func _ready() -> void:
 	generators = [generator1, generator2, generator3]
 	await _load_world(world_index)
 
+
 func _load_world(idx: int) -> void:
 	get_tree().paused = true
+	await _show_loading()
+
+	# sorgt dafür, dass Loading immer weggeht
+	var success := false
+
 	_clear_world()
 
 	if idx < 0 or idx >= generators.size():
 		push_error("No more worlds left!")
+		_hide_loading()
 		get_tree().paused = false
 		return
 
 	var gen := generators[idx]
 
-	# neuer Root für die komplette Welt
+	# Ensure loading screen binds to this generator so progress updates show immediately
+	if loading_screen != null and is_instance_valid(loading_screen) and gen != null:
+		if loading_screen.has_method("bind_to_generator"):
+			loading_screen.call("bind_to_generator", gen)
+
 	world_root = Node2D.new()
 	world_root.name = "WorldRoot"
 	add_child(world_root)
 
-	# Generator liefert jetzt ein Dictionary: {floor, top}
 	var maps: Dictionary = await gen.get_random_tilemap()
+
 	if maps.is_empty():
 		push_error("Generator returned empty dictionary!")
+		_hide_loading()
 		get_tree().paused = false
 		return
 
 	dungeon_floor = maps.get("floor", null)
 	dungeon_top = maps.get("top", null)
 	minimap = maps.get("minimap", null)
-	
+
+	if dungeon_floor == null:
+		push_error("Generator returned null floor tilemap!")
+		_hide_loading()
+		get_tree().paused = false
+		return
+
+	# minimap background
 	if minimap != null and backgroundtile != null:
 		var bg := backgroundtile.duplicate() as TileMapLayer
 		bg.name = "MinimapBackground"
@@ -69,29 +93,87 @@ func _load_world(idx: int) -> void:
 		bg.z_index = -100
 		minimap.add_child(bg)
 		minimap.move_child(bg, -1)
-	
-	if dungeon_floor == null:
-		push_error("Generator returned null floor tilemap!")
-		get_tree().paused = false
-		return
 
 	if dungeon_floor.get_parent() == null:
 		world_root.add_child(dungeon_floor)
-
 	if dungeon_top != null and dungeon_top.get_parent() == null:
 		world_root.add_child(dungeon_top)
-	
+
 	dungeon_floor.visibility_layer = 1
-	
-	# Colorfilter updaten
 	update_color_filter()
 
-	# Erst Player, dann Enemies
 	spawn_player()
 	spawn_enemies()
 	spawn_lootbox()
-	
+	spawn_traps()
+
+	_hide_loading()
 	get_tree().paused = false
+
+
+func _show_loading() -> void:
+	if loading_screen == null:
+		loading_screen = LOADING_SCENE.instantiate() as CanvasLayer
+		add_child(loading_screen)
+
+	loading_screen.layer = 100
+	loading_screen.visible = true
+	loading_screen.process_mode = Node.PROCESS_MODE_ALWAYS
+
+	move_child(loading_screen, get_child_count() - 1)
+
+	await get_tree().process_frame
+	await get_tree().process_frame
+
+
+
+func _hide_loading() -> void:
+	if loading_screen != null and is_instance_valid(loading_screen):
+		loading_screen.visible = false
+
+
+func spawn_traps() -> void:
+	if dungeon_floor == null or world_root == null:
+		return
+
+	# alte Lootboxen entfernen
+	for c in world_root.get_children():
+		if c != null and c.name.begins_with("Trap"):
+			c.queue_free()
+
+	# alle möglichen Lootbox-Spawns sammeln
+	var candidates: Array[Vector2i] = []
+	for cell in dungeon_floor.get_used_cells():
+		var td := dungeon_floor.get_cell_tile_data(cell)
+		if td == null:
+			continue
+
+		# Tileset Custom Data Bool
+		if td.get_custom_data("trap_spawnable") == true:
+			candidates.append(cell)
+
+	if candidates.is_empty():
+		print("⚠️ Keine lootbox_spawnable Tiles gefunden!")
+		return
+
+	# maximal 20 Lootboxen
+	candidates.shuffle()
+	var amount = min(20, candidates.size())
+
+	for i in range(amount):
+		var spawn_cell := candidates[i]
+		var world_pos := dungeon_floor.to_global(dungeon_floor.map_to_local(spawn_cell))
+
+		var loot := TRAP.instantiate() as Node2D
+		loot.name = "Trap_%s" % i
+		world_root.add_child(loot)
+		loot.global_position = world_pos
+
+		# ✅ Lootbox darf NICHT blockieren:
+		#e_disable_lootbox_blocking(loot)
+
+	print("✅ Lootboxen gespawnt:", amount)
+
 
 func spawn_lootbox() -> void:
 	if dungeon_floor == null or world_root == null:
@@ -135,6 +217,7 @@ func spawn_lootbox() -> void:
 
 	print("✅ Lootboxen gespawnt:", amount)
 
+
 func _disable_lootbox_blocking(loot: Node) -> void:
 	if loot == null:
 		return
@@ -159,6 +242,7 @@ func _disable_lootbox_blocking(loot: Node) -> void:
 	for s in shapes:
 		if s != null:
 			s.set_deferred("disabled", true)
+
 
 func update_color_filter() -> void:
 	if world_index == 0:
@@ -219,6 +303,28 @@ func _process(_delta) -> void:
 		toggle_menu()
 
 
+func update_minimap_player_marker() -> void:
+	if minimap == null or dungeon_floor == null or player == null:
+		return
+
+	var marker := minimap.get_node_or_null("PlayerMarker")
+	if marker == null:
+		push_warning("Minimap has no PlayerMarker node")
+		return
+
+	# 1) Player global -> floor local -> map cell
+	var world_cell: Vector2i = dungeon_floor.local_to_map(
+		dungeon_floor.to_local(player.global_position)
+	)
+
+	# 2) world_cell -> minimap local position
+	# minimap.map_to_local gibt dir Pixelposition im Minimap-Tilegrid
+	var mini_pos: Vector2 = minimap.map_to_local(world_cell)
+
+	# 3) Marker setzen (lokal zur minimap)
+	marker.position = mini_pos
+
+
 func toggle_menu():
 	if menu_instance == null:
 		menu_instance = menu_scene.instantiate()
@@ -267,14 +373,17 @@ func spawn_enemy(sprite_type: String, behaviour: Array) -> void:
 
 
 func spawn_player() -> void:
+	for n in get_tree().get_nodes_in_group("player"):
+		if n != null and is_instance_valid(n):
+			n.queue_free()
 	var e: PlayerCharacter = PLAYER_SCENE.instantiate()
 	e.name = "Player"
 
 	e.setup(dungeon_floor, 10, 3, 0)
-
+	e.add_to_group("player")
 	world_root.add_child(e)
 	player = e
-	
+
 	player.set_minimap(minimap)
 	# Spawn Position
 	var start_pos := Vector2i(2, 2)
@@ -283,16 +392,18 @@ func spawn_player() -> void:
 	player.setup(dungeon_floor, 10, 3, 0)
 	player.grid_pos = start_pos
 	player.global_position = dungeon_floor.to_global(dungeon_floor.map_to_local(start_pos))
-	
+	player.add_to_group("player")
+
 	# Exit-Signal verbinden
 	if player.has_signal("exit_reached"):
 		if not player.exit_reached.is_connected(_on_player_exit_reached):
 			player.exit_reached.connect(_on_player_exit_reached)
 			push_warning("player has no exit_reached signal")
-			
+
 	if player.has_signal("player_moved"):
 		if not player.player_moved.is_connected(_on_player_moved):
 			player.player_moved.connect(_on_player_moved)
+
 
 func _on_player_moved() -> void:
 	print("moved")
@@ -322,7 +433,6 @@ func _on_player_moved() -> void:
 			print(room_layer.get_cell_source_id(local_cell))
 			room_layer.visible = true
 			return
-
 
 
 # ---------------------------------------

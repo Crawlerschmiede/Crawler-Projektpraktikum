@@ -1,6 +1,7 @@
 extends RefCounted
 class_name LootGenerator
 
+
 static func generate_loot(min_total := 10, max_total := 15) -> Dictionary:
 	var data := JsonData.item_data if JsonData and "item_data" in JsonData else {}
 	if data.is_empty():

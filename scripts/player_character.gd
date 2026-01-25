@@ -7,7 +7,6 @@ signal player_moved
 # Time (in seconds) the character pauses on a tile before taking the next step
 const STEP_COOLDOWN: float = 0.01
 var step_timer: float = 0.01
-var inventory := {}
 var base_actions = ["Move Up", "Move Down", "Move Left", "Move Right"]
 var actions = []
 
@@ -16,8 +15,7 @@ const SKILLTREES := preload("res://scripts/premade_skilltrees.gd")
 var existing_skilltrees = SKILLTREES.new()
 var minimap
 @onready var minimap_viewport: SubViewport = $CanvasLayer/SubViewportContainer/SubViewport
-
-
+@onready var pickup_ui = $CanvasLayer2
 const active_skilltrees = ["unarmed"]
 
 
@@ -26,7 +24,9 @@ func _ready() -> void:
 		print("Children:", get_children())
 		push_error("❌ Camera2D fehlt im Player!")
 		return
-
+	
+	PlayerInventory.item_picked_up.connect(_on_item_picked_up)
+	
 	camera.make_current()
 	super_ready("pc", ["pc"])
 	is_player = true
@@ -37,7 +37,8 @@ func _ready() -> void:
 	update_unlocked_skills()
 	setup(tilemap, 10, 1, 0)
 	add_to_group("player")
-	
+
+
 func set_minimap(mm: TileMapLayer) -> void:
 	minimap = mm
 
@@ -49,6 +50,7 @@ func set_minimap(mm: TileMapLayer) -> void:
 		minimap.get_parent().remove_child(minimap)
 
 	minimap_viewport.add_child(minimap)
+
 
 # --- Input Handling with Cooldown ---
 
@@ -71,6 +73,7 @@ func _physics_process(delta: float):
 			if _check_exit_tile():
 				exit_reached.emit()
 			player_moved.emit()
+			minimap.global_position = -1 * global_position
 
 
 # Function to get the current input direction vector
@@ -135,12 +138,9 @@ func update_animation(direction: Vector2i):
 		# Play the determined idle animation
 		sprite.play(idle_animation_name)
 
-
-func add_to_inventory(item_name: String, amount: int):
-	inventory[item_name] = inventory.get(item_name, 0) + amount
-	print("Inventory:", inventory)
-
-
+func _on_item_picked_up(item_name: String, amount: int) -> void:
+	pickup_ui.show_pickup(item_name, amount)
+	
 func add_action(skill_name):
 	var skill = existing_skills.get_skill(skill_name)
 	if skill != null:
@@ -154,11 +154,13 @@ func _on_area_2d_area_entered(area: Area2D):
 	if area.has_method("collect"):
 		area.collect(self)  # dem Item den Player übergen
 
+
 func level_up():
 	self.max_hp = self.max_hp + 1
 	self.hp = self.max_hp
 	existing_skilltrees.increase_tree_level("unarmed")
 	update_unlocked_skills()
+
 
 func _check_exit_tile() -> bool:
 	if tilemap == null:
@@ -170,6 +172,7 @@ func _check_exit_tile() -> bool:
 
 	# Custom Data "exit" muss im Tileset gesetzt sein (bool)
 	return td.get_custom_data("exit") == true
+
 
 func update_unlocked_skills():
 	abilities = []

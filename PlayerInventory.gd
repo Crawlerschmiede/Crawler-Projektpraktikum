@@ -1,8 +1,9 @@
 extends Node
 
 signal inventory_changed
+signal item_picked_up(item_name: String, amount: int)
 
-const NUM_INVENTORY_SLOTS: int = 20
+const NUM_INVENTORY_SLOTS: int = 25
 
 # slot_index -> [item_name: String, item_quantity: int]
 var inventory: Dictionary = {}
@@ -11,9 +12,24 @@ var slot_group_by_index: Dictionary = {}
 
 var suppress_signal: bool = false
 
+var selected_slot: int = 18
+
 
 func _ready() -> void:
 	pass
+
+
+func set_selectet_slot(slot: int) -> void:
+	selected_slot = slot
+
+
+func get_selected_slot() -> int:
+	return selected_slot
+
+
+func get_item_from_selected_slot():
+	var selected_slot = get_selected_slot()
+	return inventory[selected_slot]
 
 
 func register_slot_index(idx: int, groups: Array[StringName]) -> void:
@@ -110,6 +126,7 @@ func add_item(item_name: String, item_quantity: int = 1) -> void:
 		return
 
 	var stack_size: int = _get_stack_size(item_name)
+	item_picked_up.emit(item_name, item_quantity)
 
 	# 1) vorhandene Stacks auffüllen
 	for k in inventory.keys():
@@ -144,6 +161,9 @@ func add_item(item_name: String, item_quantity: int = 1) -> void:
 
 	for k in indices:
 		var i: int = int(k)
+
+		if i == 17:
+			continue
 
 		if inventory.has(i):
 			continue

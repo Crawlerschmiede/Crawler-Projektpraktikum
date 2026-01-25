@@ -13,8 +13,9 @@ func dbg(msg: String) -> void:
 # Slot Script (Pfad prüfen!)
 const SlotScript: GDScript = preload("res://scenes/Slot.gd")
 
-@onready var inv_grid: GridContainer = $Equiptment
-@onready var equip_grid: GridContainer = $GridContainer
+@onready var inv_grid: GridContainer = $Inner/Equiptment
+@onready var equip_grid: GridContainer = $Inner/GridContainer
+@onready var hotbar_grid: GridContainer = $Hotbar/HotContainer
 
 
 func _collect_slots_recursive(root: Node, out: Array[Node]) -> void:
@@ -34,6 +35,7 @@ func _get_all_slots() -> Array[Node]:
 	var out: Array[Node] = []
 	_collect_slots_recursive(inv_grid, out)
 	_collect_slots_recursive(equip_grid, out)
+	_collect_slots_recursive(hotbar_grid, out)
 	return out
 
 
@@ -249,6 +251,7 @@ func slot_gui_input(event: InputEvent, slot: Node) -> void:
 	dbg("InputEventMouseButton überprüfung")
 	if mbe.button_index != MOUSE_BUTTON_LEFT or not mbe.pressed:
 		return
+
 	dbg("Knopf erkannt")
 	var ui: Node = _get_ui()
 	if ui == null:
@@ -265,6 +268,7 @@ func slot_gui_input(event: InputEvent, slot: Node) -> void:
 	if _has_property(slot, &"item"):
 		slot_item = slot.get("item")
 	dbg("holding startet?")
+
 	# Wir halten was
 	if holding != null:
 		dbg("holding not empty")
@@ -295,6 +299,8 @@ func _process(_delta: float) -> void:
 	var holding: Variant = ui.get("holding_item")
 	if holding == null:
 		return
+
+	PlayerInventory.inventory.erase(17)
 
 	if holding is Node and is_instance_valid(holding as Node):
 		var hn := holding as Node
@@ -340,6 +346,13 @@ func left_click_empty_slot(slot: Node) -> void:
 	# ✅ nur wenn ok: UI ändern
 	slot.call("putIntoSlot", holding)
 	ui.set("holding_item", null)
+
+	var idx: int = int(slot.get("slot_index"))
+	print("I", idx)
+	if idx == 17:
+		PlayerInventory.inventory.erase(17)  # <-- richtig löschen, kein null setzen!
+		PlayerInventory._emit_changed()  # UI refresh / signal
+		dbg("Slot 17 erased from inventory ✅")
 
 	if DEBUG:
 		_validate_slot(slot)

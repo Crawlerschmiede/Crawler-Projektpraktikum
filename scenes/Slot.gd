@@ -7,7 +7,7 @@ class_name Slot
 # Textures
 @export var default_tex: Texture2D = preload("res://assets/menu/UI_TravelBook_Slot01b.png")
 @export var empty_tex: Texture2D = preload("res://assets/menu/UI_TravelBook_Slot01b.png")
-@export var selected_tex: Texture2D = preload("res://assets/menu/UI_TravelBook_Slot01b.png")
+@export var selected_tex: Texture2D = preload("res://assets/menu/Selected_slot.png")
 
 var default_style: StyleBoxTexture
 var empty_style: StyleBoxTexture
@@ -64,11 +64,14 @@ func _fit_item_to_slot(it: Node) -> void:
 
 
 func refresh_style() -> void:
+	print(PlayerInventory.get_selected_slot())
 	print(item)
 	if item != null and (not is_instance_valid(item) or item.get_parent() != self):
 		item = null
 
-	if item == null:
+	if PlayerInventory.get_selected_slot() == slot_index:
+		set("theme_override_styles/panel", selected_style)
+	elif item == null:
 		set("theme_override_styles/panel", empty_style)
 	else:
 		set("theme_override_styles/panel", default_style)

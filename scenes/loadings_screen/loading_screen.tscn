@@ -132,17 +132,21 @@ animations = [{
 "speed": 5.0
 }]
 
-[node name="Node2D" type="Node2D"]
+[node name="Node2D" type="CanvasLayer"]
+layer = 1000
 scale = Vector2(3.2, 2.8)
+transform = Transform2D(3.2, 0, 0, 2.8, 0, 0)
 script = ExtResource("1_if62a")
 
 [node name="TextureRect" type="TextureRect" parent="."]
+process_mode = 3
 offset_right = 200.0
 offset_bottom = 171.0
 texture = ExtResource("1_qygbf")
 expand_mode = 1
 
 [node name="TextureProgressBar" type="TextureProgressBar" parent="."]
+process_mode = 3
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
@@ -161,20 +165,24 @@ texture_over = ExtResource("5_gcv3i")
 texture_progress = ExtResource("6_amnj2")
 
 [node name="PanelContainer" type="PanelContainer" parent="."]
+process_mode = 3
 modulate = Color(1, 1, 1, 0.827451)
 offset_right = 200.0
 offset_bottom = 171.0
 
 [node name="Dark" type="ColorRect" parent="PanelContainer"]
+process_mode = 3
 material = SubResource("ShaderMaterial_v1mdd")
 layout_mode = 2
 
 [node name="Retro" type="ColorRect" parent="PanelContainer"]
+process_mode = 3
 material = SubResource("ShaderMaterial_5slh2")
 layout_mode = 2
 mouse_filter = 2
 
 [node name="TipLabel" type="Label" parent="."]
+process_mode = 3
 custom_minimum_size = Vector2(10, 0)
 anchors_preset = 8
 anchor_left = 0.5
@@ -196,13 +204,28 @@ autowrap_mode = 2
 script = ExtResource("7_f7y4a")
 
 [node name="Timer" type="Timer" parent="."]
+process_mode = 3
 wait_time = 5.0
 autostart = true
 
 [node name="LoadingCharacter" type="AnimatedSprite2D" parent="."]
+process_mode = 3
 position = Vector2(0, 163)
 sprite_frames = SubResource("SpriteFrames_i8ls2")
 animation = &"idle"
 script = ExtResource("10_gcv3i")
+
+[node name="ProgressBar" type="ProgressBar" parent="."]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -300.0
+offset_top = -165.7143
+offset_right = -150.0
+offset_bottom = -138.7143
+grow_horizontal = 2
+grow_vertical = 2
 
 [connection signal="timeout" from="Timer" to="." method="_on_timer_timeout"]

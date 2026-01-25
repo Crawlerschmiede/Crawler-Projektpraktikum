@@ -1,0 +1,17 @@
+[gd_scene load_steps=2 format=3 uid="uid://bb3m3b6dqx28h"]
+
+[ext_resource type="Script" uid="uid://bu3mn4ujhd03h" path="res://scenes/toast/pickup_notification.tscn.gd" id="1_f4yok"]
+
+[node name="PickupNotification" type="Panel"]
+script = ExtResource("1_f4yok")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Label" type="Label" parent="HBoxContainer"]
+layout_mode = 2
+
+[node name="CenterContainer" type="CenterContainer" parent="HBoxContainer"]
+layout_mode = 2
