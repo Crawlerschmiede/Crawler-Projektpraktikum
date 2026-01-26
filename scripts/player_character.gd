@@ -177,6 +177,7 @@ func _check_exit_tile() -> bool:
 
 
 func update_unlocked_skills():
+	print("update_skills")
 	abilities = []
 	var gotten_skills = existing_skilltrees.get_active_skills()
 	var equipped_skills = inventory.get_equipment_skills()

@@ -76,13 +76,12 @@ func _get_slots() -> Array[Node]:
 	return out
 	
 func _get_equipment_slots():
-	var slots = _get_slots()
+	var slots: Array[Node]  =[]
+	_collect_slots_recursive(inv_grid, slots)
 	var equipment_slots =[]
-	const wanted_slots =["Slot0","Slot1","Slot2","Slot3","Slot4","Slot5"]
 	for slot in slots:
 		print(slot.name)
-		if slot.name in wanted_slots:
-			equipment_slots.append(slot)
+		equipment_slots.append(slot)
 	return equipment_slots
 	
 func get_equipment_skills():
