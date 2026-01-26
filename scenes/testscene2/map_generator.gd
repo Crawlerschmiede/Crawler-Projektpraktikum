@@ -56,6 +56,7 @@ func _yield_if_needed(step: int = 200) -> void:
 	if _yield_counter % step == 0:
 		await get_tree().process_frame
 
+
 # Laufzeit
 var placed_rooms: Array[Node2D] = []
 var corridor_count: int = 0
@@ -196,9 +197,13 @@ func bake_closed_doors_into_world_simple() -> void:
 			var src_top := inst.get_node_or_null("TopLayer") as TileMapLayer
 			if src_floor != null:
 				# emit fine-grained progress while copying closed-door tiles
-				await copy_layer_into_world(src_floor, world_tilemap, tile_origin, 0.92, 0.98, "Baking doors")
+				await copy_layer_into_world(
+					src_floor, world_tilemap, tile_origin, 0.92, 0.98, "Baking doors"
+				)
 			if src_top != null:
-				await copy_layer_into_world(src_top, world_tilemap_top, tile_origin, 0.92, 0.98, "Baking doors")
+				await copy_layer_into_world(
+					src_top, world_tilemap_top, tile_origin, 0.92, 0.98, "Baking doors"
+				)
 
 			inst.queue_free()
 
@@ -207,7 +212,12 @@ func bake_closed_doors_into_world_simple() -> void:
 			print("door backed")
 			# emit per-door progress and yield so UI updates during heavy door baking
 			if total > 0:
-				_emit_progress_mapped(0.92, 0.98, clamp(float(processed) / float(total), 0.0, 1.0), "Baking doors: %d/%d" % [processed, total])
+				_emit_progress_mapped(
+					0.92,
+					0.98,
+					clamp(float(processed) / float(total), 0.0, 1.0),
+					"Baking doors: %d/%d" % [processed, total]
+				)
 				await get_tree().process_frame
 
 	print("✅ Closed doors gebacken:", total)
@@ -547,7 +557,12 @@ func bake_closed_doors_into_minimap() -> void:
 			print("✅ minimap door baked into:", target_layer.name)
 			# emit per-door minimap progress and yield
 			if total > 0:
-				_emit_progress_mapped(0.92, 0.98, clamp(float(processed) / float(total), 0.0, 1.0), "Baking doors (minimap): %d/%d" % [processed, total])
+				_emit_progress_mapped(
+					0.92,
+					0.98,
+					clamp(float(processed) / float(total), 0.0, 1.0),
+					"Baking doors (minimap): %d/%d" % [processed, total]
+				)
 				await get_tree().process_frame
 
 	print("✅ Closed doors gebacken in MINIMAP:", total)
@@ -641,7 +656,12 @@ func genetic_search_best() -> EvalResult:
 			results.append(res)
 			eval_counter += 1
 			# emit progress after each evaluation for finer updates
-			_emit_progress_mapped(0.05, 0.45, clamp(float(eval_counter) / float(target), 0.0, 1.0), "GA eval %d/%d" % [eval_counter, target])
+			_emit_progress_mapped(
+				0.05,
+				0.45,
+				clamp(float(eval_counter) / float(target), 0.0, 1.0),
+				"GA eval %d/%d" % [eval_counter, target]
+			)
 			await get_tree().process_frame
 
 		# sort desc by rooms placed
@@ -801,7 +821,12 @@ func generate_with_genome(
 			var local_p := 0.0
 			if max_rooms > 0:
 				local_p = float(local_placed.size()) / float(max_rooms)
-			_emit_progress_mapped(0.45, 0.75, clamp(local_p, 0.0, 1.0), "Placing rooms: %d/%d" % [local_placed.size(), max_rooms])
+			_emit_progress_mapped(
+				0.45,
+				0.75,
+				clamp(local_p, 0.0, 1.0),
+				"Placing rooms: %d/%d" % [local_placed.size(), max_rooms]
+			)
 			# allow engine to process
 			await get_tree().process_frame
 		var door = current_doors.pop_front()
@@ -1234,18 +1259,27 @@ func bake_rooms_into_world_tilemap() -> void:
 		if floor_tm != null:
 			await add_room_layer_to_minimap(room)
 			# emit finer-grained progress while copying floor tiles for this room
-			await copy_layer_into_world(floor_tm, world_tilemap, room_offset, 0.75, 0.92, "Building tilemaps")
+			await copy_layer_into_world(
+				floor_tm, world_tilemap, room_offset, 0.75, 0.92, "Building tilemaps"
+			)
 			# emit building progress
 			i += 1
 			if total_rooms > 0:
 				var local_p := float(i) / float(total_rooms)
-				_emit_progress_mapped(0.75, 0.92, clamp(local_p, 0.0, 1.0), "Building tilemaps: %d/%d" % [i, total_rooms])
+				_emit_progress_mapped(
+					0.75,
+					0.92,
+					clamp(local_p, 0.0, 1.0),
+					"Building tilemaps: %d/%d" % [i, total_rooms]
+				)
 				await get_tree().process_frame
 			#bake_closed_doors_into_world()
 
 		# TOP kopieren
 		if top_tm != null:
-			await copy_layer_into_world(top_tm, world_tilemap_top, room_offset, 0.75, 0.92, "Building tilemaps")
+			await copy_layer_into_world(
+				top_tm, world_tilemap_top, room_offset, 0.75, 0.92, "Building tilemaps"
+			)
 
 	print(
 		"✔ [BAKE] WorldTileMaps erstellt | Floor tiles:",
@@ -1346,8 +1380,14 @@ func _find_any_door_node(root: Node) -> Node:
 var room_id = 0
 
 
-
-func copy_layer_into_world(src: TileMapLayer, dst: TileMapLayer, offset: Vector2i, emit_start: float = -1.0, emit_end: float = -1.0, emit_text: String = "") -> void:
+func copy_layer_into_world(
+	src: TileMapLayer,
+	dst: TileMapLayer,
+	offset: Vector2i,
+	emit_start: float = -1.0,
+	emit_end: float = -1.0,
+	emit_text: String = ""
+) -> void:
 	# Copy all used cells from src into dst at offset.
 	# Optionally emit progress mapped into [emit_start..emit_end] using emit_text.
 	var counter := 0

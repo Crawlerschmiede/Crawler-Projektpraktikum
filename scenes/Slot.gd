@@ -61,7 +61,7 @@ func _fit_item_to_slot(it: Node) -> void:
 	# Sicherheit: gleiche Größe
 	c.size = size
 	c.position = Vector2.ZERO
-	
+
 	for g in get_groups():
 		var regex := RegEx.new()
 		regex.compile("^scale_([0-9]+(?:\\.[0-9]+)?)$")
@@ -157,3 +157,7 @@ func initialize_item(item_name: String, item_quantity: int) -> void:
 		push_error("Item Scene hat keine Methode set_item(item_name, item_quantity)")
 
 	refresh_style()
+
+
+func get_item():
+	return item

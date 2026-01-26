@@ -16,6 +16,7 @@ var existing_skilltrees = SKILLTREES.new()
 var minimap
 @onready var minimap_viewport: SubViewport = $CanvasLayer/SubViewportContainer/SubViewport
 @onready var pickup_ui = $CanvasLayer2
+@onready var inventory = $UserInterface/Inventory
 const active_skilltrees = ["unarmed"]
 
 
@@ -24,9 +25,10 @@ func _ready() -> void:
 		print("Children:", get_children())
 		push_error("❌ Camera2D fehlt im Player!")
 		return
-	
+
 	PlayerInventory.item_picked_up.connect(_on_item_picked_up)
-	
+	inventory.inventory_changed.connect(update_unlocked_skills)
+
 	camera.make_current()
 	super_ready("pc", ["pc"])
 	is_player = true
@@ -138,9 +140,11 @@ func update_animation(direction: Vector2i):
 		# Play the determined idle animation
 		sprite.play(idle_animation_name)
 
+
 func _on_item_picked_up(item_name: String, amount: int) -> void:
 	pickup_ui.show_pickup(item_name, amount)
-	
+
+
 func add_action(skill_name):
 	var skill = existing_skills.get_skill(skill_name)
 	if skill != null:
@@ -175,7 +179,11 @@ func _check_exit_tile() -> bool:
 
 
 func update_unlocked_skills():
+	print("update_skills")
 	abilities = []
 	var gotten_skills = existing_skilltrees.get_active_skills()
+	var equipped_skills = inventory.get_equipment_skills()
+	for extra in equipped_skills:
+		gotten_skills.append(extra)
 	for ability in gotten_skills:
 		add_skill(ability)
