@@ -5,8 +5,9 @@ signal buy_attempt(item_name: String, price: int)
 @onready var item = $item
 @onready var price_node = $price
 
+@export var item_count: int = 0
 @export var item_name: String = ""
-@export var price: int = 1
+@export var price: int = 0
 @export var icon_path: String = "res://assets/menu/UI_TravelBook_IconStar01a.png"
 
 var sold := false
@@ -32,19 +33,10 @@ func set_price(v: int) -> void:
 func _refresh() -> void:
 	if price_node == null:
 		return
-
-	# Preis setzen
-	if price_node is Label:
-		price_node.text = str(price)
-	else:
-		var label: Label = price_node.get_node_or_null("Label")
-		if label == null:
-			label = Label.new()
-			label.name = "Label"
-			price_node.add_child(label)
-		label.text = str(price)
-
-	# Coins prüfen
+	
+	item.initialize_item(item_name, item_count)
+	price_node.initialize_item("Coin", price)
+	
 	if typeof(PlayerInventory) != TYPE_NIL and PlayerInventory != null and PlayerInventory.has_method("has_coins"):
 		can_buy = PlayerInventory.has_coins(price)
 	else:
@@ -91,7 +83,7 @@ func _try_buy() -> void:
 
 	# Item geben
 	if PlayerInventory.has_method("add_item"):
-		PlayerInventory.add_item(item_name, 1)
+		PlayerInventory.add_item(item_name, item_count)
 
 	# Mark as sold
 	sold = true
