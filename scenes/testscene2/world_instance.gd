@@ -1,11 +1,11 @@
-extends Node2D
 class_name WorldInstance
+extends Node2D
+
+signal exit_reached
 
 const ENEMY_SCENE := preload("res://scenes/enemy_vampire_bat.tscn")
 const PLAYER_SCENE := preload("res://scenes/player-character-scene.tscn")
 const LOOTBOX := preload("res://scenes/Lootbox/Lootbox.tscn")
-
-signal exit_reached
 
 var dungeon_floor: TileMapLayer
 var dungeon_top: TileMapLayer

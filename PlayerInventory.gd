@@ -14,6 +14,8 @@ var suppress_signal: bool = false
 
 var selected_slot: int = 18
 
+var _emit_pending: bool = false
+
 
 func _ready() -> void:
 	pass
@@ -187,9 +189,6 @@ func add_item(item_name: String, item_quantity: int = 1) -> void:
 	# wenn wir hier sind: kein Platz
 	_emit_changed()
 	push_warning("Inventar voll! Item nicht vollständig hinzugefügt: %s" % item_name)
-
-
-var _emit_pending: bool = false
 
 
 func _emit_changed() -> void:

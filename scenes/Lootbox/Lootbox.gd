@@ -1,5 +1,5 @@
-extends CharacterBody2D
 class_name LootBoxPickup
+extends CharacterBody2D
 
 const ACCELERATION = 460.0
 const MAX_SPEED = 225.0

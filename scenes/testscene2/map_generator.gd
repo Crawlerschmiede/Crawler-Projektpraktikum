@@ -1,20 +1,17 @@
-# gdlint: disable=max-public-methods
+# gdlint: disable=max-public-methods, max-file-lines
 
 extends Node2D
 
-@export var closed_doors_folder: String = "res://scenes/rooms/Closed Doors/"
-var closed_door_scenes: Array[PackedScene] = []
-var _closed_door_cache: Dictionary = {}
+signal generation_progress(p: float, text: String)
 
+# --- Exports ---
+@export var closed_doors_folder: String = "res://scenes/rooms/Closed Doors/"
 @export var rooms_folder: String = "res://scenes/rooms/Rooms/"
-var room_scenes: Array[PackedScene] = []
 @export var start_room: PackedScene
 @export var boss_room: PackedScene
 @export var max_rooms: int = 10
 
 @export var player_scene: PackedScene
-var _corridor_cache: Dictionary = {}  # key: String(scene.resource_path) -> bool
-var _rng := RandomNumberGenerator.new()
 
 # --- Basis-Regeln (werden vom GA überschrieben / mutiert) ---
 @export var base_max_corridors: int = 10
@@ -34,14 +31,24 @@ var _rng := RandomNumberGenerator.new()
 # Optional: Wenn du willst, dass nach dem GA die beste Map sofort gebaut wird
 @export var build_best_map_after_ga: bool = true
 
+# --- Public vars ---
+var closed_door_scenes: Array[PackedScene] = []
+var room_scenes: Array[PackedScene] = []
 var player: MoveableEntity
 var world_tilemap: TileMapLayer
 var world_tilemap_top: TileMapLayer
 var minimap: TileMapLayer
 var room_type_counts: Dictionary = {}
-var _yield_counter := 0
+var placed_rooms: Array[Node2D] = []
+var corridor_count: int = 0
+var boss_room_spawned := false
+var room_id: int = 0
 
-signal generation_progress(p: float, text: String)
+# --- Private vars ---
+var _closed_door_cache: Dictionary = {}
+var _corridor_cache: Dictionary = {}  # key: String(scene.resource_path) -> bool
+var _rng := RandomNumberGenerator.new()
+var _yield_counter := 0
 
 
 func _emit_progress_mapped(start: float, end: float, local_p: float, text: String) -> void:
@@ -55,13 +62,6 @@ func _yield_if_needed(step: int = 200) -> void:
 	_yield_counter += 1
 	if _yield_counter % step == 0:
 		await get_tree().process_frame
-
-
-# Laufzeit
-var placed_rooms: Array[Node2D] = []
-var corridor_count: int = 0
-
-var boss_room_spawned := false
 
 
 func _get_closed_door_direction(scene: PackedScene) -> String:
@@ -1377,9 +1377,6 @@ func _find_any_door_node(root: Node) -> Node:
 	return null
 
 
-var room_id = 0
-
-
 func copy_layer_into_world(
 	src: TileMapLayer,
 	dst: TileMapLayer,
@@ -1394,8 +1391,8 @@ func copy_layer_into_world(
 	var cells := src.get_used_cells()
 	var total := cells.size()
 	# tuning: smaller chunks/emit frequency to keep UI responsive during large copies
-	var EMIT_EVERY := 100
-	var YIELD_EVERY := 500
+	var emit_every := 100
+	var yield_every := 500
 	for idx in range(total):
 		var cell = cells[idx]
 		var source_id := src.get_cell_source_id(cell)
@@ -1404,12 +1401,12 @@ func copy_layer_into_world(
 		dst.set_cell(cell + offset, source_id, atlas, alt)
 		counter += 1
 		# emit finer-grained progress for this layer if requested
-		if total > 0 and emit_start >= 0.0 and counter % EMIT_EVERY == 0:
+		if total > 0 and emit_start >= 0.0 and counter % emit_every == 0:
 			var local_p := float(counter) / float(total)
 			_emit_progress_mapped(emit_start, emit_end, clamp(local_p, 0.0, 1.0), emit_text)
 		# Chunked yield to avoid blocking the main loop for huge tile copies
-		if counter % YIELD_EVERY == 0:
-			await _yield_if_needed(YIELD_EVERY)
+		if counter % yield_every == 0:
+			await _yield_if_needed(yield_every)
 	# final emit for this layer
 	if emit_start >= 0.0:
 		_emit_progress_mapped(emit_start, emit_end, 1.0, emit_text)

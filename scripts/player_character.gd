@@ -6,18 +6,19 @@ signal player_moved
 
 # Time (in seconds) the character pauses on a tile before taking the next step
 const STEP_COOLDOWN: float = 0.01
+const SKILLTREES := preload("res://scripts/premade_skilltrees.gd")
+const ACTIVE_SKILLTREES: Array[String] = ["unarmed"]
+
 var step_timer: float = 0.01
 var base_actions = ["Move Up", "Move Down", "Move Left", "Move Right"]
 var actions = []
-
-@onready var camera: Camera2D = $Camera2D
-const SKILLTREES := preload("res://scripts/premade_skilltrees.gd")
 var existing_skilltrees = SKILLTREES.new()
 var minimap
+
+@onready var camera: Camera2D = $Camera2D
 @onready var minimap_viewport: SubViewport = $CanvasLayer/SubViewportContainer/SubViewport
 @onready var pickup_ui = $CanvasLayer2
 @onready var inventory = $UserInterface/Inventory
-const active_skilltrees = ["unarmed"]
 
 
 func _ready() -> void:
@@ -34,7 +35,7 @@ func _ready() -> void:
 	is_player = true
 	for action in base_actions:
 		add_action(action)
-	for active_tree in active_skilltrees:
+	for active_tree in ACTIVE_SKILLTREES:
 		existing_skilltrees.increase_tree_level(active_tree)
 	update_unlocked_skills()
 	setup(tilemap, 10, 1, 0)

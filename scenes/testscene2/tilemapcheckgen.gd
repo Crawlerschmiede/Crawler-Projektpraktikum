@@ -7,19 +7,9 @@ const LOOTBOX := preload("res://scenes/Lootbox/Lootbox.tscn")
 const TRAP := preload("res://scenes/traps/Trap.tscn")
 
 const LOADING_SCENE := preload("res://scenes/loadings_screen/loading_screen.tscn")
-var loading_screen: CanvasLayer = null
-
-@onready var backgroundtile = $TileMapLayer
-
-@onready var minimap: TileMapLayer
-
-@onready var generator1: Node2D = $World1
-@onready var generator2: Node2D = $World2
-@onready var generator3: Node2D = $World3
-
-@onready var colorfilter: ColorRect = $ColorFilter
-
 @export var menu_scene := preload("res://scenes/popup-menu.tscn")
+
+var loading_screen: CanvasLayer = null
 
 # --- World state ---
 var world_index: int = 0
@@ -34,6 +24,16 @@ var menu_instance: CanvasLayer = null
 var battle: CanvasLayer = null
 
 var switching_world := false
+
+@onready var backgroundtile = $TileMapLayer
+
+@onready var minimap: TileMapLayer
+
+@onready var generator1: Node2D = $World1
+@onready var generator2: Node2D = $World2
+@onready var generator3: Node2D = $World3
+
+@onready var colorfilter: ColorRect = $ColorFilter
 
 
 func _ready() -> void:
