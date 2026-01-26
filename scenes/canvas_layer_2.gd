@@ -9,6 +9,7 @@ var merge_window := 0.4
 var pending: Dictionary = {}  # item_name -> amount
 var merge_timer: Timer
 
+
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 

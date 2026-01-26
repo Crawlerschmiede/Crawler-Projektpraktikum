@@ -6,7 +6,7 @@ const PLAYER_SCENE := preload("res://scenes/player-character-scene.tscn")
 const LOOTBOX := preload("res://scenes/Lootbox/Lootbox.tscn")
 const TRAP := preload("res://scenes/traps/Trap.tscn")
 
-const LOADING_SCENE:= preload("res://scenes/loadings_screen/loading_screen.tscn")
+const LOADING_SCENE := preload("res://scenes/loadings_screen/loading_screen.tscn")
 var loading_screen: CanvasLayer = null
 
 @onready var backgroundtile = $TileMapLayer
@@ -124,7 +124,6 @@ func _show_loading() -> void:
 
 	await get_tree().process_frame
 	await get_tree().process_frame
-
 
 
 func _hide_loading() -> void:
