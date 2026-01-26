@@ -115,7 +115,6 @@ func spawn_merchant_entity(cords: Vector2) -> void:
 	e.add_to_group("merchant_entity")
 
 	e.global_position = cords
-	e.setup(dungeon_floor, 3, 1, 0)
 	
 	if world_root != null:
 		world_root.add_child(e)

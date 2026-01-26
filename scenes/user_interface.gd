@@ -1,27 +1,30 @@
 extends CanvasLayer
 
 var holding_item = null
+var current_merchant: Node = null
+var merchant_in_range: bool = false
 
 @onready var hot_container := $Inventory/Hotbar/HotContainer
 @onready var equipment := $Inventory/Inner/Equiptment
 @onready var equipmentlabel := $Inventory/Inner/EquiptmentLabel
 @onready var player:= $".."
-@onready var merchantgui:= $Inventory/Inner/MerchantContainer
+@onready var merchantgui:= $Inventory/Inner/MerchantContainer/VBoxContainer
 
 @onready var coin_screen = $Inventory/price
 
 func _input(event):
 	if event.is_action_pressed("open_inventory"):
 		$Inventory/Inner.visible = !$Inventory/Inner.visible
-	
-	if player.tilemap.get_cell_tile_data(player.grid_pos).get_custom_data("merchant"):
+
+	# Show merchant UI only when player is inside merchant Area2D
+	if merchant_in_range:
 		equipment.visible = false
 		equipmentlabel.visible = false
-		merchantgui.visible = true
+		merchantgui.get_parent().visible = true
 	else:
 		equipment.visible = true
 		equipmentlabel.visible = true
-		merchantgui.visible = false
+		merchantgui.get_parent().visible = false
 		
 	# Hotbar 1..5 -> SlotIndex 13..17
 	for i in range(1, 6):
@@ -51,6 +54,69 @@ func _ready() -> void:
 	# Initial update
 	_update_coin_screen()
 
+	# Connect existing merchants (if any)
+	for m in get_tree().get_nodes_in_group("merchant_entity"):
+		print("CONNECT MERCHANT:", m)
+		var cb2: Callable = Callable(self, "_on_merchant_open")
+		if not m.player_entered_merchant.is_connected(cb2):
+			m.player_entered_merchant.connect(cb2)
+
+		# connect left signal as well
+		var cb_left: Callable = Callable(self, "_on_merchant_left")
+		if m.has_signal("player_left_merchant") and not m.player_left_merchant.is_connected(cb_left):
+			m.player_left_merchant.connect(cb_left)
+
+	# Watch for merchants that are added later
+	if not get_tree().has_signal("node_added"):
+		# older engine versions may differ; skip if not available
+		return
+	get_tree().node_added.connect(Callable(self, "_on_node_added"))
 
 func _update_coin_screen() -> void:
 	$Inventory/coin_sum.initialize_item("coin", PlayerInventory.coins)
+
+func _on_merchant_open(entity, data):
+	print("Merchant!")
+
+	# remember which merchant we're interacting with
+	current_merchant = entity
+	merchant_in_range = true
+	merchantgui.get_parent().visible = true
+	merchantgui.show_merchant(entity, data)
+
+	var cb3: Callable = Callable(self, "_on_merchant_updated")
+	if not entity.merchant_updated.is_connected(cb3):
+		entity.merchant_updated.connect(cb3)
+
+	# ensure we listen for leave events
+	var cb_left: Callable = Callable(self, "_on_merchant_left")
+	if entity.has_signal("player_left_merchant") and not entity.player_left_merchant.is_connected(cb_left):
+		entity.player_left_merchant.connect(cb_left)
+
+
+func _on_node_added(node: Node) -> void:
+	if node == null:
+		return
+	if node.is_in_group("merchant_entity"):
+		print("NEW MERCHANT ADDED, CONNECTING:", node)
+		var cb: Callable = Callable(self, "_on_merchant_open")
+		if not node.player_entered_merchant.is_connected(cb):
+			node.player_entered_merchant.connect(cb)
+
+		var cb_left: Callable = Callable(self, "_on_merchant_left")
+		if node.has_signal("player_left_merchant") and not node.player_left_merchant.is_connected(cb_left):
+			node.player_left_merchant.connect(cb_left)
+
+
+func _on_merchant_updated(updated):
+	print("rebuild Merchant")
+	merchantgui._rebuild(updated)
+
+
+func _on_merchant_left(entity: Node) -> void:
+	print("UI: merchant left:", entity)
+	if current_merchant == entity:
+		current_merchant = null
+		merchant_in_range = false
+		merchantgui.clear()
+		merchantgui.get_parent().visible = false
