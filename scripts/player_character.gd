@@ -16,6 +16,7 @@ var existing_skilltrees = SKILLTREES.new()
 var minimap
 @onready var minimap_viewport: SubViewport = $CanvasLayer/SubViewportContainer/SubViewport
 @onready var pickup_ui = $CanvasLayer2
+@onready var inventory = $UserInterface/Inventory
 const active_skilltrees = ["unarmed"]
 
 
@@ -26,6 +27,7 @@ func _ready() -> void:
 		return
 	
 	PlayerInventory.item_picked_up.connect(_on_item_picked_up)
+	inventory.inventory_changed.connect(update_unlocked_skills)
 	
 	camera.make_current()
 	super_ready("pc", ["pc"])
@@ -177,5 +179,8 @@ func _check_exit_tile() -> bool:
 func update_unlocked_skills():
 	abilities = []
 	var gotten_skills = existing_skilltrees.get_active_skills()
+	var equipped_skills = inventory.get_equipment_skills()
+	for extra in equipped_skills:
+		gotten_skills.append(extra)
 	for ability in gotten_skills:
 		add_skill(ability)

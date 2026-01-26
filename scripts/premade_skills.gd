@@ -28,7 +28,7 @@ var existing_skills = {
 	[
 		"void things",
 		"You suddenly feel surrounded by non-existence",
-		[["death", 1, false, "surrounding"]]
+		[["death_zone", 1, false, "surrounding"]]
 	],
 	#Skeleton Stuff
 	"Feint":
@@ -86,6 +86,28 @@ var existing_skills = {
 		"standard",
 		"Do you really need an explanation of what walking right is?",
 		[["movement", 1, true, "R"]]
+	],
+	
+	#weapon skills (first plan)
+	"Shank":
+		[
+		"knife skills",
+		"When one... or I suppose two stabs just aren't enough",
+		[["damage", 1, false, "No"], ["damage", 1, false, "No"], ["damage", 1, false, "No"]]
+	],
+	"Slash":
+		[
+		"sword skills",
+		"Truly, the most basic of basic things you could do",
+		[["damage", 3, false, "No"]]
+	],
+	
+	#item effects (maybe also here? Who knows what anything is at this point)
+	"Heal":
+		[
+		"potion stuff",
+		"Modern Medicine rules",
+		[["heal", 3, true, "No"]]
 	],
 }
 

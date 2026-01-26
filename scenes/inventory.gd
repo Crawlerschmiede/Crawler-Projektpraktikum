@@ -4,6 +4,8 @@ extends Control
 
 const DEBUG: bool = true
 
+signal inventory_changed
+
 
 func dbg(msg: String) -> void:
 	if DEBUG:
@@ -72,8 +74,29 @@ func _get_slots() -> Array[Node]:
 		if n is Node:
 			out.append(n)
 	return out
-
-
+	
+func _get_equipment_slots():
+	var slots = _get_slots()
+	var equipment_slots =[]
+	const wanted_slots =["Slot0","Slot1","Slot2","Slot3","Slot4","Slot5"]
+	for slot in slots:
+		print(slot.name)
+		if slot.name in wanted_slots:
+			equipment_slots.append(slot)
+	return equipment_slots
+	
+func get_equipment_skills():
+	var equipment_slots = _get_equipment_slots()
+	var gotten_skills = []
+	for slot in equipment_slots:
+		var item_in_slot =slot.get_item()
+		if item_in_slot!=null:
+			var bound = slot.get_item().get_bound_skills()
+			for skill in bound:
+				if skill not in gotten_skills:
+					gotten_skills.append(skill)
+	return gotten_skills
+	
 # -------------------------
 # Lifecycle
 # -------------------------
@@ -155,6 +178,7 @@ func _connect_inventory_signal() -> void:
 func _on_inventory_changed() -> void:
 	dbg("inventory_changed -> initialize_inventory()")
 	initialize_inventory()
+	inventory_changed.emit()
 
 
 # -------------------------

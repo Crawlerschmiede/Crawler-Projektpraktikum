@@ -147,3 +147,6 @@ func initialize_item(item_name: String, item_quantity: int) -> void:
 		push_error("Item Scene hat keine Methode set_item(item_name, item_quantity)")
 
 	refresh_style()
+	
+func get_item():
+	return item
