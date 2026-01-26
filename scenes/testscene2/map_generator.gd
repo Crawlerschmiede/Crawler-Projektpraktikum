@@ -22,8 +22,8 @@ var _rng := RandomNumberGenerator.new()
 @export_range(0.0, 1.0, 0.01) var base_door_fill_chance: float = 1.0
 
 # --- Genetischer Ansatz ---
-@export var ga_total_evals: int = 250  # genau 500 Auswertungen
-@export var ga_generations: int = 250
+@export var ga_total_evals: int = 25  # genau 500 Auswertungen
+@export var ga_generations: int = 25
 @export var ga_population_size: int = ga_generations * ga_total_evals  # 20 * 25 = 500
 
 @export var ga_elite_keep: int = 4  # Top 4 bleiben

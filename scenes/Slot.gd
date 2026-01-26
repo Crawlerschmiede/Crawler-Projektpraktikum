@@ -61,6 +61,16 @@ func _fit_item_to_slot(it: Node) -> void:
 	# Sicherheit: gleiche Größe
 	c.size = size
 	c.position = Vector2.ZERO
+	
+	for g in get_groups():
+		var regex := RegEx.new()
+		regex.compile("^scale_([0-9]+(?:\\.[0-9]+)?)$")
+
+		var result := regex.search(g)
+		if result:
+			print("Scale Result: ", result)
+			var scale_value := float(result.get_string(1))
+			c.scale = Vector2(scale_value, scale_value)
 
 
 func refresh_style() -> void:
