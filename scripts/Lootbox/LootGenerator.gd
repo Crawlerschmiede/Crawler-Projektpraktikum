@@ -1,5 +1,5 @@
-extends RefCounted
 class_name LootGenerator
+extends RefCounted
 
 
 static func generate_loot(min_total := 10, max_total := 15) -> Dictionary:

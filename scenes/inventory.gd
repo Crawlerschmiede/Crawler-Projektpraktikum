@@ -2,9 +2,19 @@
 
 extends Control
 
+signal inventory_changed
+
 const DEBUG: bool = true
 
-signal inventory_changed
+# Slot Script (Pfad prüfen!)
+const SlotScript: GDScript = preload("res://scenes/Slot.gd")
+
+var _ui: Node = null
+var _slot_callables: Dictionary = {}  # key: Node (slot), value: Callable
+
+@onready var inv_grid: GridContainer = $Inner/Equiptment
+@onready var equip_grid: GridContainer = $Inner/GridContainer
+@onready var hotbar_grid: GridContainer = $Hotbar/HotContainer
 
 
 func dbg(msg: String) -> void:
@@ -12,20 +22,12 @@ func dbg(msg: String) -> void:
 		print("[Inventory] ", msg)
 
 
-# Slot Script (Pfad prüfen!)
-const SlotScript: GDScript = preload("res://scenes/Slot.gd")
-
-@onready var inv_grid: GridContainer = $Inner/Equiptment
-@onready var equip_grid: GridContainer = $Inner/GridContainer
-@onready var hotbar_grid: GridContainer = $Hotbar/HotContainer
-
-
 func _collect_slots_recursive(root: Node, out: Array[Node]) -> void:
 	for c in root.get_children():
 		if (
 			c.has_method("initialize_item")
-			and c.has_method("putIntoSlot")
-			and c.has_method("pickFromSlot")
+			and c.has_method("put_into_slot")
+			and c.has_method("pick_from_slot")
 		):
 			out.append(c)
 		else:
@@ -39,10 +41,6 @@ func _get_all_slots() -> Array[Node]:
 	_collect_slots_recursive(equip_grid, out)
 	_collect_slots_recursive(hotbar_grid, out)
 	return out
-
-
-var _ui: Node = null
-var _slot_callables: Dictionary = {}  # key: Node (slot), value: Callable
 
 
 # -------------------------
@@ -128,10 +126,10 @@ func _setup_slots(slots: Array[Node]) -> void:
 		# Pflicht-API Slot
 		if not s.has_method("initialize_item"):
 			push_error("Slot %d hat keine Methode initialize_item(). Slot.gd fehlt/anders?" % i)
-		if not s.has_method("pickFromSlot"):
-			dbg("Slot %d hat keine pickFromSlot() (für Click/Drag nötig!)" % i)
-		if not s.has_method("putIntoSlot"):
-			dbg("Slot %d hat keine putIntoSlot() (für Click/Drag nötig!)" % i)
+		if not s.has_method("pick_from_slot"):
+			dbg("Slot %d hat keine pick_from_slot() (für Click/Drag nötig!)" % i)
+		if not s.has_method("put_into_slot"):
+			dbg("Slot %d hat keine put_into_slot() (für Click/Drag nötig!)" % i)
 
 		var groups: Array[StringName] = (s as Node).get_groups()
 		PlayerInventory.register_slot_index(i, groups)
@@ -159,11 +157,11 @@ func _setup_slots(slots: Array[Node]) -> void:
 				)
 			)
 
-		if _has_property(s, &"slotType"):
-			s.set("slotType", SlotScript.SlotType.INVENTORY)
+		if _has_property(s, &"slot_type"):
+			s.set("slot_type", SlotScript.SlotType.INVENTORY)
 		else:
 			push_error(
-				"Slot %d hat keine Property 'slotType' (in Slot.gd: @export var slotType:int)" % i
+				"Slot %d hat keine Property 'slot_type' (in Slot.gd: @export var slot_type:int)" % i
 			)
 
 
@@ -370,7 +368,7 @@ func left_click_empty_slot(slot: Node) -> void:
 		return
 
 	# ✅ nur wenn ok: UI ändern
-	slot.call("putIntoSlot", holding)
+	slot.call("put_into_slot", holding)
 	ui.set("holding_item", null)
 
 	var idx: int = int(slot.get("slot_index"))
@@ -403,20 +401,20 @@ func left_click_different_item(slot: Node) -> void:
 		if _has_property(slot, &"item"):
 			temp_item = slot.get("item")
 
-		if slot.has_method("pickFromSlot"):
-			dbg("pickFromSlot")
-			slot.call("pickFromSlot")
+		if slot.has_method("pick_from_slot"):
+			dbg("pick_from_slot")
+			slot.call("pick_from_slot")
 		else:
-			push_error("Slot hat keine pickFromSlot()")
+			push_error("Slot hat keine pick_from_slot()")
 			return
 
 		if temp_item != null and temp_item is Node and is_instance_valid(temp_item as Node):
 			(temp_item as Node).global_position = get_global_mouse_position()
 
-		if slot.has_method("putIntoSlot"):
-			slot.call("putIntoSlot", holding)
+		if slot.has_method("put_into_slot"):
+			slot.call("put_into_slot", holding)
 		else:
-			push_error("Slot hat keine putIntoSlot()")
+			push_error("Slot hat keine put_into_slot()")
 			return
 
 		ui.set("holding_item", temp_item)
@@ -424,6 +422,7 @@ func left_click_different_item(slot: Node) -> void:
 			_validate_slot(slot)
 
 
+# gdlint: disable=max-returns
 func left_click_same_item(slot: Node) -> void:
 	var ui: Node = _get_ui()
 	if ui == null:
@@ -485,6 +484,9 @@ func left_click_same_item(slot: Node) -> void:
 			_validate_slot(slot)
 
 
+# gdlint: enable=max-returns
+
+
 func left_click_not_holding(slot: Node) -> void:
 	var ui: Node = _get_ui()
 	if ui == null:
@@ -529,11 +531,11 @@ func left_click_not_holding(slot: Node) -> void:
 	dbg("UI holding_item gesetzt: " + str(ui.get("holding_item")))
 
 	# Slot pick
-	if slot.has_method("pickFromSlot"):
-		slot.call("pickFromSlot")
-		dbg("pickFromSlot() ausgeführt")
+	if slot.has_method("pick_from_slot"):
+		slot.call("pick_from_slot")
+		dbg("pick_from_slot() ausgeführt")
 	else:
-		push_error("Slot hat keine pickFromSlot()")
+		push_error("Slot hat keine pick_from_slot()")
 		return
 
 	# Nach pick prüfen

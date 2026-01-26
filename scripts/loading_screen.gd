@@ -1,6 +1,6 @@
 extends CanvasLayer
 
-var tips: Array = [
+const TIPS: Array[String] = [
 	"Torches keep the shadows at bay, but they don't last forever.",
 	"Listen closely; some walls sound hollow when struck.",
 	"Rare loot is often guarded by the deadliest traps.",
@@ -8,18 +8,19 @@ var tips: Array = [
 	"Not all monsters are hostile; some just want to trade."
 ]
 
-@onready var tip_label = $TipLabel
-
 # Progress UI
 @export var generator_path: NodePath
-@onready var progress_bar: ProgressBar = get_node_or_null("ProgressBar") as ProgressBar
-@onready var progress_label: Label = get_node_or_null("ProgressLabel") as Label
+
 var _last_pct: int = 0
 var _first_progress_received: bool = false
 
+@onready var tip_label = $TipLabel
+@onready var progress_bar: ProgressBar = get_node_or_null("ProgressBar") as ProgressBar
+@onready var progress_label: Label = get_node_or_null("ProgressLabel") as Label
+
 
 func _ready():
-	tip_label.text = "TIP: " + tips.pick_random()
+	tip_label.text = "TIP: " + TIPS.pick_random()
 
 	# initialize progress UI
 	if progress_bar != null:
@@ -52,7 +53,7 @@ func display_random_tip():
 	tween.tween_property(tip_label, "modulate:a", 0.0, 0.5)
 
 	# 2. Wait until it's invisible, THEN swap the text
-	tween.tween_callback(func(): tip_label.text = "TIP: " + tips.pick_random())
+	tween.tween_callback(func(): tip_label.text = "TIP: " + TIPS.pick_random())
 
 	# 3. Fade in the NEW text
 	tween.tween_property(tip_label, "modulate:a", 1.0, 0.5)
