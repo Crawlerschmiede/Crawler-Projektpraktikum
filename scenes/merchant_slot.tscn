@@ -1,0 +1,28 @@
+[gd_scene load_steps=4 format=3 uid="uid://drywgjsqyrugh"]
+
+[ext_resource type="Script" path="res://scenes/merchant_item_buy_box.gd" id="1_f2anx"]
+[ext_resource type="Script" uid="uid://c46g0i67damgr" path="res://scenes/Slot.gd" id="2_f2anx"]
+[ext_resource type="Script" path="res://scenes/buy_bt.gd" id="4_alqq2"]
+
+[node name="row" type="HBoxContainer"]
+custom_minimum_size = Vector2(100, 0)
+script = ExtResource("1_f2anx")
+
+[node name="item" type="Panel" parent="." groups=["Equipment", "Inventory"]]
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 4
+script = ExtResource("2_f2anx")
+
+[node name="price" type="Panel" parent="." groups=["Equipment", "Inventory"]]
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 4
+script = ExtResource("2_f2anx")
+
+[node name="Buy" type="Panel" parent="."]
+custom_minimum_size = Vector2(20, 0)
+layout_mode = 2
+script = ExtResource("4_alqq2")

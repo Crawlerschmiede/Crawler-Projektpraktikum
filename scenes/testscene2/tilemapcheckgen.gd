@@ -58,6 +58,11 @@ func _load_world(idx: int) -> void:
 
 	var gen := generators[idx]
 
+	# Ensure loading screen binds to this generator so progress updates show immediately
+	if loading_screen != null and is_instance_valid(loading_screen) and gen != null:
+		if loading_screen.has_method("bind_to_generator"):
+			loading_screen.call("bind_to_generator", gen)
+
 	world_root = Node2D.new()
 	world_root.name = "WorldRoot"
 	add_child(world_root)
