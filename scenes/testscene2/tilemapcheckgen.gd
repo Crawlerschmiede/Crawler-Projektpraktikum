@@ -115,6 +115,15 @@ func spawn_merchant_entity(cords: Vector2) -> void:
 	e.add_to_group("merchant_entity")
 
 	e.global_position = cords
+
+	# assign a stable merchant id based on spawn coordinates and world index
+	# so the in-memory registry can distinguish merchants reliably
+	if e.has_method("set"):
+		var id := "merchant_%d_%d_world%d" % [int(cords.x), int(cords.y), int(world_index)]
+		# set merchant_id via set() (safe even if exported property is empty)
+		e.set("merchant_id", id)
+		# set merchant_room key as requested
+		e.set("merchant_room", "merchant_room")
 	
 	if world_root != null:
 		world_root.add_child(e)

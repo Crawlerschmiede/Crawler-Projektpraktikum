@@ -2,10 +2,10 @@ extends VBoxContainer
 
 @export var merchant_slot = preload("res://scenes/merchant_slot.tscn")
 
-var current_merchant: MerchantEntity
+var current_merchant
 
 
-func show_merchant(entity: MerchantEntity, data: Dictionary):
+func show_merchant(entity, data: Dictionary):
 	current_merchant = entity
 	_rebuild(data)
 
@@ -25,12 +25,15 @@ func _rebuild(data: Dictionary):
 
 		slot._refresh()
 
-		# click -> buy
+		# click -> buy (capture index by value)
+		var idx := i
 		slot.gui_input.connect(func(event):
 			if event is InputEventMouseButton and event.pressed:
-				current_merchant.buy_item(i))
-
-
+				if current_merchant != null:
+					print("[MerchantUI] slot click idx:", idx, " merchant_id:", current_merchant.get("merchant_id"))
+					current_merchant.buy_item(idx)
+				else:
+					print("[MerchantUI] slot click but current_merchant is null (idx:", idx, ")"))
 func clear():
 	for c in get_children():
 		c.queue_free()

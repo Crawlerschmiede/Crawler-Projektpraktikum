@@ -18,7 +18,9 @@ var selected_slot: int = 18
 
 
 func _ready() -> void:
-	pass
+	# initialize per-session merchant registry to persist merchant state in memory
+	if get("merchant_registry") == null:
+		set("merchant_registry", {})
 
 
 func set_selectet_slot(slot: int) -> void:
