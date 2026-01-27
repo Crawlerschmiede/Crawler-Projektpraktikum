@@ -60,7 +60,7 @@ func _collect_loot() -> void:
 	for item_name in loot_table.keys():
 		PlayerInventory.add_item(item_name, int(loot_table[item_name]))
 
-	print("Lootbox collected:", loot_table)
+	#print("Lootbox collected:", loot_table)
 
 
 # ============================================================

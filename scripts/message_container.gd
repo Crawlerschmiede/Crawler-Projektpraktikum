@@ -44,9 +44,9 @@ func _ready() -> void:
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(_delta: float) -> void:
 	if state != last_state or changed:
-		print("clearing")
+		#print("clearing")
 		_clear_list()
-		print("switched from " + last_state + " to " + state)
+		#print("switched from " + last_state + " to " + state)
 		match state:
 			"log":
 				_fill_list(combat_log)

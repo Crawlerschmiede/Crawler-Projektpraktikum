@@ -103,7 +103,7 @@ func enemy_prepare_turn():
 		active_marker.queue_free()
 	active_markers.clear()
 	log_container.add_log_event("The enemy prepares its Skill " + enemy.chosen.name + "!")
-	print(enemy, " prepares its Skill ", enemy.chosen.name, "!")
+	#print(enemy, " prepares its Skill ", enemy.chosen.name, "!")
 	var preps = enemy.chosen.prep_skill(enemy, player, self)
 	for prep in preps:
 		log_container.add_log_event(prep)
@@ -122,7 +122,7 @@ func enemy_turn():
 		enemy_hp_bar.value = (enemy.hp * 100.0) / enemy.max_hp
 		player_hp_bar.value = (player.hp * 100.0) / player.max_hp
 		if extra_stuff[0]:
-			print(enemy, " activates its Skill ", enemy.chosen.name, "!")
+			#print(enemy, " activates its Skill ", enemy.chosen.name, "!")
 			happened = enemy.chosen.activate_skill(enemy, player, self)
 			for happening in happened:
 				log_container.add_log_event(happening)
@@ -255,7 +255,7 @@ func apply_zones(zone_type, mult, pos, _dur, direction):
 				tile_modifiers[tile] = {mult_type: mult}
 	elif "y" in pos:
 		var parts = pos.split("=")
-		print("parts: ", parts)
+		#print("parts: ", parts)
 		var min_y = 99999999999999
 		for tile in used_cells:
 			if tile.y < min_y:

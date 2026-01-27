@@ -1,4 +1,4 @@
-[gd_scene load_steps=5 format=4 uid="uid://uuprvcwcxalc"]
+[gd_scene load_steps=5 format=4 uid="uid://bwcv3cr5vxe00"]
 
 [ext_resource type="Script" path="res://scenes/rooms1/Scripts/RoomTemplate.gd" id="1_6uumr"]
 [ext_resource type="TileSet" path="res://scenes/rooms1/Rooms/roomtiles.tres" id="2_c48ia"]

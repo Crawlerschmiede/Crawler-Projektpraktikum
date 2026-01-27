@@ -5,11 +5,21 @@ const BATTLE_SCENE := preload("res://scenes/battle.tscn")
 const PLAYER_SCENE := preload("res://scenes/player-character-scene.tscn")
 const LOOTBOX := preload("res://scenes/Lootbox/Lootbox.tscn")
 const TRAP := preload("res://scenes/traps/Trap.tscn")
-
-const LOADING_SCENE := preload("res://scenes/loadings_screen/loading_screen.tscn")
-@export var menu_scene := preload("res://scenes/popup-menu.tscn")
-
+const MERCHANT := preload("res://scenes/entity/merchant.tscn")
+const LOADING_SCENE:= preload("res://scenes/loadings_screen/loading_screen.tscn")
 var loading_screen: CanvasLayer = null
+
+@onready var backgroundtile = $TileMapLayer
+
+@onready var minimap: TileMapLayer
+
+@onready var generator1: Node2D = $World1
+@onready var generator2: Node2D = $World2
+@onready var generator3: Node2D = $World3
+
+@onready var colorfilter: ColorRect = $ColorFilter
+
+@export var menu_scene := preload("res://scenes/popup-menu.tscn")
 
 # --- World state ---
 var world_index: int = 0
@@ -24,17 +34,6 @@ var menu_instance: CanvasLayer = null
 var battle: CanvasLayer = null
 
 var switching_world := false
-
-@onready var backgroundtile = $TileMapLayer
-
-@onready var minimap: TileMapLayer
-
-@onready var generator1: Node2D = $World1
-@onready var generator2: Node2D = $World2
-@onready var generator3: Node2D = $World3
-
-@onready var colorfilter: ColorRect = $ColorFilter
-
 
 func _ready() -> void:
 	generators = [generator1, generator2, generator3]
@@ -106,10 +105,34 @@ func _load_world(idx: int) -> void:
 	spawn_enemies()
 	spawn_lootbox()
 	spawn_traps()
-
+	
+	var merchants = find_merchants()
+	
+	for i in merchants:
+		spawn_merchant_entity(i)
+	
 	_hide_loading()
 	get_tree().paused = false
 
+func spawn_merchant_entity(cords: Vector2) -> void:
+	var e = MERCHANT.instantiate()
+	e.add_to_group("merchant_entity")
+
+	e.global_position = cords
+
+	# assign a stable merchant id based on spawn coordinates and world index
+	# so the in-memory registry can distinguish merchants reliably
+	if e.has_method("set"):
+		var id := "merchant_%d_%d_world%d" % [int(cords.x), int(cords.y), int(world_index)]
+		# set merchant_id via set() (safe even if exported property is empty)
+		e.set("merchant_id", id)
+		# set merchant_room key as requested
+		e.set("merchant_room", "merchant_room")
+	
+	if world_root != null:
+		world_root.add_child(e)
+	else:
+		add_child(e)
 
 func _show_loading() -> void:
 	if loading_screen == null:
@@ -152,7 +175,6 @@ func spawn_traps() -> void:
 			candidates.append(cell)
 
 	if candidates.is_empty():
-		print("⚠️ Keine lootbox_spawnable Tiles gefunden!")
 		return
 
 	# maximal 20 Lootboxen
@@ -167,11 +189,6 @@ func spawn_traps() -> void:
 		loot.name = "Trap_%s" % i
 		world_root.add_child(loot)
 		loot.global_position = world_pos
-
-		# ✅ Lootbox darf NICHT blockieren:
-		#e_disable_lootbox_blocking(loot)
-
-	print("✅ Lootboxen gespawnt:", amount)
 
 
 func spawn_lootbox() -> void:
@@ -195,7 +212,6 @@ func spawn_lootbox() -> void:
 			candidates.append(cell)
 
 	if candidates.is_empty():
-		print("⚠️ Keine lootbox_spawnable Tiles gefunden!")
 		return
 
 	# maximal 20 Lootboxen
@@ -210,11 +226,7 @@ func spawn_lootbox() -> void:
 		loot.name = "Lootbox_%s" % i
 		world_root.add_child(loot)
 		loot.global_position = world_pos
-
-		# ✅ Lootbox darf NICHT blockieren:
-		#e_disable_lootbox_blocking(loot)
-
-	print("✅ Lootboxen gespawnt:", amount)
+		
 
 
 func _disable_lootbox_blocking(loot: Node) -> void:
@@ -285,8 +297,6 @@ func _on_player_exit_reached() -> void:
 	if switching_world:
 		return
 	switching_world = true
-
-	print("EXIT reached -> switching world")
 
 	world_index += 1
 	await _load_world(world_index)
@@ -359,16 +369,20 @@ func spawn_enemies() -> void:
 
 
 func spawn_enemy(sprite_type: String, behaviour: Array) -> void:
+	# default: spawn normal enemy
 	var e = ENEMY_SCENE.instantiate()
 	e.add_to_group("enemy")
 	e.types = behaviour
 	e.sprite_type = sprite_type
 
-	# ✅ setup mit Floor Tilemap
+	# setup with Floor Tilemap
 	e.setup(dungeon_floor, 3, 1, 0)
 
-	# ✅ Enemies immer in WorldRoot
-	world_root.add_child(e)
+	# Enemies always in WorldRoot
+	if world_root != null:
+		world_root.add_child(e)
+	else:
+		add_child(e)
 
 
 func spawn_player() -> void:
@@ -405,20 +419,16 @@ func spawn_player() -> void:
 
 
 func _on_player_moved() -> void:
-	print("moved")
 	if minimap == null or dungeon_floor == null or player == null:
 		return
-	print("moved1")
 	# 1) Player -> Cell in FLOOR Tilemap
 	var world_cell: Vector2i = dungeon_floor.local_to_map(
 		dungeon_floor.to_local(player.global_position)
 	)
-	print("moved2")
 	# 2) passende RoomLayer finden, deren tile_origin passt
 	for child in minimap.get_children():
 		if not (child is TileMapLayer):
 			continue
-		print(child.name)
 		var room_layer := child as TileMapLayer
 
 		# RoomOrigin steht im Namen: Room_x_y
@@ -429,7 +439,6 @@ func _on_player_moved() -> void:
 		var local_cell := world_cell - origin
 
 		if room_layer.get_cell_source_id(local_cell) != -1:
-			print(room_layer.get_cell_source_id(local_cell))
 			room_layer.visible = true
 			return
 
@@ -452,6 +461,33 @@ func instantiate_battle(player_node: Node, enemy: Node):
 			battle.player_loss.connect(game_over)
 
 		get_tree().paused = true
+
+func find_merchants() -> Array[Vector2]:
+
+	var merchants: Array[Vector2] = []
+
+	var cells = dungeon_floor.get_used_cells()
+
+	for cell in cells:
+		var data = dungeon_floor.get_cell_tile_data(cell)
+
+		if data == null:
+			continue
+
+		if not data.get_custom_data("merchant"):
+			continue
+
+		var right = cell + Vector2i(1, 0)
+		var right_data = dungeon_floor.get_cell_tile_data(right)
+
+		if right_data and right_data.get_custom_data("merchant"):
+			var a = dungeon_floor.map_to_local(cell)
+			var b = dungeon_floor.map_to_local(right)
+
+			merchants.append((a + b) * 0.5)
+
+	return merchants
+
 
 
 func enemy_defeated(enemy):

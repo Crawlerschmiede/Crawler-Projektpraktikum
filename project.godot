@@ -22,6 +22,7 @@ JsonData="*res://JSONData.gd"
 PlayerInventory="*res://PlayerInventory.gd"
 Setting="*res://scripts/Autoloadscripts/setting.gd"
 Logger="*res://scripts/Logger.gd"
+MerchantRegistry="*res://scripts/merchant_registry.gd"
 
 [display]
 

@@ -8,6 +8,8 @@ const NUM_INVENTORY_SLOTS: int = 25
 # slot_index -> [item_name: String, item_quantity: int]
 var inventory: Dictionary = {}
 
+var coins : int = 100
+
 var slot_group_by_index: Dictionary = {}
 
 var suppress_signal: bool = false
@@ -18,7 +20,9 @@ var _emit_pending: bool = false
 
 
 func _ready() -> void:
-	pass
+	# initialize per-session merchant registry to persist merchant state in memory
+	if get("merchant_registry") == null:
+		set("merchant_registry", {})
 
 
 func set_selectet_slot(slot: int) -> void:
@@ -159,8 +163,12 @@ func add_item(item_name: String, item_quantity: int = 1) -> void:
 	var wanted_group: String = _get_item_group(item_name)
 
 	var indices: Array = slot_group_by_index.keys()
-	indices.sort()
 
+	indices.sort_custom(func(a, b):
+		return _priority(int(a)) < _priority(int(b))
+	)
+
+	
 	for k in indices:
 		var i: int = int(k)
 
@@ -190,7 +198,13 @@ func add_item(item_name: String, item_quantity: int = 1) -> void:
 	_emit_changed()
 	push_warning("Inventar voll! Item nicht vollständig hinzugefügt: %s" % item_name)
 
-
+func _priority(i):
+	if i >= 6 and i <= 16:
+		return i            # höchste Priorität
+	elif i >= 1 and i <= 6:
+		return 100 + i      # danach
+	else:
+		return 1000 + i     # Rest hinten
 func _emit_changed() -> void:
 	if suppress_signal:
 		return
@@ -204,6 +218,8 @@ func _emit_changed() -> void:
 func _emit_changed_deferred() -> void:
 	_emit_pending = false
 	_rebuild_inventory()
+	# Debug: Ausgabe aktuelles Inventory zur Fehlersuche
+	print("[PlayerInventory] inventory after change: ", str(inventory))
 	inventory_changed.emit()
 
 
@@ -301,3 +317,26 @@ func _rebuild_inventory() -> void:
 		new_inv[idx] = [nm, qt]
 
 	inventory = new_inv
+
+
+# ----------------------
+# Coins API
+# ----------------------
+func has_coins(amount: int) -> bool:
+	return int(coins) >= int(amount)
+
+func spend_coins(amount: int) -> bool:
+	if amount <= 0:
+		return true
+	if not has_coins(amount):
+		return false
+	coins = int(coins) - int(amount)
+	# Optionally emit inventory_changed so UI updates coin display
+	_emit_changed()
+	return true
+
+func add_coins(amount: int) -> void:
+	if amount <= 0:
+		return
+	coins = int(coins) + int(amount)
+	_emit_changed()

@@ -42,7 +42,6 @@ func _flush_pending() -> void:
 	# reset
 	pending.clear()
 
-	# Optional: max. 6 Einträge sichtbar
 	while vbox.get_child_count() > 6:
 		var c := vbox.get_child(0)
 		c.queue_free()
