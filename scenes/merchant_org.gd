@@ -8,43 +8,43 @@ var current_merchant
 func show_merchant(entity, data: Dictionary):
 	current_merchant = entity
 
-	if not current_merchant.merchant_updated.is_connected(_on_merchant_updated):
-		current_merchant.merchant_updated.connect(_on_merchant_updated)
+	# Connect to the merchant's update signal so UI refreshes after purchases
+	var cb := Callable(self, "_on_merchant_updated")
+	if not current_merchant.is_connected("merchant_updated", cb):
+		current_merchant.connect("merchant_updated", cb)
 
 	_rebuild(data)
 
 func _on_merchant_updated(data: Dictionary):
-	_rebuild(data)
-	pass
+	call_deferred("_rebuild", data)
 
 
 
 func _rebuild(data: Dictionary):
 	clear()
-	await get_tree().process_frame
-	
+
 	for i in range(data["items"].size()):
 		var slot = merchant_slot.instantiate()
-		add_child(slot)
 
 		var item = data["items"][i]
-
 		slot.item_name = item["name"]
 		slot.item_count = item["count"]
-		print(item["count"])
 		slot.price = item["price"]
 
+		# package size: allow per-item override from merchant data
+		slot.buy_amount = int(item.get("buy_amount", current_merchant.sell_batch))
+
+		add_child(slot)
 		slot._refresh()
 
 		var idx := i
-
-		# 🔥 Signal vom Slot abfangen
 		slot.buy_attempt.connect(func(_slot):
-			if current_merchant != null:
-				current_merchant.buy_item(idx)
-			else:
-				push_warning("current_merchant is null")
+			if current_merchant:
+				var success = current_merchant.buy_item(idx, int(_slot.item_count))
+				if not success:
+					push_warning("Kauf fehlgeschlagen (z.B. zu wenig Coins oder nicht genug Bestand)")
 		)
+
 
 func clear():
 	for c in get_children():

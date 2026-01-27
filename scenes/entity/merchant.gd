@@ -6,8 +6,8 @@ signal player_entered_merchant
 signal player_left_merchant
 
 @export var seed := 0
-@export var min_total_weight := 10
-@export var max_total_weight := 15
+@export var min_total_weight := 20
+@export var max_total_weight := 30
 @export var merchant_id: String = ""
 @export var sell_batch: int = 2
 @export var merchant_room: String = ""
@@ -39,6 +39,12 @@ func _ready():
 	var reg_key := _get_registry_key()
 	if typeof(MerchantRegistry) != TYPE_NIL and MerchantRegistry != null and MerchantRegistry.has(reg_key):
 		merchant_items = MerchantRegistry.get_items(reg_key)
+		# ensure each item has a buy_amount field (default to sell_batch)
+		for i in range(merchant_items.size()):
+			var it = merchant_items[i]
+			if typeof(it) == TYPE_DICTIONARY:
+				it["buy_amount"] = int(it.get("buy_amount", sell_batch))
+				merchant_items[i] = it
 	else:
 		_generate_merchant_data()
 		if typeof(MerchantRegistry) != TYPE_NIL and MerchantRegistry != null:
@@ -79,46 +85,48 @@ func _get_data() -> Dictionary:
 # --------------------
 # BUY FROM UI
 # --------------------
-func buy_item(index: int, amount: int = -1) -> void:
+func buy_item(index: int, amount: int = -1) -> bool:
 	# amount <=0 -> use sell_batch
 	if amount <= 0:
 		amount = sell_batch
 
 	if index < 0 or index >= merchant_items.size():
-		return
+		return false
 
 	var item = merchant_items[index]
+	if item["buy_amount"] <= 0:
+		return false
 
-	if item["count"] <= 0:
-		return
+	# allow per-item override for buy amount (e.g. item defines "buy_amount")
+	var per_item_amount := int(item.get("buy_amount", sell_batch))
+	var to_buy := amount if amount > 0 else per_item_amount
 
-	var to_buy = amount
+	# clamp to available stock
+	to_buy = min(to_buy, int(item["count"]))
 	if to_buy <= 0:
-		return
+		return false
 
 	var total_price = int(item["price"]) * to_buy
 
-	var rk := _get_registry_key()
-	print("[Merchant] buy_item called; key=", rk, " index=", index, " to_buy=", to_buy)
-
-	print("Before buy - merchant_items:", merchant_items)
-	# try pay
+	# try pay; only proceed when payment succeeds
 	if not PlayerInventory.spend_coins(total_price):
-		return
+		# payment failed
+		return false
 
 	# give player
 	PlayerInventory.add_item(item["name"], to_buy)
 
-	# reduce stock
-	item["count"] = int(item["count"]) - to_buy
-	if item["count"] < 0:
-		item["count"] = 0
+	# reduce stock and update merchant_items
+	item["buy_amount"] -= 1
 	merchant_items[index] = item
 
 	# update registry in MerchantRegistry autoload (if present)
-	MerchantRegistry.set_items(_get_registry_key(), merchant_items)
+	if typeof(MerchantRegistry) != TYPE_NIL and MerchantRegistry != null:
+		MerchantRegistry.set_items(_get_registry_key(), merchant_items)
+
 	# emit update (state is kept in-memory for this runtime)
 	emit_signal("merchant_updated", _get_data())
+	return true
 
 
 # Persistence removed: merchants keep state only in memory for the current session.
@@ -174,7 +182,9 @@ func _generate_merchant_data() -> void:
 		merchant_items.append({
 			"name": item_key,
 			"count": count,
-			"price": price
+			"price": price,
+			# allow config to specify package size; fallback to sell_batch
+			"buy_amount": int(m.get("buy_amount", sell_batch))
 		})
 
 		current_weight += item_weight

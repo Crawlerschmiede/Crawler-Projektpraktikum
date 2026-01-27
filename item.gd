@@ -2,7 +2,7 @@ extends Control
 class_name InventoryItem
 
 @export var item_name: String = ""
-@export var item_quantity: int = 1
+@export var item_quantity: int = 0
 
 # Optional: nur für Tests im Editor
 @export var randomize_if_empty_in_editor: bool = false
