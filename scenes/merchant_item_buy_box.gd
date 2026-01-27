@@ -28,12 +28,16 @@ func set_price(v: int) -> void:
 func _refresh() -> void:
 	if price_node == null:
 		return
-	
+
 	item.initialize_item(item_name, item_count)
-	
+
 	price_node.initialize_item("Coin", price)
-	
-	if typeof(PlayerInventory) != TYPE_NIL and PlayerInventory != null and PlayerInventory.has_method("has_coins"):
+
+	if (
+		typeof(PlayerInventory) != TYPE_NIL
+		and PlayerInventory != null
+		and PlayerInventory.has_method("has_coins")
+	):
 		can_buy = PlayerInventory.has_coins(price)
 	else:
 		can_buy = true
@@ -48,9 +52,10 @@ func _refresh() -> void:
 # -------------------------------------------------
 func _update_visual_state() -> void:
 	if sold or not can_buy:
-		modulate = Color(0.5, 0.5, 0.5, 1.0) # ausgegraut
+		modulate = Color(0.5, 0.5, 0.5, 1.0)  # ausgegraut
 	else:
 		modulate = Color(1, 1, 1, 1)
+
 
 # -------------------------------------------------
 # BUY LOGIC

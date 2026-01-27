@@ -208,6 +208,7 @@ func add_skill(skill_name):
 	if skill != null:
 		abilities.append(skill)
 
+
 #--battle logic--
 
 

@@ -332,7 +332,7 @@ func get_random_tilemap() -> Dictionary:
 	var best := await genetic_search_best()
 	_emit_progress_mapped(0.05, 0.45, 1.0, "GA finished")
 	await get_tree().process_frame
-	
+
 	minimap = TileMapLayer.new()
 	minimap.name = "Minimap"
 	minimap.visibility_layer = 1 << 1
@@ -607,7 +607,7 @@ func genetic_search_best() -> EvalResult:
 		gen = int(ceil(float(target) / float(pop)))
 		ga_generations = gen
 		#print("⚠ [GA] pop*gen != total. Setze generations auf:", gen, "(evals=", pop * gen, ")")
-		
+
 	# initial population
 	var population: Array[Genome] = []
 	for i in range(pop):

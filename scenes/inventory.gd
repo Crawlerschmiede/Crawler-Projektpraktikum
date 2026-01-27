@@ -121,7 +121,7 @@ func _setup_slots(slots: Array[Node]) -> void:
 		# Pflicht-API Slot
 		if not s.has_method("initialize_item"):
 			push_error("Slot %d hat keine Methode initialize_item(). Slot.gd fehlt/anders?" % i)
-			
+
 		var groups: Array[StringName] = (s as Node).get_groups()
 		PlayerInventory.register_slot_index(i, groups)
 
@@ -158,6 +158,7 @@ func _connect_inventory_signal() -> void:
 		# connect using Callable (Godot 4 compatible) and avoid double-connections
 		if not PlayerInventory.inventory_changed.is_connected(cb):
 			PlayerInventory.inventory_changed.connect(cb)
+
 
 func _on_inventory_changed() -> void:
 	initialize_inventory()
@@ -198,7 +199,7 @@ func initialize_inventory() -> void:
 			if _has_property(s, &"item"):
 				var it: Variant = s.get("item")
 				if it != null and it is Node and is_instance_valid(it):
-					if not(holding != null and it == holding):
+					if not (holding != null and it == holding):
 						(it as Node).queue_free()
 				s.set("item", null)
 
