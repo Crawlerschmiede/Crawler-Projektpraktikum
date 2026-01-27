@@ -3,11 +3,11 @@ extends Panel
 @onready var label: Label = $HBoxContainer/Label
 @onready var holder: CenterContainer = $HBoxContainer/CenterContainer
 
-
 const ItemScene: PackedScene = preload("res://scenes/Item/item.tscn")
 
 var tween: Tween
 var item_ui: Node = null
+
 
 func setup(item_name: String, amount: int) -> void:
 	label.text = "%s x%d" % [item_name, amount]
@@ -29,7 +29,6 @@ func setup(item_name: String, amount: int) -> void:
 		var c := item_ui as Control
 		c.scale = Vector2(6, 6)
 		c.mouse_filter = Control.MOUSE_FILTER_IGNORE
-
 
 	# Item setzen wie im Slot!
 	if item_ui.has_method("set_item"):

@@ -51,8 +51,9 @@ func _refresh() -> void:
 
 	var stack_size: int = _get_stack_size(item_name)
 	_update_label(stack_size)
-	
-func item_exists()->bool:
+
+
+func item_exists() -> bool:
 	if JsonData == null:
 		return false
 	if not ("item_data" in JsonData):
@@ -75,7 +76,8 @@ func _get_stack_size(name: String) -> int:
 	var stack_size: int = int((info as Dictionary).get("StackSize", 1))
 	return max(stack_size, 1)
 
-func get_bound_skills()->Array:
+
+func get_bound_skills() -> Array:
 	print("Itemname: ", item_name)
 	if !item_exists():
 		print("doesn't exist")

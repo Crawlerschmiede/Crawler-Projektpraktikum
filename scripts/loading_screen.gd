@@ -73,6 +73,7 @@ func _find_generator_with_signal(root: Node) -> Node:
 				return res
 	return null
 
+
 func bind_to_generator(gen: Node) -> void:
 	if gen == null:
 		return
@@ -90,6 +91,7 @@ func bind_to_generator(gen: Node) -> void:
 	if not gen.is_connected("generation_progress", Callable(self, "_on_gen_progress")):
 		gen.connect("generation_progress", Callable(self, "_on_gen_progress"))
 
+
 func _on_gen_progress(p: float, text: String) -> void:
 	# On the very first progress update after binding, reveal the progress UI
 	if not _first_progress_received:
@@ -100,6 +102,7 @@ func _on_gen_progress(p: float, text: String) -> void:
 			progress_label.visible = true
 
 	set_progress(p, text)
+
 
 func set_progress(p: float, text: String = "") -> void:
 	# p is 0.0 - 1.0; ProgressBar expects 0-100
