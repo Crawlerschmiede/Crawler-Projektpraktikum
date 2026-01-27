@@ -22,10 +22,9 @@ var _rng := RandomNumberGenerator.new()
 @export_range(0.0, 1.0, 0.01) var base_door_fill_chance: float = 1.0
 
 # --- Genetischer Ansatz ---
-@export var ga_total_evals: int = 25  # genau 500 Auswertungen
+@export var ga_total_evals: int = 10  # genau 500 Auswertungen
+@export var ga_population_size: int = 40  # 20 * 25 = 500
 @export var ga_generations: int = 25
-@export var ga_population_size: int = ga_generations * ga_total_evals  # 20 * 25 = 500
-
 @export var ga_elite_keep: int = 4  # Top 4 bleiben
 @export var ga_mutation_rate: float = 0.25
 @export var ga_crossover_rate: float = 0.70
@@ -204,15 +203,24 @@ func bake_closed_doors_into_world_simple() -> void:
 
 			door.used = true
 			total += 1
-			#print("door backed")
-			processed += 1
 			print("door backed")
-			# emit per-door progress and yield so UI updates during heavy door baking
-			if total > 0:
-				_emit_progress_mapped(0.92, 0.98, clamp(float(processed) / float(total), 0.0, 1.0), "Baking doors: %d/%d" % [processed, total])
-				await get_tree().process_frame
 
-	#print("✅ Closed doors gebacken:", total)
+	print("✅ Closed doors gebacken:", total)
+
+
+func debug_print_free_doors() -> void:
+	var total := 0
+	for r in placed_rooms:
+		if r == null or not r.has_method("get_free_doors"):
+			continue
+		var free = r.get_free_doors()
+		if free.size() > 0:
+			print("ROOM:", r.name, "free doors:", free.size())
+			for d in free:
+				print("  -", d.name, "dir:", d.direction, "used:", d.used)
+				total += 1
+	print("TOTAL FREE DOORS:", total)
+
 
 # -----------------------------
 # GA: Genome / Ergebnis
@@ -515,8 +523,6 @@ func bake_closed_doors_into_minimap() -> void:
 
 			inst.queue_free()
 			total += 1
-			#print("✅ minimap door baked into:", target_layer.name)
-			processed += 1
 			print("✅ minimap door baked into:", target_layer.name)
 			# emit per-door minimap progress and yield
 			if total > 0:
@@ -1205,8 +1211,14 @@ func bake_rooms_into_world_tilemap() -> void:
 
 		# TOP kopieren
 		if top_tm != null:
-			await copy_layer_into_world(top_tm, world_tilemap_top, room_offset, 0.75, 0.92, "Building tilemaps")
+			await copy_layer_into_world(top_tm, world_tilemap_top, room_offset)
 
+	print(
+		"✔ [BAKE] WorldTileMaps erstellt | Floor tiles:",
+		world_tilemap.get_used_cells().size(),
+		"| Top tiles:",
+		world_tilemap_top.get_used_cells().size()
+	)
 	# finished building tilemaps, now bake closed doors (map to 0.92..0.98)
 	_emit_progress_mapped(0.92, 0.98, 0.0, "Baking doors...")
 	await get_tree().process_frame
