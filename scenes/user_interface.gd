@@ -8,7 +8,7 @@ var merchant_in_range: bool = false
 @onready var equipment := $Inventory/Inner/Equiptment
 @onready var equipmentlabel := $Inventory/Inner/EquiptmentLabel
 @onready var player:= $".."
-@onready var merchantgui:= $Inventory/Inner/MerchantContainer/VBoxContainer
+@onready var merchantgui:=$Inventory/Inner/MerchantContainer/HBoxContainer/VBoxContainer
 
 @onready var coin_screen = $Inventory/price
 
@@ -76,12 +76,25 @@ func _update_coin_screen() -> void:
 	$Inventory/coin_sum.initialize_item("coin", PlayerInventory.coins)
 
 func _on_merchant_open(entity, data):
-	#print("Merchant!")
-
 	# remember which merchant we're interacting with
 	current_merchant = entity
 	merchant_in_range = true
 	merchantgui.get_parent().visible = true
+
+	# Diagnostics: ensure data contains items
+	if typeof(data) != TYPE_DICTIONARY:
+		push_warning("_on_merchant_open: data is not a Dictionary: %s" % [str(data)])
+	else:
+		if not data.has("items"):
+			push_warning("_on_merchant_open: data has no 'items' key: %s" % [str(data)])
+		else:
+			var cnt := int(data["items"].size()) if data["items"] != null else 0
+			push_warning("_on_merchant_open: opening merchant with %d items" % cnt)
+
+	# ensure merchantgui has expected method
+	if not merchantgui.has_method("show_merchant"):
+		push_warning("merchantgui has no method 'show_merchant' (node: %s)" % [str(merchantgui)])
+
 	merchantgui.show_merchant(entity, data)
 
 	var cb3: Callable = Callable(self, "_on_merchant_updated")

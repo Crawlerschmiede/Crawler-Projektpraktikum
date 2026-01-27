@@ -35,7 +35,6 @@ var battle: CanvasLayer = null
 
 var switching_world := false
 
-
 func _ready() -> void:
 	generators = [generator1, generator2, generator3]
 	await _load_world(world_index)
@@ -148,7 +147,6 @@ func _show_loading() -> void:
 
 	await get_tree().process_frame
 	await get_tree().process_frame
-
 
 
 func _hide_loading() -> void:

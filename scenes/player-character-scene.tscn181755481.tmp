@@ -425,10 +425,7 @@ offset_bottom = 74.333336
 scale = Vector2(0.5, 0.5)
 columns = 3
 
-[node name="HBoxContainer" type="VBoxContainer" parent="UserInterface/Inventory/Inner/MerchantContainer"]
-layout_mode = 2
-
-[node name="VBoxContainer" type="VBoxContainer" parent="UserInterface/Inventory/Inner/MerchantContainer/HBoxContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="UserInterface/Inventory/Inner/MerchantContainer"]
 layout_mode = 2
 script = ExtResource("16_72a5a")
 

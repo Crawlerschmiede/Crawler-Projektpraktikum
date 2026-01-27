@@ -16,6 +16,8 @@ var suppress_signal: bool = false
 
 var selected_slot: int = 18
 
+var _emit_pending: bool = false
+
 
 func _ready() -> void:
 	# initialize per-session merchant registry to persist merchant state in memory
@@ -161,8 +163,12 @@ func add_item(item_name: String, item_quantity: int = 1) -> void:
 	var wanted_group: String = _get_item_group(item_name)
 
 	var indices: Array = slot_group_by_index.keys()
-	indices.sort()
 
+	indices.sort_custom(func(a, b):
+		return _priority(int(a)) < _priority(int(b))
+	)
+
+	
 	for k in indices:
 		var i: int = int(k)
 
@@ -192,10 +198,13 @@ func add_item(item_name: String, item_quantity: int = 1) -> void:
 	_emit_changed()
 	push_warning("Inventar voll! Item nicht vollständig hinzugefügt: %s" % item_name)
 
-
-var _emit_pending: bool = false
-
-
+func _priority(i):
+	if i >= 6 and i <= 16:
+		return i            # höchste Priorität
+	elif i >= 1 and i <= 6:
+		return 100 + i      # danach
+	else:
+		return 1000 + i     # Rest hinten
 func _emit_changed() -> void:
 	if suppress_signal:
 		return

@@ -13,6 +13,15 @@ func show_merchant(entity, data: Dictionary):
 	if not current_merchant.is_connected("merchant_updated", cb):
 		current_merchant.connect("merchant_updated", cb)
 
+	# Diagnostic check: ensure data contains items
+	if typeof(data) != TYPE_DICTIONARY:
+		push_warning("merchant_org.show_merchant: data is not a Dictionary: %s" % [str(data)])
+	else:
+		if not data.has("items"):
+			push_warning("merchant_org.show_merchant: data missing 'items' key: %s" % [str(data)])
+		else:
+			push_warning("merchant_org.show_merchant: received %d items" % [int(data["items"].size())])
+
 	_rebuild(data)
 
 func _on_merchant_updated(data: Dictionary):
@@ -40,7 +49,7 @@ func _rebuild(data: Dictionary):
 		var idx := i
 		slot.buy_attempt.connect(func(_slot):
 			if current_merchant:
-				var success = current_merchant.buy_item(idx, int(_slot.item_count))
+				var success = current_merchant.buy_item(idx, int(_slot.buy_amount))
 				if not success:
 					push_warning("Kauf fehlgeschlagen (z.B. zu wenig Coins oder nicht genug Bestand)")
 		)

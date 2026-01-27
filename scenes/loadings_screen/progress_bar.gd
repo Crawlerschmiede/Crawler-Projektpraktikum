@@ -4,6 +4,7 @@ extends ProgressBar
 @onready var bar: ProgressBar = get_node_or_null("ProgressBar") as ProgressBar
 @onready var label: Label = get_node_or_null("Label") as Label
 
+
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 
@@ -30,6 +31,7 @@ func _ready() -> void:
 	if gen != null:
 		bind_to_generator(gen)
 
+
 func _find_generator_with_signal(root: Node) -> Node:
 	if root == null:
 		return null
@@ -42,6 +44,7 @@ func _find_generator_with_signal(root: Node) -> Node:
 				return res
 	return null
 
+
 func bind_to_generator(gen: Node) -> void:
 	if gen == null:
 		return
@@ -50,8 +53,10 @@ func bind_to_generator(gen: Node) -> void:
 	if not gen.is_connected("generation_progress", Callable(self, "_on_gen_progress")):
 		gen.connect("generation_progress", Callable(self, "_on_gen_progress"))
 
+
 func _on_gen_progress(p: float, text: String) -> void:
 	set_progress(p, text)
+
 
 func set_progress(p: float, text: String = "") -> void:
 	# p is 0.0 - 1.0; ProgressBar expects 0-100

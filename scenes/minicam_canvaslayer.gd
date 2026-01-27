@@ -1,10 +1,10 @@
 extends CanvasLayer
 
-@onready var minicam: Camera2D = $SubViewportContainer/SubViewport/MiniCam
-
 @export var zoom_step: float = 0.1
 @export var zoom_min: float = 0.1
 @export var zoom_max: float = 1
+
+@onready var minicam: Camera2D = $SubViewportContainer/SubViewport/MiniCam
 
 
 func _input(event: InputEvent) -> void:
