@@ -45,6 +45,7 @@ func roam():
 		move_to_tile(direction)
 
 
+# gdlint: disable=max-returns
 func chase():
 	if !burrowed:
 		chased_pos = chase_target.grid_pos
@@ -62,17 +63,17 @@ func chase():
 					sprite.play("default")
 				burrowed = true
 				return
-			else:
-				var animation_array = null
-				var digrection = (chased_direction) * -2
-				var targ_dig_pos = chased_pos + digrection
-				if used_animation:
-					if used_animation["teleport_start"] and used_animation["teleport_end"]:
-						animation_array = [used_animation["teleport_end"]]
-				await teleport_to_tile(targ_dig_pos, animation_array)
-				chasing = true
-				burrowed = false
-				return
+
+			var animation_array = null
+			var digrection = (chased_direction) * -2
+			var targ_dig_pos = chased_pos + digrection
+			if used_animation:
+				if used_animation["teleport_start"] and used_animation["teleport_end"]:
+					animation_array = [used_animation["teleport_end"]]
+			await teleport_to_tile(targ_dig_pos, animation_array)
+			chasing = true
+			burrowed = false
+			return
 
 	chasing = true
 	if chased_pos.x < grid_pos.x:
@@ -118,6 +119,9 @@ func chase():
 			move_to_tile(y_move)
 			chase_timer = CHASE_COOLDOWN
 			return
+
+
+# gdlint: enable=max-returns
 
 
 func get_best_player() -> PlayerCharacter:

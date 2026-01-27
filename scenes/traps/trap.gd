@@ -4,10 +4,10 @@ extends Node2D
 @export var one_shot: bool = false
 @export var cooldown: float = 1.0
 
+var _ready_to_trigger := true
+
 @onready var area: Area2D = $Area2D
 @onready var anim: AnimatedSprite2D = $AnimatedSprite2D
-
-var _ready_to_trigger := true
 
 
 func _ready() -> void:

@@ -1,5 +1,5 @@
-extends Control
 class_name InventoryItem
+extends Control
 
 @export var item_name: String = ""
 @export var item_quantity: int = 0
@@ -58,22 +58,43 @@ func _refresh() -> void:
 	_update_label(stack_size)
 
 
-func _get_stack_size(name: String) -> int:
+func item_exists() -> bool:
 	if JsonData == null:
-		return 1
+		return false
 	if not ("item_data" in JsonData):
-		return 1
+		return false
 
 	var data: Dictionary = JsonData.item_data
-	if not data.has(name):
-		return 1
+	if not data.has(item_name):
+		return false
+	return true
 
+
+func _get_stack_size(name: String) -> int:
+	if !item_exists():
+		return 1
+	var data: Dictionary = JsonData.item_data
 	var info: Variant = data[name]
 	if typeof(info) != TYPE_DICTIONARY:
 		return 1
 
 	var stack_size: int = int((info as Dictionary).get("StackSize", 1))
 	return max(stack_size, 1)
+
+
+func get_bound_skills() -> Array:
+	print("Itemname: ", item_name)
+	if !item_exists():
+		print("doesn't exist")
+		return []
+	var data: Dictionary = JsonData.item_data
+	var info: Variant = data[item_name]
+	if typeof(info) != TYPE_DICTIONARY:
+		print("not_dict")
+		return []
+	var bound_skills: Array = Array((info as Dictionary).get("bound_skills", []))
+	print("returnin proper")
+	return bound_skills
 
 
 func _set_icon() -> void:

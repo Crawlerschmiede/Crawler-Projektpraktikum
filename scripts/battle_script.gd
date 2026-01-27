@@ -5,6 +5,37 @@ signal player_victory
 
 const MARKER_PREFAB := preload("res://scenes/marker.tscn")
 
+const MARKER_FLAVOURS = {
+	"dmg_reduc_":
+	{
+		"visual": "safety",
+		"info": "Standing here will let you avoid <PUTVALUEHERE>% of incoming Damage!",
+		"log": ["Seems like there's some safe zones here"]
+	},
+	"dmg_mult_":
+	{
+		"visual": "danger",
+		"info": "Standing here will make you take <PUTVALUEHERE>x Damage!",
+		"log":
+		[
+			"Seems like this attack is more dangerous in some places",
+			"Pay attention to your positioning!"
+		]
+	},
+	"death_":
+	{
+		"visual": "death",
+		"info": "Look man, it's a floating skull, this is not where want to be standing",
+		"log": ["Is that a floating skull?", "Maybe avoid standing there!"]
+	},
+	"heal_":
+	{
+		"visual": "heal",
+		"info": "Standing here will heal you for <PUTVALUEHERE>!",
+		"log": ["Seems like you can grab some healing here"]
+	},
+}
+
 @export var player: Node
 @export var enemy: Node
 
@@ -179,42 +210,10 @@ func check_curr_tile_mods():
 	check_victory()
 
 
-var marker_flavours = {
-	"dmg_reduc_":
-	{
-		"visual": "safety",
-		"info": "Standing here will let you avoid <PUTVALUEHERE>% of incoming Damage!",
-		"log": ["Seems like there's some safe zones here"]
-	},
-	"dmg_mult_":
-	{
-		"visual": "danger",
-		"info": "Standing here will make you take <PUTVALUEHERE>x Damage!",
-		"log":
-		[
-			"Seems like this attack is more dangerous in some places",
-			"Pay attention to your positioning!"
-		]
-	},
-	"death_":
-	{
-		"visual": "death",
-		"info": "Look man, it's a floating skull, this is not where want to be standing",
-		"log": ["Is that a floating skull?", "Maybe avoid standing there!"]
-	},
-	"heal_":
-	{
-		"visual": "heal",
-		"info": "Standing here will heal you for <PUTVALUEHERE>!",
-		"log": ["Seems like you can grab some healing here"]
-	},
-}
-
-
 func apply_zones(zone_type, mult, pos, _dur, direction):
 	# NOTE: duration currently unused (effects are 1-turn only).
 	var mult_type = zone_type + direction
-	var marker_info = marker_flavours[zone_type]
+	var marker_info = MARKER_FLAVOURS[zone_type]
 	var marker_visual = marker_info["visual"]
 	if pos == "player_x":
 		for tile in used_cells:

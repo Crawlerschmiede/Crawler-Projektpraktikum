@@ -61,6 +61,7 @@ class Effect:
 		targets_self = _targets_self
 		details = _details
 
+	# gdlint: disable=max-returns
 	func apply(user, target, battle, skill_name):
 		var messages = []
 		var active_placement_effects = battle.tile_modifiers.get(battle.player_gridpos, {})
@@ -119,7 +120,7 @@ class Effect:
 				print("Activating safety")
 				var duration = 1
 				return battle.apply_zones("dmg_reduc_", value, details, duration, "good")
-			"death":
+			"death_zone":
 				print("Activating death")
 				var duration = 1
 				var direction
@@ -128,7 +129,7 @@ class Effect:
 				else:
 					direction = "good"
 				return battle.apply_zones("death_", value, details, duration, direction)
-			"heal":
+			"heal_zone":
 				print("Activating death")
 				var duration = 1
 				var direction
@@ -137,3 +138,10 @@ class Effect:
 				else:
 					direction = "bad"
 				return battle.apply_zones("heal_", value, details, duration, direction)
+			"heal":
+				if targets_self:
+					messages = user.heal(value)
+				else:
+					messages = target.heal(value)
+
+	# gdlint: enable=max-returns

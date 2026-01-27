@@ -2,12 +2,13 @@ extends CanvasLayer
 
 const ENTRY_SCENE := preload("res://scenes/toast/pickup_notification.tscn")
 
-@onready var vbox: VBoxContainer = $MarginContainer/VBoxContainer
-
 # Optional: gleiche Items in kurzer Zeit zusammenfassen
 var merge_window := 0.4
 var pending: Dictionary = {}  # item_name -> amount
 var merge_timer: Timer
+
+@onready var vbox: VBoxContainer = $MarginContainer/VBoxContainer
+
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS

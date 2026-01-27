@@ -1,11 +1,10 @@
-extends Panel
 class_name Slot
 @export var slot_index: int = -1
-@export var slotType: int = 0  # SlotType enum value
+@export var slot_type: int = 0  # SlotType enum value
 
 # Textures
-@export var default_tex: Texture2D = preload("res://assets/menu/UI_TravelBook_Slot01b.png")
-@export var empty_tex: Texture2D = preload("res://assets/menu/UI_TravelBook_Slot01b.png")
+@export var default_tex: Texture2D = SLOT_TEXTURE
+@export var empty_tex: Texture2D = SLOT_TEXTURE
 @export var selected_tex: Texture2D = preload("res://assets/menu/Selected_slot.png")
 @export var has_background: bool = true
 var default_style: StyleBoxTexture
@@ -13,16 +12,7 @@ var empty_style: StyleBoxTexture
 var selected_style: StyleBoxTexture
 
 # Item
-const ItemScene: PackedScene = preload("res://scenes/Item/item.tscn")
 var item: Node = null
-
-enum SlotType {
-	HOTBAR = 0,
-	INVENTORY = 1,
-	SHIRT = 2,
-	PANTS = 3,
-	SHOES = 4,
-}
 
 var _ui: Node = null
 
@@ -61,6 +51,16 @@ func _fit_item_to_slot(it: Node) -> void:
 	c.size = size
 	c.position = Vector2.ZERO
 
+	for g in get_groups():
+		var regex := RegEx.new()
+		regex.compile("^scale_([0-9]+(?:\\.[0-9]+)?)$")
+
+		var result := regex.search(g)
+		if result:
+			print("Scale Result: ", result)
+			var scale_value := float(result.get_string(1))
+			c.scale = Vector2(scale_value, scale_value)
+
 
 func refresh_style() -> void:
 	#print(PlayerInventory.get_selected_slot())
@@ -77,7 +77,7 @@ func refresh_style() -> void:
 			set("theme_override_styles/panel", default_style)
 
 
-func pickFromSlot() -> void:
+func pick_from_slot() -> void:
 	if item == null:
 		return
 
@@ -103,7 +103,7 @@ func pickFromSlot() -> void:
 	refresh_style()
 
 
-func putIntoSlot(new_item: Node) -> void:
+func put_into_slot(new_item: Node) -> void:
 	if new_item == null:
 		return
 
@@ -136,7 +136,7 @@ func clear_slot() -> void:
 
 func initialize_item(item_name: String, item_quantity: int) -> void:
 	if item == null:
-		item = ItemScene.instantiate()
+		item = ITEM_SCENE.instantiate()
 		add_child(item)
 		_fit_item_to_slot(item)
 
@@ -147,3 +147,7 @@ func initialize_item(item_name: String, item_quantity: int) -> void:
 		push_error("Item Scene hat keine Methode set_item(item_name, item_quantity)")
 
 	refresh_style()
+
+
+func get_item():
+	return item

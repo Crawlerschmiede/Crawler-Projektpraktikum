@@ -3,16 +3,31 @@
 	"ItemCategory": "Hund",
 	"StackSize": 99,
 	"Description": "A sturdy tree branch that can be used for crafting.",
-	"group": "Inventory",
-	"loot_stats": { "weight": 3, "chance": 1.0, "max_stack": 2 },
-	"merchant": { "weight": 1, "chance": 1.0, "min_price": 3, "max_price": 10, "min_count": 2, "max_count": 3 }
+	"group": "Equipment",
+	"loot_stats": { "weight": 3, "chance": 1.0, "max_stack": 2 }
   },
-  "sword": {
-	"ItemCategory": "sword",
-	"StackSize": 99,
-	"Description": "A sturdy tree branch that can be used for crafting.",
-	"group": "Inventory",
-	"loot_stats": { "weight": 3, "chance": 1.0, "max_stack": 2 },
-	"merchant": { "weight": 1, "chance": 1.0, "min_price": 3, "max_price": 10, "min_count": 1, "max_count": 3 }
-  }
+	"placeholder_dagger_poison": {
+		"ItemCategory": "Weapon",
+		"StackSize": 1,
+		"Description": "A sturdy tree branch that can be used for crafting.",
+		"group": "Equipment",
+		"loot_stats": { "weight": 3, "chance": 1.0, "max_stack": 2 },
+		"bound_skills":["Shank"]
+	  },
+	"placeholder_sword": {
+		"ItemCategory": "Weapon",
+		"StackSize": 1,
+		"Description": "A sturdy tree branch that can be used for crafting.",
+		"group": "Equipment",
+		"loot_stats": { "weight": 3, "chance": 1.0, "max_stack": 2 },
+		"bound_skills":["Slash"]
+	  },
+	"placeholder_heal_potion": {
+		"ItemCategory": "Consumable",
+		"StackSize": 99,
+		"Description": "A sturdy tree branch that can be used for crafting.",
+		"group": "Equipment",
+		"loot_stats": { "weight": 3, "chance": 1.0, "max_stack": 2 },
+		"use_effects":["Heal"]
+	  }
 }

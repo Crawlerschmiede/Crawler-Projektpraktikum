@@ -57,9 +57,10 @@ var poison_recovery = 1
 
 #--- References to other stuff ---
 
+var animations = null
+
 @onready var collision_area: Area2D = $CollisionArea
 @onready var sprite: AnimatedSprite2D
-var animations = null
 
 
 # --- Setup ---
@@ -146,8 +147,7 @@ func move_to_tile(direction: Vector2i):
 					multi_turn_action = {"name": "dig_to", "target": new_target, "countdown": 2}
 					return
 			return
-		else:
-			return
+		return
 
 	is_moving = true
 	grid_pos = target_cell

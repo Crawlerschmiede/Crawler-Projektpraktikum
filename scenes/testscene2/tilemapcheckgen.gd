@@ -21,6 +21,8 @@ var loading_screen: CanvasLayer = null
 
 @export var menu_scene := preload("res://scenes/popup-menu.tscn")
 
+var loading_screen: CanvasLayer = null
+
 # --- World state ---
 var world_index: int = 0
 var generators: Array[Node2D] = []
@@ -34,6 +36,16 @@ var menu_instance: CanvasLayer = null
 var battle: CanvasLayer = null
 
 var switching_world := false
+
+@onready var backgroundtile = $TileMapLayer
+
+@onready var minimap: TileMapLayer
+
+@onready var generator1: Node2D = $World1
+@onready var generator2: Node2D = $World2
+@onready var generator3: Node2D = $World3
+
+@onready var colorfilter: ColorRect = $ColorFilter
 
 
 func _ready() -> void:
@@ -57,6 +69,11 @@ func _load_world(idx: int) -> void:
 		return
 
 	var gen := generators[idx]
+
+	# Ensure loading screen binds to this generator so progress updates show immediately
+	if loading_screen != null and is_instance_valid(loading_screen) and gen != null:
+		if loading_screen.has_method("bind_to_generator"):
+			loading_screen.call("bind_to_generator", gen)
 
 	world_root = Node2D.new()
 	world_root.name = "WorldRoot"
@@ -143,7 +160,6 @@ func _show_loading() -> void:
 
 	await get_tree().process_frame
 	await get_tree().process_frame
-
 
 
 func _hide_loading() -> void:

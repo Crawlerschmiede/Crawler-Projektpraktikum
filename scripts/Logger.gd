@@ -8,6 +8,7 @@ enum Level { DEBUG, INFO, WARN, ERROR }
 
 var _file: FileAccess = null
 
+
 func _open_file() -> void:
 	if _file != null:
 		return
@@ -17,6 +18,7 @@ func _open_file() -> void:
 		_file = FileAccess.open(log_file_path, FileAccess.WRITE)
 	if _file != null:
 		_file.close()
+
 
 func _append_to_file(text: String) -> void:
 	if not write_to_file:
