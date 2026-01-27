@@ -5,11 +5,13 @@ extends Node
 
 var _registry: Dictionary = {}
 
+
 func get_registry() -> Dictionary:
 	# return a shallow copy to avoid external accidental mutation
 	var copy = _registry.duplicate(false)
 	print("[MerchantRegistry] get_registry ->", copy)
 	return copy
+
 
 func get_items(id: String):
 	if id in _registry:
@@ -22,6 +24,7 @@ func get_items(id: String):
 	print("[MerchantRegistry] get_items(%s) -> null" % id)
 	return null
 
+
 func set_items(id: String, items) -> void:
 	# store a deep copy to avoid holding external references
 	if typeof(items) in [TYPE_ARRAY, TYPE_DICTIONARY]:
@@ -30,10 +33,12 @@ func set_items(id: String, items) -> void:
 		_registry[id] = items
 		print("[MerchantRegistry] set_items(%s) -> %s" % [id, _registry[id]])
 
+
 func has(id: String) -> bool:
 	var h = id in _registry
 	print("[MerchantRegistry] has(%s) -> %s" % [id, h])
 	return h
+
 
 func clear() -> void:
 	_registry.clear()

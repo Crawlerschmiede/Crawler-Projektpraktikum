@@ -31,6 +31,7 @@ func _append_to_file(text: String) -> void:
 	f.store_line(text)
 	f.close()
 
+
 # Convenience varargs helpers: allow calling Logger.infov("a", b, c)
 func _join_args(args: Array) -> String:
 	var out: String = ""

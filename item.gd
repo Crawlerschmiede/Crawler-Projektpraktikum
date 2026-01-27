@@ -100,7 +100,7 @@ func get_bound_skills() -> Array:
 func _set_icon() -> void:
 	if item_name == "":
 		return
-		
+
 	var path: String = "res://assets/item_icons/%s.png" % item_name
 	var tex: Resource = load(path)
 

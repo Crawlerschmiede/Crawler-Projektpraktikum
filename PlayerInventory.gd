@@ -8,7 +8,7 @@ const NUM_INVENTORY_SLOTS: int = 25
 # slot_index -> [item_name: String, item_quantity: int]
 var inventory: Dictionary = {}
 
-var coins : int = 100
+var coins: int = 100
 
 var slot_group_by_index: Dictionary = {}
 
@@ -164,11 +164,8 @@ func add_item(item_name: String, item_quantity: int = 1) -> void:
 
 	var indices: Array = slot_group_by_index.keys()
 
-	indices.sort_custom(func(a, b):
-		return _priority(int(a)) < _priority(int(b))
-	)
+	indices.sort_custom(func(a, b): return _priority(int(a)) < _priority(int(b)))
 
-	
 	for k in indices:
 		var i: int = int(k)
 
@@ -198,13 +195,16 @@ func add_item(item_name: String, item_quantity: int = 1) -> void:
 	_emit_changed()
 	push_warning("Inventar voll! Item nicht vollständig hinzugefügt: %s" % item_name)
 
+
 func _priority(i):
 	if i >= 6 and i <= 16:
-		return i            # höchste Priorität
+		return i  # höchste Priorität
 	elif i >= 1 and i <= 6:
-		return 100 + i      # danach
+		return 100 + i  # danach
 	else:
-		return 1000 + i     # Rest hinten
+		return 1000 + i  # Rest hinten
+
+
 func _emit_changed() -> void:
 	if suppress_signal:
 		return
@@ -325,6 +325,7 @@ func _rebuild_inventory() -> void:
 func has_coins(amount: int) -> bool:
 	return int(coins) >= int(amount)
 
+
 func spend_coins(amount: int) -> bool:
 	if amount <= 0:
 		return true
@@ -334,6 +335,7 @@ func spend_coins(amount: int) -> bool:
 	# Optionally emit inventory_changed so UI updates coin display
 	_emit_changed()
 	return true
+
 
 func add_coins(amount: int) -> void:
 	if amount <= 0:
