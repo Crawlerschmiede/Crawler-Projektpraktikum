@@ -259,7 +259,7 @@ func check_sight() -> bool:
 			saw_player = true
 			chase_target = body
 			break
-			
+
 	return saw_player
 
 

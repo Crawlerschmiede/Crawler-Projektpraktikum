@@ -12,7 +12,7 @@ signal player_left_merchant
 @export var sell_batch: int = 2
 @export var merchant_room: String = ""
 
-var merchant_items: Array = []  
+var merchant_items: Array = []
 # [{name, count, price}]
 
 
@@ -37,7 +37,11 @@ func _get_registry_key() -> String:
 
 func _ready():
 	var reg_key := _get_registry_key()
-	if typeof(MerchantRegistry) != TYPE_NIL and MerchantRegistry != null and MerchantRegistry.has(reg_key):
+	if (
+		typeof(MerchantRegistry) != TYPE_NIL
+		and MerchantRegistry != null
+		and MerchantRegistry.has(reg_key)
+	):
 		merchant_items = MerchantRegistry.get_items(reg_key)
 		# ensure each item has a buy_amount field (default to sell_batch)
 		for i in range(merchant_items.size()):
@@ -57,7 +61,6 @@ func _ready():
 
 func _on_body_entered(body):
 	if body.is_in_group("player"):
-
 		var rk := _get_registry_key()
 		if MerchantRegistry != null:
 			merchant_items = MerchantRegistry.get_items(rk)
@@ -79,7 +82,7 @@ func _on_body_exited(body):
 # DATA ACCESS
 # --------------------
 func _get_data() -> Dictionary:
-	return { "items": merchant_items }
+	return {"items": merchant_items}
 
 
 # --------------------
@@ -131,8 +134,8 @@ func buy_item(index: int, amount: int = -1) -> bool:
 
 # Persistence removed: merchants keep state only in memory for the current session.
 
-func _generate_merchant_data() -> void:
 
+func _generate_merchant_data() -> void:
 	if JsonData == null or not ("item_data" in JsonData):
 		push_error("JsonData.item_data missing!")
 		return
@@ -148,7 +151,6 @@ func _generate_merchant_data() -> void:
 	var current_weight := 0
 
 	for item_key in keys:
-
 		if current_weight >= target_weight:
 			break
 
@@ -168,23 +170,22 @@ func _generate_merchant_data() -> void:
 			continue
 
 		# count
-		var count := rng.randi_range(
-			int(m.get("min_count", 1)),
-			int(m.get("max_count", 1))
-		)
+		var count := rng.randi_range(int(m.get("min_count", 1)), int(m.get("max_count", 1)))
 
 		# price
-		var price := rng.randi_range(
-			int(m.get("min_price", 1)),
-			int(m.get("max_price", 1))
-		)
+		var price := rng.randi_range(int(m.get("min_price", 1)), int(m.get("max_price", 1)))
 
-		merchant_items.append({
-			"name": item_key,
-			"count": count,
-			"price": price,
-			# allow config to specify package size; fallback to sell_batch
-			"buy_amount": int(m.get("buy_amount", sell_batch))
-		})
+		(
+			merchant_items
+			. append(
+				{
+					"name": item_key,
+					"count": count,
+					"price": price,
+					# allow config to specify package size; fallback to sell_batch
+					"buy_amount": int(m.get("buy_amount", sell_batch))
+				}
+			)
+		)
 
 		current_weight += item_weight

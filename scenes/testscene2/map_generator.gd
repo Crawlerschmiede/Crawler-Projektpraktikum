@@ -213,6 +213,7 @@ func bake_closed_doors_into_world_simple() -> void:
 
 	#print("✅ Closed doors gebacken:", total)
 
+
 # -----------------------------
 # GA: Genome / Ergebnis
 # -----------------------------
@@ -308,7 +309,7 @@ func get_random_tilemap() -> Dictionary:
 	var best := await genetic_search_best()
 	_emit_progress_mapped(0.05, 0.45, 1.0, "GA finished")
 	await get_tree().process_frame
-	
+
 	minimap = TileMapLayer.new()
 	minimap.name = "Minimap"
 	minimap.visibility_layer = 1 << 1

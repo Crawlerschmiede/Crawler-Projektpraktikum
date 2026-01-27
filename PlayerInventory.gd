@@ -8,7 +8,7 @@ const NUM_INVENTORY_SLOTS: int = 25
 # slot_index -> [item_name: String, item_quantity: int]
 var inventory: Dictionary = {}
 
-var coins : int = 100
+var coins: int = 100
 
 var slot_group_by_index: Dictionary = {}
 
@@ -315,6 +315,7 @@ func _rebuild_inventory() -> void:
 func has_coins(amount: int) -> bool:
 	return int(coins) >= int(amount)
 
+
 func spend_coins(amount: int) -> bool:
 	if amount <= 0:
 		return true
@@ -324,6 +325,7 @@ func spend_coins(amount: int) -> bool:
 	# Optionally emit inventory_changed so UI updates coin display
 	_emit_changed()
 	return true
+
 
 func add_coins(amount: int) -> void:
 	if amount <= 0:

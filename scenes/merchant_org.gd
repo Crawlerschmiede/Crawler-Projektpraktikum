@@ -15,9 +15,9 @@ func show_merchant(entity, data: Dictionary):
 
 	_rebuild(data)
 
+
 func _on_merchant_updated(data: Dictionary):
 	call_deferred("_rebuild", data)
-
 
 
 func _rebuild(data: Dictionary):
@@ -38,11 +38,14 @@ func _rebuild(data: Dictionary):
 		slot._refresh()
 
 		var idx := i
-		slot.buy_attempt.connect(func(_slot):
-			if current_merchant:
-				var success = current_merchant.buy_item(idx, int(_slot.item_count))
-				if not success:
-					push_warning("Kauf fehlgeschlagen (z.B. zu wenig Coins oder nicht genug Bestand)")
+		slot.buy_attempt.connect(
+			func(_slot):
+				if current_merchant:
+					var success = current_merchant.buy_item(idx, int(_slot.item_count))
+					if not success:
+						push_warning(
+							"Kauf fehlgeschlagen (z.B. zu wenig Coins oder nicht genug Bestand)"
+						)
 		)
 
 

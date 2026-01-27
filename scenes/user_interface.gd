@@ -7,10 +7,11 @@ var merchant_in_range: bool = false
 @onready var hot_container := $Inventory/Hotbar/HotContainer
 @onready var equipment := $Inventory/Inner/Equiptment
 @onready var equipmentlabel := $Inventory/Inner/EquiptmentLabel
-@onready var player:= $".."
-@onready var merchantgui:= $Inventory/Inner/MerchantContainer/VBoxContainer
+@onready var player := $".."
+@onready var merchantgui := $Inventory/Inner/MerchantContainer/VBoxContainer
 
 @onready var coin_screen = $Inventory/price
+
 
 func _input(event):
 	if event.is_action_pressed("open_inventory"):
@@ -25,7 +26,7 @@ func _input(event):
 		equipment.visible = true
 		equipmentlabel.visible = true
 		merchantgui.get_parent().visible = false
-		
+
 	# Hotbar 1..5 -> SlotIndex 13..17
 	for i in range(1, 6):
 		if event.is_action_pressed("hotbar_slot%d" % i):
@@ -46,7 +47,11 @@ func _refresh_hotbar_styles() -> void:
 
 func _ready() -> void:
 	# Connect coin display to PlayerInventory changes
-	if typeof(PlayerInventory) != TYPE_NIL and PlayerInventory != null and PlayerInventory.has_signal("inventory_changed"):
+	if (
+		typeof(PlayerInventory) != TYPE_NIL
+		and PlayerInventory != null
+		and PlayerInventory.has_signal("inventory_changed")
+	):
 		var cb: Callable = Callable(self, "_update_coin_screen")
 		if not PlayerInventory.inventory_changed.is_connected(cb):
 			PlayerInventory.inventory_changed.connect(cb)
@@ -63,7 +68,10 @@ func _ready() -> void:
 
 		# connect left signal as well
 		var cb_left: Callable = Callable(self, "_on_merchant_left")
-		if m.has_signal("player_left_merchant") and not m.player_left_merchant.is_connected(cb_left):
+		if (
+			m.has_signal("player_left_merchant")
+			and not m.player_left_merchant.is_connected(cb_left)
+		):
 			m.player_left_merchant.connect(cb_left)
 
 	# Watch for merchants that are added later
@@ -72,8 +80,10 @@ func _ready() -> void:
 		return
 	get_tree().node_added.connect(Callable(self, "_on_node_added"))
 
+
 func _update_coin_screen() -> void:
 	$Inventory/coin_sum.initialize_item("coin", PlayerInventory.coins)
+
 
 func _on_merchant_open(entity, data):
 	#print("Merchant!")
@@ -90,7 +100,10 @@ func _on_merchant_open(entity, data):
 
 	# ensure we listen for leave events
 	var cb_left: Callable = Callable(self, "_on_merchant_left")
-	if entity.has_signal("player_left_merchant") and not entity.player_left_merchant.is_connected(cb_left):
+	if (
+		entity.has_signal("player_left_merchant")
+		and not entity.player_left_merchant.is_connected(cb_left)
+	):
 		entity.player_left_merchant.connect(cb_left)
 
 
@@ -104,7 +117,10 @@ func _on_node_added(node: Node) -> void:
 			node.player_entered_merchant.connect(cb)
 
 		var cb_left: Callable = Callable(self, "_on_merchant_left")
-		if node.has_signal("player_left_merchant") and not node.player_left_merchant.is_connected(cb_left):
+		if (
+			node.has_signal("player_left_merchant")
+			and not node.player_left_merchant.is_connected(cb_left)
+		):
 			node.player_left_merchant.connect(cb_left)
 
 

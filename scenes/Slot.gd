@@ -67,7 +67,7 @@ func refresh_style() -> void:
 	#print(item)
 	if item != null and (not is_instance_valid(item) or item.get_parent() != self):
 		item = null
-		
+
 	if has_background:
 		if PlayerInventory.get_selected_slot() == slot_index:
 			set("theme_override_styles/panel", selected_style)

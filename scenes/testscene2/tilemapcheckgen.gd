@@ -6,7 +6,7 @@ const PLAYER_SCENE := preload("res://scenes/player-character-scene.tscn")
 const LOOTBOX := preload("res://scenes/Lootbox/Lootbox.tscn")
 const TRAP := preload("res://scenes/traps/Trap.tscn")
 const MERCHANT := preload("res://scenes/entity/merchant.tscn")
-const LOADING_SCENE:= preload("res://scenes/loadings_screen/loading_screen.tscn")
+const LOADING_SCENE := preload("res://scenes/loadings_screen/loading_screen.tscn")
 var loading_screen: CanvasLayer = null
 
 @onready var backgroundtile = $TileMapLayer
@@ -118,14 +118,15 @@ func _load_world(idx: int) -> void:
 	spawn_enemies()
 	spawn_lootbox()
 	spawn_traps()
-	
+
 	var merchants = find_merchants()
-	
+
 	for i in merchants:
 		spawn_merchant_entity(i)
-	
+
 	_hide_loading()
 	get_tree().paused = false
+
 
 func spawn_merchant_entity(cords: Vector2) -> void:
 	var e = MERCHANT.instantiate()
@@ -141,11 +142,12 @@ func spawn_merchant_entity(cords: Vector2) -> void:
 		e.set("merchant_id", id)
 		# set merchant_room key as requested
 		e.set("merchant_room", "merchant_room")
-	
+
 	if world_root != null:
 		world_root.add_child(e)
 	else:
 		add_child(e)
+
 
 func _show_loading() -> void:
 	if loading_screen == null:
@@ -239,7 +241,6 @@ func spawn_lootbox() -> void:
 		loot.name = "Lootbox_%s" % i
 		world_root.add_child(loot)
 		loot.global_position = world_pos
-		
 
 
 func _disable_lootbox_blocking(loot: Node) -> void:
@@ -475,8 +476,8 @@ func instantiate_battle(player_node: Node, enemy: Node):
 
 		get_tree().paused = true
 
-func find_merchants() -> Array[Vector2]:
 
+func find_merchants() -> Array[Vector2]:
 	var merchants: Array[Vector2] = []
 
 	var cells = dungeon_floor.get_used_cells()
@@ -500,7 +501,6 @@ func find_merchants() -> Array[Vector2]:
 			merchants.append((a + b) * 0.5)
 
 	return merchants
-
 
 
 func enemy_defeated(enemy):
