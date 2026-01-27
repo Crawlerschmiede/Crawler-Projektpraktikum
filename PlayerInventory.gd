@@ -34,8 +34,7 @@ func get_selected_slot() -> int:
 
 
 func get_item_from_selected_slot():
-	var selected_slot = get_selected_slot()
-	return inventory[selected_slot]
+	return inventory[get_selected_slot()]
 
 
 func register_slot_index(idx: int, groups: Array[StringName]) -> void:
