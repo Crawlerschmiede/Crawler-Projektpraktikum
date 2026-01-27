@@ -143,7 +143,7 @@ func close_free_doors(parent_node: Node) -> void:
 
 			total += 1
 
-	print("✔ Closed Doors gesetzt:", total)
+	#print("✔ Closed Doors gesetzt:", total)
 
 
 func bake_closed_doors_into_world_simple() -> void:
@@ -189,24 +189,9 @@ func bake_closed_doors_into_world_simple() -> void:
 
 			door.used = true
 			total += 1
-			print("door backed")
+			#print("door backed")
 
-	print("✅ Closed doors gebacken:", total)
-
-
-func debug_print_free_doors() -> void:
-	var total := 0
-	for r in placed_rooms:
-		if r == null or not r.has_method("get_free_doors"):
-			continue
-		var free = r.get_free_doors()
-		if free.size() > 0:
-			print("ROOM:", r.name, "free doors:", free.size())
-			for d in free:
-				print("  -", d.name, "dir:", d.direction, "used:", d.used)
-				total += 1
-	print("TOTAL FREE DOORS:", total)
-
+	#print("✅ Closed doors gebacken:", total)
 
 # -----------------------------
 # GA: Genome / Ergebnis
@@ -298,26 +283,12 @@ func get_random_tilemap() -> Dictionary:
 	start_room = load("res://scenes/rooms/Rooms/room_11x11_4.tscn")
 	room_scenes = load_room_scenes_from_folder(rooms_folder)
 	closed_door_scenes = load_room_scenes_from_folder(closed_doors_folder)
-	for s in closed_door_scenes:
-		print(" -", s.resource_path, "dir:", _get_closed_door_direction(s))
-	print("=== MAP GENERATION START ===")
-
 	# 1) genetische Suche (chunked + progress)
 	_emit_progress_mapped(0.05, 0.45, 0.0, "Running GA...")
 	var best := await genetic_search_best()
 	_emit_progress_mapped(0.05, 0.45, 1.0, "GA finished")
 	await get_tree().process_frame
-	print(
-		"\n🏆 BEST GENOME:",
-		best.genome,
-		"| rooms:",
-		best.rooms_placed,
-		"| corridors:",
-		best.corridors_placed,
-		"| seed:",
-		best.seed
-	)
-
+	
 	minimap = TileMapLayer.new()
 	minimap.name = "Minimap"
 	minimap.visibility_layer = 1 << 1
@@ -327,7 +298,6 @@ func get_random_tilemap() -> Dictionary:
 		clear_world_tilemaps()
 		clear_children_rooms_only()
 		await generate_with_genome(best.genome, best.seed, true)
-		debug_print_free_doors()
 		await bake_rooms_into_world_tilemap()
 
 		# Räume optional ausblenden (empfohlen)
@@ -405,8 +375,7 @@ func ensure_required_rooms(
 			if res:
 				current += 1
 				room_type_counts[key] = current
-				if verbose:
-					print("✔ REQUIRED room placed:", key, "(", current, "/", required_min, ")")
+				#print("✔ REQUIRED room placed:", key, "(", current, "/", required_min, ")")
 			else:
 				# wenn es nicht passt -> nächste Tür
 				pass
@@ -419,7 +388,7 @@ func get_room_key(scene: PackedScene) -> String:
 	var inst := scene.instantiate()
 	if inst.get_groups():
 		key = inst.get_groups()[0]
-		print("use key: ", key)
+		#print("use key: ", key)
 	# resource_path ist stabil -> perfekt als key
 	return scene.resource_path
 
@@ -491,7 +460,7 @@ func bake_closed_doors_into_minimap() -> void:
 					break
 
 			if target_layer == null:
-				print("❌ kein minimap-roomlayer gefunden für door cell:", world_cell)
+				#print("❌ kein minimap-roomlayer gefunden für door cell:", world_cell)
 				inst.queue_free()
 				continue
 
@@ -508,9 +477,9 @@ func bake_closed_doors_into_minimap() -> void:
 
 			inst.queue_free()
 			total += 1
-			print("✅ minimap door baked into:", target_layer.name)
+			#print("✅ minimap door baked into:", target_layer.name)
 
-	print("✅ Closed doors gebacken in MINIMAP:", total)
+	#print("✅ Closed doors gebacken in MINIMAP:", total)
 
 
 func get_rule(room_instance: Node, var_name: String, default_value):
@@ -567,7 +536,7 @@ func genetic_search_best() -> EvalResult:
 	if pop * gen != target:
 		gen = int(ceil(float(target) / float(pop)))
 		ga_generations = gen
-		print("⚠ [GA] pop*gen != total. Setze generations auf:", gen, "(evals=", pop * gen, ")")
+		#print("⚠ [GA] pop*gen != total. Setze generations auf:", gen, "(evals=", pop * gen, ")")
 
 	# Seed both the global RNG (legacy) and our local _rng for GA reproducibility.
 	var base_seed := ga_seed
@@ -609,19 +578,6 @@ func genetic_search_best() -> EvalResult:
 		# update best
 		if results.size() > 0 and results[0].rooms_placed > best_overall.rooms_placed:
 			best_overall = results[0]
-
-		print(
-			"[GA] Gen",
-			g_i,
-			"| evals:",
-			eval_counter,
-			"/",
-			target,
-			"| best_this_gen:",
-			results[0].rooms_placed,
-			"| best_overall:",
-			best_overall.rooms_placed
-		)
 
 		# --- build next generation ---
 		# selection pool: top half
@@ -678,7 +634,7 @@ func evaluate_genome(genome: Genome, trial_seed: int) -> EvalResult:
 		if SettingsManager.has_method("set_game_seed"):
 			SettingsManager.set_game_seed(trial_seed)
 
-	# echte Generierung (ohne Debug-Print spam)
+	# echte Generierung (ohne Debug-#print spam)
 	var stats := await generate_with_genome(genome, trial_seed, false, container)
 
 	# restore previous seed
@@ -1203,12 +1159,6 @@ func bake_rooms_into_world_tilemap() -> void:
 		if top_tm != null:
 			await copy_layer_into_world(top_tm, world_tilemap_top, room_offset)
 
-	print(
-		"✔ [BAKE] WorldTileMaps erstellt | Floor tiles:",
-		world_tilemap.get_used_cells().size(),
-		"| Top tiles:",
-		world_tilemap_top.get_used_cells().size()
-	)
 	# finished building tilemaps, now bake closed doors (map to 0.92..0.98)
 	_emit_progress_mapped(0.92, 0.98, 0.0, "Baking doors...")
 	await get_tree().process_frame
@@ -1284,7 +1234,7 @@ func bake_closed_doors_into_world() -> void:
 			door.used = true
 			total += 1
 
-	print("✔ [BAKE] Closed Doors gebacken:", total)
+	#print("✔ [BAKE] Closed Doors gebacken:", total)
 
 
 func _find_any_door_node(root: Node) -> Node:

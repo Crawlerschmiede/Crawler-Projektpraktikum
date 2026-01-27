@@ -172,7 +172,6 @@ func spawn_traps() -> void:
 			candidates.append(cell)
 
 	if candidates.is_empty():
-		print("⚠️ Keine lootbox_spawnable Tiles gefunden!")
 		return
 
 	# maximal 20 Lootboxen
@@ -187,11 +186,6 @@ func spawn_traps() -> void:
 		loot.name = "Trap_%s" % i
 		world_root.add_child(loot)
 		loot.global_position = world_pos
-
-		# ✅ Lootbox darf NICHT blockieren:
-		#e_disable_lootbox_blocking(loot)
-
-	print("✅ Lootboxen gespawnt:", amount)
 
 
 func spawn_lootbox() -> void:
@@ -215,7 +209,6 @@ func spawn_lootbox() -> void:
 			candidates.append(cell)
 
 	if candidates.is_empty():
-		print("⚠️ Keine lootbox_spawnable Tiles gefunden!")
 		return
 
 	# maximal 20 Lootboxen
@@ -230,11 +223,7 @@ func spawn_lootbox() -> void:
 		loot.name = "Lootbox_%s" % i
 		world_root.add_child(loot)
 		loot.global_position = world_pos
-
-		# ✅ Lootbox darf NICHT blockieren:
-		#e_disable_lootbox_blocking(loot)
-
-	print("✅ Lootboxen gespawnt:", amount)
+		
 
 
 func _disable_lootbox_blocking(loot: Node) -> void:
@@ -305,8 +294,6 @@ func _on_player_exit_reached() -> void:
 	if switching_world:
 		return
 	switching_world = true
-
-	print("EXIT reached -> switching world")
 
 	world_index += 1
 	await _load_world(world_index)
@@ -429,20 +416,16 @@ func spawn_player() -> void:
 
 
 func _on_player_moved() -> void:
-	print("moved")
 	if minimap == null or dungeon_floor == null or player == null:
 		return
-	print("moved1")
 	# 1) Player -> Cell in FLOOR Tilemap
 	var world_cell: Vector2i = dungeon_floor.local_to_map(
 		dungeon_floor.to_local(player.global_position)
 	)
-	print("moved2")
 	# 2) passende RoomLayer finden, deren tile_origin passt
 	for child in minimap.get_children():
 		if not (child is TileMapLayer):
 			continue
-		print(child.name)
 		var room_layer := child as TileMapLayer
 
 		# RoomOrigin steht im Namen: Room_x_y
@@ -453,7 +436,6 @@ func _on_player_moved() -> void:
 		var local_cell := world_cell - origin
 
 		if room_layer.get_cell_source_id(local_cell) != -1:
-			print(room_layer.get_cell_source_id(local_cell))
 			room_layer.visible = true
 			return
 

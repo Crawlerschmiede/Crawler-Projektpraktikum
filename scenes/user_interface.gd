@@ -31,7 +31,7 @@ func _input(event):
 		if event.is_action_pressed("hotbar_slot%d" % i):
 			var slot_index := i + 17
 			PlayerInventory.set_selectet_slot(slot_index)
-			print("Slot:", slot_index, "selected!")
+			#print("Slot:", slot_index, "selected!")
 
 			_refresh_hotbar_styles()
 			return
@@ -56,7 +56,7 @@ func _ready() -> void:
 
 	# Connect existing merchants (if any)
 	for m in get_tree().get_nodes_in_group("merchant_entity"):
-		print("CONNECT MERCHANT:", m)
+		#print("CONNECT MERCHANT:", m)
 		var cb2: Callable = Callable(self, "_on_merchant_open")
 		if not m.player_entered_merchant.is_connected(cb2):
 			m.player_entered_merchant.connect(cb2)
@@ -76,7 +76,7 @@ func _update_coin_screen() -> void:
 	$Inventory/coin_sum.initialize_item("coin", PlayerInventory.coins)
 
 func _on_merchant_open(entity, data):
-	print("Merchant!")
+	#print("Merchant!")
 
 	# remember which merchant we're interacting with
 	current_merchant = entity
@@ -98,7 +98,7 @@ func _on_node_added(node: Node) -> void:
 	if node == null:
 		return
 	if node.is_in_group("merchant_entity"):
-		print("NEW MERCHANT ADDED, CONNECTING:", node)
+		#print("NEW MERCHANT ADDED, CONNECTING:", node)
 		var cb: Callable = Callable(self, "_on_merchant_open")
 		if not node.player_entered_merchant.is_connected(cb):
 			node.player_entered_merchant.connect(cb)
@@ -109,12 +109,12 @@ func _on_node_added(node: Node) -> void:
 
 
 func _on_merchant_updated(updated):
-	print("rebuild Merchant")
+	#print("rebuild Merchant")
 	merchantgui._rebuild(updated)
 
 
 func _on_merchant_left(entity: Node) -> void:
-	print("UI: merchant left:", entity)
+	#print("UI: merchant left:", entity)
 	if current_merchant == entity:
 		current_merchant = null
 		merchant_in_range = false

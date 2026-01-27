@@ -58,6 +58,6 @@ func set_progress(p: float, text: String = "") -> void:
 	var pct := int(clamp(p * 100.0, 0, 100))
 	if bar != null:
 		bar.value = pct
-	print("Progress: ", pct)
+	#print("Progress: ", pct)
 	if label != null and text != "":
 		label.text = text

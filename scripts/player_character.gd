@@ -21,7 +21,7 @@ const active_skilltrees = ["unarmed"]
 
 func _ready() -> void:
 	if camera == null:
-		print("Children:", get_children())
+		#print("Children:", get_children())
 		push_error("❌ Camera2D fehlt im Player!")
 		return
 	
@@ -145,9 +145,6 @@ func add_action(skill_name):
 	var skill = existing_skills.get_skill(skill_name)
 	if skill != null:
 		actions.append(skill)
-	else:
-		print(skill_name + "doesn't exist!")
-
 
 func _on_area_2d_area_entered(area: Area2D):
 	# Prüfen, ob das Objekt eine Funktion "collect" besitzt

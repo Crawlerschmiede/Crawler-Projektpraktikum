@@ -7,12 +7,22 @@ var current_merchant
 
 func show_merchant(entity, data: Dictionary):
 	current_merchant = entity
+
+	if not current_merchant.merchant_updated.is_connected(_on_merchant_updated):
+		current_merchant.merchant_updated.connect(_on_merchant_updated)
+
 	_rebuild(data)
+
+func _on_merchant_updated(data: Dictionary):
+	_rebuild(data)
+	pass
+
 
 
 func _rebuild(data: Dictionary):
 	clear()
-
+	await get_tree().process_frame
+	
 	for i in range(data["items"].size()):
 		var slot = merchant_slot.instantiate()
 		add_child(slot)
@@ -21,19 +31,21 @@ func _rebuild(data: Dictionary):
 
 		slot.item_name = item["name"]
 		slot.item_count = item["count"]
+		print(item["count"])
 		slot.price = item["price"]
 
 		slot._refresh()
 
-		# click -> buy (capture index by value)
 		var idx := i
-		slot.gui_input.connect(func(event):
-			if event is InputEventMouseButton and event.pressed:
-				if current_merchant != null:
-					print("[MerchantUI] slot click idx:", idx, " merchant_id:", current_merchant.get("merchant_id"))
-					current_merchant.buy_item(idx)
-				else:
-					print("[MerchantUI] slot click but current_merchant is null (idx:", idx, ")"))
+
+		# 🔥 Signal vom Slot abfangen
+		slot.buy_attempt.connect(func(_slot):
+			if current_merchant != null:
+				current_merchant.buy_item(idx)
+			else:
+				push_warning("current_merchant is null")
+		)
+
 func clear():
 	for c in get_children():
 		c.queue_free()

@@ -63,8 +63,8 @@ func _fit_item_to_slot(it: Node) -> void:
 
 
 func refresh_style() -> void:
-	print(PlayerInventory.get_selected_slot())
-	print(item)
+	#print(PlayerInventory.get_selected_slot())
+	#print(item)
 	if item != null and (not is_instance_valid(item) or item.get_parent() != self):
 		item = null
 		

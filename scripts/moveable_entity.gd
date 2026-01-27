@@ -207,9 +207,6 @@ func add_skill(skill_name):
 	var skill = existing_skills.get_skill(skill_name)
 	if skill != null:
 		abilities.append(skill)
-	else:
-		print(skill_name + "doesn't exist!")
-
 
 #--battle logic--
 
@@ -221,18 +218,18 @@ func initiate_battle(player: Node, enemy: Node) -> bool:
 
 
 func take_damage(damage):
-	print(self, " takes ", damage, " damage!")
+	#print(self, " takes ", damage, " damage!")
 	var taken_damage = damage  #useless right now but just put here for later damage calculations
 	hp = hp - taken_damage
-	print("Now has ", hp, "HP")
+	#print("Now has ", hp, "HP")
 	return [" took " + str(taken_damage) + " Damage", " now has " + str(hp) + " HP"]
 
 
 func heal(healing):
-	print(self, " heals by ", healing, "!")
+	#print(self, " heals by ", healing, "!")
 	var healed_hp = healing  #useless right now but just put here for later damage calculations
 	hp = hp + healed_hp
-	print("Now has ", hp, "HP")
+	#print("Now has ", hp, "HP")
 	return [" healed by " + str(healed_hp), " now has " + str(hp) + " HP"]
 
 

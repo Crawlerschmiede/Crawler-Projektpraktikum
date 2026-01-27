@@ -50,16 +50,13 @@ func _ready():
 
 
 func _on_body_entered(body):
-	print("BODY:", body)
-
 	if body.is_in_group("player"):
-		print("PLAYER DETECTED")
+
+		var rk := _get_registry_key()
+		if MerchantRegistry != null:
+			merchant_items = MerchantRegistry.get_items(rk)
+
 		print("Merchant items on enter:", merchant_items)
-		# log registry when a player enters
-		if typeof(MerchantRegistry) != TYPE_NIL and MerchantRegistry != null:
-			var rk = _get_registry_key()
-			print("[Merchant] loading registry key:", rk)
-			print("[Merchant] registry content:", MerchantRegistry.get_registry())
 		emit_signal("player_entered_merchant", self, _get_data())
 
 
@@ -95,7 +92,7 @@ func buy_item(index: int, amount: int = -1) -> void:
 	if item["count"] <= 0:
 		return
 
-	var to_buy = min(amount, int(item["count"]))
+	var to_buy = amount
 	if to_buy <= 0:
 		return
 
@@ -119,13 +116,7 @@ func buy_item(index: int, amount: int = -1) -> void:
 	merchant_items[index] = item
 
 	# update registry in MerchantRegistry autoload (if present)
-	if typeof(MerchantRegistry) != TYPE_NIL and MerchantRegistry != null:
-		MerchantRegistry.set_items(_get_registry_key(), merchant_items)
-		# always print registry after update
-		print("[Merchant] registry after set:", MerchantRegistry.get_registry())
-
-	print("After buy - merchant_items:", merchant_items)
-
+	MerchantRegistry.set_items(_get_registry_key(), merchant_items)
 	# emit update (state is kept in-memory for this runtime)
 	emit_signal("merchant_updated", _get_data())
 

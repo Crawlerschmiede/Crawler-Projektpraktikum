@@ -26,7 +26,6 @@ func initialize_item(item_name: String, item_quantity: int) -> void:
 	display_item = ItemScene.instantiate()
 	add_child(display_item)
 
-	# 👉 NICHT stretchen – nur sauber positionieren
 	display_item.position = Vector2.ZERO
 
 	await display_item.ready

@@ -58,35 +58,6 @@ func _update_visual_state() -> void:
 # BUY LOGIC
 # -------------------------------------------------
 func _try_buy() -> void:
-	if item_name == "":
-		push_warning("No item_name set")
+	if sold:
 		return
-
-	if typeof(PlayerInventory) == TYPE_NIL or PlayerInventory == null:
-		push_error("PlayerInventory missing")
-		return
-
-	# Geld abziehen
-	var success := false
-
-	if PlayerInventory.has_method("spend_coins"):
-		success = PlayerInventory.spend_coins(price)
-	else:
-		if "coins" in PlayerInventory and PlayerInventory.coins >= price:
-			PlayerInventory.coins -= price
-			success = true
-
-	if not success:
-		can_buy = false
-		_update_visual_state()
-		return
-
-	# Item geben
-	if PlayerInventory.has_method("add_item"):
-		PlayerInventory.add_item(item_name, item_count)
-
-	# Mark as sold
-	sold = true
-	_update_visual_state()
-
-	emit_signal("buy_attempt", item_name, price)
+	emit_signal("buy_attempt", self)
