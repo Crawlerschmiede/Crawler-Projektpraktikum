@@ -272,10 +272,10 @@ func _cancel_rebind() -> void:
 
 func _update_rebind_hint() -> void:
 	if _rebind_action.is_empty():
-		hotkey_hint.text = "Click Rebind, then press a key (Esc cancels)."
+		hotkey_hint.text = " Click Rebind, then press a key (Esc cancels)."
 		hotkey_hint.add_theme_font_override("font", custom_font)
 	else:
-		hotkey_hint.text = "Rebinding: %s (press a key, Esc cancels)." % _rebind_action
+		hotkey_hint.text = " Rebinding: %s (press a key, Esc cancels)." % _rebind_action
 
 
 func _on_window_mode_changed(idx: int) -> void:
