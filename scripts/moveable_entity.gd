@@ -12,6 +12,10 @@ var types = ["passive"]
 var existing_skills = SKILLS.new()
 var abilities_this_has: Array = []
 var multi_turn_action = null
+
+var dimensions: Vector2i = Vector2i(1,1)
+var my_tiles = [Vector2i(0,0)] #if I built this at all right, you will never need to touch this, it should just work with the resize function
+
 var sprites = {
 	"bat":
 	[preload("res://scenes/sprite_scenes/bat_sprite_scene.tscn"), ["Screech", "Swoop", "Rabies"]],
@@ -175,13 +179,15 @@ func check_collisions() -> void:
 	for body in collision_area.get_overlapping_bodies():
 		if body == self:
 			continue
-		if body.is_in_group("item"):
+		elif body.is_in_group("item"):
 			continue
-		if grid_pos == body.grid_pos:
-			if self.is_player:
-				initiate_battle(self, body)
-			elif body.is_player:
-				initiate_battle(body, self)
+		else:
+			for tile in my_tiles:
+				if (grid_pos+tile) == body.grid_pos:
+					if self.is_player:
+						initiate_battle(self, body)
+					elif body.is_player:
+						initiate_battle(body, self)
 
 
 func _on_move_finished():

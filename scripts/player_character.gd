@@ -22,7 +22,7 @@ const active_skilltrees = ["unarmed"]
 
 func _ready() -> void:
 	if camera == null:
-		print("Children:", get_children())
+		#print("Children:", get_children())
 		push_error("❌ Camera2D fehlt im Player!")
 		return
 	
