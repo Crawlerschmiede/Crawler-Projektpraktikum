@@ -2,9 +2,6 @@ extends HBoxContainer
 
 signal buy_attempt(slot)
 
-@onready var item = $item
-@onready var price_node = $price
-
 @export var item_count: int = 0
 @export var item_name: String = ""
 @export var price: int = 0
@@ -13,6 +10,9 @@ signal buy_attempt(slot)
 
 var sold := false
 var can_buy := true
+
+@onready var item = $item
+@onready var price_node = $price
 
 
 func _ready() -> void:

@@ -1,9 +1,9 @@
 extends Panel
 
-@export var slot_index: int = -1
-@export var slotType: int = 0
-
 const ItemScene: PackedScene = preload("res://scenes/Item/item.tscn")
+
+@export var slot_index: int = -1
+@export var slot_type: int = 0
 
 var display_item: InventoryItem = null
 
