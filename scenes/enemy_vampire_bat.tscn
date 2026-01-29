@@ -2,8 +2,8 @@
 
 [ext_resource type="Script" uid="uid://b7x880xhs86o4" path="res://scripts/enemy_vampire_bat.gd" id="1_eqs6b"]
 
-[sub_resource type="CircleShape2D" id="CircleShape2D_ymaes"]
-radius = 8.0
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_erdrp"]
+size = Vector2(16, 16)
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_eqs6b"]
 radius = 8.0
@@ -16,8 +16,8 @@ script = ExtResource("1_eqs6b")
 [node name="CollisionArea" type="Area2D" parent="."]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="CollisionArea"]
-position = Vector2(0, 1)
-shape = SubResource("CircleShape2D_ymaes")
+shape = SubResource("RectangleShape2D_erdrp")
+debug_color = Color(0, 0.6, 0.69803923, 0.5137255)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(0, 1)
