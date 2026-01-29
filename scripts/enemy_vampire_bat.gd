@@ -91,15 +91,14 @@ func chase():
 	if chased_pos.y > grid_pos.y:
 		y_move = Vector2i.DOWN
 	if "wallbound" in types:
+		elongate()
 		if is_next_to_wall(grid_pos + x_move) and x_move != Vector2i.ZERO:
 			move_to_tile(x_move)
 			chase_timer = CHASE_COOLDOWN
-			elongate()
 			return
 		if is_next_to_wall(grid_pos + y_move) and y_move != Vector2i.ZERO:
 			move_to_tile(y_move)
 			chase_timer = CHASE_COOLDOWN
-			elongate()
 			return
 	elif "burrowing" in types:
 		if tilemap.get_cell_tile_data(grid_pos + x_move) and x_move != Vector2i.ZERO:
