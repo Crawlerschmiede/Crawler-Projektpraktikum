@@ -199,10 +199,9 @@ func add_item(item_name: String, item_quantity: int = 1) -> void:
 func _priority(i):
 	if i >= 6 and i <= 16:
 		return i  # höchste Priorität
-	elif i >= 1 and i <= 6:
+	if i >= 1 and i <= 6:
 		return 100 + i  # danach
-	else:
-		return 1000 + i  # Rest hinten
+	return 1000 + i  # Rest hinten
 
 
 func _emit_changed() -> void:

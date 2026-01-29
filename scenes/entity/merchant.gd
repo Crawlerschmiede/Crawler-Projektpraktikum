@@ -1,5 +1,5 @@
-extends CharacterBody2D
 class_name MerchantEntity
+extends CharacterBody2D
 
 signal merchant_updated
 signal player_entered_merchant

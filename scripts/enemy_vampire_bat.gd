@@ -8,6 +8,7 @@ const CHASE_COOLDOWN: float = 0.5
 var roam_timer: float = 5.0
 var chase_timer: float = 5.0
 var burrowed = false
+var expanded = false
 var chased_pos: Vector2i
 var chased_direction: Vector2i
 
@@ -25,6 +26,11 @@ func roam():
 		if burrowed:
 			burrowed = false
 			sprite.play("default")
+	if expanded:
+		expanded=false
+		resize(1, 1, ["M"])
+		move_sprite(0, 0, 0)
+		sprite.play("default")
 	chasing = false
 	var direction_int = 0
 	var direction = Vector2i.ZERO
@@ -88,10 +94,12 @@ func chase():
 		if is_next_to_wall(grid_pos + x_move) and x_move != Vector2i.ZERO:
 			move_to_tile(x_move)
 			chase_timer = CHASE_COOLDOWN
+			elongate()
 			return
 		if is_next_to_wall(grid_pos + y_move) and y_move != Vector2i.ZERO:
 			move_to_tile(y_move)
 			chase_timer = CHASE_COOLDOWN
+			elongate()
 			return
 	elif "burrowing" in types:
 		if tilemap.get_cell_tile_data(grid_pos + x_move) and x_move != Vector2i.ZERO:
@@ -174,6 +182,8 @@ func _process(delta: float) -> void:
 
 func move_it():
 	#print("Move1")
+	check_collisions()
+
 	if multi_turn_action == null:
 		#print("Move2")
 		var saw_player = check_sight()
@@ -266,3 +276,120 @@ func check_sight() -> bool:
 func decide_attack() -> void:
 	var chosen_index = rng.randi_range(0, len(abilities) - 1)
 	chosen = abilities[chosen_index]
+	print("Next ability is ", chosen.name)
+	
+#x and y offset in tiles
+func move_sprite(x_offset, y_offset, rotation):
+	sprite.rotation_degrees=rotation
+	sprite.position.y=y_offset*16
+	sprite.position.x=x_offset*16
+	
+#standard size is 1,1->16px*16px
+#i.e. sizes are to be given in TILES
+#anchor is... uhh... [U], [D], [L], [R], [U,L], [U,R], [D,L], [D,R], [M]!
+#(as in Up, Down, Left, Right, Up-Left...Middle... you get the gist of it)
+func resize(x_size:int,y_size:int, anchors, animation=null, new_animation=null):
+	var coll_shape = $CollisionArea/CollisionShape2D
+	var coll_rect = coll_shape.shape.duplicate(true) as RectangleShape2D
+	coll_rect.size.x = x_size*16
+	coll_rect.size.y = y_size*16
+	coll_shape.shape = coll_rect
+	for anchor in anchors:
+		match anchor:
+			"U":
+				coll_shape.position.y= y_size*8
+			"D":
+				coll_shape.position.y= y_size*(-8)
+			"L":
+				coll_shape.position.x= x_size*8
+			"R":
+				coll_shape.position.x= x_size*(-8)
+			"M":
+				coll_shape.position.x= 0
+				coll_shape.position.y= 0
+	dimensions = Vector2i(x_size, y_size)
+	my_tiles = []
+	my_tiles.append(Vector2i(0,0))
+	if y_size>1 and x_size>1:
+		for i in range(y_size-1):
+			var y_offset = i+1
+			if "D" in anchors:
+				y_offset=y_offset*-1
+			for j in range(x_size-1):
+				var x_offset = j+1
+				if "R" in anchors:
+					x_offset=x_offset*-1
+				my_tiles.append(Vector2i(j+1,i+1))
+	elif x_size>1:
+		for i in range(x_size-1):
+			var offset = i+1
+			if "R" in anchors:
+				offset=offset*-1
+			my_tiles.append(Vector2i(offset, 0))
+	elif y_size>1:
+		for i in range(y_size-1):
+			var offset = i+1
+			if "D" in anchors:
+				offset=offset*-1
+			my_tiles.append(Vector2i(0,offset))
+			
+			
+			
+func elongate():
+	var expand = false
+	var anchor ="M"
+	var x_size = 1
+	var y_size = 1
+	var x_offset = 0
+	var y_offset = 0
+	var rotation = 0
+	var directions = [Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, Vector2i.RIGHT]
+	for direction in directions:
+		if is_next_to_wall(grid_pos+direction*2) and not is_next_to_wall(grid_pos+direction):
+			expand=true
+			match direction:
+				Vector2i.UP:
+					anchor="D"
+					x_size = 1
+					y_size = 3
+					x_offset = 0
+					y_offset = -1
+					rotation = 270
+				Vector2i.DOWN:
+					anchor="U"
+					x_size = 1
+					y_size = 3
+					x_offset = 0
+					y_offset = 1
+					rotation = 90
+				Vector2i.LEFT:
+					anchor="R"
+					x_size = 3
+					y_size = 1
+					x_offset = -1
+					y_offset = 0
+					rotation = 180
+				Vector2i.RIGHT:
+					anchor="L"
+					x_size = 3
+					y_size = 1
+					x_offset = 1
+					y_offset = 0
+					rotation = 0
+			if not expanded:
+				expanded = true
+				resize(x_size, y_size, [anchor])
+				move_sprite(x_offset, y_offset, rotation)
+				sprite.play("expand")
+				await sprite.animation_finished
+				sprite.play("expanded_idle")	
+	if not expand and expanded:
+		sprite.play_backwards("expand")
+		await sprite.animation_finished
+		sprite.play("default")	
+		expanded = false
+		resize(1, 1, ["M"])
+		move_sprite(0, 0, 0)
+		
+	check_collisions()
+		

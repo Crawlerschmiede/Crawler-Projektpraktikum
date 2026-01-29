@@ -1,21 +1,5 @@
-extends Panel
 class_name Slot
-
-@export var slot_index: int = -1
-@export var slotType: int = 0  # SlotType enum value
-
-# Textures
-@export var default_tex: Texture2D = preload("res://assets/menu/UI_TravelBook_Slot01b.png")
-@export var empty_tex: Texture2D = preload("res://assets/menu/UI_TravelBook_Slot01b.png")
-@export var selected_tex: Texture2D = preload("res://assets/menu/Selected_slot.png")
-@export var has_background: bool = true
-var default_style: StyleBoxTexture
-var empty_style: StyleBoxTexture
-var selected_style: StyleBoxTexture
-
-# Item
-const ItemScene: PackedScene = preload("res://scenes/Item/item.tscn")
-var item: Node = null
+extends Panel
 
 enum SlotType {
 	HOTBAR = 0,
@@ -28,7 +12,21 @@ enum SlotType {
 const SLOT_TEXTURE: Texture2D = preload("res://assets/menu/UI_TravelBook_Slot01b.png")
 const ITEM_SCENE: PackedScene = preload("res://scenes/Item/item.tscn")
 
+@export var slot_index: int = -1
 @export var slot_type: int = 0  # SlotType enum value
+
+# Textures
+@export var default_tex: Texture2D = SLOT_TEXTURE
+@export var empty_tex: Texture2D = SLOT_TEXTURE
+@export var selected_tex: Texture2D = preload("res://assets/menu/Selected_slot.png")
+@export var has_background: bool = true
+
+var default_style: StyleBoxTexture
+var empty_style: StyleBoxTexture
+var selected_style: StyleBoxTexture
+
+# Item
+var item: Node = null
 
 var _ui: Node = null
 

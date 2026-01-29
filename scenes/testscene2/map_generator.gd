@@ -381,7 +381,7 @@ func get_required_scenes() -> Array[PackedScene]:
 
 
 func ensure_required_rooms(
-	parent_node: Node, local_placed: Array[Node2D], genome: Genome, verbose: bool
+	parent_node: Node, local_placed: Array[Node2D], genome: Genome, _verbose: bool
 ) -> void:
 	var required_scenes := get_required_scenes()
 	if required_scenes.is_empty():
