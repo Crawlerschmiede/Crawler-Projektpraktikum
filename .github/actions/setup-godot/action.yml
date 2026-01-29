@@ -32,4 +32,4 @@ runs:
       run: |
         curl -L -o templates.tpz https://github.com/godotengine/godot/releases/download/${{ inputs.godot-version }}-stable/Godot_v${{ inputs.godot-version }}-stable_export_templates.tpz
         mkdir -p ~/.local/share/godot/export_templates/${{ inputs.godot-version }}.stable
-        tar -xf templates.tpz -C ~/.local/share/godot/export_templates/${{ inputs.godot-version }}.stable
+        unzip -q templates.tpz -d ~/.local/share/godot/export_templates/${{ inputs.godot-version }}.stable
