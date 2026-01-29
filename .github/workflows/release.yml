@@ -12,15 +12,13 @@ on:
         type: string
 
 env:
-  GODOT_VERSION: 4.5.1
+  GODOT_VERSION: 4.6
   EXPORT_NAME: Crawler-Projektpraktikum
 
 jobs:
   build-windows:
     name: Build Windows
     runs-on: ubuntu-24.04
-    container:
-      image: barichello/godot-ci:4.5.1
     env:
       RELEASE_TAG: ${{ github.event.inputs.tag || github.ref_name }}
     steps:
@@ -29,31 +27,15 @@ jobs:
         with:
           lfs: true
           ref: ${{ env.RELEASE_TAG }}
-
-      - name: Install X11 dependencies
-        run: |
-          apt-get update
-          apt-get install -y \
-            xvfb \
-            x11-utils \
-            libxcursor1 \
-            libxcursor-dev \
-            libwayland-cursor0 \
-            libfontconfig1 \
-            libxrender1 \
-            libx11-dev \
-            libxrandr-dev \
-            zip
-
-      - name: Setup export templates
-        run: |
-          mkdir -v -p ~/.local/share/godot/export_templates/
-          mv /root/.local/share/godot/export_templates/${GODOT_VERSION}.stable ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable
+      - name: Setup Godot
+        uses: ./.github/actions/setup-godot
+        with:
+          godot-version: ${{ env.GODOT_VERSION }}
 
       - name: Export Windows
         run: |
           mkdir -v -p build/windows dist
-          xvfb-run -a godot --verbose --export-release "Windows Desktop" "build/windows/$EXPORT_NAME.exe"
+          ./Godot_v${{ env.GODOT_VERSION }}-stable_linux.x86_64 --headless --verbose --export-release "Windows Desktop" "build/windows/$EXPORT_NAME.exe"
 
       - name: Package Windows
         run: |
@@ -70,8 +52,6 @@ jobs:
   build-linux:
     name: Build Linux
     runs-on: ubuntu-24.04
-    container:
-      image: barichello/godot-ci:4.5.1
     env:
       RELEASE_TAG: ${{ github.event.inputs.tag || github.ref_name }}
     steps:
@@ -80,30 +60,15 @@ jobs:
         with:
           lfs: true
           ref: ${{ env.RELEASE_TAG }}
-
-      - name: Install X11 dependencies
-        run: |
-          apt-get update
-          apt-get install -y \
-            xvfb \
-            x11-utils \
-            libxcursor1 \
-            libxcursor-dev \
-            libwayland-cursor0 \
-            libfontconfig1 \
-            libxrender1 \
-            libx11-dev \
-            libxrandr-dev
-
-      - name: Setup export templates
-        run: |
-          mkdir -v -p ~/.local/share/godot/export_templates/
-          mv /root/.local/share/godot/export_templates/${GODOT_VERSION}.stable ~/.local/share/godot/export_templates/${GODOT_VERSION}.stable
+      - name: Setup Godot
+        uses: ./.github/actions/setup-godot
+        with:
+          godot-version: ${{ env.GODOT_VERSION }}
 
       - name: Export Linux
         run: |
           mkdir -v -p build/linux dist
-          xvfb-run -a godot --verbose --export-release "Linux" "build/linux/$EXPORT_NAME.x86_64"
+          ./Godot_v${{ env.GODOT_VERSION }}-stable_linux.x86_64 --headless --verbose --export-release "Linux" "build/linux/$EXPORT_NAME.x86_64"
 
       - name: Package Linux
         run: |
