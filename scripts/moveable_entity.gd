@@ -271,5 +271,5 @@ func deal_with_status_effects() -> Array:
 
 
 # --- helpers ---
-func has_animation(sprite: AnimatedSprite2D, anim_name: String) -> bool:
-	return sprite.sprite_frames.has_animation(anim_name)
+func has_animation(anim_sprite: AnimatedSprite2D, anim_name: String) -> bool:
+	return anim_sprite.sprite_frames.has_animation(anim_name)
