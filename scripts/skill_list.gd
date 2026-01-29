@@ -45,6 +45,13 @@ func _populate_list(tab_idx: int) -> void:
 					_on_skill_pressed.bind(ability),
 					_on_mouse_entered.bind(ability.name, ability.description),
 				)
+		Tab.ACTIONS:
+			for ability in player.actions:
+				_add_button(
+					ability.name,
+					_on_skill_pressed.bind(ability),
+					_on_mouse_entered.bind(ability.name, ability.description),
+				)
 
 
 func _clear_vbox(vbox: VBoxContainer) -> void:

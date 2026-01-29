@@ -5,6 +5,37 @@ signal player_victory
 
 const MARKER_PREFAB := preload("res://scenes/marker.tscn")
 
+const MARKER_FLAVOURS = {
+	"dmg_reduc_":
+	{
+		"visual": "safety",
+		"info": "Standing here will let you avoid <PUTVALUEHERE>% of incoming Damage!",
+		"log": ["Seems like there's some safe zones here"]
+	},
+	"dmg_mult_":
+	{
+		"visual": "danger",
+		"info": "Standing here will make you take <PUTVALUEHERE>x Damage!",
+		"log":
+		[
+			"Seems like this attack is more dangerous in some places",
+			"Pay attention to your positioning!"
+		]
+	},
+	"death_":
+	{
+		"visual": "death",
+		"info": "Look man, it's a floating skull, this is not where want to be standing",
+		"log": ["Is that a floating skull?", "Maybe avoid standing there!"]
+	},
+	"heal_":
+	{
+		"visual": "heal",
+		"info": "Standing here will heal you for <PUTVALUEHERE>!",
+		"log": ["Seems like you can grab some healing here"]
+	},
+}
+
 @export var player: Node
 @export var enemy: Node
 
@@ -72,7 +103,7 @@ func enemy_prepare_turn():
 		active_marker.queue_free()
 	active_markers.clear()
 	log_container.add_log_event("The enemy prepares its Skill " + enemy.chosen.name + "!")
-	print(enemy, " prepares its Skill ", enemy.chosen.name, "!")
+	#print(enemy, " prepares its Skill ", enemy.chosen.name, "!")
 	var preps = enemy.chosen.prep_skill(enemy, player, self)
 	for prep in preps:
 		log_container.add_log_event(prep)
@@ -91,7 +122,7 @@ func enemy_turn():
 		enemy_hp_bar.value = (enemy.hp * 100.0) / enemy.max_hp
 		player_hp_bar.value = (player.hp * 100.0) / player.max_hp
 		if extra_stuff[0]:
-			print(enemy, " activates its Skill ", enemy.chosen.name, "!")
+			#print(enemy, " activates its Skill ", enemy.chosen.name, "!")
 			happened = enemy.chosen.activate_skill(enemy, player, self)
 			for happening in happened:
 				log_container.add_log_event(happening)
@@ -158,12 +189,32 @@ func move_player(direction: String, distance: int):
 		return "Attempting to move " + dir + ", the player only pushed against the wall"
 	player_gridpos = new_cell
 	player_sprite.position = combat_tilemap.map_to_local(player_gridpos)
+	check_curr_tile_mods()
 	return "Player moved " + dir
 
 
-func apply_danger_zones(mult, pos, _dur, direction):
+func check_curr_tile_mods():
+	var active_placement_effects = tile_modifiers.get(player_gridpos, {})
+	for modifier_name in active_placement_effects:
+		var modifier_value = active_placement_effects[modifier_name]
+
+		match modifier_name:
+			"death_bad":
+				player.hp = 0
+			"death_good":
+				enemy.hp = 0
+			"heal_good":
+				player.heal(modifier_value)
+			"heal_bad":
+				enemy.heal(modifier_value)
+	check_victory()
+
+
+func apply_zones(zone_type, mult, pos, _dur, direction):
 	# NOTE: duration currently unused (effects are 1-turn only).
-	var mult_type = "dmg_mult_" + direction
+	var mult_type = zone_type + direction
+	var marker_info = MARKER_FLAVOURS[zone_type]
+	var marker_visual = marker_info["visual"]
 	if pos == "player_x":
 		for tile in used_cells:
 			if tile.x == player_gridpos.x:
@@ -171,6 +222,27 @@ func apply_danger_zones(mult, pos, _dur, direction):
 	elif pos == "player_y":
 		for tile in used_cells:
 			if tile.y == player_gridpos.y:
+				tile_modifiers[tile] = {mult_type: mult}
+	elif pos == "player_pos":
+		for tile in used_cells:
+			if tile == player_gridpos:
+				tile_modifiers[tile] = {mult_type: mult}
+	elif pos == "surrounding":
+		for tile in used_cells:
+			if tile == player_gridpos:
+				continue
+			elif (
+				(
+					tile.x == player_gridpos.x - 1
+					or tile.x == player_gridpos.x
+					or tile.x == player_gridpos.x + 1
+				)
+				and (
+					tile.y == player_gridpos.y - 1
+					or tile.y == player_gridpos.y
+					or tile.y == player_gridpos.y + 1
+				)
+			):
 				tile_modifiers[tile] = {mult_type: mult}
 	elif "x" in pos:
 		var parts = pos.split("=")
@@ -183,7 +255,7 @@ func apply_danger_zones(mult, pos, _dur, direction):
 				tile_modifiers[tile] = {mult_type: mult}
 	elif "y" in pos:
 		var parts = pos.split("=")
-		print("parts: ", parts)
+		#print("parts: ", parts)
 		var min_y = 99999999999999
 		for tile in used_cells:
 			if tile.y < min_y:
@@ -191,18 +263,19 @@ func apply_danger_zones(mult, pos, _dur, direction):
 		for tile in used_cells:
 			if tile.y == min_y + int(parts[1]):
 				tile_modifiers[tile] = {mult_type: mult}
+
 	for cell: Vector2i in tile_modifiers.keys():
 		var marker = MARKER_PREFAB.instantiate()
 
-		marker.marker_type = "danger"
+		marker.marker_type = marker_visual
 		marker.tooltip_container = log_container
-		marker.marker_info = "Standing here will make you take " + str(int(mult)) + "x Damage!"
+		var text_val = mult
+		if zone_type == "dmg_reduc_":
+			text_val = int((1 - mult) * 100)
+		marker.marker_info = marker_info["info"].replace("<PUTVALUEHERE>", str(text_val))
 
 		$Battle_root.add_child(marker)
 		active_markers.append(marker)
 		var world_pos: Vector2 = combat_tilemap.map_to_local(cell)
 		marker.global_position = combat_tilemap.to_global(world_pos)
-	return [
-		"Seems like this attack is more dangerous in some places",
-		"Pay attention to your positioning!"
-	]
+	return marker_info["log"]

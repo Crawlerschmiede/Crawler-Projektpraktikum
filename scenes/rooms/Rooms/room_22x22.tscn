@@ -8,7 +8,7 @@
 size = Vector2(352, 352)
 
 [node name="Room 22x22" type="Node2D"]
-position = Vector2(4, 0)
+position = Vector2(16, 32)
 script = ExtResource("1_vebhv")
 is_corridor = false
 

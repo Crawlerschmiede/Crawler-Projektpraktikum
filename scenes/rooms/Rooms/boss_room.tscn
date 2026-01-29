@@ -7,8 +7,8 @@
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_f6a12"]
 size = Vector2(352, 176)
 
-[node name="Boss Room" type="Node2D"]
-position = Vector2(4, 0)
+[node name="Boss Room" type="Node2D" groups=["boss_room"]]
+position = Vector2(16, 32)
 script = ExtResource("1_5qp6q")
 max_count = 1
 min_rooms_before_spawn = 10

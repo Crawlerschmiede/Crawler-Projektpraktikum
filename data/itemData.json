@@ -1,0 +1,51 @@
+{
+  "Hund": {
+	"ItemCategory": "Hund",
+	"StackSize": 99,
+	"Description": "A sturdy tree branch that can be used for crafting.",
+	"group": "Equipment",
+	"loot_stats": { "weight": 3, "chance": 1.0, "max_stack": 2 },
+	"merchant": {
+		"min_count": 1,
+		"max_count": 3,
+		"min_price": 4,
+		"max_price": 8,
+		"buy_amount": 1,
+		"chance": 1.0,
+		"weight": 1
+	}
+  },
+	"placeholder_dagger_poison": {
+		"ItemCategory": "Weapon",
+		"StackSize": 1,
+		"Description": "A sturdy tree branch that can be used for crafting.",
+		"group": "Equipment",
+		"loot_stats": { "weight": 3, "chance": 1.0, "max_stack": 2 },
+		"bound_skills":["Shank"]
+	  },
+	"placeholder_sword": {
+		"ItemCategory": "Weapon",
+		"StackSize": 1,
+		"Description": "A sturdy tree branch that can be used for crafting.",
+		"group": "Equipment",
+	"loot_stats": { "weight": 3, "chance": 1.0, "max_stack": 2 },
+	"merchant": {
+		"min_count": 1,
+		"max_count": 2,
+		"min_price": 6,
+		"max_price": 9,
+		"buy_amount": 2,
+		"chance": 1.0,
+		"weight": 1
+	},
+	"bound_skills":["Slash"]
+	  },
+	"placeholder_heal_potion": {
+		"ItemCategory": "Consumable",
+		"StackSize": 99,
+		"Description": "A sturdy tree branch that can be used for crafting.",
+		"group": "Equipment",
+		"loot_stats": { "weight": 3, "chance": 1.0, "max_stack": 2 },
+		"use_effects":["Heal"]
+	  }
+}

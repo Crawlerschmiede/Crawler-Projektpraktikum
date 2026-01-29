@@ -1,8 +1,12 @@
-# gdlint: disable=max-public-methods
+# gdlint: disable=max-public-methods, max-file-lines
 
 extends Node2D
 
-@export var room_scenes: Array[PackedScene]
+signal generation_progress(p: float, text: String)
+
+# --- Exports ---
+@export var closed_doors_folder: String = "res://scenes/rooms/Closed Doors/"
+@export var rooms_folder: String = "res://scenes/rooms/Rooms/"
 @export var start_room: PackedScene
 @export var boss_room: PackedScene
 @export var max_rooms: int = 10
@@ -15,9 +19,10 @@ extends Node2D
 @export_range(0.0, 1.0, 0.01) var base_door_fill_chance: float = 1.0
 
 # --- Genetischer Ansatz ---
-@export var ga_total_evals: int = 50  # genau 500 Auswertungen
-@export var ga_population_size: int = 40  # 20 * 25 = 500
+@export var ga_total_evals: int = 25  # genau 500 Auswertungen
 @export var ga_generations: int = 25
+@export var ga_population_size: int = ga_generations * ga_total_evals  # 20 * 25 = 500
+
 @export var ga_elite_keep: int = 4  # Top 4 bleiben
 @export var ga_mutation_rate: float = 0.25
 @export var ga_crossover_rate: float = 0.70
@@ -26,22 +31,260 @@ extends Node2D
 # Optional: Wenn du willst, dass nach dem GA die beste Map sofort gebaut wird
 @export var build_best_map_after_ga: bool = true
 
+# --- Public vars ---
+var closed_door_scenes: Array[PackedScene] = []
+var room_scenes: Array[PackedScene] = []
 var player: MoveableEntity
 var world_tilemap: TileMapLayer
 var world_tilemap_top: TileMapLayer
-
+var minimap: TileMapLayer
 var room_type_counts: Dictionary = {}
-
-# Laufzeit
 var placed_rooms: Array[Node2D] = []
 var corridor_count: int = 0
-
 var boss_room_spawned := false
+var room_id: int = 0
+
+# --- Private vars ---
+var _closed_door_cache: Dictionary = {}
+var _corridor_cache: Dictionary = {}  # key: String(scene.resource_path) -> bool
+var _rng := RandomNumberGenerator.new()
+var _yield_counter := 0
+
+
+func _emit_progress_mapped(start: float, end: float, local_p: float, text: String) -> void:
+	# Map local_p (0..1) into global range [start..end] and emit
+	var lp = clamp(local_p, 0.0, 1.0)
+	var p = clamp(start + (end - start) * lp, 0.0, 1.0)
+	generation_progress.emit(p, text)
+
+
+func _yield_if_needed(step: int = 200) -> void:
+	_yield_counter += 1
+	if _yield_counter % step == 0:
+		await get_tree().process_frame
+
+
+func _get_closed_door_direction(scene: PackedScene) -> String:
+	if scene == null:
+		return ""
+
+	var key := scene.resource_path
+	if _closed_door_cache.has(key):
+		return str(_closed_door_cache[key])
+
+	var inst := scene.instantiate()
+	var dir := ""
+
+	if inst != null:
+		# 1) Falls die Szene selbst direction export hat -> nutzen
+		if "direction" in inst:
+			dir = str(inst.get("direction")).to_lower()
+
+		# 2) Sonst: Richtung aus Doors/ Door child lesen
+		elif inst.has_node("Doors"):
+			var doors_node := inst.get_node("Doors")
+			for d in doors_node.get_children():
+				# dein Door script hat direction property
+				if d != null and "direction" in d:
+					dir = str(d.get("direction")).to_lower()
+					break
+
+		inst.queue_free()
+
+	_closed_door_cache[key] = dir
+	return dir
+
+
+func get_closed_door_for_direction(dir: String) -> PackedScene:
+	dir = dir.to_lower()
+
+	var candidates: Array[PackedScene] = []
+	for s in closed_door_scenes:
+		if _get_closed_door_direction(s) == dir:
+			candidates.append(s)
+
+	if candidates.is_empty():
+		return null
+	return candidates.pick_random()
+
+
+func load_closed_door_scenes_from_folder(path: String) -> Array[PackedScene]:
+	return load_room_scenes_from_folder(path)
+
+
+func close_free_doors(parent_node: Node) -> void:
+	if closed_door_scenes.is_empty():
+		push_warning("⚠ closed_door_scenes leer - lade closed doors zuerst!")
+		return
+
+	var total := 0
+
+	for room in placed_rooms:
+		if room == null:
+			continue
+		if not room.has_method("get_free_doors"):
+			continue
+
+		var free_doors = room.get_free_doors()
+		for door in free_doors:
+			if door == null or door.used:
+				continue
+
+			var door_scene := get_closed_door_for_direction(door.direction)
+			if door_scene == null:
+				push_warning("⚠ Keine ClosedDoor Scene für Richtung: " + str(door.direction))
+				continue
+
+			var closed_door := door_scene.instantiate() as Node2D
+			parent_node.add_child(closed_door)
+
+			closed_door.global_position = door.global_position
+			closed_door.global_rotation = door.global_rotation
+
+			door.used = true
+
+			total += 1
+
+	#print("✔ Closed Doors gesetzt:", total)
+
+
+func bake_closed_doors_into_world_simple() -> void:
+	if world_tilemap == null:
+		push_error("world_tilemap ist null!")
+		return
+
+	var tile_size := world_tilemap.tile_set.tile_size
+	var total := 0
+	# count doors to estimate progress
+	for r in placed_rooms:
+		if r == null or not r.has_method("get_free_doors"):
+			continue
+		for d in r.get_free_doors():
+			if d == null or d.used:
+				continue
+			total += 1
+
+	var processed := 0
+
+	for room in placed_rooms:
+		if room == null or not room.has_method("get_free_doors"):
+			continue
+
+		for door in room.get_free_doors():
+			if door == null or door.used:
+				continue
+
+			var door_scene := get_closed_door_for_direction(str(door.direction))
+			if door_scene == null:
+				continue
+
+			# nur instanziieren um tiles zu kopieren
+			var inst := door_scene.instantiate() as Node2D
+			add_child(inst)
+
+			# snap an echte Tür
+			inst.global_position = door.global_position
+			inst.force_update_transform()
+
+			# tile_origin aus position
+			var tile_origin := Vector2i(
+				int(round(inst.global_position.x / tile_size.x)),
+				int(round(inst.global_position.y / tile_size.y))
+			)
+
+			# closed-door tilemap holen
+			var src_floor := inst.get_node_or_null("TileMapLayer") as TileMapLayer
+			var src_top := inst.get_node_or_null("TopLayer") as TileMapLayer
+			if src_floor != null:
+				# emit fine-grained progress while copying closed-door tiles
+				await copy_layer_into_world(
+					src_floor, world_tilemap, tile_origin, 0.92, 0.98, "Baking doors"
+				)
+			if src_top != null:
+				await copy_layer_into_world(
+					src_top, world_tilemap_top, tile_origin, 0.92, 0.98, "Baking doors"
+				)
+
+			inst.queue_free()
+
+			door.used = true
+			total += 1
+			print("door backed")
+			# emit per-door progress and yield so UI updates during heavy door baking
+			if total > 0:
+				_emit_progress_mapped(
+					0.92,
+					0.98,
+					clamp(float(processed) / float(total), 0.0, 1.0),
+					"Baking doors: %d/%d" % [processed, total]
+				)
+				await get_tree().process_frame
+
+	print("✅ Closed doors gebacken:", total)
+
+
+func debug_print_free_doors() -> void:
+	var total := 0
+	for r in placed_rooms:
+		if r == null or not r.has_method("get_free_doors"):
+			continue
+		var free = r.get_free_doors()
+		if free.size() > 0:
+			print("ROOM:", r.name, "free doors:", free.size())
+			for d in free:
+				print("  -", d.name, "dir:", d.direction, "used:", d.used)
+				total += 1
+	print("TOTAL FREE DOORS:", total)
 
 
 # -----------------------------
 # GA: Genome / Ergebnis
 # -----------------------------
+func load_room_scenes_from_folder(path: String) -> Array[PackedScene]:
+	var result: Array[PackedScene] = []
+
+	var dir := DirAccess.open(path)
+	if dir == null:
+		push_error("Folder not found: " + path)
+		return result
+
+	dir.list_dir_begin()
+	var file := dir.get_next()
+
+	while file != "":
+		if not dir.current_is_dir():
+			if file.ends_with(".tscn"):
+				var full_path := path + file
+				var ps := load(full_path)
+				if ps is PackedScene:
+					result.append(ps)
+				else:
+					push_warning("Not a PackedScene: " + full_path)
+		file = dir.get_next()
+
+	dir.list_dir_end()
+	return result
+
+
+func _scene_is_corridor(scene: PackedScene) -> bool:
+	if scene == null:
+		return false
+
+	var key := scene.resource_path
+	if _corridor_cache.has(key):
+		return bool(_corridor_cache[key])
+
+	# EINMAL instantiaten zum checken (und sofort free)
+	var inst := scene.instantiate()
+	var is_corr := false
+	if inst != null:
+		is_corr = ("is_corridor" in inst) and bool(inst.get("is_corridor"))
+		inst.queue_free()
+
+	_corridor_cache[key] = is_corr
+	return is_corr
+
+
 class Genome:
 	var door_fill_chance: float
 	var max_corridors: int
@@ -76,37 +319,36 @@ class EvalResult:
 	var seed: int = 0
 
 
-func _ready() -> void:
-	print("=== MAP GENERATION START ===")
+func get_random_tilemap() -> Dictionary:
+	_yield_counter = 0
+	_emit_progress_mapped(0.0, 0.05, 0.0, "Preparing scenes...")
+	await get_tree().process_frame
 
-	# 1) genetische Suche
+	start_room = load("res://scenes/rooms/Rooms/room_11x11_4.tscn")
+	room_scenes = load_room_scenes_from_folder(rooms_folder)
+	closed_door_scenes = load_room_scenes_from_folder(closed_doors_folder)
+	# 1) genetische Suche (chunked + progress)
+	_emit_progress_mapped(0.05, 0.45, 0.0, "Running GA...")
 	var best := await genetic_search_best()
-	print(
-		"\n🏆 BEST GENOME:",
-		best.genome,
-		"| rooms:",
-		best.rooms_placed,
-		"| corridors:",
-		best.corridors_placed,
-		"| seed:",
-		best.seed
-	)
+	_emit_progress_mapped(0.05, 0.45, 1.0, "GA finished")
+	await get_tree().process_frame
+
+	minimap = TileMapLayer.new()
+	minimap.name = "Minimap"
+	minimap.visibility_layer = 1 << 1
 
 	# 2) beste Map wirklich bauen
 	if build_best_map_after_ga:
+		clear_world_tilemaps()
 		clear_children_rooms_only()
 		await generate_with_genome(best.genome, best.seed, true)
-
-		# 🔥 ALLE RÄUME IN EINE TILEMAP BACKEN
-		bake_rooms_into_world_tilemap()
+		await bake_rooms_into_world_tilemap()
 
 		# Räume optional ausblenden (empfohlen)
 		for r in placed_rooms:
 			r.visible = false
 
-	spawn_player()
-
-	print("=== MAP GENERATION END ===")
+	return {"floor": world_tilemap, "top": world_tilemap_top, "minimap": minimap}
 
 
 func get_required_scenes() -> Array[PackedScene]:
@@ -139,7 +381,7 @@ func get_required_scenes() -> Array[PackedScene]:
 
 
 func ensure_required_rooms(
-	parent_node: Node, local_placed: Array[Node2D], genome: Genome, verbose: bool
+	parent_node: Node, local_placed: Array[Node2D], genome: Genome, _verbose: bool
 ) -> void:
 	var required_scenes := get_required_scenes()
 	if required_scenes.is_empty():
@@ -177,18 +419,137 @@ func ensure_required_rooms(
 			if res:
 				current += 1
 				room_type_counts[key] = current
-				if verbose:
-					print("✔ REQUIRED room placed:", key, "(", current, "/", required_min, ")")
+				#print("✔ REQUIRED room placed:", key, "(", current, "/", required_min, ")")
 			else:
 				# wenn es nicht passt -> nächste Tür
 				pass
 
 
 func get_room_key(scene: PackedScene) -> String:
+	var key = scene.resource_path
 	if scene == null:
 		return ""
+	var inst := scene.instantiate()
+	if inst.get_groups():
+		key = inst.get_groups()[0]
+		#print("use key: ", key)
 	# resource_path ist stabil -> perfekt als key
 	return scene.resource_path
+
+
+func bake_closed_doors_into_minimap() -> void:
+	if minimap == null:
+		push_error("minimap ist null!")
+		return
+	if world_tilemap == null:
+		push_error("world_tilemap ist null!")
+		return
+
+	var tile_size := world_tilemap.tile_set.tile_size
+	# count doors for progress
+	var total := 0
+	for r in placed_rooms:
+		if r == null or not r.has_method("get_free_doors"):
+			continue
+		for d in r.get_free_doors():
+			if d == null:
+				continue
+			total += 1
+
+	var processed := 0
+
+	for room in placed_rooms:
+		if room == null or not room.has_method("get_free_doors"):
+			continue
+
+		for door in room.get_free_doors():
+			if door == null:
+				continue
+
+			# ❗in minimap wollen wir trotzdem backen, auch wenn world door.used schon true ist
+			# deswegen NICHT: if door.used: continue
+
+			var door_scene := get_closed_door_for_direction(str(door.direction))
+			if door_scene == null:
+				continue
+
+			# 1) Instanz nur für TileCopy
+			var inst := door_scene.instantiate() as Node2D
+			add_child(inst)
+
+			# 2) Snap auf Door
+			inst.global_position = door.global_position
+			inst.force_update_transform()
+
+			# 3) Welt-Zelle berechnen
+			var world_cell := Vector2i(
+				int(round(inst.global_position.x / tile_size.x)),
+				int(round(inst.global_position.y / tile_size.y))
+			)
+
+			# 4) closed-door tiles holen
+			var src_floor := inst.get_node_or_null("TileMapLayer") as TileMapLayer
+			if src_floor == null:
+				inst.queue_free()
+				continue
+
+			# 5) passenden Minimap-RoomLayer finden
+			var target_layer: TileMapLayer = null
+			var target_origin: Vector2i = Vector2i.ZERO
+
+			for child in minimap.get_children():
+				if not (child is TileMapLayer):
+					continue
+				var layer := child as TileMapLayer
+
+				var origin: Vector2i = layer.get_meta("tile_origin", Vector2i.ZERO)
+				var rect: Rect2i = layer.get_meta("room_rect", Rect2i())
+
+				var local_cell := world_cell - origin
+
+				# enthält dieser Raum diese Zelle?
+				if rect.has_point(local_cell):
+					target_layer = layer
+					target_origin = origin
+					break
+
+			if target_layer == null:
+				#print("❌ kein minimap-roomlayer gefunden für door cell:", world_cell)
+				inst.queue_free()
+				continue
+
+			# 6) TileOffset relativ zum Raum
+			var offset := world_cell - target_origin
+
+			# 7) Door Tiles kopieren in Minimap RoomLayer
+			var counter := 0
+			var cells := src_floor.get_used_cells()
+			var ctotal := cells.size()
+			for cidx in range(ctotal):
+				var cell = cells[cidx]
+				var source_id := src_floor.get_cell_source_id(cell)
+				var atlas := src_floor.get_cell_atlas_coords(cell)
+				var alt := src_floor.get_cell_alternative_tile(cell)
+
+				target_layer.set_cell(cell + offset, source_id, atlas, alt)
+				counter += 1
+				if counter % 500 == 0:
+					await _yield_if_needed(500)
+
+			inst.queue_free()
+			total += 1
+			print("✅ minimap door baked into:", target_layer.name)
+			# emit per-door minimap progress and yield
+			if total > 0:
+				_emit_progress_mapped(
+					0.92,
+					0.98,
+					clamp(float(processed) / float(total), 0.0, 1.0),
+					"Baking doors (minimap): %d/%d" % [processed, total]
+				)
+				await get_tree().process_frame
+
+	#print("✅ Closed doors gebacken in MINIMAP:", total)
 
 
 func get_rule(room_instance: Node, var_name: String, default_value):
@@ -216,7 +577,7 @@ func can_spawn_room(scene: PackedScene, room_instance: Node, placed_count: int) 
 		return false
 
 	# 4) Chance
-	if spawn_chance < 1.0 and randf() > spawn_chance:
+	if spawn_chance < 1.0 and _rng.randf() > spawn_chance:
 		return false
 
 	return true
@@ -245,9 +606,7 @@ func genetic_search_best() -> EvalResult:
 	if pop * gen != target:
 		gen = int(ceil(float(target) / float(pop)))
 		ga_generations = gen
-		print("⚠ [GA] pop*gen != total. Setze generations auf:", gen, "(evals=", pop * gen, ")")
-
-	seed(ga_seed)
+		#print("⚠ [GA] pop*gen != total. Setze generations auf:", gen, "(evals=", pop * gen, ")")
 
 	# initial population
 	var population: Array[Genome] = []
@@ -258,7 +617,6 @@ func genetic_search_best() -> EvalResult:
 	best_overall.genome = make_default_genome()
 	best_overall.rooms_placed = -1
 	best_overall.corridors_placed = 0
-	best_overall.seed = ga_seed
 
 	var eval_counter := 0
 
@@ -273,6 +631,14 @@ func genetic_search_best() -> EvalResult:
 			var res := await evaluate_genome(population[i], trial_seed)
 			results.append(res)
 			eval_counter += 1
+			# emit progress after each evaluation for finer updates
+			_emit_progress_mapped(
+				0.05,
+				0.45,
+				clamp(float(eval_counter) / float(target), 0.0, 1.0),
+				"GA eval %d/%d" % [eval_counter, target]
+			)
+			await get_tree().process_frame
 
 		# sort desc by rooms placed
 		results.sort_custom(
@@ -282,19 +648,6 @@ func genetic_search_best() -> EvalResult:
 		# update best
 		if results.size() > 0 and results[0].rooms_placed > best_overall.rooms_placed:
 			best_overall = results[0]
-
-		print(
-			"[GA] Gen",
-			g_i,
-			"| evals:",
-			eval_counter,
-			"/",
-			target,
-			"| best_this_gen:",
-			results[0].rooms_placed,
-			"| best_overall:",
-			best_overall.rooms_placed
-		)
 
 		# --- build next generation ---
 		# selection pool: top half
@@ -311,19 +664,24 @@ func genetic_search_best() -> EvalResult:
 		# fill rest
 		while next_pop.size() < pop:
 			var child: Genome
-			if randf() < ga_crossover_rate and pool.size() >= 2:
-				var p1 := pool[randi() % pool.size()]
-				var p2 := pool[randi() % pool.size()]
+			if _rng.randf() < ga_crossover_rate and pool.size() >= 2:
+				var p1 := pool[_rng.randi_range(0, pool.size() - 1)]
+				var p2 := pool[_rng.randi_range(0, pool.size() - 1)]
 				child = crossover(p1, p2)
 			else:
-				child = pool[randi() % pool.size()].clone()
+				child = pool[_rng.randi_range(0, pool.size() - 1)].clone()
 
-			if randf() < ga_mutation_rate:
+			if _rng.randf() < ga_mutation_rate:
 				mutate(child)
 
 			next_pop.append(child)
 
 		population = next_pop
+
+		# Emit GA progress and yield a frame so the engine can render / process input
+		var progress := float(eval_counter) / float(target)
+		_emit_progress_mapped(0.05, 0.45, clamp(progress, 0.0, 1.0), "GA gen %d" % g_i)
+		await get_tree().process_frame
 
 		if eval_counter >= target:
 			break
@@ -337,8 +695,21 @@ func evaluate_genome(genome: Genome, trial_seed: int) -> EvalResult:
 	container.name = "_GA_CONTAINER_"
 	add_child(container)
 
-	# echte Generierung (ohne Debug-Print spam)
+	# Temporär SettingsManager-Seed setzen, damit alle Instanzen während dieser Trial-Ausführung
+	# denselben trial_seed nutzen (wird nachher wiederhergestellt in generate_with_genome caller).
+	var prev_seed := 0
+	if SettingsManager != null:
+		if SettingsManager.has_method("get_game_seed"):
+			prev_seed = SettingsManager.get_game_seed()
+		if SettingsManager.has_method("set_game_seed"):
+			SettingsManager.set_game_seed(trial_seed)
+
+	# echte Generierung (ohne Debug-#print spam)
 	var stats := await generate_with_genome(genome, trial_seed, false, container)
+
+	# restore previous seed
+	if SettingsManager != null and SettingsManager.has_method("set_game_seed"):
+		SettingsManager.set_game_seed(prev_seed)
 
 	container.queue_free()
 
@@ -361,7 +732,9 @@ class GenStats:
 func generate_with_genome(
 	genome: Genome, trial_seed: int, verbose: bool, parent_override: Node = null
 ) -> GenStats:
+	# seed global RNG for legacy code, and seed our local _rng
 	seed(trial_seed)
+	_rng.seed = int(trial_seed)
 	room_type_counts.clear()
 	var stats := GenStats.new()
 
@@ -382,6 +755,9 @@ func generate_with_genome(
 	parent_node.add_child(first_room)
 	first_room.global_position = Vector2.ZERO
 	first_room.add_to_group("room")
+	# Progress: started placing rooms (map into global range 0.45..0.75)
+	_emit_progress_mapped(0.45, 0.75, 0.0, "Placing rooms...")
+	await get_tree().process_frame
 
 	first_room.set_meta("corridor_chain", 0)
 	first_room.force_update_transform()
@@ -400,12 +776,32 @@ func generate_with_genome(
 	var next_doors: Array = []
 
 	# ---------- MAIN LOOP ----------
+	var loop_iter := 0
 	while current_doors.size() > 0 and local_placed.size() < max_rooms:
+		# emit progress frequently based on rooms placed (finer steps)
+		if loop_iter % 5 == 0:
+			# local progress for placing rooms: 0..1
+			var local_p := 0.0
+			if max_rooms > 0:
+				local_p = float(local_placed.size()) / float(max_rooms)
+			_emit_progress_mapped(
+				0.45,
+				0.75,
+				clamp(local_p, 0.0, 1.0),
+				"Placing rooms: %d/%d" % [local_placed.size(), max_rooms]
+			)
+			# allow engine to process
+			await get_tree().process_frame
 		var door = current_doors.pop_front()
 		if door == null or door.used:
 			continue
 
-		if genome.door_fill_chance < 1.0 and randf() > genome.door_fill_chance:
+		# periodic yield so Godot can render / process input
+		loop_iter += 1
+		if loop_iter % 400 == 0:
+			await _yield_if_needed(1)
+
+		if genome.door_fill_chance < 1.0 and _rng.randf() > genome.door_fill_chance:
 			continue
 
 		# Raum-Root finden
@@ -431,17 +827,14 @@ func generate_with_genome(
 		if abs(genome.corridor_bias - 1.0) > 0.01:
 			candidates.sort_custom(
 				func(a: PackedScene, b: PackedScene) -> bool:
-					var ra := a.instantiate() as Node
-					var rb := b.instantiate() as Node
-					var ca := is_corridor_room(ra)
-					var cb := is_corridor_room(rb)
-					if ra != null:
-						ra.queue_free()
-					if rb != null:
-						rb.queue_free()
-					# wenn bias > 1: corridor zuerst, sonst umgekehrt
+					var ca := _scene_is_corridor(a)
+					var cb := _scene_is_corridor(b)
+
+					# bias > 1: corridors nach vorne
 					if genome.corridor_bias > 1.0:
 						return int(ca) > int(cb)
+
+					# bias < 1: corridors nach hinten
 					return int(ca) < int(cb)
 			)
 
@@ -449,6 +842,9 @@ func generate_with_genome(
 		for room_scene in candidates:
 			if room_scene == null:
 				continue
+			# occasionally yield inside candidate loop
+			if _yield_counter % 200 == 0:
+				await _yield_if_needed(1)
 
 			var new_room := room_scene.instantiate() as Node2D
 			if not can_spawn_room(room_scene, new_room, local_placed.size()):
@@ -542,6 +938,10 @@ func generate_with_genome(
 	# stats
 	stats.rooms = local_placed.size()
 	stats.corridors = local_corridor_count
+
+	# final progress for placement (end of placement phase)
+	_emit_progress_mapped(0.45, 0.75, 1.0, "Rooms placed: %d" % stats.rooms)
+	await get_tree().process_frame
 
 	# Wenn es die echte Map ist, halten wir den finalen state global fest
 	if parent_override == null:
@@ -670,41 +1070,54 @@ class OverlapResult:
 	var other_name: String = ""
 
 
+func _get_room_rects(room: Node2D) -> Array[Rect2]:
+	var rects: Array[Rect2] = []
+
+	var area := room.get_node_or_null("Area2D") as Area2D
+	if area == null:
+		return rects
+
+	for child in area.get_children():
+		if child is CollisionShape2D:
+			var cs := child as CollisionShape2D
+			var shape := cs.shape as RectangleShape2D
+			if shape == null:
+				continue
+
+			# ✅ Achtung: CollisionShape2D kann verschoben sein!
+			var center := cs.global_position
+			rects.append(Rect2(center - shape.extents, shape.extents * 2.0))
+
+	return rects
+
+
 func check_overlap_aabb(new_room: Node2D, against: Array[Node2D]) -> OverlapResult:
 	var result := OverlapResult.new()
 
-	var new_cs := new_room.get_node_or_null("Area2D/CollisionShape2D") as CollisionShape2D
-	if new_cs == null:
+	# ✅ Alle rects vom neuen room holen
+	var new_rects := _get_room_rects(new_room)
+
+	# Wenn gar keine Shapes vorhanden -> als Fehler behandeln
+	if new_rects.is_empty():
 		result.overlaps = true
 		result.other_name = "missing_collision"
 		return result
-
-	var new_shape: RectangleShape2D = new_cs.shape as RectangleShape2D
-	if new_shape == null:
-		result.overlaps = true
-		result.other_name = "wrong_shape"
-		return result
-
-	var new_rect := Rect2(new_room.global_position - new_shape.extents, new_shape.extents * 2.0)
 
 	for room in against:
 		if room == null or room == new_room:
 			continue
 
-		var cs := room.get_node_or_null("Area2D/CollisionShape2D") as CollisionShape2D
-		if cs == null:
+		var rects := _get_room_rects(room)
+		if rects.is_empty():
 			continue
 
-		var shape: RectangleShape2D = cs.shape as RectangleShape2D
-		if shape == null:
-			continue
-
-		var rect := Rect2(room.global_position - shape.extents, shape.extents * 2.0)
-
-		if new_rect.intersects(rect):
-			result.overlaps = true
-			result.other_name = room.name
-			return result
+		# ✅ Jede neue Shape gegen jede alte Shape testen
+		for a in new_rects:
+			for b in rects:
+				if a.intersects(b):
+					result.overlaps = true
+					result.other_name = room.name
+					return result
 
 	return result
 
@@ -777,7 +1190,7 @@ func bake_rooms_into_world_tilemap() -> void:
 			return
 
 		world_tilemap.tile_set = first_floor.tile_set
-		add_child(world_tilemap)
+		#add_child(world_tilemap)
 
 	# --- WORLD TOP ---
 	if world_tilemap_top == null:
@@ -791,12 +1204,14 @@ func bake_rooms_into_world_tilemap() -> void:
 		else:
 			world_tilemap_top.tile_set = world_tilemap.tile_set
 
-		add_child(world_tilemap_top)
+		#add_child(world_tilemap_top)
 
 	world_tilemap.clear()
 	world_tilemap_top.clear()
 
 	# --- Räume backen ---
+	var total_rooms := placed_rooms.size()
+	var i := 0
 	for room in placed_rooms:
 		var floor_tm := room.get_node_or_null("TileMapLayer") as TileMapLayer
 		var top_tm := room.get_node_or_null("TopLayer") as TileMapLayer  # <- Name anpassen falls anders!
@@ -805,11 +1220,29 @@ func bake_rooms_into_world_tilemap() -> void:
 
 		# FLOOR kopieren
 		if floor_tm != null:
-			copy_layer_into_world(floor_tm, world_tilemap, room_offset)
+			await add_room_layer_to_minimap(room)
+			# emit finer-grained progress while copying floor tiles for this room
+			await copy_layer_into_world(
+				floor_tm, world_tilemap, room_offset, 0.75, 0.92, "Building tilemaps"
+			)
+			# emit building progress
+			i += 1
+			if total_rooms > 0:
+				var local_p := float(i) / float(total_rooms)
+				_emit_progress_mapped(
+					0.75,
+					0.92,
+					clamp(local_p, 0.0, 1.0),
+					"Building tilemaps: %d/%d" % [i, total_rooms]
+				)
+				await get_tree().process_frame
+			#bake_closed_doors_into_world()
 
 		# TOP kopieren
 		if top_tm != null:
-			copy_layer_into_world(top_tm, world_tilemap_top, room_offset)
+			await copy_layer_into_world(
+				top_tm, world_tilemap_top, room_offset, 0.75, 0.92, "Building tilemaps"
+			)
 
 	print(
 		"✔ [BAKE] WorldTileMaps erstellt | Floor tiles:",
@@ -817,15 +1250,174 @@ func bake_rooms_into_world_tilemap() -> void:
 		"| Top tiles:",
 		world_tilemap_top.get_used_cells().size()
 	)
+	# finished building tilemaps, now bake closed doors (map to 0.92..0.98)
+	_emit_progress_mapped(0.92, 0.98, 0.0, "Baking doors...")
+	await get_tree().process_frame
+	await bake_closed_doors_into_world_simple()
+	await bake_closed_doors_into_minimap()
+	_emit_progress_mapped(0.92, 0.98, 1.0, "Baking doors...")
+	await get_tree().process_frame
+	# final
+	_emit_progress_mapped(0.98, 1.0, 1.0, "Done")
+	await get_tree().process_frame
 
 
-func copy_layer_into_world(src: TileMapLayer, dst: TileMapLayer, offset: Vector2i) -> void:
-	for cell in src.get_used_cells():
+func bake_closed_doors_into_world() -> void:
+	if world_tilemap == null or world_tilemap_top == null:
+		push_error(
+			"❌ world_tilemap/world_tilemap_top ist null - bake_rooms_into_world_tilemap zuerst!"
+		)
+		return
+
+	var total := 0
+
+	for room in placed_rooms:
+		if room == null or not room.has_method("get_free_doors"):
+			continue
+
+		var room_offset: Vector2i = room.get_meta("tile_origin", Vector2i.ZERO)
+
+		for door in room.get_free_doors():
+			if door == null or door.used:
+				continue
+
+			var door_scene := get_closed_door_for_direction(str(door.direction))
+			if door_scene == null:
+				push_warning("⚠ Keine ClosedDoor Scene für Richtung: " + str(door.direction))
+				continue
+
+			var inst := door_scene.instantiate() as Node2D
+			if inst == null:
+				continue
+			add_child(inst)
+
+			# ✅ matching door IN closed-door scene finden
+			var matching := _find_any_door_node(inst)
+			if matching == null:
+				push_warning("⚠ ClosedDoor hat keine Door Nodes: " + door_scene.resource_path)
+				inst.queue_free()
+				continue
+
+			# ✅ SNAPPEN wie bei Räumen:
+			# closed door so bewegen, dass matching door genau auf echte Tür liegt
+			var offset: Vector2 = matching.global_position - inst.global_position
+			inst.global_position = door.global_position - offset
+			inst.force_update_transform()
+
+			# tile_origin bestimmen (wie bei rooms)
+			var tile_size := world_tilemap.tile_set.tile_size
+			var tile_origin := Vector2i(
+				int(round(inst.global_position.x / tile_size.x)),
+				int(round(inst.global_position.y / tile_size.y))
+			)
+
+			# TileMaps holen
+			var src_floor := inst.get_node_or_null("TileMapLayer") as TileMapLayer
+			var src_top := inst.get_node_or_null("TopLayer") as TileMapLayer
+
+			if src_floor != null:
+				await copy_layer_into_world(src_floor, world_tilemap, tile_origin)
+			if src_top != null:
+				await copy_layer_into_world(src_top, world_tilemap_top, tile_origin)
+
+			inst.queue_free()
+
+			door.used = true
+			total += 1
+
+	#print("✔ [BAKE] Closed Doors gebacken:", total)
+
+
+func _find_any_door_node(root: Node) -> Node:
+	if root == null:
+		return null
+
+	if root.has_node("Doors"):
+		var doors := root.get_node("Doors")
+		for d in doors.get_children():
+			if d != null and ("direction" in d):
+				return d
+	return null
+
+
+func copy_layer_into_world(
+	src: TileMapLayer,
+	dst: TileMapLayer,
+	offset: Vector2i,
+	emit_start: float = -1.0,
+	emit_end: float = -1.0,
+	emit_text: String = ""
+) -> void:
+	# Copy all used cells from src into dst at offset.
+	# Optionally emit progress mapped into [emit_start..emit_end] using emit_text.
+	var counter := 0
+	var cells := src.get_used_cells()
+	var total := cells.size()
+	# tuning: smaller chunks/emit frequency to keep UI responsive during large copies
+	var emit_every := 100
+	var yield_every := 500
+	for idx in range(total):
+		var cell = cells[idx]
 		var source_id := src.get_cell_source_id(cell)
 		var atlas := src.get_cell_atlas_coords(cell)
 		var alt := src.get_cell_alternative_tile(cell)
-
 		dst.set_cell(cell + offset, source_id, atlas, alt)
+		counter += 1
+		# emit finer-grained progress for this layer if requested
+		if total > 0 and emit_start >= 0.0 and counter % emit_every == 0:
+			var local_p := float(counter) / float(total)
+			_emit_progress_mapped(emit_start, emit_end, clamp(local_p, 0.0, 1.0), emit_text)
+		# Chunked yield to avoid blocking the main loop for huge tile copies
+		if counter % yield_every == 0:
+			await _yield_if_needed(yield_every)
+	# final emit for this layer
+	if emit_start >= 0.0:
+		_emit_progress_mapped(emit_start, emit_end, 1.0, emit_text)
+
+
+func add_room_layer_to_minimap(room: Node2D) -> void:
+	if minimap == null:
+		return
+
+	var floor_tm := room.get_node_or_null("TileMapLayer") as TileMapLayer
+	if floor_tm == null:
+		return
+
+	# Tileset 1x setzen
+	if minimap.tile_set == null:
+		minimap.tile_set = floor_tm.tile_set
+
+	# origin ist WORLD cell origin
+	var origin: Vector2i = room.get_meta("tile_origin", Vector2i.ZERO)
+	var layer_name := "Room_%s_%s" % [origin.x, origin.y]
+
+	if minimap.has_node(layer_name):
+		return
+
+	# --- Raumlayer erstellen ---
+	var room_layer := TileMapLayer.new()
+	room_layer.name = layer_name
+	room_layer.tile_set = floor_tm.tile_set
+	room_layer.visible = false
+	room_layer.visibility_layer = 1 << 1
+	room_layer.set_meta("room_rect", floor_tm.get_used_rect())
+	room_layer.set_meta("tile_origin", origin)
+
+	var tile_size: Vector2i = floor_tm.tile_set.tile_size
+	room_layer.position = Vector2(origin.x * tile_size.x, origin.y * tile_size.y)
+
+	minimap.add_child(room_layer)
+
+	# ✅ Tiles 1:1 kopieren (ohne Offset!)
+	var counter := 0
+	for cell in floor_tm.get_used_cells():
+		var source_id := floor_tm.get_cell_source_id(cell)
+		var atlas := floor_tm.get_cell_atlas_coords(cell)
+		var alt := floor_tm.get_cell_alternative_tile(cell)
+		room_layer.set_cell(cell, source_id, atlas, alt)
+		counter += 1
+		if counter % 2000 == 0:
+			await _yield_if_needed(2000)
 
 
 func clear_children_rooms_only() -> void:
@@ -839,40 +1431,14 @@ func clear_children_rooms_only() -> void:
 	corridor_count = 0
 
 
-func spawn_player():
-	if player_scene == null:
-		push_error("❌ player_scene ist NULL")
-		return
+func clear_world_tilemaps() -> void:
+	if world_tilemap != null and is_instance_valid(world_tilemap):
+		world_tilemap.queue_free()
+	world_tilemap = null
 
-	if world_tilemap == null:
-		push_error("❌ WorldTileMap existiert nicht – Bake vergessen?")
-		return
-
-	player = player_scene.instantiate() as MoveableEntity
-	if player == null:
-		push_error("❌ Player ist kein MoveableEntity")
-		return
-
-	add_child(player)
-	player.z_index = 10
-
-	player.setup(world_tilemap, 100, 10, 5)
-
-	# 🔍 WALKABLE TILE SUCHEN
-	for cell in world_tilemap.get_used_cells():
-		var td := world_tilemap.get_cell_tile_data(cell)
-		if td and not td.get_custom_data("non_walkable"):
-			player.grid_pos = cell
-			player.position = world_tilemap.map_to_local(cell)
-
-			var cam := player.get_node_or_null("Camera2D") as Camera2D
-			if cam:
-				cam.make_current()
-
-			print("✔ Player gespawnt auf WorldTile:", cell)
-			return
-
-	push_error("❌ Kein walkable Tile in WorldTileMap gefunden")
+	if world_tilemap_top != null and is_instance_valid(world_tilemap_top):
+		world_tilemap_top.queue_free()
+	world_tilemap_top = null
 
 
 func get_main_tilemap() -> TileMapLayer:

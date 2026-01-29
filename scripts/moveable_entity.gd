@@ -8,23 +8,40 @@ const SKILLS := preload("res://scripts/premade_skills.gd")
 
 # --- Member variables ---
 var is_player: bool = false
+var types = ["passive"]
 var existing_skills = SKILLS.new()
 var abilities_this_has: Array = []
+var multi_turn_action = null
+
+var dimensions: Vector2i = Vector2i(1, 1)
+# If I built this at all right, you will never need to touch this.
+# It should just work with the resize function.
+var my_tiles = [Vector2i(0, 0)]
+
 var sprites = {
 	"bat":
 	[preload("res://scenes/sprite_scenes/bat_sprite_scene.tscn"), ["Screech", "Swoop", "Rabies"]],
 	"skeleton":
 	[
 		preload("res://scenes/sprite_scenes/skeleton_sprite_scene.tscn"),
-		["Screech", "Swoop", "Rabies"]
+		["Screech", "Swoop", "Feint"]
 	],
 	"what":
-	[preload("res://scenes/sprite_scenes/what_sprite_scene.tscn"), ["Screech", "Swoop", "Rabies"]],
-	"pc":
 	[
-		preload("res://scenes/sprite_scenes/player_sprite_scene.tscn"),
-		["Punch", "Right Pivot", "Left Pivot", "Full Power Punch"]
-	]
+		preload("res://scenes/sprite_scenes/what_sprite_scene.tscn"),
+		["Screech", "Swoop", "Encroaching Void"],
+		{"idle": "default", "expand": "expand", "alt_default": "expanded_idle"},
+		{"standard": [1, 1], "expanded": [1, 3]}
+	],
+	"ghost":
+	[preload("res://scenes/sprite_scenes/ghost_sprite_scene.tscn"), ["Feint", "Encroaching Void"]],
+	"base_zombie":
+	[
+		preload("res://scenes/sprite_scenes/base_zombie_sprite_scene.tscn"),
+		["Screech", "Rabies"],
+		{"idle": "default", "teleport_start": "dig_down", "teleport_end": "dig_up"}
+	],
+	"pc": [preload("res://scenes/sprite_scenes/player_sprite_scene.tscn")]
 }
 
 var grid_pos: Vector2i
@@ -48,6 +65,10 @@ var stun_recovery = 1
 var poisoned = 0
 var poison_recovery = 1
 
+#--- References to other stuff ---
+
+var animations = null
+
 @onready var collision_area: Area2D = $CollisionArea
 @onready var sprite: AnimatedSprite2D
 
@@ -65,7 +86,7 @@ func super_ready(sprite_type: String, entity_type: Array):
 	if tilemap == null:
 		push_error("❌ MoveableEntity hat keine TileMap! setup(tilemap) vergessen?")
 		return
-
+	types = entity_type
 	# Spawn logic for player character
 	if "pc" in entity_type:
 		# TODO: make pc spawn at the current floor's entryway
@@ -77,7 +98,6 @@ func super_ready(sprite_type: String, entity_type: Array):
 		var possible_spawns = []
 
 		for cell in tilemap.get_used_cells():
-			print("cell", cell.x, cell.y)
 			var tile_data = tilemap.get_cell_tile_data(cell)
 			if tile_data:
 				var is_blocked = tile_data.get_custom_data("non_walkable")
@@ -87,7 +107,7 @@ func super_ready(sprite_type: String, entity_type: Array):
 							possible_spawns.append(cell)
 					else:
 						possible_spawns.append(cell)
-			# TODO: add logic for fyling enemies, so they can enter certain tiles
+			# TODO: add logic for flying enemies, so they can enter certain tiles
 			#if entity_type == "enemy_flying":
 			#	add water/lava/floor trap tiles as possible spawns
 
@@ -99,9 +119,12 @@ func super_ready(sprite_type: String, entity_type: Array):
 	sprite = sprite_scene[0].instantiate()
 	add_child(sprite)
 	sprite.play("default")
-	abilities_this_has = sprite_scene[1]
-	for ability in abilities_this_has:
-		add_skill(ability)
+	if not "pc" in entity_type:
+		abilities_this_has = sprite_scene[1]
+		for ability in abilities_this_has:
+			add_skill(ability)
+	if len(sprite_scene) > 2:
+		animations = sprite_scene[2]
 
 
 # --- Movement Logic ---
@@ -109,7 +132,6 @@ func is_next_to_wall(cell: Vector2i):
 	var next_to_wall = false
 	for i in range(3):
 		for j in range(3):
-			print("i ", i, " j ", j)
 			var adjacent = Vector2i(cell.x + (i - 1), cell.y + (j - 1))
 			var adjacent_tile = tilemap.get_cell_tile_data(adjacent)
 			if adjacent_tile:
@@ -124,8 +146,17 @@ func move_to_tile(direction: Vector2i):
 		return
 
 	var target_cell = grid_pos + direction
-	print()
 	if not is_cell_walkable(target_cell):
+		if "burrowing" in types:
+			var new_target = target_cell
+			for i in range(3):
+				new_target = new_target + direction
+				if is_cell_walkable(new_target):
+					if has_animation(sprite, "dig_down"):
+						sprite.play("dig_down")
+					multi_turn_action = {"name": "dig_to", "target": new_target, "countdown": 2}
+					return
+			return
 		return
 
 	is_moving = true
@@ -137,15 +168,33 @@ func move_to_tile(direction: Vector2i):
 	tween.finished.connect(_on_move_finished)
 
 
+func teleport_to_tile(coordinates: Vector2i, animation = null) -> void:
+	if not is_cell_walkable(coordinates):
+		sprite.play("default")
+		return
+	self.grid_pos = coordinates
+	self.position = tilemap.map_to_local(grid_pos)
+	if animation != null:
+		sprite.play(animation[0])
+		await sprite.animation_finished
+		sprite.play("default")
+	return
+
+
 func check_collisions() -> void:
 	for body in collision_area.get_overlapping_bodies():
 		if body == self:
 			continue
-		if grid_pos == body.grid_pos:
-			if self.is_player:
-				initiate_battle(self, body)
-			elif body.is_player:
-				initiate_battle(body, self)
+		elif body.is_in_group("item"):
+			continue
+		else:
+			for tile in my_tiles:
+				for other_tile in body.my_tiles:
+					if (grid_pos + tile) == (body.grid_pos + other_tile):
+						if self.is_player:
+							initiate_battle(self, body)
+						elif body.is_player:
+							initiate_battle(body, self)
 
 
 func _on_move_finished():
@@ -171,25 +220,31 @@ func add_skill(skill_name):
 	var skill = existing_skills.get_skill(skill_name)
 	if skill != null:
 		abilities.append(skill)
-	else:
-		print(skill_name + "doesn't exist!")
 
 
 #--battle logic--
 
 
 func initiate_battle(player: Node, enemy: Node) -> bool:
-	var main = get_tree().root.get_node("MAIN Pet Dungeon2")
+	var main = get_tree().root.get_node("MAIN Pet Dungeon")
 	main.instantiate_battle(player, enemy)
 	return true
 
 
 func take_damage(damage):
-	print(self, " takes ", damage, " damage!")
+	#print(self, " takes ", damage, " damage!")
 	var taken_damage = damage  #useless right now but just put here for later damage calculations
 	hp = hp - taken_damage
-	print("Now has ", hp, "HP")
+	#print("Now has ", hp, "HP")
 	return [" took " + str(taken_damage) + " Damage", " now has " + str(hp) + " HP"]
+
+
+func heal(healing):
+	#print(self, " heals by ", healing, "!")
+	var healed_hp = healing  #useless right now but just put here for later damage calculations
+	hp = hp + healed_hp
+	#print("Now has ", hp, "HP")
+	return [" healed by " + str(healed_hp), " now has " + str(hp) + " HP"]
 
 
 #-- status effect logic --
@@ -226,3 +281,8 @@ func deal_with_status_effects() -> Array:
 			poisoned = 0
 		things_that_happened.append("Target" + message[0] + " from poison! Target" + message[1])
 	return [gets_a_turn, things_that_happened]
+
+
+# --- helpers ---
+func has_animation(checked_sprite: AnimatedSprite2D, anim_name: String) -> bool:
+	return checked_sprite.sprite_frames.has_animation(anim_name)
