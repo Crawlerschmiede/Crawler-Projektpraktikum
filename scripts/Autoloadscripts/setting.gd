@@ -1,1 +1,2 @@
-var seed = 42
+func _ready():
+	seed(42)
