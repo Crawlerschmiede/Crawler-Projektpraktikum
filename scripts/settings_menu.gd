@@ -42,7 +42,7 @@ func _ready() -> void:
 	_build_resolution_items()
 	_refresh_from_settings()
 	_build_hotkey_rows()
-	
+
 	#Thene overrides
 	window_mode.get_popup().add_theme_font_override("font", custom_font)
 	resolution.get_popup().add_theme_font_override("font", custom_font)
@@ -52,7 +52,7 @@ func _ready() -> void:
 	hotkey_hint.add_theme_font_override("font", custom_font)
 	# TabContainer Headers
 	tab_container.add_theme_font_override("font", custom_font)
-	
+
 	window_mode.item_selected.connect(_on_window_mode_changed)
 	resolution.item_selected.connect(_on_resolution_changed)
 	vsync.toggled.connect(_on_vsync_toggled)
