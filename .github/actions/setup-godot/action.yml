@@ -1,0 +1,35 @@
+name: Setup Godot
+description: Install dependencies, cache templates, and download Godot headless
+inputs:
+  godot-version:
+    description: Godot version (e.g. 4.6)
+    required: true
+runs:
+  using: composite
+  steps:
+    - name: Install build dependencies
+      shell: bash
+      run: |
+        apt-get update
+        apt-get install -y \
+          unzip \
+          ca-certificates
+    - name: Cache Godot export templates
+      id: cache-godot-templates
+      uses: actions/cache@v4
+      with:
+        path: ~/.local/share/godot/export_templates/${{ inputs.godot-version }}.stable
+        key: godot-templates-${{ inputs.godot-version }}
+    - name: Download Godot headless
+      shell: bash
+      run: |
+        curl -L -o godot.zip https://github.com/godotengine/godot/releases/download/${{ inputs.godot-version }}-stable/Godot_v${{ inputs.godot-version }}-stable_linux.x86_64.zip
+        unzip -q godot.zip
+        chmod +x Godot_v${{ inputs.godot-version }}-stable_linux.x86_64
+    - name: Download Godot export templates
+      if: steps.cache-godot-templates.outputs.cache-hit != 'true'
+      shell: bash
+      run: |
+        curl -L -o templates.tpz https://github.com/godotengine/godot/releases/download/${{ inputs.godot-version }}-stable/Godot_v${{ inputs.godot-version }}-stable_export_templates.tpz
+        mkdir -p ~/.local/share/godot/export_templates/${{ inputs.godot-version }}.stable
+        tar -xf templates.tpz -C ~/.local/share/godot/export_templates/${{ inputs.godot-version }}.stable
