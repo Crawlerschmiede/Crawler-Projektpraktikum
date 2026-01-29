@@ -20,7 +20,14 @@ runs:
       with:
         path: ~/.local/share/godot/export_templates/${{ inputs.godot-version }}.stable
         key: godot-templates-${{ inputs.godot-version }}
+    - name: Cache Godot headless binary
+      id: cache-godot-binary
+      uses: actions/cache@v4
+      with:
+        path: Godot_v${{ inputs.godot-version }}-stable_linux.x86_64
+        key: godot-binary-${{ inputs.godot-version }}
     - name: Download Godot headless
+      if: steps.cache-godot-binary.outputs.cache-hit != 'true'
       shell: bash
       run: |
         curl -L -o godot.zip https://github.com/godotengine/godot/releases/download/${{ inputs.godot-version }}-stable/Godot_v${{ inputs.godot-version }}-stable_linux.x86_64.zip
