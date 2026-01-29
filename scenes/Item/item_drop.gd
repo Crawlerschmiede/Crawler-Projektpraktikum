@@ -30,10 +30,8 @@ func _ready() -> void:
 	var group_name: String = str(info["group"])
 	if group_name != "":
 		add_to_group(group_name)
-		print("add to Group: ", group_name)
 	else:
 		add_to_group("Inventory")
-		print("add to Group: ", "Inventar")
 
 
 func _physics_process(delta: float) -> void:
@@ -49,7 +47,6 @@ func _physics_process(delta: float) -> void:
 
 
 func pick_up_item(body: Node2D) -> void:
-	print("pickup_started")
 	player = body
 	being_picked_up = true
 

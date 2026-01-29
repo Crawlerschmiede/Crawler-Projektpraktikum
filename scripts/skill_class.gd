@@ -61,6 +61,7 @@ class Effect:
 		targets_self = _targets_self
 		details = _details
 
+	# gdlint: disable=max-returns
 	func apply(user, target, battle, skill_name):
 		var messages = []
 		var active_placement_effects = battle.tile_modifiers.get(battle.player_gridpos, {})
@@ -142,3 +143,5 @@ class Effect:
 					messages = user.heal(value)
 				else:
 					messages = target.heal(value)
+
+	# gdlint: enable=max-returns

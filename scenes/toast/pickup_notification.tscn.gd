@@ -1,12 +1,12 @@
 extends Panel
 
-@onready var label: Label = $HBoxContainer/Label
-@onready var holder: CenterContainer = $HBoxContainer/CenterContainer
-
-const ItemScene: PackedScene = preload("res://scenes/Item/item.tscn")
+const ITEM_SCENE: PackedScene = preload("res://scenes/Item/item.tscn")
 
 var tween: Tween
 var item_ui: Node = null
+
+@onready var label: Label = $HBoxContainer/Label
+@onready var holder: CenterContainer = $HBoxContainer/CenterContainer
 
 
 func setup(item_name: String, amount: int) -> void:
@@ -19,10 +19,10 @@ func setup(item_name: String, amount: int) -> void:
 	item_ui = null
 
 	# neues item icon erstellen
-	item_ui = ItemScene.instantiate()
+	item_ui = ITEM_SCENE.instantiate()
 	holder.add_child(item_ui)
 
-	item_ui = ItemScene.instantiate()
+	item_ui = ITEM_SCENE.instantiate()
 	holder.add_child(item_ui)
 
 	if item_ui is Control:

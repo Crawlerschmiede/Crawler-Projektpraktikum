@@ -34,7 +34,7 @@ func _apply_scale() -> void:
 
 # Function for the "Continue" button
 func _on_continue_pressed():
-	print("Check:Continue Pressed. Emitting signal.")
+	#print("Check:Continue Pressed. Emitting signal.")
 	menu_closed.emit()
 
 
@@ -68,5 +68,5 @@ func _on_settings_closed() -> void:
 
 # Function for the "Quit" button
 func _on_quit_pressed():
-	print("Check: Quit Pressed! Emitting signal.")
+	#print("Check: Quit Pressed! Emitting signal.")
 	get_tree().quit()

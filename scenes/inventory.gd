@@ -2,18 +2,15 @@
 
 extends Control
 
-const DEBUG: bool = true
-
 signal inventory_changed
 
-
-func dbg(msg: String) -> void:
-	if DEBUG:
-		print("[Inventory] ", msg)
-
+const DEBUG: bool = true
 
 # Slot Script (Pfad prüfen!)
 const SlotScript: GDScript = preload("res://scenes/Slot.gd")
+
+var _ui: Node = null
+var _slot_callables: Dictionary = {}  # key: Node (slot), value: Callable
 
 @onready var inv_grid: GridContainer = $Inner/Equiptment
 @onready var equip_grid: GridContainer = $Inner/GridContainer
@@ -24,8 +21,8 @@ func _collect_slots_recursive(root: Node, out: Array[Node]) -> void:
 	for c in root.get_children():
 		if (
 			c.has_method("initialize_item")
-			and c.has_method("putIntoSlot")
-			and c.has_method("pickFromSlot")
+			and c.has_method("put_into_slot")
+			and c.has_method("pick_from_slot")
 		):
 			out.append(c)
 		else:
@@ -39,10 +36,6 @@ func _get_all_slots() -> Array[Node]:
 	_collect_slots_recursive(equip_grid, out)
 	_collect_slots_recursive(hotbar_grid, out)
 	return out
-
-
-var _ui: Node = null
-var _slot_callables: Dictionary = {}  # key: Node (slot), value: Callable
 
 
 # -------------------------
@@ -68,7 +61,7 @@ func _get_ui() -> Node:
 func _get_slots() -> Array[Node]:
 	# get_children() liefert Array[Node], aber ohne typed generic → wir casten sauber.
 	var children: Array = _get_all_slots()
-	print(children)
+	#print(children)
 	var out: Array[Node] = []
 	for n in children:
 		if n is Node:
@@ -103,10 +96,10 @@ func get_equipment_skills():
 # Lifecycle
 # -------------------------
 func _ready() -> void:
-	dbg("_ready() gestartet")
+	#dgb("_ready() gestartet")
 
 	var slots: Array[Node] = _get_slots()
-	dbg("Slots im GridContainer gefunden: %d" % slots.size())
+	#dgb("Slots im GridContainer gefunden: %d" % slots.size())
 
 	if slots.is_empty():
 		push_error("Keine Slots im GridContainer! Hast du Slot Panels als Children drin?")
@@ -128,17 +121,9 @@ func _setup_slots(slots: Array[Node]) -> void:
 		# Pflicht-API Slot
 		if not s.has_method("initialize_item"):
 			push_error("Slot %d hat keine Methode initialize_item(). Slot.gd fehlt/anders?" % i)
-		if not s.has_method("pickFromSlot"):
-			dbg("Slot %d hat keine pickFromSlot() (für Click/Drag nötig!)" % i)
-		if not s.has_method("putIntoSlot"):
-			dbg("Slot %d hat keine putIntoSlot() (für Click/Drag nötig!)" % i)
 
 		var groups: Array[StringName] = (s as Node).get_groups()
 		PlayerInventory.register_slot_index(i, groups)
-
-		# Optional
-		if not s.has_method("refresh_style"):
-			dbg("Slot %d hat keine refresh_style() (optional, empfohlen)" % i)
 
 		# Signal connect (Callable speichern, sonst is_connected() sinnlos)
 		var call: Callable = Callable(self, "slot_gui_input").bind(s)
@@ -159,26 +144,23 @@ func _setup_slots(slots: Array[Node]) -> void:
 				)
 			)
 
-		if _has_property(s, &"slotType"):
-			s.set("slotType", SlotScript.SlotType.INVENTORY)
+		if _has_property(s, &"slot_type"):
+			s.set("slot_type", SlotScript.SlotType.INVENTORY)
 		else:
 			push_error(
-				"Slot %d hat keine Property 'slotType' (in Slot.gd: @export var slotType:int)" % i
+				"Slot %d hat keine Property 'slot_type' (in Slot.gd: @export var slot_type:int)" % i
 			)
 
 
 func _connect_inventory_signal() -> void:
 	if PlayerInventory != null and PlayerInventory.has_signal("inventory_changed"):
-		var sig: Signal = PlayerInventory.inventory_changed
-		if not sig.is_connected(_on_inventory_changed):
-			sig.connect(_on_inventory_changed)
-			dbg("inventory_changed Signal verbunden ✅")
-	else:
-		dbg("PlayerInventory hat kein Signal inventory_changed (optional)")
+		var cb: Callable = Callable(self, "_on_inventory_changed")
+		# connect using Callable (Godot 4 compatible) and avoid double-connections
+		if not PlayerInventory.inventory_changed.is_connected(cb):
+			PlayerInventory.inventory_changed.connect(cb)
 
 
 func _on_inventory_changed() -> void:
-	dbg("inventory_changed -> initialize_inventory()")
 	initialize_inventory()
 	inventory_changed.emit()
 
@@ -194,7 +176,7 @@ func initialize_inventory() -> void:
 		if hv is Node:
 			holding = hv as Node
 
-	dbg("initialize_inventory()")
+	#dgb("initialize_inventory()")
 
 	if PlayerInventory == null:
 		push_error("PlayerInventory ist null – Autoload fehlt?")
@@ -217,9 +199,7 @@ func initialize_inventory() -> void:
 			if _has_property(s, &"item"):
 				var it: Variant = s.get("item")
 				if it != null and it is Node and is_instance_valid(it):
-					if holding != null and it == holding:
-						dbg("Skip freeing holding_item ✅")
-					else:
+					if not (holding != null and it == holding):
 						(it as Node).queue_free()
 				s.set("item", null)
 
@@ -229,7 +209,7 @@ func initialize_inventory() -> void:
 	# 2) Inventory Daten neu reinbauen
 	var inv: Dictionary = PlayerInventory.get("inventory")
 	var keys: Array = inv.keys()
-	dbg("PlayerInventory.inventory keys: %s" % str(keys))
+	#dgb("PlayerInventory.inventory keys: %s" % str(keys))
 
 	for k in keys:
 		var idx: int = int(k)
@@ -255,7 +235,7 @@ func initialize_inventory() -> void:
 		var item_name: String = str(arr[0])
 		var item_qty: int = int(arr[1])
 
-		dbg("Slot %d <- %s x%d" % [idx, item_name, item_qty])
+		#dgb("Slot %d <- %s x%d" % [idx, item_name, item_qty])
 
 		if slot.has_method("initialize_item"):
 			slot.call("initialize_item", item_name, item_qty)
@@ -269,16 +249,16 @@ func initialize_inventory() -> void:
 # INPUT / DRAG HANDLING
 # -------------------------
 func slot_gui_input(event: InputEvent, slot: Node) -> void:
-	dbg("CLICK on slot " + str(slot.get("slot_index")))
+	#dgb("CLICK on slot " + str(slot.get("slot_index")))
 	if not (event is InputEventMouseButton):
 		return
 
 	var mbe: InputEventMouseButton = event as InputEventMouseButton
-	dbg("InputEventMouseButton überprüfung")
+	#dgb("InputEventMouseButton überprüfung")
 	if mbe.button_index != MOUSE_BUTTON_LEFT or not mbe.pressed:
 		return
 
-	dbg("Knopf erkannt")
+	#dgb("Knopf erkannt")
 	var ui: Node = _get_ui()
 	if ui == null:
 		push_error("UserInterface Parent nicht gefunden. Node muss so heißen.")
@@ -293,13 +273,13 @@ func slot_gui_input(event: InputEvent, slot: Node) -> void:
 	var slot_item: Variant = null
 	if _has_property(slot, &"item"):
 		slot_item = slot.get("item")
-	dbg("holding startet?")
+	#dgb("holding startet?")
 
 	# Wir halten was
 	if holding != null:
-		dbg("holding not empty")
+		#dgb("holding not empty")
 		if slot_item == null:
-			dbg("slot_item not empty")
+			#dgb("slot_item not empty")
 			left_click_empty_slot(slot)
 		else:
 			var holding_name: String = str((holding as Node).get("item_name"))
@@ -334,19 +314,9 @@ func _process(_delta: float) -> void:
 
 		# Debug nur selten (nicht jeden Frame spammen)
 		if DEBUG and (Engine.get_frames_drawn() % 30 == 0):
-			dbg("MOVE holding: parent=" + str(hn.get_parent()) + " pos=" + str(hn.global_position))
+			#dgb("MOVE holding: parent=" + str(hn.get_parent()) + " pos=" + str(hn.global_position))
 			if hn is CanvasItem:
 				var hci := hn as CanvasItem
-				dbg(
-					(
-						"  visible="
-						+ str(hci.visible)
-						+ " z="
-						+ str(hci.z_index)
-						+ " top="
-						+ str(hci.top_level)
-					)
-				)
 
 
 func able_to_put_into_slot(_slot: Node) -> bool:
@@ -354,7 +324,7 @@ func able_to_put_into_slot(_slot: Node) -> bool:
 
 
 func left_click_empty_slot(slot: Node) -> void:
-	dbg("left_click_empty_slot")
+	#dgb("left_click_empty_slot")
 	var ui: Node = _get_ui()
 	if ui == null:
 		return
@@ -366,19 +336,19 @@ func left_click_empty_slot(slot: Node) -> void:
 	var ok: bool = PlayerInventory.add_item_to_empty_slot(holding, slot)
 
 	if not ok:
-		dbg("DROP denied -> item bleibt in Hand")
+		#dgb("DROP denied -> item bleibt in Hand")
 		return
 
 	# ✅ nur wenn ok: UI ändern
-	slot.call("putIntoSlot", holding)
+	slot.call("put_into_slot", holding)
 	ui.set("holding_item", null)
 
 	var idx: int = int(slot.get("slot_index"))
-	print("I", idx)
+	#print("I", idx)
 	if idx == 17:
 		PlayerInventory.inventory.erase(17)  # <-- richtig löschen, kein null setzen!
 		PlayerInventory._emit_changed()  # UI refresh / signal
-		dbg("Slot 17 erased from inventory ✅")
+		#dgb("Slot 17 erased from inventory ✅")
 
 	if DEBUG:
 		_validate_slot(slot)
@@ -403,20 +373,20 @@ func left_click_different_item(slot: Node) -> void:
 		if _has_property(slot, &"item"):
 			temp_item = slot.get("item")
 
-		if slot.has_method("pickFromSlot"):
-			dbg("pickFromSlot")
-			slot.call("pickFromSlot")
+		if slot.has_method("pick_from_slot"):
+			#dgb("pick_from_slot")
+			slot.call("pick_from_slot")
 		else:
-			push_error("Slot hat keine pickFromSlot()")
+			push_error("Slot hat keine pick_from_slot()")
 			return
 
 		if temp_item != null and temp_item is Node and is_instance_valid(temp_item as Node):
 			(temp_item as Node).global_position = get_global_mouse_position()
 
-		if slot.has_method("putIntoSlot"):
-			slot.call("putIntoSlot", holding)
+		if slot.has_method("put_into_slot"):
+			slot.call("put_into_slot", holding)
 		else:
-			push_error("Slot hat keine putIntoSlot()")
+			push_error("Slot hat keine put_into_slot()")
 			return
 
 		ui.set("holding_item", temp_item)
@@ -424,6 +394,7 @@ func left_click_different_item(slot: Node) -> void:
 			_validate_slot(slot)
 
 
+# gdlint: disable=max-returns
 func left_click_same_item(slot: Node) -> void:
 	var ui: Node = _get_ui()
 	if ui == null:
@@ -485,6 +456,9 @@ func left_click_same_item(slot: Node) -> void:
 			_validate_slot(slot)
 
 
+# gdlint: enable=max-returns
+
+
 func left_click_not_holding(slot: Node) -> void:
 	var ui: Node = _get_ui()
 	if ui == null:
@@ -497,23 +471,23 @@ func left_click_not_holding(slot: Node) -> void:
 
 	var slot_item: Variant = slot.get("item")
 	if slot_item == null:
-		dbg("Pick: slot_item ist null")
+		#dgb("Pick: slot_item ist null")
 		return
 
-	dbg("=== PICK START ===")
-	dbg("Slot index: " + str(slot.get("slot_index")))
-	dbg("Slot item: " + str(slot_item))
+	#dgb("=== PICK START ===")
+	#dgb("Slot index: " + str(slot.get("slot_index")))
+	#dgb("Slot item: " + str(slot_item))
 	if slot_item is Node:
 		var n := slot_item as Node
-		dbg("Item name: " + str(n.get("item_name")))
-		dbg("Item qty : " + str(n.get("item_quantity")))
-		dbg("Item parent BEFORE: " + str(n.get_parent()))
-		dbg("Item in tree BEFORE: " + str(n.is_inside_tree()))
+		#dgb("Item name: " + str(n.get("item_name")))
+		#dgb("Item qty : " + str(n.get("item_quantity")))
+		#dgb("Item parent BEFORE: " + str(n.get_parent()))
+		#dgb("Item in tree BEFORE: " + str(n.is_inside_tree()))
 		if n is CanvasItem:
 			var ci := n as CanvasItem
-			dbg("Canvas visible BEFORE: " + str(ci.visible))
-			dbg("Canvas z_index BEFORE: " + str(ci.z_index))
-			dbg("Canvas top_level BEFORE: " + str(ci.top_level))
+			#dgb("Canvas visible BEFORE: " + str(ci.visible))
+			#dgb("Canvas z_index BEFORE: " + str(ci.z_index))
+			#dgb("Canvas top_level BEFORE: " + str(ci.top_level))
 	else:
 		push_error("slot_item ist kein Node?? -> " + str(typeof(slot_item)))
 		return
@@ -526,36 +500,36 @@ func left_click_not_holding(slot: Node) -> void:
 
 	# UI-State
 	ui.set("holding_item", slot_item)
-	dbg("UI holding_item gesetzt: " + str(ui.get("holding_item")))
+	#dgb("UI holding_item gesetzt: " + str(ui.get("holding_item")))
 
 	# Slot pick
-	if slot.has_method("pickFromSlot"):
-		slot.call("pickFromSlot")
-		dbg("pickFromSlot() ausgeführt")
+	if slot.has_method("pick_from_slot"):
+		slot.call("pick_from_slot")
+		#dgb("pick_from_slot() ausgeführt")
 	else:
-		push_error("Slot hat keine pickFromSlot()")
+		push_error("Slot hat keine pick_from_slot()")
 		return
 
 	# Nach pick prüfen
 	if ui.get("holding_item") is Node:
 		var hn := ui.get("holding_item") as Node
-		dbg("Holding parent AFTER: " + str(hn.get_parent()))
-		dbg("Holding in tree AFTER: " + str(hn.is_inside_tree()))
+		#dgb("Holding parent AFTER: " + str(hn.get_parent()))
+		#dgb("Holding in tree AFTER: " + str(hn.is_inside_tree()))
 		if hn is CanvasItem:
 			var hci := hn as CanvasItem
-			dbg("Holding visible AFTER: " + str(hci.visible))
-			dbg("Holding z_index AFTER: " + str(hci.z_index))
-			dbg("Holding top_level AFTER: " + str(hci.top_level))
-		dbg("Holding global pos AFTER: " + str(hn.global_position))
+			#dgb("Holding visible AFTER: " + str(hci.visible))
+			#dgb("Holding z_index AFTER: " + str(hci.z_index))
+			#dgb("Holding top_level AFTER: " + str(hci.top_level))
+		#dgb("Holding global pos AFTER: " + str(hn.global_position))
 	else:
 		push_error("holding_item ist nach pick kein Node / null")
 
 	# Direkt unter Maus setzen
 	if slot_item is Node and is_instance_valid(slot_item as Node):
 		(slot_item as Node).global_position = get_global_mouse_position()
-		dbg("Holding moved to mouse: " + str((slot_item as Node).global_position))
+		#dgb("Holding moved to mouse: " + str((slot_item as Node).global_position))
 
-	dbg("=== PICK END ===")
+	#dgb("=== PICK END ===")
 
 	if DEBUG:
 		_validate_slot(slot)
@@ -580,4 +554,4 @@ func _validate_slot(slot: Node) -> void:
 	if _has_property(slot, &"item"):
 		ui_has = (slot.get("item") != null)
 
-	dbg("VALIDATE Slot %d: ui_has_item=%s inv_has_item=%s" % [idx, str(ui_has), str(inv_has)])
+	#dgb("VALIDATE Slot %d: ui_has_item=%s inv_has_item=%s" % [idx, str(ui_has), str(inv_has)])

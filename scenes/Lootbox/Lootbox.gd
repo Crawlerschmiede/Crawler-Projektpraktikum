@@ -1,5 +1,5 @@
-extends CharacterBody2D
 class_name LootBoxPickup
+extends CharacterBody2D
 
 const ACCELERATION = 460.0
 const MAX_SPEED = 225.0
@@ -60,7 +60,7 @@ func _collect_loot() -> void:
 	for item_name in loot_table.keys():
 		PlayerInventory.add_item(item_name, int(loot_table[item_name]))
 
-	print("Lootbox collected:", loot_table)
+	#print("Lootbox collected:", loot_table)
 
 
 # ============================================================

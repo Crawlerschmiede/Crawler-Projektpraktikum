@@ -1,21 +1,5 @@
-extends Panel
 class_name Slot
-
-@export var slot_index: int = -1
-@export var slotType: int = 0  # SlotType enum value
-
-# Textures
-@export var default_tex: Texture2D = preload("res://assets/menu/UI_TravelBook_Slot01b.png")
-@export var empty_tex: Texture2D = preload("res://assets/menu/UI_TravelBook_Slot01b.png")
-@export var selected_tex: Texture2D = preload("res://assets/menu/Selected_slot.png")
-
-var default_style: StyleBoxTexture
-var empty_style: StyleBoxTexture
-var selected_style: StyleBoxTexture
-
-# Item
-const ItemScene: PackedScene = preload("res://scenes/Item/item.tscn")
-var item: Node = null
+extends Panel
 
 enum SlotType {
 	HOTBAR = 0,
@@ -25,19 +9,38 @@ enum SlotType {
 	SHOES = 4,
 }
 
+const SLOT_TEXTURE: Texture2D = preload("res://assets/menu/UI_TravelBook_Slot01b.png")
+const ITEM_SCENE: PackedScene = preload("res://scenes/Item/item.tscn")
+
+@export var slot_index: int = -1
+@export var slot_type: int = 0  # SlotType enum value
+
+# Textures
+@export var default_tex: Texture2D = SLOT_TEXTURE
+@export var empty_tex: Texture2D = SLOT_TEXTURE
+@export var selected_tex: Texture2D = preload("res://assets/menu/Selected_slot.png")
+@export var has_background: bool = true
+
+var default_style: StyleBoxTexture
+var empty_style: StyleBoxTexture
+var selected_style: StyleBoxTexture
+
+# Item
+var item: Node = null
+
 var _ui: Node = null
 
 
 func _ready() -> void:
 	_ui = find_parent("UserInterface")
+	if has_background:
+		default_style = StyleBoxTexture.new()
+		empty_style = StyleBoxTexture.new()
+		selected_style = StyleBoxTexture.new()
 
-	default_style = StyleBoxTexture.new()
-	empty_style = StyleBoxTexture.new()
-	selected_style = StyleBoxTexture.new()
-
-	default_style.texture = default_tex
-	empty_style.texture = empty_tex
-	selected_style.texture = selected_tex
+		default_style.texture = default_tex
+		empty_style.texture = empty_tex
+		selected_style.texture = selected_tex
 
 	refresh_style()
 
@@ -74,20 +77,21 @@ func _fit_item_to_slot(it: Node) -> void:
 
 
 func refresh_style() -> void:
-	print(PlayerInventory.get_selected_slot())
-	print(item)
+	#print(PlayerInventory.get_selected_slot())
+	#print(item)
 	if item != null and (not is_instance_valid(item) or item.get_parent() != self):
 		item = null
 
-	if PlayerInventory.get_selected_slot() == slot_index:
-		set("theme_override_styles/panel", selected_style)
-	elif item == null:
-		set("theme_override_styles/panel", empty_style)
-	else:
-		set("theme_override_styles/panel", default_style)
+	if has_background:
+		if PlayerInventory.get_selected_slot() == slot_index:
+			set("theme_override_styles/panel", selected_style)
+		elif item == null:
+			set("theme_override_styles/panel", empty_style)
+		else:
+			set("theme_override_styles/panel", default_style)
 
 
-func pickFromSlot() -> void:
+func pick_from_slot() -> void:
 	if item == null:
 		return
 
@@ -113,7 +117,7 @@ func pickFromSlot() -> void:
 	refresh_style()
 
 
-func putIntoSlot(new_item: Node) -> void:
+func put_into_slot(new_item: Node) -> void:
 	if new_item == null:
 		return
 
@@ -146,7 +150,7 @@ func clear_slot() -> void:
 
 func initialize_item(item_name: String, item_quantity: int) -> void:
 	if item == null:
-		item = ItemScene.instantiate()
+		item = ITEM_SCENE.instantiate()
 		add_child(item)
 		_fit_item_to_slot(item)
 

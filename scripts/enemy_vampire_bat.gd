@@ -51,6 +51,7 @@ func roam():
 		move_to_tile(direction)
 
 
+# gdlint: disable=max-returns
 func chase():
 	if !burrowed:
 		chased_pos = chase_target.grid_pos
@@ -68,17 +69,17 @@ func chase():
 					sprite.play("default")
 				burrowed = true
 				return
-			else:
-				var animation_array = null
-				var digrection = (chased_direction) * -2
-				var targ_dig_pos = chased_pos + digrection
-				if used_animation:
-					if used_animation["teleport_start"] and used_animation["teleport_end"]:
-						animation_array = [used_animation["teleport_end"]]
-				await teleport_to_tile(targ_dig_pos, animation_array)
-				chasing = true
-				burrowed = false
-				return
+
+			var animation_array = null
+			var digrection = (chased_direction) * -2
+			var targ_dig_pos = chased_pos + digrection
+			if used_animation:
+				if used_animation["teleport_start"] and used_animation["teleport_end"]:
+					animation_array = [used_animation["teleport_end"]]
+			await teleport_to_tile(targ_dig_pos, animation_array)
+			chasing = true
+			burrowed = false
+			return
 
 	chasing = true
 	if chased_pos.x < grid_pos.x:
@@ -128,6 +129,9 @@ func chase():
 			return
 
 
+# gdlint: enable=max-returns
+
+
 func get_best_player() -> PlayerCharacter:
 	var players := get_tree().get_nodes_in_group("player")
 	if players.is_empty():
@@ -159,7 +163,7 @@ func _ready() -> void:
 	super_ready(sprite_type, types)
 
 	var p := get_best_player()
-	print("Enemy ready:", name, " found player:", p)
+	#print("Enemy ready:", name, " found player:", p)
 
 	if p == null:
 		push_warning("❌ Enemy found NO player in group 'player' -> cannot connect player_moved")
@@ -167,8 +171,7 @@ func _ready() -> void:
 
 	if not p.player_moved.is_connected(move_it):
 		p.player_moved.connect(move_it)
-		print("✅ Connected player_moved -> move_it")
-	
+		#print("✅ Connected player_moved -> move_it")
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -182,10 +185,10 @@ func move_it():
 	check_collisions()
 
 	if multi_turn_action == null:
-	#	print("Move2")
+		#print("Move2")
 		var saw_player = check_sight()
 		if saw_player:
-	#		print("Move3")
+			#print("Move3")
 			if "hostile" in types:
 				behaviour = "chase"
 		else:
@@ -232,11 +235,6 @@ func check_sight() -> bool:
 		#print("Node:", body)
 		#print("Name:", body.name)
 		#print("Class:", body.get_class())
-		#print(
-		#	"SceneFile:",
-		#	body.scene_file_path if "scene_file_path" in body else "(no scene_file_path)"
-		#)
-
 		if body == self:
 			#print("⚠️ body is SELF -> skip")
 			continue
@@ -246,24 +244,12 @@ func check_sight() -> bool:
 
 		# --- is_player property check ---
 		var has_is_player := body.get("is_player") != null or body.has_method("get")  # fallback
-		#print(
-		#	"Has property 'is_player'?",
-		#	body.has_meta("is_player") if body.has_method("has_meta") else "?",
-		#	" | raw get('is_player'):",
-		#	body.get("is_player")
-		#)
 
 		# Sicherer: property via `get`
 		var is_player_value = null
 		if body.has_method("get"):
 			is_player_value = body.get("is_player")
 		#print("body.get('is_player'):", is_player_value)
-
-		# Direkter Zugriff (kann crashen wenn property nicht existiert)
-		#if "is_player" in body:
-		#	print("✅ 'is_player' in body → body.is_player =", body.is_player)
-		#else:
-		#	print("❌ 'is_player' NOT in body")
 
 		# --- Gruppencheck ---
 		var in_player_group := false
@@ -276,20 +262,6 @@ func check_sight() -> bool:
 		#print("Is PlayerCharacter?", is_player_character)
 
 		# --- Collision Info (falls PhysicsBody2D) ---
-		#if body is PhysicsBody2D:
-		#	print(
-		#		"PhysicsBody2D collision_layer:",
-		#		body.collision_layer,
-		#		" collision_mask:",
-		#		body.collision_mask
-		#	)
-		#elif body is Area2D:
-		#	print(
-		#		"Area2D collision_layer:",
-		#		body.collision_layer,
-		#		" collision_mask:",
-		#		body.collision_mask
-		#	)
 
 		# --- finale Entscheidung ---
 		if in_player_group or is_player_character or (("is_player" in body) and body.is_player):
@@ -297,11 +269,6 @@ func check_sight() -> bool:
 			saw_player = true
 			chase_target = body
 			break
-		#else:
-		#	print("❌ not player (did not match any criteria)")
-
-	#print("\nRESULT: saw_player =", saw_player, " chase_target =", chase_target)
-	#eprint("============================\n")
 
 	return saw_player
 
