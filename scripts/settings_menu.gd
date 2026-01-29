@@ -15,10 +15,11 @@ const PATH_HOTKEY_LIST := NodePath(
 )
 const PATH_HOTKEY_HINT := NodePath("PanelContainer/VBoxContainer/TabContainer/Hotkeys/RebindHint")
 
+var custom_font = load("res://assets/font/PixelPurl.ttf")
+
 var _rebind_action: String = ""
 var _rows_by_action: Dictionary = {}
 var _resolution_items: Array[Vector2i] = []
-var custom_font = load("res://assets/font/PixelPurl.ttf")
 
 @onready var tab_container: TabContainer = get_node(PATH_TAB_CONTAINER)
 
