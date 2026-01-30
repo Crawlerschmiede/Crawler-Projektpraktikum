@@ -50,14 +50,16 @@ func roam():
 	else:
 		move_to_tile(direction)
 
+func is_closer_to_player(current_tile: Vector2i, target_tile: Vector2i, chased_tile: Vector2i) -> bool:
+	var curr_distance = abs(current_tile.x - chased_tile.x) + abs(current_tile.y - chased_tile.y)
+	var target_distance = abs(target_tile.x - chased_tile.x) + abs(target_tile.y - chased_tile.y)
+	return target_distance <= curr_distance
 
 # gdlint: disable=max-returns
 func chase():
 	if !burrowed:
 		chased_pos = chase_target.grid_pos
 		chased_direction = chase_target.latest_direction
-	var x_move = Vector2i.ZERO
-	var y_move = Vector2i.ZERO
 	var used_animation = animations
 	if !chasing:
 		if "burrowing" in types:
@@ -83,6 +85,8 @@ func chase():
 
 	chasing = true
 	var tiles_im_on = []
+	var viable_target_tiles =[]
+	var viable_directions = []
 	for tile in my_tiles:
 		tiles_im_on.append(grid_pos+tile)
 	for tile in my_tiles:
@@ -91,53 +95,27 @@ func chase():
 			if target_tile not in tiles_im_on:
 				if not is_cell_walkable(target_tile):
 					if "burrowing" in types:
-						pass
+						var burrowable = can_burrow_through(target_tile, direction)
+						if not burrowable[0]:
+							continue
 					else:
-						continue			
-	if chased_pos.x < grid_pos.x:
-		x_move = Vector2i.LEFT
-	if chased_pos.x > grid_pos.x:
-		x_move = Vector2i.RIGHT
-	if chased_pos.y < grid_pos.y:
-		y_move = Vector2i.UP
-	if chased_pos.y > grid_pos.y:
-		y_move = Vector2i.DOWN
-	if "wallbound" in types:
-		elongate()
-		if is_next_to_wall(grid_pos + x_move) and x_move != Vector2i.ZERO:
-			move_to_tile(x_move)
-			chase_timer = CHASE_COOLDOWN
-			return
-		if is_next_to_wall(grid_pos + y_move) and y_move != Vector2i.ZERO:
-			move_to_tile(y_move)
-			chase_timer = CHASE_COOLDOWN
-			return
-	elif "burrowing" in types:
-		if tilemap.get_cell_tile_data(grid_pos + x_move) and x_move != Vector2i.ZERO:
-			move_to_tile(x_move)
-			chase_timer = CHASE_COOLDOWN
-			return
-		if tilemap.get_cell_tile_data(grid_pos + y_move) and y_move != Vector2i.ZERO:
-			move_to_tile(y_move)
-			chase_timer = CHASE_COOLDOWN
-			return
-	else:
-		if (
-			tilemap.get_cell_tile_data(grid_pos + x_move)
-			and !tilemap.get_cell_tile_data(grid_pos + x_move).get_custom_data("non_walkable")
-			and x_move != Vector2i.ZERO
-		):
-			move_to_tile(x_move)
-			chase_timer = CHASE_COOLDOWN
-			return
-		if (
-			tilemap.get_cell_tile_data(grid_pos + y_move)
-			and !tilemap.get_cell_tile_data(grid_pos + y_move).get_custom_data("non_walkable")
-			and y_move != Vector2i.ZERO
-		):
-			move_to_tile(y_move)
-			chase_timer = CHASE_COOLDOWN
-			return
+						continue
+				else:
+					if "wallbound" in types:
+						if not is_next_to_wall(target_tile):
+							continue
+					if is_closer_to_player((grid_pos+tile), target_tile, chased_pos):
+						viable_target_tiles.append(target_tile)
+						viable_directions.append(direction)
+	var chosen_direction = randi_range(0, len(viable_directions)-1)
+	if len(viable_directions)>0:
+		if "wallbound" in types:
+			elongate()
+			move_to_tile(viable_directions[chosen_direction])
+			elongate()
+		else:
+			move_to_tile(viable_directions[chosen_direction])
+	return
 
 
 # gdlint: enable=max-returns
