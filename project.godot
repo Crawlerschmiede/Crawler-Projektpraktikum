@@ -29,7 +29,7 @@ MerchantRegistry="*res://scripts/merchant_registry.gd"
 window/size/viewport_width=640
 window/size/viewport_height=480
 window/stretch/mode="viewport"
-mouse_cursor/custom_image="uid://4wgcd0cgenrq"
+mouse_cursor/custom_image="uid://cbsd22rjedy5e"
 
 [dotnet]
 
