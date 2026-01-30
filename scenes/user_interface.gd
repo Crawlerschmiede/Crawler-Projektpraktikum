@@ -9,8 +9,7 @@ var merchant_in_range: bool = false
 @onready var equipmentlabel := $Inventory/Inner/EquiptmentLabel
 @onready var player := $".."
 @onready var merchantgui := $Inventory/Inner/MerchantContainer/HBoxContainer/VBoxContainer
-
-@onready var coin_screen = $Inventory/price
+@onready var coin_screen := $Inventory/coin_sum
 
 
 func _input(event):
