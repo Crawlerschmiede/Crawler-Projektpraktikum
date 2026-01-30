@@ -377,6 +377,7 @@ func spawn_enemy(sprite_type: String, behaviour: Array) -> void:
 	# default: spawn normal enemy
 	var e = ENEMY_SCENE.instantiate()
 	e.add_to_group("enemy")
+	e.add_to_group("vision_objects")
 	e.types = behaviour
 	e.sprite_type = sprite_type
 

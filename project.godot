@@ -29,6 +29,8 @@ MerchantRegistry="*res://scripts/merchant_registry.gd"
 window/size/viewport_width=640
 window/size/viewport_height=480
 window/stretch/mode="viewport"
+window/stretch/aspect="keep_height"
+window/stretch/scale_mode="integer"
 mouse_cursor/custom_image="uid://4wgcd0cgenrq"
 
 [dotnet]
@@ -47,6 +49,7 @@ merchant_room=""
 item=""
 Inventar=""
 Equipment=""
+vision_objects=""
 
 [input]
 
