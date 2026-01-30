@@ -1,0 +1,50 @@
+[gd_scene load_steps=8 format=3 uid="uid://bue2t2dxlcooa"]
+
+[ext_resource type="Texture2D" uid="uid://i7gvsnx5i4bw" path="res://assets/fight_animations/Fight-Animation-3Hit.png" id="1_tgf7c"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_7tec4"]
+atlas = ExtResource("1_tgf7c")
+region = Rect2(0, 0, 80, 80)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_7b5hf"]
+atlas = ExtResource("1_tgf7c")
+region = Rect2(80, 0, 80, 80)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_t3iqu"]
+atlas = ExtResource("1_tgf7c")
+region = Rect2(160, 0, 80, 80)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_0r4ep"]
+atlas = ExtResource("1_tgf7c")
+region = Rect2(240, 0, 80, 80)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ifbic"]
+atlas = ExtResource("1_tgf7c")
+region = Rect2(320, 0, 80, 80)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_2nbx3"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_7tec4")
+}, {
+"duration": 1.5,
+"texture": SubResource("AtlasTexture_7b5hf")
+}, {
+"duration": 1.5,
+"texture": SubResource("AtlasTexture_t3iqu")
+}, {
+"duration": 1.5,
+"texture": SubResource("AtlasTexture_0r4ep")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ifbic")
+}],
+"loop": true,
+"name": &"default",
+"speed": 9.0
+}]
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D"]
+sprite_frames = SubResource("SpriteFrames_2nbx3")
+frame_progress = 0.9769291
