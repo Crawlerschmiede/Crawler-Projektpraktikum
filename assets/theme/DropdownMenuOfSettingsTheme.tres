@@ -1,0 +1,25 @@
+[gd_resource type="Theme" load_steps=7 format=3 uid="uid://0spcfhiug0ar"]
+
+[ext_resource type="Texture2D" uid="uid://csrl31y7cxsxj" path="res://assets/menu/UI_TravelBook_Toggle03b.png" id="1_wv2kn"]
+[ext_resource type="Texture2D" uid="uid://dp5wgevvgve8m" path="res://assets/menu/UI_TravelBook_Toggle03a.png" id="2_rwl2p"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_pgx23"]
+bg_color = Color(0.7882353, 0.4745098, 0.18039216, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ry48r"]
+bg_color = Color(0.87058824, 0.6627451, 0.45490196, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_lom82"]
+bg_color = Color(1, 0.84313726, 0.65882355, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_j28ui"]
+bg_color = Color(1, 0.84313726, 0.65882355, 1)
+
+[resource]
+PopupMenu/icons/radio_checked = ExtResource("1_wv2kn")
+PopupMenu/icons/radio_checked_disabled = ExtResource("2_rwl2p")
+PopupMenu/icons/radio_unchecked = ExtResource("2_rwl2p")
+PopupMenu/styles/hover = SubResource("StyleBoxFlat_pgx23")
+PopupMenu/styles/panel = SubResource("StyleBoxFlat_ry48r")
+VScrollBar/styles/grabber = SubResource("StyleBoxFlat_lom82")
+VScrollBar/styles/scroll = SubResource("StyleBoxFlat_j28ui")

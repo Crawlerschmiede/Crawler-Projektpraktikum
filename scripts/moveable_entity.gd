@@ -12,6 +12,12 @@ var types = ["passive"]
 var existing_skills = SKILLS.new()
 var abilities_this_has: Array = []
 var multi_turn_action = null
+
+var dimensions: Vector2i = Vector2i(1, 1)
+# If I built this at all right, you will never need to touch this.
+# It should just work with the resize function.
+var my_tiles = [Vector2i(0, 0)]
+
 var sprites = {
 	"bat":
 	[preload("res://scenes/sprite_scenes/bat_sprite_scene.tscn"), ["Screech", "Swoop", "Rabies"]],
@@ -23,8 +29,12 @@ var sprites = {
 	"what":
 	[
 		preload("res://scenes/sprite_scenes/what_sprite_scene.tscn"),
-		["Screech", "Swoop", "Encroaching Void"]
+		["Screech", "Swoop", "Encroaching Void"],
+		{"idle": "default", "expand": "expand", "alt_default": "expanded_idle"},
+		{"standard": [1, 1], "expanded": [1, 3]}
 	],
+	"ghost":
+	[preload("res://scenes/sprite_scenes/ghost_sprite_scene.tscn"), ["Feint", "Encroaching Void"]],
 	"base_zombie":
 	[
 		preload("res://scenes/sprite_scenes/base_zombie_sprite_scene.tscn"),
@@ -175,13 +185,16 @@ func check_collisions() -> void:
 	for body in collision_area.get_overlapping_bodies():
 		if body == self:
 			continue
-		if body.is_in_group("item"):
+		elif body.is_in_group("item"):
 			continue
-		if grid_pos == body.grid_pos:
-			if self.is_player:
-				initiate_battle(self, body)
-			elif body.is_player:
-				initiate_battle(body, self)
+		else:
+			for tile in my_tiles:
+				for other_tile in body.my_tiles:
+					if (grid_pos + tile) == (body.grid_pos + other_tile):
+						if self.is_player:
+							initiate_battle(self, body)
+						elif body.is_player:
+							initiate_battle(body, self)
 
 
 func _on_move_finished():
@@ -271,5 +284,5 @@ func deal_with_status_effects() -> Array:
 
 
 # --- helpers ---
-func has_animation(anim_sprite: AnimatedSprite2D, anim_name: String) -> bool:
-	return anim_sprite.sprite_frames.has_animation(anim_name)
+func has_animation(checked_sprite: AnimatedSprite2D, anim_name: String) -> bool:
+	return checked_sprite.sprite_frames.has_animation(anim_name)
