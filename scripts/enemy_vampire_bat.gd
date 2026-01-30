@@ -82,6 +82,18 @@ func chase():
 			return
 
 	chasing = true
+	var tiles_im_on = []
+	for tile in my_tiles:
+		tiles_im_on.append(grid_pos+tile)
+	for tile in my_tiles:
+		for direction in directions:
+			var target_tile = grid_pos+tile+direction
+			if target_tile not in tiles_im_on:
+				if not is_cell_walkable(target_tile):
+					if "burrowing" in types:
+						pass
+					else:
+						continue			
 	if chased_pos.x < grid_pos.x:
 		x_move = Vector2i.LEFT
 	if chased_pos.x > grid_pos.x:
@@ -318,7 +330,7 @@ func resize(x_size:int,y_size:int, anchors, animation=null, new_animation=null):
 				var x_offset = j+1
 				if "R" in anchors:
 					x_offset=x_offset*-1
-				my_tiles.append(Vector2i(j+1,i+1))
+				my_tiles.append(Vector2i(x_offset,y_offset))
 	elif x_size>1:
 		for i in range(x_size-1):
 			var offset = i+1
@@ -342,7 +354,6 @@ func elongate():
 	var x_offset = 0
 	var y_offset = 0
 	var rotation = 0
-	var directions = [Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, Vector2i.RIGHT]
 	for direction in directions:
 		if is_next_to_wall(grid_pos+direction*2) and not is_next_to_wall(grid_pos+direction):
 			expand=true
