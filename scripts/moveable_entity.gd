@@ -15,8 +15,10 @@ var existing_skills = SKILLS.new()
 var abilities_this_has: Array = []
 var multi_turn_action = null
 
-var dimensions: Vector2i = Vector2i(1,1)
-var my_tiles = [Vector2i(0,0)] #if I built this at all right, you will never need to touch this, it should just work with the resize function
+var dimensions: Vector2i = Vector2i(1, 1)
+# If I built this at all right, you will never need to touch this.
+# It should just work with the resize function.
+var my_tiles = [Vector2i(0, 0)]
 
 var sprites = {
 	"bat":
@@ -30,14 +32,11 @@ var sprites = {
 	[
 		preload("res://scenes/sprite_scenes/what_sprite_scene.tscn"),
 		["Screech", "Swoop", "Encroaching Void"],
-		{"idle":"default", "expand":"expand", "alt_default":"expanded_idle"},
-		{"standard":[1,1], "expanded":[1,3]}
+		{"idle": "default", "expand": "expand", "alt_default": "expanded_idle"},
+		{"standard": [1, 1], "expanded": [1, 3]}
 	],
 	"ghost":
-	[
-		preload("res://scenes/sprite_scenes/ghost_sprite_scene.tscn"),
-		["Feint", "Encroaching Void"]
-	],
+	[preload("res://scenes/sprite_scenes/ghost_sprite_scene.tscn"), ["Feint", "Encroaching Void"]],
 	"base_zombie":
 	[
 		preload("res://scenes/sprite_scenes/base_zombie_sprite_scene.tscn"),
@@ -198,7 +197,7 @@ func check_collisions() -> void:
 		else:
 			for tile in my_tiles:
 				for other_tile in body.my_tiles:
-					if (grid_pos+tile) == (body.grid_pos + other_tile):
+					if (grid_pos + tile) == (body.grid_pos + other_tile):
 						if self.is_player:
 							initiate_battle(self, body)
 						elif body.is_player:
