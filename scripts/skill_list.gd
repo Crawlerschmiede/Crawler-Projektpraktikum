@@ -52,6 +52,9 @@ func _populate_list(tab_idx: int) -> void:
 					_on_skill_pressed.bind(ability),
 					_on_mouse_entered.bind(ability.name, ability.description),
 				)
+	if list_vbox.get_child_count() > 0:
+		list_vbox.get_child(0).grab_focus()
+
 
 
 func _clear_vbox(vbox: VBoxContainer) -> void:
@@ -61,22 +64,50 @@ func _clear_vbox(vbox: VBoxContainer) -> void:
 
 func _add_button(label: String, pressed_cb: Callable, mouseover_cb: Callable) -> void:
 	var b := Button.new()
-
 	b.text = label
-	# overrides from the basic godot style into custom style
+
 	b.flat = true
+	b.focus_mode = Control.FOCUS_ALL
 	b.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
+	b.add_theme_stylebox_override("pressed", StyleBoxEmpty.new())
+	b.add_theme_stylebox_override("hover", StyleBoxEmpty.new())
 
-	b.add_theme_color_override("font_color", Color(0.8, 0.8, 0.8))  # Light gray
-
-	# 3. Connect Hover signals for the flicker effect
-	#b.mouse_entered.connect(_on_button_hover_start.bind(b))
-	#b.mouse_exited.connect(_on_button_hover_stop.bind(b))
-
-	b.pressed.connect(pressed_cb)
-	b.mouse_entered.connect(mouseover_cb)
 	b.add_theme_font_override("font", custom_font)
+	b.add_theme_color_override("font_color", Color(0.8, 0.8, 0.8))
+
+	# Mouse hover = selected
+	b.mouse_entered.connect(mouseover_cb)
+	b.mouse_exited.connect(remove_tooltip)
+
+	# Keyboard focus = selected (SAME DESIGN)
+	b.focus_entered.connect(mouseover_cb)
+	b.focus_exited.connect(remove_tooltip)
+
+	# Auto scroll to focused button
+	b.focus_entered.connect(_scroll_to_button.bind(b))
+
+	# Press
+	b.pressed.connect(pressed_cb)
+
 	list_vbox.add_child(b)
+
+
+func _scroll_to_button(btn: Button) -> void:
+	# Button might already be freed when switching tabs
+	if not is_instance_valid(btn):
+		return
+
+	await get_tree().process_frame
+
+	if not is_instance_valid(btn):
+		return
+
+	var btn_rect = btn.get_global_rect()
+	var btn_list = $ScrollContainer/VBoxContainer.get_global_rect()
+
+	if btn_rect.position.y < $ScrollContainer/VBoxContainer.position.y:
+		$ScrollContainer/VBoxContainer.scroll_vertical -= $ScrollContainer/VBoxContainer.position.y - btn_rect.position.y + 8
+
 
 
 func _on_skill_pressed(ability) -> void:
@@ -94,6 +125,7 @@ func _on_mouse_entered(skill_name, skill_description):
 		tooltip_container.state = "tooltip"
 		tooltip_container.changed = true
 		tooltip_container.tooltips = [skill_name.to_upper(), skill_description]
+		print("Test")
 
 
 func _process(_delta: float) -> void:
