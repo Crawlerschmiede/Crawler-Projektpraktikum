@@ -135,6 +135,7 @@ func enemy_turn():
 		for happening in happened:
 			log_container.add_log_event(happening)
 		if extra_stuff[0]:
+			skill_ui.update()
 			skill_ui.player_turn = true
 		else:
 			enemy_turn()
