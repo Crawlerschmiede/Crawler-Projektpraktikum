@@ -13,6 +13,7 @@
 [ext_resource type="Texture2D" uid="uid://p1r7l118n6so" path="res://assets/map-tiles/16x16 dungeon ii wall reconfig v04 spritesheet.png" id="9_6ni85"]
 [ext_resource type="Texture2D" uid="uid://cen3xmvl56h11" path="res://assets/menu/pixil-frame-0(1).png" id="9_v7i3o"]
 [ext_resource type="Texture2D" uid="uid://ebhbokd4jrcf" path="res://assets/menu/c9a4d2bf1afc262.png" id="10_66ngm"]
+[ext_resource type="Theme" uid="uid://do40vcwiibb8g" path="res://assets/theme/HealthBar.tres" id="10_vceff"]
 [ext_resource type="Texture2D" uid="uid://b8npjqrcm5ova" path="res://assets/fight_animations/Fight-Animation-2Hit.png" id="10_djc8l"]
 [ext_resource type="Texture2D" uid="uid://i7gvsnx5i4bw" path="res://assets/fight_animations/Fight-Animation-3Hit.png" id="10_vceff"]
 [ext_resource type="Texture2D" uid="uid://b2h43jwgxfx6e" path="res://assets/fight_animations/Single-Hit-Flash.png" id="11_h4dll"]
@@ -393,6 +394,7 @@ offset_left = 86.0
 offset_top = 81.0
 offset_right = 210.0
 offset_bottom = 157.0
+focus_mode = 0
 script = ExtResource("2_a12nh")
 
 [node name="TextureRect" type="TextureRect" parent="Battle_root/ItemList"]
@@ -467,6 +469,7 @@ offset_right = 85.0
 offset_bottom = 80.0
 scale = Vector2(1, 0.7)
 size_flags_vertical = 4
+theme = ExtResource("10_vceff")
 theme_override_fonts/font = ExtResource("4_6vh42")
 
 [node name="Enemy_hp_label" type="Label" parent="Battle_root"]
@@ -496,6 +499,7 @@ offset_top = 62.0
 offset_right = 206.0
 offset_bottom = 80.0
 scale = Vector2(1, 0.7)
+theme = ExtResource("10_vceff")
 theme_override_fonts/font = ExtResource("4_6vh42")
 
 [node name="TextureRect2" type="TextureRect" parent="Battle_root"]
