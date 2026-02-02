@@ -19,11 +19,13 @@ const ITEM_SCENE: PackedScene = preload("res://scenes/Item/item.tscn")
 @export var default_tex: Texture2D = SLOT_TEXTURE
 @export var empty_tex: Texture2D = SLOT_TEXTURE
 @export var selected_tex: Texture2D = preload("res://assets/menu/Selected_slot.png")
+@export var hover_tex: Texture2D = preload("res://assets/menu/Mülltonne_open.png")
 @export var has_background: bool = true
 
 var default_style: StyleBoxTexture
 var empty_style: StyleBoxTexture
 var selected_style: StyleBoxTexture
+var trash_style: StyleBoxTexture
 
 # Item
 var item: Node = null
@@ -37,11 +39,16 @@ func _ready() -> void:
 		default_style = StyleBoxTexture.new()
 		empty_style = StyleBoxTexture.new()
 		selected_style = StyleBoxTexture.new()
+		trash_style = StyleBoxTexture.new()
 
 		default_style.texture = default_tex
 		empty_style.texture = empty_tex
 		selected_style.texture = selected_tex
-
+		trash_style.texture = hover_tex
+		
+	self.mouse_entered.connect(_on_mouse_entered)
+	self.mouse_exited.connect(_on_mouse_exited)
+	
 	refresh_style()
 
 
@@ -75,6 +82,15 @@ func _fit_item_to_slot(it: Node) -> void:
 			var scale_value := float(result.get_string(1))
 			c.scale = Vector2(scale_value, scale_value)
 
+
+func _on_mouse_entered() -> void:
+	
+	if self.name == "Slot12":
+		set("theme_override_styles/panel", trash_style)
+
+func _on_mouse_exited() -> void:
+	# Return to normal when mouse leaves
+	refresh_style()
 
 func refresh_style() -> void:
 	#print(PlayerInventory.get_selected_slot())
