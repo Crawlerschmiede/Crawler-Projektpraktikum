@@ -8,8 +8,7 @@ extends Resource
 @export var cooldown: int
 var turns_until_reuse: int = 0
 var effects: Array[Effect] = []
-
-var pre_prepared_effects = ["danger_dmg_mult", "safety_dmg_reduc", "death", "heal"]
+var pre_prepared_effects = ["danger_dmg_mult", "safety_dmg_reduc", "death_zone", "heal_zone"]
 # TODO: could do with a more sophisticated sorting system later.
 var high_prio_effects = ["movement"]
 

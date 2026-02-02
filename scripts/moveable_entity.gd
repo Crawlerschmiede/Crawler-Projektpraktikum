@@ -5,6 +5,8 @@ extends CharacterBody2D
 # The size of one tile in pixels
 const TILE_SIZE: int = 16
 const SKILLS := preload("res://scripts/premade_skills.gd")
+const directions = [Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, Vector2i.RIGHT]
+
 
 # --- Member variables ---
 var is_player: bool = false
@@ -141,6 +143,14 @@ func is_next_to_wall(cell: Vector2i):
 	return next_to_wall
 
 
+func can_burrow_through(target_cell, direction):
+	var new_target = target_cell
+	for i in range(3):
+		new_target = new_target + direction
+		if is_cell_walkable(new_target):
+			return [true, new_target]
+	return [false]
+
 func move_to_tile(direction: Vector2i):
 	if is_moving:
 		return
@@ -148,15 +158,12 @@ func move_to_tile(direction: Vector2i):
 	var target_cell = grid_pos + direction
 	if not is_cell_walkable(target_cell):
 		if "burrowing" in types:
-			var new_target = target_cell
-			for i in range(3):
-				new_target = new_target + direction
-				if is_cell_walkable(new_target):
-					if has_animation(sprite, "dig_down"):
-						sprite.play("dig_down")
-					multi_turn_action = {"name": "dig_to", "target": new_target, "countdown": 2}
-					return
-			return
+			var burrow = can_burrow_through(target_cell, direction)
+			if burrow[0]:
+				if has_animation(sprite, "dig_down"):
+					sprite.play("dig_down")
+				multi_turn_action = {"name": "dig_to", "target": burrow[1], "countdown": 2}
+				return
 		return
 
 	is_moving = true
