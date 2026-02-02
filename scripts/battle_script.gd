@@ -67,6 +67,11 @@ func _ready():
 	combat_tilemap.add_child(player_sprite)
 	player_sprite.position = combat_tilemap.map_to_local(player_gridpos)
 	skill_ui.setup(player, enemy, self, log_container)
+	print("[battle_script] skill_ui node=", skill_ui)
+	print("[battle_script] calling skill_ui.setup(...) with player=", player, " enemy=", enemy)
+	# confirm setup returned
+	# skill_ui.setup already called above; if skill_list prints don't appear, check these messages
+	print("[battle_script] setup call done")
 	if skill_ui.has_signal("player_turn_done"):
 		# Ensure the connection is safe and only happens once
 		skill_ui.player_turn_done.connect(enemy_turn)

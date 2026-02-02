@@ -24,6 +24,12 @@ func setup(_player: Node, _enemy: Node, _battle_scene, _tooltip_container):
 	tooltip_container = _tooltip_container
 	tab_bar.tab_changed.connect(_on_tab_changed)
 
+	print("[skill_list] setup called; player=", player, " enemy=", enemy)
+
+	# Ensure this Control receives input events (including when focus is elsewhere)
+	set_process_input(true)
+	set_process_unhandled_input(true)
+
 	# Make sure your tabs exist in this order
 	# 0 Skills, 1 Items, 2 Actions
 	tab_bar.current_tab = Tab.SKILLS
@@ -37,23 +43,21 @@ func _on_tab_changed(tab_idx: int) -> void:
 func _populate_list(tab_idx: int) -> void:
 	_clear_vbox(list_vbox)
 
+	print("[skill_list] _populate_list -> tab_idx=", tab_idx)
+
 	match tab_idx:
 		Tab.SKILLS:
 			for ability in player.abilities:
-				_add_button(
-					ability.name,
-					_on_skill_pressed.bind(ability),
-					_on_mouse_entered.bind(ability.name, ability.description),
-				)
+				_add_button(ability)
 		Tab.ACTIONS:
 			for ability in player.actions:
-				_add_button(
-					ability.name,
-					_on_skill_pressed.bind(ability),
-					_on_mouse_entered.bind(ability.name, ability.description),
-				)
+				_add_button(ability)
 	if list_vbox.get_child_count() > 0:
-		list_vbox.get_child(0).grab_focus()
+		# wait one frame to ensure buttons are in scene tree and focusable
+		await get_tree().process_frame
+		var first := list_vbox.get_child(0)
+		if is_instance_valid(first) and first is Control:
+			first.grab_focus()
 
 
 
@@ -62,9 +66,11 @@ func _clear_vbox(vbox: VBoxContainer) -> void:
 		child.queue_free()
 
 
-func _add_button(label: String, pressed_cb: Callable, mouseover_cb: Callable) -> void:
+func _add_button(ability) -> void:
 	var b := Button.new()
-	b.text = label
+	b.text = ability.name
+
+	print("[skill_list] _add_button -> ", ability.name)
 
 	b.flat = true
 	b.focus_mode = Control.FOCUS_ALL
@@ -75,19 +81,19 @@ func _add_button(label: String, pressed_cb: Callable, mouseover_cb: Callable) ->
 	b.add_theme_font_override("font", custom_font)
 	b.add_theme_color_override("font_color", Color(0.8, 0.8, 0.8))
 
-	# Mouse hover = selected
-	b.mouse_entered.connect(mouseover_cb)
-	b.mouse_exited.connect(remove_tooltip)
+	# Mouse hover = selected -> pass name + description as binds (use Callable.bind)
+	b.mouse_entered.connect(Callable(self, "_on_mouse_entered").bind(ability.name, ability.description))
+	b.mouse_exited.connect(Callable(self, "remove_tooltip"))
 
 	# Keyboard focus = selected (SAME DESIGN)
-	b.focus_entered.connect(mouseover_cb)
-	b.focus_exited.connect(remove_tooltip)
+	b.focus_entered.connect(Callable(self, "_on_mouse_entered").bind(ability.name, ability.description))
+	b.focus_exited.connect(Callable(self, "remove_tooltip"))
 
-	# Auto scroll to focused button
-	b.focus_entered.connect(_scroll_to_button.bind(b))
+	# Auto scroll to focused button (pass button as bind)
+	b.focus_entered.connect(Callable(self, "_scroll_to_button").bind(b))
 
-	# Press
-	b.pressed.connect(pressed_cb)
+	# Press (pass ability as bind)
+	b.pressed.connect(Callable(self, "_on_skill_pressed").bind(ability))
 
 	list_vbox.add_child(b)
 
@@ -112,6 +118,7 @@ func _scroll_to_button(btn: Button) -> void:
 
 func _on_skill_pressed(ability) -> void:
 	if player_turn:
+		print("[skill_list] _on_skill_pressed -> ", ability.name)
 		var stuff = ability.activate_skill(player, enemy, battle_scene)
 		print("did the function thing!")
 		for thing in stuff:
@@ -137,6 +144,109 @@ func remove_tooltip():
 	if tooltip_container != null:
 		tooltip_container.state = "log"
 		tooltip_container.changed = true
+
+
+func _input(event: InputEvent) -> void:
+	# Arrow keys: left/right switch tabs, up/down move selection in the list
+	if Input.is_action_just_pressed("ui_left"):
+		_select_prev_tab()
+		# mark input handled on this Control
+		accept_event()
+		return
+	if Input.is_action_just_pressed("ui_right"):
+		_select_next_tab()
+		# mark input handled on this Control
+		accept_event()
+		return
+	if Input.is_action_just_pressed("ui_down"):
+		_move_focus_delta(1)
+		# mark input handled on this Control
+		accept_event()
+		return
+	if Input.is_action_just_pressed("ui_up"):
+		_move_focus_delta(-1)
+		# mark input handled on this Control
+		accept_event()
+		return
+
+func _unhandled_input(event: InputEvent) -> void:
+	# Mirror _input: handle arrow key actions even when unhandled
+	if Input.is_action_just_pressed("ui_left"):
+		_select_prev_tab()
+		# mark handled
+		accept_event()
+		return
+	if Input.is_action_just_pressed("ui_right"):
+		_select_next_tab()
+		# mark handled
+		accept_event()
+		return
+	if Input.is_action_just_pressed("ui_down"):
+		_move_focus_delta(1)
+		# mark handled
+		accept_event()
+		return
+	if Input.is_action_just_pressed("ui_up"):
+		_move_focus_delta(-1)
+		# mark handled
+		accept_event()
+		return
+
+
+func _select_next_tab() -> void:
+	var next_idx := (tab_bar.current_tab + 1) % tab_bar.get_tab_count()
+	print("[skill_list] _select_next_tab -> next_idx=", next_idx)
+	tab_bar.current_tab = next_idx
+	_populate_list(next_idx)
+
+
+func _select_prev_tab() -> void:
+	var count := tab_bar.get_tab_count()
+	var prev_idx := (tab_bar.current_tab - 1) % count
+	print("[skill_list] _select_prev_tab -> prev_idx=", prev_idx)
+	if prev_idx < 0:
+		prev_idx += count
+	tab_bar.current_tab = prev_idx
+	_populate_list(prev_idx)
+
+
+func _move_focus_delta(delta: int) -> void:
+	# Move focus among the buttons in list_vbox by delta (+1 down, -1 up)
+	if list_vbox == null:
+		return
+	var children := []
+	for c in list_vbox.get_children():
+		if c is Control:
+			children.append(c)
+	if children.size() == 0:
+		return
+
+	var focused = null
+	if has_method("get_viewport") and get_viewport() != null:
+		focused = get_viewport().get_focus_owner()
+
+	# find index of focused child
+	var idx := -1
+	for i in range(children.size()):
+		if children[i] == focused:
+			idx = i
+			break
+
+	if idx == -1:
+		# no current focus -> pick first/last depending on direction
+		if delta > 0:
+			children[0].grab_focus()
+		else:
+			children[children.size() - 1].grab_focus()
+		return
+
+	var new_idx := idx + delta
+	if new_idx < 0:
+		new_idx = 0
+	if new_idx >= children.size():
+		new_idx = children.size() - 1
+
+	children[new_idx].grab_focus()
 
 #var hover_tweens: Dictionary = {}
 
