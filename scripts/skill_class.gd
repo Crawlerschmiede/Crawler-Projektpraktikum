@@ -5,16 +5,19 @@ extends Resource
 @export var name: String
 @export var tree_path: String
 @export var description: String
+@export var cooldown: int
+var turns_until_reuse: int = 0
 var effects: Array[Effect] = []
 var pre_prepared_effects = ["danger_dmg_mult", "safety_dmg_reduc", "death_zone", "heal_zone"]
 # TODO: could do with a more sophisticated sorting system later.
 var high_prio_effects = ["movement"]
 
 
-func _init(_name: String, _tree_path: String, _description: String):
+func _init(_name: String, _tree_path: String, _description: String, _cooldown:int):
 	name = _name
 	tree_path = _tree_path
 	description = _description
+	cooldown = _cooldown
 
 
 func prep_skill(user, target, battle):
@@ -28,6 +31,7 @@ func prep_skill(user, target, battle):
 
 
 func activate_skill(user, target, battle):
+	turns_until_reuse = cooldown
 	var things_that_happened = []
 	var stuff = null
 	for effect in effects:
@@ -46,7 +50,13 @@ func activate_skill(user, target, battle):
 
 func add_effect(type: String, value: float, targets_self: bool, details: String):
 	effects.append(Effect.new(type, value, targets_self, details))
-
+	
+func is_activateable()->bool:
+	return turns_until_reuse==0
+	
+func tick_down():
+	if turns_until_reuse>0:
+		turns_until_reuse =turns_until_reuse-1
 
 class Effect:
 	var type: String
