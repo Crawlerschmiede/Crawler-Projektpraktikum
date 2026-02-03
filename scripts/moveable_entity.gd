@@ -43,6 +43,13 @@ var sprites = {
 		["Screech", "Rabies"],
 		{"idle": "default", "teleport_start": "dig_down", "teleport_end": "dig_up"}
 	],
+	"goblin":
+	[
+		preload("res://scenes/sprite_scenes/goblin_sprite_scene.tscn"),
+		["Screech", "Rabies"],
+		{"idle": "default", "teleport_start": "dig_down", "teleport_end": "dig_up"}
+	],
+	
 	"pc": [preload("res://scenes/sprite_scenes/player_sprite_scene.tscn")]
 }
 
@@ -95,6 +102,14 @@ func super_ready(sprite_type: String, entity_type: Array):
 		position = tilemap.map_to_local(Vector2i(2, 2))
 		grid_pos = Vector2i(2, 2)
 		position = tilemap.map_to_local(grid_pos)
+	elif "boss" in entity_type:
+		var possible_spawns = []
+
+		for cell in tilemap.get_used_cells():
+			var tile_data = tilemap.get_cell_tile_data(cell)
+			if tile_data:
+				var is_blocked = tile_data.get_custom_data("boss_spawn")
+				possible_spawns.append(cell)
 	# Spawn logic for enemies
 	else:
 		var possible_spawns = []

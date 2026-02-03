@@ -361,7 +361,7 @@ func on_menu_closed():
 # SPAWNING
 # ---------------------------------------
 func spawn_enemies() -> void:
-	for i in range(30):
+	for i in range(4):
 		spawn_enemy("what", ["hostile", "wallbound"])
 	for i in range(3):
 		spawn_enemy("bat", ["passive", "enemy_flying"])
@@ -371,6 +371,8 @@ func spawn_enemies() -> void:
 		spawn_enemy("base_zombie", ["hostile", "enemy_walking", "burrowing"])
 	for i in range(3):
 		spawn_enemy("ghost", ["hostile", "enemy_flying", "burrowing"])
+	for i in range(2):
+		spawn_enemy("goblin", ["hostile", "enemy_walking"])
 
 
 func spawn_enemy(sprite_type: String, behaviour: Array) -> void:

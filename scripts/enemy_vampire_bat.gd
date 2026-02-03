@@ -22,6 +22,8 @@ var chasing: bool = false
 
 
 func roam():
+	if "boss" in types:
+		return
 	if "burrowing" in types:
 		if burrowed:
 			burrowed = false
