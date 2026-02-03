@@ -5,6 +5,7 @@ signal player_victory
 
 const MARKER_PREFAB := preload("res://scenes/marker.tscn")
 @onready var hit_anim_enemy: AnimatedSprite2D = $Battle_root/PlayerPosition/enemy_attack_anim
+@onready var hit_anim_player: AnimatedSprite2D = $Battle_root/EnemyPosition/player_attack_anim
 
 const MARKER_FLAVOURS = {
 	"dmg_reduc_":
@@ -67,18 +68,17 @@ func _ready():
 	player_gridpos = combat_tilemap.local_to_map(player_marker.position)
 	combat_tilemap.add_child(player_sprite)
 	player_sprite.position = combat_tilemap.map_to_local(player_gridpos)
-	skill_ui.setup(player, enemy, self, log_container)
+	skill_ui.setup(player, enemy, self, log_container, hit_anim_player)
 	hit_anim_enemy.visible=false
-	print("[battle_script] skill_ui node=", skill_ui)
-	print("[battle_script] calling skill_ui.setup(...) with player=", player, " enemy=", enemy)
 	# confirm setup returned
 	# skill_ui.setup already called above; if skill_list prints don't appear, check these messages
-	print("[battle_script] setup call done")
 	if skill_ui.has_signal("player_turn_done"):
 		# Ensure the connection is safe and only happens once
 		skill_ui.player_turn_done.connect(enemy_turn)
 	enemy_hp_bar.value = (enemy.hp * 100.0) / enemy.max_hp
 	player_hp_bar.value = (player.hp * 100.0) / player.max_hp
+	for i in range(2): #we're doing this twice in case we extend a range and then end up in it because of that or something similar
+		update_passives()
 	enemy.decide_attack()
 	enemy_prepare_turn()
 
@@ -114,6 +114,7 @@ func enemy_prepare_turn():
 	var preps = enemy.chosen.prep_skill(enemy, player, self)
 	for prep in preps:
 		log_container.add_log_event(prep)
+	update_passives()
 
 
 func enemy_turn():
@@ -147,13 +148,32 @@ func enemy_turn():
 		for happening in happened:
 			log_container.add_log_event(happening)
 		if extra_stuff[0]:
-			skill_ui.update()
-			skill_ui.player_turn = true
+			player_turn()
 		else:
 			enemy_turn()
 		check_victory()
 		player_hp_bar.value = (player.hp * 100.0) / player.max_hp
 		enemy_hp_bar.value = (enemy.hp * 100.0) / enemy.max_hp
+
+func player_turn():
+	skill_ui.update()
+	skill_ui.player_turn = true
+	
+func update_passives(depth=0):
+	trigger_passives(player.abilities, player, enemy, self, depth)	
+	#trigger_passives(player.items, player, enemy, self)	#will items have passives?
+	trigger_passives(enemy.abilities, enemy, player, self, depth)	
+
+func trigger_passives(abilities, user, target, battle, depth):
+	for ability in abilities:
+		if ability.is_passive:
+			if ability.is_activateable(self):
+				print("Activated the passive effect ", ability.name)
+				ability.activate_skill(user, target, battle, depth)
+				print("Active passive effects: ", user.get_alterations())
+			else:
+				ability.deactivate(user)
+	
 
 
 func check_victory():
@@ -162,6 +182,13 @@ func check_victory():
 		return true
 	if player.hp <= 0:
 		player_loss.emit()
+		return true
+	return false
+	
+func battle_over():
+	if enemy.hp <= 0:
+		return true
+	if player.hp <= 0:
 		return true
 	return false
 
@@ -204,6 +231,14 @@ func move_player(direction: String, distance: int):
 	player_sprite.position = combat_tilemap.map_to_local(player_gridpos)
 	check_curr_tile_mods()
 	return "Player moved " + dir
+	
+func is_player_in_range(y_from_to)->bool:
+	var min_y = 99999999999999
+	for tile in used_cells:
+		if tile.y < min_y:
+			min_y = tile.y
+	return player_gridpos.y >= min_y + y_from_to[0] and player_gridpos.y<=min_y + y_from_to[1]
+	
 
 
 func check_curr_tile_mods():

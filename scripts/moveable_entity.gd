@@ -77,12 +77,18 @@ var def_stat: int = 0
 var abilities: Array[Skill] = []
 
 #--- status effects (not sure if this is the best way... it'll be fine!) ---
+#--- update it won't be, this is [not very good] and I'll fix it... someday
 
 var stunned = 0
 var stun_recovery = 1
 
 var poisoned = 0
 var poison_recovery = 1
+
+#--- buffs/debuffs... status effects someday
+#should be in the format "<Source_Name>:{"<type>":<value>}"
+# something like that...
+var alterations = {}
 
 #--- References to other stuff ---
 
@@ -261,6 +267,21 @@ func add_skill(skill_name):
 	var skill = existing_skills.get_skill(skill_name)
 	if skill != null:
 		abilities.append(skill)
+		
+func activate_passives(user, target, battle):
+	for ability in abilities:
+		if ability.is_passive:
+			ability.activate_skill(user, target, battle)
+			
+func add_alteration(type, value, source="test"):
+	alterations[source]={type:value}
+	return []
+	
+func get_alterations():
+	return alterations
+	
+func deactivate_buff(source="test"):
+	alterations.erase(source)
 
 
 #--battle logic--

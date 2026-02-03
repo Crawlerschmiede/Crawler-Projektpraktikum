@@ -9,170 +9,149 @@ extends Resource
 
 # for dmg reduction, 1 means full damage taken and 0 means full immunity with float values in between
 
-# as for the cooldowns, for now enemies don't care about cooldowns, 
+# as for the cooldowns, they default to 0 if none is given
+#for now enemies don't care about cooldowns,
 # so either keep enemy skills at cooldown 0 or make them care
 # for player cooldowns, because of how the ticking down works, please input them 1 higher than you want
 # i.e., a cooldown of 2 means it'll be unusable for 1 turn (it counts the turn it's used in)
 # this is fixable... but just not worth the time, you can all calculate +1 in your head
+
+# as for passives, it defaults to being an actve skill if you don't specify,
+# I recommend making it explicit regardless, for readability
+# (not that I will, do as I say not as I do and so on...)
 var existing_skills = {
 	#bat stuff
 	"Screech":
-	[
-		"bat things",
-		"AAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-		[["damage", 1, false, "No"], ["danger_dmg_mult", 2, false, "y=0"]],
-		0
-	],
+	{
+		"tree": "bat things",
+		"description": "AAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+		"effects": [["damage", 1, false, "No"], ["danger_dmg_mult", 2, false, "y=0"]],
+	},
 	"Swoop":
-	[
-		"bat things",
-		"You'd think a bat headbutting you wouldn't hurt that much... you'd be wrong",
-		[["damage", 1, false, "No"], ["danger_dmg_mult", 2, false, "player_x"]],
-		0
-	],
+	{
+		"tree": "bat things",
+		"description": "You'd think a bat headbutting you wouldn't hurt that much... you'd be wrong",
+		"effects": [["damage", 1, false, "No"], ["danger_dmg_mult", 2, false, "player_x"]],
+	},
 	"Rabies":
-	["bat things", "It's a wild animal. They have this sometimes", [["poison", 2, false, "No"]], 0],
+	{
+		"tree": "bat things",
+		"description": "It's a wild animal. They have this sometimes",
+		"effects": [["poison", 2, false, "No"]],
+	},
 	#void stuff
 	"Encroaching Void":
-	[
-		"void things",
-		"You suddenly feel surrounded by non-existence",
-		[["death_zone", 1, false, "surrounding"]], 0
-	],
+	{
+		"tree": "void things",
+		"description": "You suddenly feel surrounded by non-existence",
+		"effects": [["death_zone", 1, false, "surrounding"]],
+	},
 	#Skeleton Stuff
 	"Feint":
-	[
-		"skeleton things",
-		"This strike looks easy to dodge... weirdly so",
-		[["damage", 2, false, "No"], ["safety_dmg_reduc", 0, false, "player_pos"]],
-		0
-	],
+	{
+		"tree": "skeleton things",
+		"description": "This strike looks easy to dodge... weirdly so",
+		"effects": [["damage", 2, false, "No"], ["safety_dmg_reduc", 0, false, "player_pos"]],
+	},
 	#Goblin Stuff
-	"Bonk":
-	[
-		"goblin things",
-		"If in doubt, bonk your enemy.",
-		[["damage", 2, false, "No"], ["danger_dmg_mult", 2, false, "player_pos"]],
-		0
-	],
-	"War Cry": #buff dmg for next turn, jorin pls implement
-	[
-		"goblin things",
-		"More scream, more damage",
-		[["buff", 2, true, "No"]],
-		0 # jorin pls implement enemy cooldown thanks
-	],
-		#Carnivorous Plant skills
-	"Vine Slash":
-	[
-		"plant things",
-		"A sharp vine slashes across the room",
-		[["damage", 2, false, "No"], ["danger_dmg_mult", 2, false, "player_y"]],
-		0
-	],
-	"Entwine":
-	[
-		"plant things",
-		"Thick vines shoot from the ground at your legs and entwine your body. You are stunned!",
-		[["stun", 2, false, "No"]],
-		0
-	],
-	"Poison Ivy":
-	[
-		"plant things",
-		"Vines lash out, a thron scratches your skin. You don't feel so well..",
-		[["poison", 2, false, "No"]],
-		0
-	],
-	"Herbicide":
-	[
-		"plant things",
-		"The trap gapes and lashes out trying to tear its teeth into your flesh.",
-		[["Damage", 3, false, "No"], ["Damage", 1, true, "No"]],
-		0
-	],
-	"Mandrake's Screech":
-	[
-		"plant things",
-		"The ground rumbles as your enemy lets out a deafening screech. Its getting angry..",
-		[["damage", 1, false, "No"], ["danger_dmg_mult", 2, false, "y=0"]],
-		0
-	],
+		"Bonk":
+		{
+			"tree": "goblin things",
+			"description": "If in doubt, bonk your enemy.",
+			"effects": [["damage", 2, false, "No"], ["danger_dmg_mult", 2, false, "player_pos"]],
+			"cooldown": 0
+		},
+		"War Cry": #buff dmg for next turn, jorin pls implement
+		{
+			"tree": "goblin things",
+			"description": "More scream, more damage",
+			"effects": [["buff", 2, true, "No"]],
+			"cooldown": 0 # jorin pls implement enemy cooldown thanks
+		},
 	#unarmed player stuff
 	"Punch":
-	[
-		"hitting and punching and biting and kicking people",
-		"It's a punch... you don't need an explanation",
-		[["damage", 2, false, "No"]],
-		2
-	],
+	{
+		"tree": "hitting and punching and biting and kicking people",
+		"description":  "It's a punch... you don't need an explanation",
+		"effects": [["damage", 2, false, "No"]],
+		"cooldown": 2
+	},
 	"Right Pivot":
-	[
-		"hitting and punching and biting and kicking people",
-		"It's a punch BUT you also take a step to the right, how novel!",
-		[["damage", 1, false, "No"], ["movement", 1, true, "R"]],
-		2
-	],
+	{
+		"tree": "hitting and punching and biting and kicking people",
+		"description": "It's a punch BUT you also take a step to the right, how novel!",
+		"effects": [["damage", 1, false, "No"], ["movement", 1, true, "R"]],
+		"cooldown": 2
+	},
 	"Left Pivot":
-	[
-		"hitting and punching and biting and kicking people",
-		"It's a punch BUT you also take a step to the left, how exciting!",
-		[["damage", 1, false, "No"], ["movement", 1, true, "L"]],
-		2
-	],
+	{
+		"tree": "hitting and punching and biting and kicking people",
+		"description": "It's a punch BUT you also take a step to the left, how exciting!",
+		"effects": [["damage", 1, false, "No"], ["movement", 1, true, "L"]],
+		"cooldown": 2
+	},
 	"Full Power Punch":
-	[
-		"hitting and punching and biting and kicking people",
-		"Have you ever punched someone with your life on the line?",
-		[["damage", 3, false, "No"], ["damage", 1, true, "No"], ["stun", 1, true, "No"]],
-		5
-	],
+	{
+		"tree": "hitting and punching and biting and kicking people",
+		"description": "Have you ever punched someone with your life on the line?",
+		"effects": [["damage", 3, false, "No"], ["damage", 1, true, "No"], ["stun", 1, true, "No"]],
+		"cooldown": 5
+	},
+	"Strong as frick":
+	{
+		"tree": "hitting and punching and biting and kicking people",
+		"description": "Oh damn...",
+		"effects": [["damage_buff", 1.5, true, "No"]],
+		"passive": true,
+		"conditions": ["short_range"]
+	},
 	#standard actions
 	"Move Up":
-	[
-		"standard",
-		"Do you really need an explanation of what walking forwards is?",
-		[["movement", 1, true, "U"]],
-		0
-	],
+	{
+		"tree": "standard",
+		"description": "Do you really need an explanation of what walking forwards is?",
+		"effects": [["movement", 1, true, "U"]],
+	},
 	"Move Down":
-	[
-		"standard",
-		"Do you really need an explanation of what walking backwards is?",
-		[["movement", 1, true, "D"]],
-		0
-	],
+	{
+		"tree": "standard",
+		"description": "Do you really need an explanation of what walking backwards is?",
+		"effects": [["movement", 1, true, "D"]],
+	},
 	"Move Left":
-	[
-		"standard",
-		"Do you really need an explanation of what walking left is?",
-		[["movement", 1, true, "L"]],
-		0
-	],
+	{
+		"tree": "standard",
+		"description":  "Do you really need an explanation of what walking left is?",
+		"effects": [["movement", 1, true, "L"]],
+	},
 	"Move Right":
-	[
-		"standard",
-		"Do you really need an explanation of what walking right is?",
-		[["movement", 1, true, "R"]],
-		0
-	],
+	{
+		"tree": "standard",
+		"description": "Do you really need an explanation of what walking right is?",
+		"effects": [["movement", 1, true, "R"]],
+	},
 	#weapon skills (first plan)
 	"Shank":
-	[
-		"knife skills",
-		"When one... or I suppose two stabs just aren't enough",
-		[["damage", 1, false, "No"], ["damage", 1, false, "No"], ["damage", 1, false, "No"]],
-		0
-	],
+	{
+		"tree": "knife skills",
+		"description": "When one... or I suppose two stabs just aren't enough",
+		"effects": [["damage", 1, false, "No"], ["damage", 1, false, "No"], ["damage", 1, false, "No"]],
+		"cooldown": 2
+	},
 	"Slash":
-	[
-		"sword skills",
-		"Truly, the most basic of basic things you could do",
-		[["damage", 3, false, "No"]],
-		0
-	],
+	{
+		"tree": "sword skills",
+		"description": "Truly, the most basic of basic things you could do",
+		"effects": [["damage", 3, false, "No"]],
+		"cooldown": 2
+	},
 	#item effects (maybe also here? Who knows what anything is at this point)
-	"Heal": ["potion stuff", "Modern Medicine rules", [["heal", 3, true, "No"]],0],
+	"Heal":
+	{
+		"tree": "potion stuff",
+		"description": "Modern Medicine rules",
+		"effects": [["heal", 3, true, "No"]]
+	},
 }
 
 
@@ -180,7 +159,17 @@ func get_skill(skill_name):
 	var values = existing_skills.get(skill_name)
 	if values == null:
 		return values
-	var new_skill = Skill.new(skill_name, values[0], values[1], values[3])
-	for effect in values[2]:
+	var cool = 0
+	if values.has("cooldown"):
+		cool = values.cooldown
+	var passive = false
+	if values.has("passive"):
+		passive = values.passive
+	var conditions = []
+	if values.has("conditions"):
+		conditions = values.conditions
+	print(skill_name, values.tree, values.description, cool, passive, conditions)
+	var new_skill = Skill.new(skill_name, values.tree, values.description, cool, passive, conditions)
+	for effect in values.effects:
 		new_skill.add_effect(effect[0], effect[1], effect[2], effect[3])
 	return new_skill
