@@ -1,4 +1,4 @@
-[gd_scene load_steps=22 format=4 uid="uid://vn680b4hvj3x"]
+[gd_scene load_steps=44 format=4 uid="uid://vn680b4hvj3x"]
 
 [ext_resource type="Script" uid="uid://ccci32tj3j1fq" path="res://scripts/battle_script.gd" id="1_p1qf1"]
 [ext_resource type="Texture2D" uid="uid://rhw6r8lf8r0n" path="res://assets/menu/UI_TravelBook_BookCover01a.png" id="1_th188"]
@@ -13,6 +13,10 @@
 [ext_resource type="Texture2D" uid="uid://p1r7l118n6so" path="res://assets/map-tiles/16x16 dungeon ii wall reconfig v04 spritesheet.png" id="9_6ni85"]
 [ext_resource type="Texture2D" uid="uid://cen3xmvl56h11" path="res://assets/menu/pixil-frame-0(1).png" id="9_v7i3o"]
 [ext_resource type="Texture2D" uid="uid://ebhbokd4jrcf" path="res://assets/menu/c9a4d2bf1afc262.png" id="10_66ngm"]
+[ext_resource type="Theme" uid="uid://do40vcwiibb8g" path="res://assets/theme/HealthBar.tres" id="10_vceff"]
+[ext_resource type="Texture2D" uid="uid://b8npjqrcm5ova" path="res://assets/fight_animations/Fight-Animation-2Hit.png" id="10_djc8l"]
+[ext_resource type="Texture2D" uid="uid://i7gvsnx5i4bw" path="res://assets/fight_animations/Fight-Animation-3Hit.png" id="10_vceff"]
+[ext_resource type="Texture2D" uid="uid://b2h43jwgxfx6e" path="res://assets/fight_animations/Single-Hit-Flash.png" id="11_h4dll"]
 [ext_resource type="Texture2D" uid="uid://usclqp0io56r" path="res://assets/menu/UI_TravelBook_Line01a.png" id="12_22uqi"]
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_66ngm"]
@@ -235,6 +239,150 @@ texture = ExtResource("9_6ni85")
 sources/0 = SubResource("TileSetAtlasSource_a12nh")
 sources/1 = SubResource("TileSetAtlasSource_vceff")
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_saiin"]
+atlas = ExtResource("10_djc8l")
+region = Rect2(0, 0, 80, 80)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_dd63g"]
+atlas = ExtResource("10_djc8l")
+region = Rect2(80, 0, 80, 80)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_fpf3k"]
+atlas = ExtResource("10_djc8l")
+region = Rect2(160, 0, 80, 80)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_bi5l8"]
+atlas = ExtResource("10_djc8l")
+region = Rect2(240, 0, 80, 80)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jt4d8"]
+atlas = ExtResource("10_djc8l")
+region = Rect2(320, 0, 80, 80)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_kl6ie"]
+atlas = ExtResource("10_djc8l")
+region = Rect2(400, 0, 80, 80)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1m01a"]
+atlas = ExtResource("10_djc8l")
+region = Rect2(480, 0, 80, 80)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_lv4so"]
+atlas = ExtResource("11_h4dll")
+region = Rect2(0, 0, 80, 80)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_eivww"]
+atlas = ExtResource("11_h4dll")
+region = Rect2(80, 0, 80, 80)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_rwtbh"]
+atlas = ExtResource("11_h4dll")
+region = Rect2(160, 0, 80, 80)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_f0g0v"]
+atlas = ExtResource("11_h4dll")
+region = Rect2(240, 0, 80, 80)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_at2n2"]
+atlas = ExtResource("11_h4dll")
+region = Rect2(320, 0, 80, 80)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_e50ek"]
+atlas = ExtResource("11_h4dll")
+region = Rect2(400, 0, 80, 80)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ekamt"]
+atlas = ExtResource("10_vceff")
+region = Rect2(0, 0, 80, 80)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_djc8l"]
+atlas = ExtResource("10_vceff")
+region = Rect2(80, 0, 80, 80)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_h4dll"]
+atlas = ExtResource("10_vceff")
+region = Rect2(160, 0, 80, 80)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_p0caf"]
+atlas = ExtResource("10_vceff")
+region = Rect2(240, 0, 80, 80)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_61i1y"]
+atlas = ExtResource("10_vceff")
+region = Rect2(320, 0, 80, 80)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_saiin"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_saiin")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_dd63g")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_fpf3k")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_bi5l8")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_jt4d8")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_kl6ie")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1m01a")
+}],
+"loop": false,
+"name": &"double_strike",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_lv4so")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_eivww")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_rwtbh")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_f0g0v")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_at2n2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_e50ek")
+}],
+"loop": false,
+"name": &"single_strike",
+"speed": 9.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ekamt")
+}, {
+"duration": 1.5,
+"texture": SubResource("AtlasTexture_djc8l")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_h4dll")
+}, {
+"duration": 1.5,
+"texture": SubResource("AtlasTexture_p0caf")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_61i1y")
+}],
+"loop": false,
+"name": &"triple_strike",
+"speed": 8.0
+}]
+
 [node name="Battle" type="CanvasLayer"]
 script = ExtResource("1_p1qf1")
 
@@ -246,6 +394,7 @@ offset_left = 86.0
 offset_top = 81.0
 offset_right = 210.0
 offset_bottom = 157.0
+focus_mode = 0
 script = ExtResource("2_a12nh")
 
 [node name="TextureRect" type="TextureRect" parent="Battle_root/ItemList"]
@@ -307,7 +456,11 @@ tile_set = SubResource("TileSet_lpir7")
 position = Vector2(37, 30)
 
 [node name="PlayerPosition" type="Marker2D" parent="Battle_root"]
-position = Vector2(37, 121.333336)
+position = Vector2(39.333332, 120.66667)
+
+[node name="enemy_attack_anim" type="AnimatedSprite2D" parent="Battle_root/PlayerPosition"]
+sprite_frames = SubResource("SpriteFrames_saiin")
+animation = &"triple_strike"
 
 [node name="Enemy_HPBar" type="ProgressBar" parent="Battle_root"]
 offset_left = 45.0
@@ -316,6 +469,7 @@ offset_right = 85.0
 offset_bottom = 80.0
 scale = Vector2(1, 0.7)
 size_flags_vertical = 4
+theme = ExtResource("10_vceff")
 theme_override_fonts/font = ExtResource("4_6vh42")
 
 [node name="Enemy_hp_label" type="Label" parent="Battle_root"]
@@ -345,6 +499,7 @@ offset_top = 62.0
 offset_right = 206.0
 offset_bottom = 80.0
 scale = Vector2(1, 0.7)
+theme = ExtResource("10_vceff")
 theme_override_fonts/font = ExtResource("4_6vh42")
 
 [node name="TextureRect2" type="TextureRect" parent="Battle_root"]

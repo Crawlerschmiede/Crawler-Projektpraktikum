@@ -28,6 +28,13 @@ func setup(_player: Node, _enemy: Node, _battle_scene, _tooltip_container):
 	# 0 Skills, 1 Items, 2 Actions
 	tab_bar.current_tab = Tab.SKILLS
 	_populate_list(Tab.SKILLS)
+	
+func update():
+	for ability in player.abilities:
+		ability.tick_down()
+	for action in player.actions:
+		action.tick_down()
+	_populate_list(tab_bar.current_tab)
 
 
 func _on_tab_changed(tab_idx: int) -> void:
@@ -39,27 +46,44 @@ func _populate_list(tab_idx: int) -> void:
 
 	match tab_idx:
 		Tab.SKILLS:
-			for ability in player.abilities:
-				_add_button(
-					ability.name,
-					_on_skill_pressed.bind(ability),
-					_on_mouse_entered.bind(ability.name, ability.description),
-				)
+			add_buttons(player.abilities)
 		Tab.ACTIONS:
-			for ability in player.actions:
-				_add_button(
-					ability.name,
-					_on_skill_pressed.bind(ability),
-					_on_mouse_entered.bind(ability.name, ability.description),
-				)
+			add_buttons(player.actions)
 	if list_vbox.get_child_count() > 0:
 		list_vbox.get_child(0).grab_focus()
+		
+func add_buttons(contents):
+	for ability in contents:
+		var butt_label = ability.name
+		if not ability.is_activateable():
+			butt_label = butt_label+" (Cooldown: "+str(ability.turns_until_reuse)+")"
+			_add_button_disabled(butt_label)
+		else:
+			_add_button(
+				butt_label,
+				_on_skill_pressed.bind(ability),
+				_on_mouse_entered.bind(ability.name, ability.description),
+				)
 
 
 
 func _clear_vbox(vbox: VBoxContainer) -> void:
 	for child in vbox.get_children():
 		child.queue_free()
+		
+func _add_button_disabled(label: String)->void:
+	var b := Button.new()
+	b.text = label
+	b.flat = true
+	b.focus_mode = Control.FOCUS_ALL
+	b.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
+	b.add_theme_stylebox_override("pressed", StyleBoxEmpty.new())
+	b.add_theme_stylebox_override("hover", StyleBoxEmpty.new())
+
+	b.add_theme_font_override("font", custom_font)
+	b.add_theme_color_override("font_color", Color(0.8, 0.8, 0.8))
+	list_vbox.add_child(b)
+	
 
 
 func _add_button(label: String, pressed_cb: Callable, mouseover_cb: Callable) -> void:
