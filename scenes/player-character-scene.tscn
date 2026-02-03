@@ -15,9 +15,8 @@
 [ext_resource type="Texture2D" uid="uid://bxp7sedmunhcs" path="res://assets/menu/inventar_slot.png" id="10_j4pnj"]
 [ext_resource type="Texture2D" uid="uid://brlrimrh6sdx2" path="res://assets/menu/UI_TravelBook_FrameSelect01b.png" id="13_6k8oa"]
 [ext_resource type="Texture2D" uid="uid://drnogsosojksh" path="res://assets/menu/UI_TravelBook_Slot01b.png" id="15_nq0iv"]
-
+[ext_resource type="Script" uid="uid://da5gfq7ci7243" path="res://scenes/merchant_org.gd" id="16_72a5a"]
 [ext_resource type="Texture2D" uid="uid://4gngll2b6t8d" path="res://assets/menu/Mülltonne_closed.png" id="16_nq0iv"]
-[ext_resource type="Script" path="res://scenes/merchant_org.gd" id="16_72a5a"]
 [ext_resource type="Script" uid="uid://6d52dv2f4umv" path="res://scenes/canvas_layer_2.gd" id="16_odrip"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_r5wgn"]
@@ -235,7 +234,6 @@ theme_override_fonts/font = ExtResource("9_6k8oa")
 text = "Equiptment"
 
 [node name="Equiptment" type="GridContainer" parent="UserInterface/Inventory/Inner"]
-visible = false
 layout_mode = 0
 offset_left = 2.6666641
 offset_top = -21.333332
@@ -247,7 +245,7 @@ columns = 3
 custom_minimum_size = Vector2(12, 0)
 layout_mode = 2
 
-[node name="Slot13" type="Panel" parent="UserInterface/Inventory/Inner/Equiptment/VBoxContainer" groups=["Equipment", "scale_0.60"]]
+[node name="Slot13" type="Panel" parent="UserInterface/Inventory/Inner/Equiptment/VBoxContainer" groups=["Weapon", "scale_0.60"]]
 custom_minimum_size = Vector2(12, 12)
 layout_mode = 2
 size_flags_horizontal = 4
@@ -255,7 +253,7 @@ size_flags_vertical = 4
 theme_override_styles/panel = SubResource("StyleBoxTexture_xn7nh")
 script = ExtResource("6_5c7wf")
 
-[node name="Slot14" type="Panel" parent="UserInterface/Inventory/Inner/Equiptment/VBoxContainer" groups=["Equipment", "scale_0.60"]]
+[node name="Slot14" type="Panel" parent="UserInterface/Inventory/Inner/Equiptment/VBoxContainer" groups=["Schield", "scale_0.60"]]
 custom_minimum_size = Vector2(12, 12)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxTexture_pa76a")
@@ -274,13 +272,13 @@ theme_override_styles/panel = SubResource("StyleBoxTexture_creb6")
 layout_mode = 2
 alignment = 1
 
-[node name="Slot15" type="Panel" parent="UserInterface/Inventory/Inner/Equiptment/VBoxContainer2/HBoxContainer" groups=["Equipment", "scale_0.60"]]
+[node name="Slot15" type="Panel" parent="UserInterface/Inventory/Inner/Equiptment/VBoxContainer2/HBoxContainer" groups=["Shoes", "scale_0.60"]]
 custom_minimum_size = Vector2(12, 12)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxTexture_vqds4")
 script = ExtResource("6_5c7wf")
 
-[node name="Slot16" type="Panel" parent="UserInterface/Inventory/Inner/Equiptment/VBoxContainer2/HBoxContainer" groups=["Equipment", "scale_0.60"]]
+[node name="Slot16" type="Panel" parent="UserInterface/Inventory/Inner/Equiptment/VBoxContainer2/HBoxContainer" groups=["Arms", "scale_0.60"]]
 custom_minimum_size = Vector2(12, 12)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxTexture_xqkyc")
@@ -290,13 +288,13 @@ script = ExtResource("6_5c7wf")
 custom_minimum_size = Vector2(12, 0)
 layout_mode = 2
 
-[node name="Slot17" type="Panel" parent="UserInterface/Inventory/Inner/Equiptment/VBoxContainer3" groups=["Equipment", "scale_0.60"]]
+[node name="Slot17" type="Panel" parent="UserInterface/Inventory/Inner/Equiptment/VBoxContainer3" groups=["Herd", "scale_0.60"]]
 custom_minimum_size = Vector2(12, 12)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxTexture_qoi8r")
 script = ExtResource("6_5c7wf")
 
-[node name="Slot18" type="Panel" parent="UserInterface/Inventory/Inner/Equiptment/VBoxContainer3" groups=["Equipment", "scale_0.60"]]
+[node name="Slot18" type="Panel" parent="UserInterface/Inventory/Inner/Equiptment/VBoxContainer3" groups=["Chest", "scale_0.60"]]
 custom_minimum_size = Vector2(12, 12)
 layout_mode = 2
 size_flags_horizontal = 4
