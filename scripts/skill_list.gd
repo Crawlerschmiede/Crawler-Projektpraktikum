@@ -59,7 +59,12 @@ func _populate_list(tab_idx: int) -> void:
 	match tab_idx:
 		Tab.SKILLS:
 			for ability in player.abilities:
-				_add_button(ability)
+				if ability.is_activateable():
+					_add_button(ability)
+				else:
+					var butt_label = ability.name
+					butt_label = butt_label+" (Cooldown: "+str(ability.turns_until_reuse)+")"
+					_add_button_disabled(butt_label)
 		Tab.ACTIONS:
 			for ability in player.actions:
 				_add_button(ability)
