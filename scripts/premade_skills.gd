@@ -54,20 +54,20 @@ var existing_skills = {
 		"effects": [["damage", 2, false, "No"], ["safety_dmg_reduc", 0, false, "player_pos"]],
 	},
 	#Goblin Stuff
-    	"Bonk":
-    	{
-    		"tree": "goblin things",
-    		"description": "If in doubt, bonk your enemy.",
-    		"effect": [["damage", 2, false, "No"], ["danger_dmg_mult", 2, false, "player_pos"]],
-    		0
-    	],
-    	"War Cry": #buff dmg for next turn, jorin pls implement
-    	{
-    		"tree": "goblin things",
-    		"description": "More scream, more damage",
-    		"effect": [["buff", 2, true, "No"]],
-    		0 # jorin pls implement enemy cooldown thanks
-        }
+		"Bonk":
+		{
+			"tree": "goblin things",
+			"description": "If in doubt, bonk your enemy.",
+			"effects": [["damage", 2, false, "No"], ["danger_dmg_mult", 2, false, "player_pos"]],
+			"cooldown": 0
+		},
+		"War Cry": #buff dmg for next turn, jorin pls implement
+		{
+			"tree": "goblin things",
+			"description": "More scream, more damage",
+			"effects": [["buff", 2, true, "No"]],
+			"cooldown": 0 # jorin pls implement enemy cooldown thanks
+		},
 	#unarmed player stuff
 	"Punch":
 	{
