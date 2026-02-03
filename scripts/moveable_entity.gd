@@ -53,6 +53,12 @@ var sprites = {
 		preload("res://scenes/sprite_scenes/orc_sprite_scene.tscn"),
 		["Bonk"]
 	],
+	"plant":
+	[
+		preload("res://scenes/sprite_scenes/big_plant_sprite_scene.tscn"),
+		["Vine Slash", "Entwine", "Poison Ivy", "Herbicide"],
+		{"idle": "default", "teleport_start": "dig_down", "teleport_end": "dig_up"}
+	],
 	
 	"pc": [preload("res://scenes/sprite_scenes/player_sprite_scene.tscn")]
 }
