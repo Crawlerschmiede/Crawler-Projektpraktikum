@@ -58,7 +58,7 @@ func add_buttons(contents):
 	for ability in contents:
 		var butt_label = ability.name
 		if not ability.is_passive:
-			if not ability.is_activateable():
+			if not ability.is_activateable(battle_scene):
 				butt_label = butt_label+" (Cooldown: "+str(ability.turns_until_reuse)+")"
 				_add_button_disabled(butt_label)
 			else:
@@ -140,11 +140,11 @@ func _scroll_to_button(btn: Button) -> void:
 
 func _on_skill_pressed(ability) -> void:
 	if player_turn:
-		if hit_anim_player !=null:
-			hit_anim_player.visible=true
-			hit_anim_player.play("default")
-			await hit_anim_player.animation_finished
-			hit_anim_player.visible=false
+		#if hit_anim_player !=null:
+		#	hit_anim_player.visible=true
+		#	hit_anim_player.play("default")
+		#	await hit_anim_player.animation_finished
+		#	hit_anim_player.visible=false
 		var stuff = ability.activate_skill(player, enemy, battle_scene)
 		print("did the function thing!")
 		for thing in stuff:

@@ -76,8 +76,8 @@ func _ready():
 		skill_ui.player_turn_done.connect(enemy_turn)
 	enemy_hp_bar.value = (enemy.hp * 100.0) / enemy.max_hp
 	player_hp_bar.value = (player.hp * 100.0) / player.max_hp
-	#for i in range(2): #we're doing this twice in case we extend a range and then end up in it because of that or something similar
-	#	update_passives()
+	for i in range(2): #we're doing this twice in case we extend a range and then end up in it because of that or something similar
+		update_passives()
 	enemy.decide_attack()
 	enemy_prepare_turn()
 
@@ -113,7 +113,7 @@ func enemy_prepare_turn():
 	var preps = enemy.chosen.prep_skill(enemy, player, self)
 	for prep in preps:
 		log_container.add_log_event(prep)
-	#update_passives()
+	update_passives()
 
 
 func enemy_turn():
@@ -166,7 +166,7 @@ func update_passives(depth=0):
 func trigger_passives(abilities, user, target, battle, depth):
 	for ability in abilities:
 		if ability.is_passive:
-			if ability.is_activateable():
+			if ability.is_activateable(self):
 				ability.activate_skill(user, target, battle, depth)
 			else:
 				ability.deactivate()
@@ -179,6 +179,13 @@ func check_victory():
 		return true
 	if player.hp <= 0:
 		player_loss.emit()
+		return true
+	return false
+	
+func battle_over():
+	if enemy.hp <= 0:
+		return true
+	if player.hp <= 0:
 		return true
 	return false
 

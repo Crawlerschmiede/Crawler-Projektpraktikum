@@ -54,13 +54,13 @@ func activate_skill(user, target, battle, depth=0):
 func add_effect(type: String, value: float, targets_self: bool, details: String):
 	effects.append(Effect.new(type, value, targets_self, details))
 	
-func is_activateable()->bool:
+func is_activateable(battle)->bool:
 	var activateable = true
 	if not turns_until_reuse==0:
 		activateable=false
-		#for condition in conditions:
-		#	if not condition_met(condition, battle):
-		#		activateable=false
+		for condition in conditions:
+			if not condition_met(condition, battle):
+				activateable=false
 	return activateable
 	
 func tick_down():
@@ -122,11 +122,11 @@ class Effect:
 							if user.is_player:
 								active_dmg *= modifier_value
 								
-					#print("Passives ",user.alterations)
-					#for alteration in user.alterations:
-					#	print("This passive ",alteration)
-					#	if user.alterations[alteration].has("dmg_buff"):
-					#		active_dmg*=user.alterations[alteration].dmg_buff
+					print("Passives ",user.alterations)
+					for alteration in user.alterations:
+						print("This passive ",alteration)
+						if user.alterations[alteration].has("dmg_buff"):
+							active_dmg*=user.alterations[alteration].dmg_buff
 
 				if targets_self:
 					messages = user.take_damage(active_dmg)
@@ -188,8 +188,8 @@ class Effect:
 					ret = user.add_alteration("dmg_buff", value, skill_name)
 				else:
 					ret = target.add_alteration("dmg_buff", value, skill_name)
-		#if depth<3 and not battle.battle_over():
-		#	battle.update_passives(depth+1)
+		if depth<3 and not battle.battle_over():
+			battle.update_passives(depth+1)
 		return ret
 
 	# gdlint: enable=max-returns
