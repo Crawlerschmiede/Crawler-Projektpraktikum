@@ -12,6 +12,7 @@ var enemy: Node
 var player_turn: bool = true
 var battle_scene: CanvasLayer = null
 var custom_font = load("res://assets/font/PixelPurl.ttf")
+var selected_index := 0
 
 @onready var tab_bar: TabBar = $TabBar
 @onready var list_vbox: VBoxContainer = $ScrollContainer/VBoxContainer
@@ -29,6 +30,9 @@ func setup(_player: Node, _enemy: Node, _battle_scene, _tooltip_container):
 	# Ensure this Control receives input events (including when focus is elsewhere)
 	set_process_input(true)
 	set_process_unhandled_input(true)
+
+	# Try to grab focus so this Control sees key events reliably
+	grab_focus()
 
 	# Make sure your tabs exist in this order
 	# 0 Skills, 1 Items, 2 Actions
@@ -58,7 +62,22 @@ func _populate_list(tab_idx: int) -> void:
 		var first := list_vbox.get_child(0)
 		if is_instance_valid(first) and first is Control:
 			first.grab_focus()
+	if list_vbox.get_child_count() > 0:
+		selected_index = 0
+		_highlight_selected()
 
+
+func _highlight_selected():
+	for i in range(list_vbox.get_child_count()):
+		var btn = list_vbox.get_child(i)
+		if i == selected_index:
+			btn.add_theme_color_override("font_color", Color(1, 1, 1))
+		else:
+			btn.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6))
+
+	# Auto scroll
+	var current = list_vbox.get_child(selected_index)
+	$ScrollContainer.ensure_control_visible(current)
 
 
 func _clear_vbox(vbox: VBoxContainer) -> void:
@@ -73,7 +92,7 @@ func _add_button(ability) -> void:
 	print("[skill_list] _add_button -> ", ability.name)
 
 	b.flat = true
-	b.focus_mode = Control.FOCUS_ALL
+	b.focus_mode = Control.FOCUS_CLICK
 	b.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
 	b.add_theme_stylebox_override("pressed", StyleBoxEmpty.new())
 	b.add_theme_stylebox_override("hover", StyleBoxEmpty.new())
@@ -135,9 +154,29 @@ func _on_mouse_entered(skill_name, skill_description):
 		print("Test")
 
 
-func _process(_delta: float) -> void:
-	if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
-		remove_tooltip()
+func _process(_delta):
+
+	if Input.is_action_just_pressed("ui_down"):
+		selected_index += 1
+		if selected_index >= list_vbox.get_child_count():
+			selected_index = list_vbox.get_child_count() - 1
+		_highlight_selected()
+
+	if Input.is_action_just_pressed("ui_up"):
+		selected_index -= 1
+		if selected_index < 0:
+			selected_index = 0
+		_highlight_selected()
+
+	if Input.is_action_just_pressed("ui_accept"):
+		var btn = list_vbox.get_child(selected_index)
+		btn.emit_signal("pressed")
+
+	if Input.is_action_just_pressed("ui_left"):
+		_select_next_tab()
+
+	if Input.is_action_just_pressed("ui_right"):
+		_select_prev_tab()
 
 
 func remove_tooltip():
@@ -147,50 +186,64 @@ func remove_tooltip():
 
 
 func _input(event: InputEvent) -> void:
-	# Arrow keys: left/right switch tabs, up/down move selection in the list
-	if Input.is_action_just_pressed("ui_left"):
-		_select_prev_tab()
-		# mark input handled on this Control
-		accept_event()
-		return
-	if Input.is_action_just_pressed("ui_right"):
-		_select_next_tab()
-		# mark input handled on this Control
-		accept_event()
-		return
-	if Input.is_action_just_pressed("ui_down"):
-		_move_focus_delta(1)
-		# mark input handled on this Control
-		accept_event()
-		return
-	if Input.is_action_just_pressed("ui_up"):
-		_move_focus_delta(-1)
-		# mark input handled on this Control
-		accept_event()
-		return
+	if event is InputEventKey and event.pressed and not event.echo:
+
+		# TAB komplett blockieren
+		if event.keycode == KEY_TAB:
+			accept_event()
+			return
+
+		# Navigation
+		if event.is_action_pressed("ui_down"):
+			_move_focus_delta(1)
+			accept_event()
+			return
+
+		if event.is_action_pressed("ui_up"):
+			_move_focus_delta(-1)
+			accept_event()
+			return
+
+		# Optional: Tabs wechseln mit links/rechts
+		if event.is_action_pressed("ui_left"):
+			_select_next_tab()
+			accept_event()
+			return
+
+		if event.is_action_pressed("ui_right"):
+			_select_prev_tab()
+			accept_event()
+			return
+
 
 func _unhandled_input(event: InputEvent) -> void:
-	# Mirror _input: handle arrow key actions even when unhandled
-	if Input.is_action_just_pressed("ui_left"):
-		_select_prev_tab()
-		# mark handled
-		accept_event()
-		return
-	if Input.is_action_just_pressed("ui_right"):
-		_select_next_tab()
-		# mark handled
-		accept_event()
-		return
-	if Input.is_action_just_pressed("ui_down"):
-		_move_focus_delta(1)
-		# mark handled
-		accept_event()
-		return
-	if Input.is_action_just_pressed("ui_up"):
-		_move_focus_delta(-1)
-		# mark handled
-		accept_event()
-		return
+
+	if event is InputEventKey and event.pressed and not event.echo:
+
+		# TAB blockieren
+		if event.keycode == KEY_TAB:
+			accept_event()
+			return
+
+		if Input.is_action_pressed("ui_down"):
+			_move_focus_delta(1)
+			accept_event()
+			return
+
+		if Input.is_action_pressed("ui_up"):
+			_move_focus_delta(-1)
+			accept_event()
+			return
+
+		if Input.is_action_pressed("ui_right"):
+			_select_next_tab()
+			accept_event()
+			return
+
+		if Input.is_action_pressed("ui_left"):
+			_select_prev_tab()
+			accept_event()
+			return
 
 
 func _select_next_tab() -> void:
@@ -222,8 +275,10 @@ func _move_focus_delta(delta: int) -> void:
 		return
 
 	var focused = null
-	if has_method("get_viewport") and get_viewport() != null:
-		focused = get_viewport().get_focus_owner()
+	if has_method("get_viewport"):
+		var vp = get_viewport()
+		if vp != null and vp.has_method("get_focus_owner"):
+			focused = vp.get_focus_owner()
 
 	# find index of focused child
 	var idx := -1
@@ -246,6 +301,7 @@ func _move_focus_delta(delta: int) -> void:
 	if new_idx >= children.size():
 		new_idx = children.size() - 1
 
+	print("[skill_list] _move_focus_delta -> idx=", idx, " new_idx=", new_idx, " children=", children.size())
 	children[new_idx].grab_focus()
 
 #var hover_tweens: Dictionary = {}
