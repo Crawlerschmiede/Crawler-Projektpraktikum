@@ -514,7 +514,6 @@ script = ExtResource("6_5c7wf")
 has_background = false
 
 [node name="CanvasLayer2" type="CanvasLayer" parent="."]
-visible = false
 script = ExtResource("16_odrip")
 
 [node name="MarginContainer" type="MarginContainer" parent="CanvasLayer2"]

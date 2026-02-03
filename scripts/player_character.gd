@@ -82,7 +82,8 @@ func _physics_process(delta: float):
 # Function to get the current input direction vector
 func get_held_direction() -> Vector2i:
 	var direction = Vector2i.ZERO
-
+	if $UserInterface/Inventory/Inner.visible:
+		return direction
 	if Input.is_action_pressed("ui_right"):
 		direction = Vector2i.RIGHT
 	elif Input.is_action_pressed("ui_left"):
