@@ -15,13 +15,15 @@ var custom_font = load("res://assets/font/PixelPurl.ttf")
 
 @onready var tab_bar: TabBar = $TabBar
 @onready var list_vbox: VBoxContainer = $ScrollContainer/VBoxContainer
+var hit_anim_player:AnimatedSprite2D
 
 
-func setup(_player: Node, _enemy: Node, _battle_scene, _tooltip_container):
+func setup(_player: Node, _enemy: Node, _battle_scene, _tooltip_container, anim_player):
 	player = _player
 	enemy = _enemy
 	battle_scene = _battle_scene
 	tooltip_container = _tooltip_container
+	hit_anim_player=anim_player
 	tab_bar.tab_changed.connect(_on_tab_changed)
 
 	# Make sure your tabs exist in this order
@@ -55,15 +57,17 @@ func _populate_list(tab_idx: int) -> void:
 func add_buttons(contents):
 	for ability in contents:
 		var butt_label = ability.name
-		if not ability.is_activateable():
-			butt_label = butt_label+" (Cooldown: "+str(ability.turns_until_reuse)+")"
-			_add_button_disabled(butt_label)
-		else:
-			_add_button(
-				butt_label,
-				_on_skill_pressed.bind(ability),
-				_on_mouse_entered.bind(ability.name, ability.description),
-				)
+		if not ability.is_passive:
+			if not ability.is_activateable():
+				butt_label = butt_label+" (Cooldown: "+str(ability.turns_until_reuse)+")"
+				_add_button_disabled(butt_label)
+			else:
+				_add_button(
+					butt_label,
+					_on_skill_pressed.bind(ability),
+					_on_mouse_entered.bind(ability.name, ability.description),
+					)
+	
 
 
 
@@ -136,6 +140,11 @@ func _scroll_to_button(btn: Button) -> void:
 
 func _on_skill_pressed(ability) -> void:
 	if player_turn:
+		if hit_anim_player !=null:
+			hit_anim_player.visible=true
+			hit_anim_player.play("default")
+			await hit_anim_player.animation_finished
+			hit_anim_player.visible=false
 		var stuff = ability.activate_skill(player, enemy, battle_scene)
 		print("did the function thing!")
 		for thing in stuff:

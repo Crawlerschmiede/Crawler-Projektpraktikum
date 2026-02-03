@@ -361,13 +361,13 @@ func on_menu_closed():
 # SPAWNING
 # ---------------------------------------
 func spawn_enemies() -> void:
-	for i in range(30):
+	for i in range(5):
 		spawn_enemy("what", ["hostile", "wallbound"])
 	for i in range(3):
 		spawn_enemy("bat", ["passive", "enemy_flying"])
-	for i in range(3):
+	for i in range(10):
 		spawn_enemy("skeleton", ["hostile", "enemy_walking"])
-	for i in range(3):
+	for i in range(5):
 		spawn_enemy("base_zombie", ["hostile", "enemy_walking", "burrowing"])
 	for i in range(3):
 		spawn_enemy("ghost", ["hostile", "enemy_flying", "burrowing"])
@@ -495,6 +495,7 @@ func find_merchants() -> Array[Vector2]:
 
 
 func enemy_defeated(enemy):
+	print("The battle is won")
 	if battle != null and is_instance_valid(battle):
 		battle.queue_free()
 		battle = null

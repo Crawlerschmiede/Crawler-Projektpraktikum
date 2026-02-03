@@ -284,7 +284,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_1rdfn")
 }],
-"loop": false,
+"loop": true,
 "name": &"default",
 "speed": 8.0
 }]
@@ -506,8 +506,7 @@ position = Vector2(37, 30)
 
 [node name="player_attack_anim" type="AnimatedSprite2D" parent="Battle_root/EnemyPosition"]
 sprite_frames = SubResource("SpriteFrames_r0ctv")
-frame = 5
-frame_progress = 1.0
+frame_progress = 0.8765256
 
 [node name="PlayerPosition" type="Marker2D" parent="Battle_root"]
 position = Vector2(39.333332, 120.66667)
