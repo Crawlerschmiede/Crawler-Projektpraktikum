@@ -68,6 +68,7 @@ func _ready():
 	combat_tilemap.add_child(player_sprite)
 	player_sprite.position = combat_tilemap.map_to_local(player_gridpos)
 	skill_ui.setup(player, enemy, self, log_container)
+	hit_anim_enemy.visible=false
 	print("[battle_script] skill_ui node=", skill_ui)
 	print("[battle_script] calling skill_ui.setup(...) with player=", player, " enemy=", enemy)
 	# confirm setup returned
