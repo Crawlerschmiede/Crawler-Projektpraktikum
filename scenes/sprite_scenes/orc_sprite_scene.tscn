@@ -35,8 +35,8 @@ animations = [{
 }],
 "loop": true,
 "name": &"default",
-"speed": 5.0
+"speed": 2.0
 }]
 
-[node name="OrcSpriteScene" type="AnimatedSprite2D" unique_id=2102374829]
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" unique_id=2102374829]
 sprite_frames = SubResource("SpriteFrames_o00ec")

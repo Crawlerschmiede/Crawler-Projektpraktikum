@@ -59,6 +59,8 @@ func is_closer_to_player(current_tile: Vector2i, target_tile: Vector2i, chased_t
 
 # gdlint: disable=max-returns
 func chase():
+	if "boss" in types:
+		return
 	if !burrowed:
 		chased_pos = chase_target.grid_pos
 		chased_direction = chase_target.latest_direction
