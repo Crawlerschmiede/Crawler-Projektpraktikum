@@ -58,9 +58,9 @@ func is_activateable(battle)->bool:
 	var activateable = true
 	if not turns_until_reuse==0:
 		activateable=false
-		for condition in conditions:
-			if not condition_met(condition, battle):
-				activateable=false
+	for condition in conditions:
+		if not condition_met(condition, battle):
+			activateable=false
 	return activateable
 	
 func tick_down():
@@ -76,6 +76,7 @@ func condition_met(condition_name, battle)->bool:
 			is_met = battle.is_player_in_range([2,2])
 		"long_range":
 			is_met = battle.is_player_in_range([3,4])
+	print("Condition "+condition_name+" is met? "+str(is_met))
 	return is_met
 	
 func deactivate(who):
@@ -122,11 +123,9 @@ class Effect:
 							if user.is_player:
 								active_dmg *= modifier_value
 								
-					print("Passives ",user.alterations)
-					for alteration in user.alterations:
-						print("This passive ",alteration)
-						if user.alterations[alteration].has("dmg_buff"):
-							active_dmg*=user.alterations[alteration].dmg_buff
+				for alteration in user.alterations:
+					if user.alterations[alteration].has("dmg_buff"):
+						active_dmg*=user.alterations[alteration].dmg_buff
 
 				if targets_self:
 					messages = user.take_damage(active_dmg)
