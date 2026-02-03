@@ -1,4 +1,4 @@
-[gd_scene load_steps=40 format=3 uid="uid://bvfdv1snyoxhh"]
+[gd_scene format=3 uid="uid://bvfdv1snyoxhh"]
 
 [ext_resource type="Script" uid="uid://dp4r7814o32x6" path="res://scripts/player_character.gd" id="1_no27k"]
 [ext_resource type="Script" uid="uid://cnto6kvd27me0" path="res://scenes/testscene2/camera_2d.gd" id="4_0cvhd"]
@@ -15,9 +15,8 @@
 [ext_resource type="Texture2D" uid="uid://bxp7sedmunhcs" path="res://assets/menu/inventar_slot.png" id="10_j4pnj"]
 [ext_resource type="Texture2D" uid="uid://brlrimrh6sdx2" path="res://assets/menu/UI_TravelBook_FrameSelect01b.png" id="13_6k8oa"]
 [ext_resource type="Texture2D" uid="uid://drnogsosojksh" path="res://assets/menu/UI_TravelBook_Slot01b.png" id="15_nq0iv"]
-
+[ext_resource type="Script" uid="uid://da5gfq7ci7243" path="res://scenes/merchant_org.gd" id="16_72a5a"]
 [ext_resource type="Texture2D" uid="uid://4gngll2b6t8d" path="res://assets/menu/Mülltonne_closed.png" id="16_nq0iv"]
-[ext_resource type="Script" path="res://scenes/merchant_org.gd" id="16_72a5a"]
 [ext_resource type="Script" uid="uid://6d52dv2f4umv" path="res://scenes/canvas_layer_2.gd" id="16_odrip"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_r5wgn"]
@@ -81,49 +80,49 @@ texture = ExtResource("10_j4pnj")
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_hh3gd"]
 texture = ExtResource("16_nq0iv")
 
-[node name="Player" type="CharacterBody2D"]
+[node name="Player" type="CharacterBody2D" unique_id=749009665]
 script = ExtResource("1_no27k")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1041864340]
 shape = SubResource("CircleShape2D_r5wgn")
 
-[node name="CollisionArea" type="Area2D" parent="."]
+[node name="CollisionArea" type="Area2D" parent="." unique_id=1324797318]
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="CollisionArea"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CollisionArea" unique_id=2124448231]
 shape = SubResource("RectangleShape2D_hfhf8")
 
-[node name="PickupZone" type="Area2D" parent="."]
+[node name="PickupZone" type="Area2D" parent="." unique_id=1886194716]
 script = ExtResource("8_jjy7y")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="PickupZone"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="PickupZone" unique_id=509048076]
 shape = SubResource("RectangleShape2D_jmui6")
 
-[node name="Camera2D" type="Camera2D" parent="."]
+[node name="Camera2D" type="Camera2D" parent="." unique_id=582993003]
 zoom = Vector2(2, 2)
 script = ExtResource("4_0cvhd")
 
-[node name="CanvasLayer" type="CanvasLayer" parent="."]
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=352254441]
 script = ExtResource("4_x2d4g")
 
-[node name="SubViewportContainer" type="SubViewportContainer" parent="CanvasLayer"]
+[node name="SubViewportContainer" type="SubViewportContainer" parent="CanvasLayer" unique_id=222160174]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="SubViewport" type="SubViewport" parent="CanvasLayer/SubViewportContainer"]
+[node name="SubViewport" type="SubViewport" parent="CanvasLayer/SubViewportContainer" unique_id=893855145]
 handle_input_locally = false
 size = Vector2i(100, 100)
 render_target_update_mode = 4
 
-[node name="MiniCam" type="Camera2D" parent="CanvasLayer/SubViewportContainer/SubViewport"]
+[node name="MiniCam" type="Camera2D" parent="CanvasLayer/SubViewportContainer/SubViewport" unique_id=594125506]
 zoom = Vector2(0.2, 0.2)
 
-[node name="UserInterface" type="CanvasLayer" parent="."]
+[node name="UserInterface" type="CanvasLayer" parent="." unique_id=2006508102]
 script = ExtResource("5_jmui6")
 
-[node name="Inventory" type="Control" parent="UserInterface"]
+[node name="Inventory" type="Control" parent="UserInterface" unique_id=968591213]
 z_index = 100
 layout_mode = 3
 anchors_preset = 8
@@ -136,12 +135,12 @@ grow_vertical = 2
 scale = Vector2(3, 3)
 script = ExtResource("6_7x6uh")
 
-[node name="Inner" type="Control" parent="UserInterface/Inventory"]
+[node name="Inner" type="Control" parent="UserInterface/Inventory" unique_id=66249004]
 anchors_preset = 0
 offset_right = 40.0
 offset_bottom = 40.0
 
-[node name="InventoryLabel" type="TextureRect" parent="UserInterface/Inventory/Inner"]
+[node name="InventoryLabel" type="TextureRect" parent="UserInterface/Inventory/Inner" unique_id=224427281]
 layout_mode = 0
 offset_left = -64.0
 offset_top = -53.0
@@ -150,7 +149,7 @@ offset_bottom = -41.0
 texture = ExtResource("7_x2d4g")
 expand_mode = 1
 
-[node name="Label" type="Label" parent="UserInterface/Inventory/Inner/InventoryLabel"]
+[node name="Label" type="Label" parent="UserInterface/Inventory/Inner/InventoryLabel" unique_id=1019656012]
 layout_mode = 0
 offset_left = 38.0
 offset_right = 106.0
@@ -161,7 +160,7 @@ theme_override_fonts/font = ExtResource("9_6k8oa")
 text = "Inventory"
 horizontal_alignment = 1
 
-[node name="StarLeft" type="TextureRect" parent="UserInterface/Inventory/Inner/InventoryLabel"]
+[node name="StarLeft" type="TextureRect" parent="UserInterface/Inventory/Inner/InventoryLabel" unique_id=1677310761]
 layout_mode = 0
 offset_left = -11.666668
 offset_top = 0.6666672
@@ -171,7 +170,7 @@ scale = Vector2(0.9, 0.9)
 texture = ExtResource("9_x2d4g")
 flip_h = true
 
-[node name="StarLeft2" type="TextureRect" parent="UserInterface/Inventory/Inner/InventoryLabel"]
+[node name="StarLeft2" type="TextureRect" parent="UserInterface/Inventory/Inner/InventoryLabel" unique_id=961874595]
 layout_mode = 0
 offset_left = 130.333
 offset_top = 0.667
@@ -180,7 +179,7 @@ offset_bottom = 12.333668
 scale = Vector2(0.9, 0.9)
 texture = ExtResource("9_x2d4g")
 
-[node name="TextureRect" type="TextureRect" parent="UserInterface/Inventory/Inner"]
+[node name="TextureRect" type="TextureRect" parent="UserInterface/Inventory/Inner" unique_id=1469908577]
 layout_direction = 1
 layout_mode = 1
 anchors_preset = 8
@@ -197,7 +196,7 @@ grow_vertical = 2
 expand_mode = 1
 metadata/_edit_use_anchors_ = true
 
-[node name="TextureRect2" type="TextureRect" parent="UserInterface/Inventory/Inner/TextureRect"]
+[node name="TextureRect2" type="TextureRect" parent="UserInterface/Inventory/Inner/TextureRect" unique_id=328463510]
 layout_mode = 0
 offset_left = 76.0
 offset_top = 2.0
@@ -206,7 +205,7 @@ offset_bottom = 78.0
 texture = ExtResource("8_lsi2u")
 expand_mode = 1
 
-[node name="TextureRect3" type="TextureRect" parent="UserInterface/Inventory/Inner/TextureRect"]
+[node name="TextureRect3" type="TextureRect" parent="UserInterface/Inventory/Inner/TextureRect" unique_id=854367254]
 layout_mode = 0
 offset_left = 4.0
 offset_top = 2.0
@@ -215,7 +214,7 @@ offset_bottom = 78.0
 texture = ExtResource("9_mbyut")
 expand_mode = 1
 
-[node name="EquiptmentLabel" type="TextureRect" parent="UserInterface/Inventory/Inner"]
+[node name="EquiptmentLabel" type="TextureRect" parent="UserInterface/Inventory/Inner" unique_id=36575243]
 layout_mode = 0
 offset_left = 11.0
 offset_top = -35.0
@@ -224,7 +223,7 @@ offset_bottom = -25.0
 texture = ExtResource("13_6k8oa")
 expand_mode = 1
 
-[node name="Label" type="Label" parent="UserInterface/Inventory/Inner/EquiptmentLabel"]
+[node name="Label" type="Label" parent="UserInterface/Inventory/Inner/EquiptmentLabel" unique_id=222239418]
 layout_mode = 0
 offset_left = 9.0
 offset_top = -0.2
@@ -234,7 +233,7 @@ scale = Vector2(0.6, 0.6)
 theme_override_fonts/font = ExtResource("9_6k8oa")
 text = "Equiptment"
 
-[node name="Equiptment" type="GridContainer" parent="UserInterface/Inventory/Inner"]
+[node name="Equiptment" type="GridContainer" parent="UserInterface/Inventory/Inner" unique_id=447798198]
 visible = false
 layout_mode = 0
 offset_left = 2.6666641
@@ -243,11 +242,11 @@ offset_right = 77.33333
 offset_bottom = 31.666668
 columns = 3
 
-[node name="VBoxContainer" type="VBoxContainer" parent="UserInterface/Inventory/Inner/Equiptment"]
+[node name="VBoxContainer" type="VBoxContainer" parent="UserInterface/Inventory/Inner/Equiptment" unique_id=1373196726]
 custom_minimum_size = Vector2(12, 0)
 layout_mode = 2
 
-[node name="Slot13" type="Panel" parent="UserInterface/Inventory/Inner/Equiptment/VBoxContainer" groups=["Equipment", "scale_0.60"]]
+[node name="Slot13" type="Panel" parent="UserInterface/Inventory/Inner/Equiptment/VBoxContainer" unique_id=1971122976 groups=["Equipment", "scale_0.60"]]
 custom_minimum_size = Vector2(12, 12)
 layout_mode = 2
 size_flags_horizontal = 4
@@ -255,48 +254,48 @@ size_flags_vertical = 4
 theme_override_styles/panel = SubResource("StyleBoxTexture_xn7nh")
 script = ExtResource("6_5c7wf")
 
-[node name="Slot14" type="Panel" parent="UserInterface/Inventory/Inner/Equiptment/VBoxContainer" groups=["Equipment", "scale_0.60"]]
+[node name="Slot14" type="Panel" parent="UserInterface/Inventory/Inner/Equiptment/VBoxContainer" unique_id=1465925655 groups=["Equipment", "scale_0.60"]]
 custom_minimum_size = Vector2(12, 12)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxTexture_pa76a")
 script = ExtResource("6_5c7wf")
 
-[node name="VBoxContainer2" type="VBoxContainer" parent="UserInterface/Inventory/Inner/Equiptment"]
+[node name="VBoxContainer2" type="VBoxContainer" parent="UserInterface/Inventory/Inner/Equiptment" unique_id=1438469673]
 custom_minimum_size = Vector2(30, 0)
 layout_mode = 2
 
-[node name="Panel" type="Panel" parent="UserInterface/Inventory/Inner/Equiptment/VBoxContainer2"]
+[node name="Panel" type="Panel" parent="UserInterface/Inventory/Inner/Equiptment/VBoxContainer2" unique_id=2026878907]
 custom_minimum_size = Vector2(25, 37)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxTexture_creb6")
 
-[node name="HBoxContainer" type="HBoxContainer" parent="UserInterface/Inventory/Inner/Equiptment/VBoxContainer2"]
+[node name="HBoxContainer" type="HBoxContainer" parent="UserInterface/Inventory/Inner/Equiptment/VBoxContainer2" unique_id=1775318189]
 layout_mode = 2
 alignment = 1
 
-[node name="Slot15" type="Panel" parent="UserInterface/Inventory/Inner/Equiptment/VBoxContainer2/HBoxContainer" groups=["Equipment", "scale_0.60"]]
+[node name="Slot15" type="Panel" parent="UserInterface/Inventory/Inner/Equiptment/VBoxContainer2/HBoxContainer" unique_id=242705722 groups=["Equipment", "scale_0.60"]]
 custom_minimum_size = Vector2(12, 12)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxTexture_vqds4")
 script = ExtResource("6_5c7wf")
 
-[node name="Slot16" type="Panel" parent="UserInterface/Inventory/Inner/Equiptment/VBoxContainer2/HBoxContainer" groups=["Equipment", "scale_0.60"]]
+[node name="Slot16" type="Panel" parent="UserInterface/Inventory/Inner/Equiptment/VBoxContainer2/HBoxContainer" unique_id=125188128 groups=["Equipment", "scale_0.60"]]
 custom_minimum_size = Vector2(12, 12)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxTexture_xqkyc")
 script = ExtResource("6_5c7wf")
 
-[node name="VBoxContainer3" type="VBoxContainer" parent="UserInterface/Inventory/Inner/Equiptment"]
+[node name="VBoxContainer3" type="VBoxContainer" parent="UserInterface/Inventory/Inner/Equiptment" unique_id=356638730]
 custom_minimum_size = Vector2(12, 0)
 layout_mode = 2
 
-[node name="Slot17" type="Panel" parent="UserInterface/Inventory/Inner/Equiptment/VBoxContainer3" groups=["Equipment", "scale_0.60"]]
+[node name="Slot17" type="Panel" parent="UserInterface/Inventory/Inner/Equiptment/VBoxContainer3" unique_id=1674486705 groups=["Equipment", "scale_0.60"]]
 custom_minimum_size = Vector2(12, 12)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxTexture_qoi8r")
 script = ExtResource("6_5c7wf")
 
-[node name="Slot18" type="Panel" parent="UserInterface/Inventory/Inner/Equiptment/VBoxContainer3" groups=["Equipment", "scale_0.60"]]
+[node name="Slot18" type="Panel" parent="UserInterface/Inventory/Inner/Equiptment/VBoxContainer3" unique_id=1705956278 groups=["Equipment", "scale_0.60"]]
 custom_minimum_size = Vector2(12, 12)
 layout_mode = 2
 size_flags_horizontal = 4
@@ -304,7 +303,7 @@ size_flags_vertical = 4
 theme_override_styles/panel = SubResource("StyleBoxTexture_qoi8r")
 script = ExtResource("6_5c7wf")
 
-[node name="GridContainer" type="GridContainer" parent="UserInterface/Inventory/Inner"]
+[node name="GridContainer" type="GridContainer" parent="UserInterface/Inventory/Inner" unique_id=1818282321]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -321,7 +320,7 @@ scale = Vector2(0.7, 0.7)
 columns = 3
 metadata/_edit_use_anchors_ = true
 
-[node name="Slot1" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" groups=["Equipment", "Inventory"]]
+[node name="Slot1" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" unique_id=1821503184 groups=["Equipment", "Inventory"]]
 custom_minimum_size = Vector2(20, 20)
 layout_mode = 2
 size_flags_horizontal = 0
@@ -330,7 +329,7 @@ theme_override_styles/panel = SubResource("StyleBoxTexture_x2d4g")
 script = ExtResource("6_5c7wf")
 empty_tex = ExtResource("10_j4pnj")
 
-[node name="Slot2" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" groups=["Equipment", "Inventory"]]
+[node name="Slot2" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" unique_id=1441112472 groups=["Equipment", "Inventory"]]
 custom_minimum_size = Vector2(20, 20)
 layout_mode = 2
 size_flags_horizontal = 0
@@ -339,7 +338,7 @@ theme_override_styles/panel = SubResource("StyleBoxTexture_odrip")
 script = ExtResource("6_5c7wf")
 empty_tex = ExtResource("10_j4pnj")
 
-[node name="Slot3" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" groups=["Equipment", "Inventory"]]
+[node name="Slot3" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" unique_id=1393248576 groups=["Equipment", "Inventory"]]
 custom_minimum_size = Vector2(20, 20)
 layout_mode = 2
 size_flags_horizontal = 0
@@ -348,7 +347,7 @@ theme_override_styles/panel = SubResource("StyleBoxTexture_6k8oa")
 script = ExtResource("6_5c7wf")
 empty_tex = ExtResource("10_j4pnj")
 
-[node name="Slot4" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" groups=["Equipment", "Inventory"]]
+[node name="Slot4" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" unique_id=1829389494 groups=["Equipment", "Inventory"]]
 custom_minimum_size = Vector2(20, 20)
 layout_mode = 2
 size_flags_horizontal = 0
@@ -357,7 +356,7 @@ theme_override_styles/panel = SubResource("StyleBoxTexture_nq0iv")
 script = ExtResource("6_5c7wf")
 empty_tex = ExtResource("10_j4pnj")
 
-[node name="Slot5" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" groups=["Equipment", "Inventory"]]
+[node name="Slot5" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" unique_id=277926491 groups=["Equipment", "Inventory"]]
 custom_minimum_size = Vector2(20, 20)
 layout_mode = 2
 size_flags_horizontal = 0
@@ -366,7 +365,7 @@ theme_override_styles/panel = SubResource("StyleBoxTexture_fxkes")
 script = ExtResource("6_5c7wf")
 empty_tex = ExtResource("10_j4pnj")
 
-[node name="Slot6" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" groups=["Equipment", "Inventory"]]
+[node name="Slot6" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" unique_id=1199877423 groups=["Equipment", "Inventory"]]
 custom_minimum_size = Vector2(20, 20)
 layout_mode = 2
 size_flags_horizontal = 0
@@ -375,7 +374,7 @@ theme_override_styles/panel = SubResource("StyleBoxTexture_72a5a")
 script = ExtResource("6_5c7wf")
 empty_tex = ExtResource("10_j4pnj")
 
-[node name="Slot7" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" groups=["Equipment", "Inventory"]]
+[node name="Slot7" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" unique_id=2011291793 groups=["Equipment", "Inventory"]]
 custom_minimum_size = Vector2(20, 20)
 layout_mode = 2
 size_flags_horizontal = 0
@@ -384,7 +383,7 @@ theme_override_styles/panel = SubResource("StyleBoxTexture_gdkvl")
 script = ExtResource("6_5c7wf")
 empty_tex = ExtResource("10_j4pnj")
 
-[node name="Slot8" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" groups=["Equipment", "Inventory"]]
+[node name="Slot8" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" unique_id=1109738517 groups=["Equipment", "Inventory"]]
 custom_minimum_size = Vector2(20, 20)
 layout_mode = 2
 size_flags_horizontal = 0
@@ -393,7 +392,7 @@ theme_override_styles/panel = SubResource("StyleBoxTexture_3710g")
 script = ExtResource("6_5c7wf")
 empty_tex = ExtResource("10_j4pnj")
 
-[node name="Slot9" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" groups=["Equipment", "Inventory"]]
+[node name="Slot9" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" unique_id=230000545 groups=["Equipment", "Inventory"]]
 custom_minimum_size = Vector2(20, 20)
 layout_mode = 2
 size_flags_horizontal = 0
@@ -402,7 +401,7 @@ theme_override_styles/panel = SubResource("StyleBoxTexture_oag0m")
 script = ExtResource("6_5c7wf")
 empty_tex = ExtResource("10_j4pnj")
 
-[node name="Slot10" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" groups=["Equipment", "Inventory"]]
+[node name="Slot10" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" unique_id=321600879 groups=["Equipment", "Inventory"]]
 custom_minimum_size = Vector2(20, 20)
 layout_mode = 2
 size_flags_horizontal = 0
@@ -411,7 +410,7 @@ theme_override_styles/panel = SubResource("StyleBoxTexture_cjry2")
 script = ExtResource("6_5c7wf")
 empty_tex = ExtResource("10_j4pnj")
 
-[node name="Slot11" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" groups=["Equipment", "Inventory"]]
+[node name="Slot11" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" unique_id=616670280 groups=["Equipment", "Inventory"]]
 custom_minimum_size = Vector2(20, 20)
 layout_mode = 2
 size_flags_horizontal = 0
@@ -420,7 +419,7 @@ theme_override_styles/panel = SubResource("StyleBoxTexture_3r868")
 script = ExtResource("6_5c7wf")
 empty_tex = ExtResource("10_j4pnj")
 
-[node name="Slot12" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" groups=["Equipment", "Inventory"]]
+[node name="Slot12" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" unique_id=559334438 groups=["Equipment", "Inventory"]]
 custom_minimum_size = Vector2(20, 20)
 layout_mode = 2
 size_flags_horizontal = 0
@@ -431,7 +430,7 @@ default_tex = ExtResource("16_nq0iv")
 empty_tex = ExtResource("16_nq0iv")
 selected_tex = ExtResource("16_nq0iv")
 
-[node name="MerchantContainer" type="GridContainer" parent="UserInterface/Inventory/Inner"]
+[node name="MerchantContainer" type="GridContainer" parent="UserInterface/Inventory/Inner" unique_id=1775240035]
 clip_contents = true
 layout_mode = 0
 offset_left = 7.0
@@ -441,21 +440,21 @@ offset_bottom = 74.333336
 scale = Vector2(0.5, 0.5)
 columns = 3
 
-[node name="HBoxContainer" type="VBoxContainer" parent="UserInterface/Inventory/Inner/MerchantContainer"]
+[node name="HBoxContainer" type="VBoxContainer" parent="UserInterface/Inventory/Inner/MerchantContainer" unique_id=639707228]
 layout_mode = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="UserInterface/Inventory/Inner/MerchantContainer/HBoxContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="UserInterface/Inventory/Inner/MerchantContainer/HBoxContainer" unique_id=261891174]
 layout_mode = 2
 script = ExtResource("16_72a5a")
 
-[node name="Hotbar" type="Control" parent="UserInterface/Inventory"]
+[node name="Hotbar" type="Control" parent="UserInterface/Inventory" unique_id=196803227]
 anchors_preset = 0
 offset_left = 21.333334
 offset_top = 49.333336
 offset_right = 29.999998
 offset_bottom = 54.000008
 
-[node name="HotContainer" type="GridContainer" parent="UserInterface/Inventory/Hotbar"]
+[node name="HotContainer" type="GridContainer" parent="UserInterface/Inventory/Hotbar" unique_id=623008361]
 layout_mode = 0
 offset_left = -75.333336
 offset_top = 7.333332
@@ -463,47 +462,57 @@ offset_right = 40.666664
 offset_bottom = 27.333332
 columns = 5
 
-[node name="Slot19" type="Panel" parent="UserInterface/Inventory/Hotbar/HotContainer" groups=["Equipment", "Inventory"]]
+[node name="Slot19" type="Panel" parent="UserInterface/Inventory/Hotbar/HotContainer" unique_id=1269084937 groups=["Equipment", "Inventory"]]
 custom_minimum_size = Vector2(20, 20)
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 4
 theme_override_styles/panel = SubResource("StyleBoxTexture_x2d4g")
 script = ExtResource("6_5c7wf")
+default_tex = ExtResource("10_j4pnj")
+empty_tex = ExtResource("10_j4pnj")
 
-[node name="Slot20" type="Panel" parent="UserInterface/Inventory/Hotbar/HotContainer" groups=["Equipment", "Inventory"]]
+[node name="Slot20" type="Panel" parent="UserInterface/Inventory/Hotbar/HotContainer" unique_id=244941576 groups=["Equipment", "Inventory"]]
 custom_minimum_size = Vector2(20, 20)
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 4
 theme_override_styles/panel = SubResource("StyleBoxTexture_x2d4g")
 script = ExtResource("6_5c7wf")
+default_tex = ExtResource("10_j4pnj")
+empty_tex = ExtResource("10_j4pnj")
 
-[node name="Slot21" type="Panel" parent="UserInterface/Inventory/Hotbar/HotContainer" groups=["Equipment", "Inventory"]]
+[node name="Slot21" type="Panel" parent="UserInterface/Inventory/Hotbar/HotContainer" unique_id=1647935436 groups=["Equipment", "Inventory"]]
 custom_minimum_size = Vector2(20, 20)
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 4
 theme_override_styles/panel = SubResource("StyleBoxTexture_x2d4g")
 script = ExtResource("6_5c7wf")
+default_tex = ExtResource("10_j4pnj")
+empty_tex = ExtResource("10_j4pnj")
 
-[node name="Slot22" type="Panel" parent="UserInterface/Inventory/Hotbar/HotContainer" groups=["Equipment", "Inventory"]]
+[node name="Slot22" type="Panel" parent="UserInterface/Inventory/Hotbar/HotContainer" unique_id=625913624 groups=["Equipment", "Inventory"]]
 custom_minimum_size = Vector2(20, 20)
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 4
 theme_override_styles/panel = SubResource("StyleBoxTexture_x2d4g")
 script = ExtResource("6_5c7wf")
+default_tex = ExtResource("10_j4pnj")
+empty_tex = ExtResource("10_j4pnj")
 
-[node name="Slot23" type="Panel" parent="UserInterface/Inventory/Hotbar/HotContainer" groups=["Equipment", "Inventory"]]
+[node name="Slot23" type="Panel" parent="UserInterface/Inventory/Hotbar/HotContainer" unique_id=542120934 groups=["Equipment", "Inventory"]]
 custom_minimum_size = Vector2(20, 20)
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 4
 theme_override_styles/panel = SubResource("StyleBoxTexture_x2d4g")
 script = ExtResource("6_5c7wf")
+default_tex = ExtResource("10_j4pnj")
+empty_tex = ExtResource("10_j4pnj")
 
-[node name="coin_sum" type="Panel" parent="UserInterface/Inventory" groups=["Equipment", "Inventory"]]
+[node name="coin_sum" type="Panel" parent="UserInterface/Inventory" unique_id=1347516670 groups=["Equipment", "Inventory"]]
 custom_minimum_size = Vector2(20, 20)
 layout_mode = 0
 offset_left = 59.666668
@@ -515,10 +524,10 @@ size_flags_vertical = 4
 script = ExtResource("6_5c7wf")
 has_background = false
 
-[node name="CanvasLayer2" type="CanvasLayer" parent="."]
+[node name="CanvasLayer2" type="CanvasLayer" parent="." unique_id=291252190]
 script = ExtResource("16_odrip")
 
-[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer2"]
+[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer2" unique_id=1141026177]
 anchors_preset = 3
 anchor_left = 1.0
 anchor_top = 1.0
@@ -530,7 +539,7 @@ offset_bottom = -4.0
 grow_horizontal = 0
 grow_vertical = 0
 
-[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer2/MarginContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer2/MarginContainer" unique_id=640161993]
 layout_mode = 2
 
 [connection signal="area_entered" from="PickupZone" to="PickupZone" method="_on_area_entered"]
