@@ -4,6 +4,7 @@ signal player_loss
 signal player_victory
 
 const MARKER_PREFAB := preload("res://scenes/marker.tscn")
+@onready var hit_anim_enemy: AnimatedSprite2D = $Battle_root/PlayerPosition/enemy_attack_anim
 
 const MARKER_FLAVOURS = {
 	"dmg_reduc_":
@@ -129,6 +130,11 @@ func enemy_turn():
 		if extra_stuff[0]:
 			#print(enemy, " activates its Skill ", enemy.chosen.name, "!")
 			happened = enemy.chosen.activate_skill(enemy, player, self)
+			if hit_anim_enemy !=null:
+				hit_anim_enemy.visible=true
+				hit_anim_enemy.play("triple_strike")
+				await hit_anim_enemy.animation_finished
+				hit_anim_enemy.visible=false
 			for happening in happened:
 				log_container.add_log_event(happening)
 			enemy.decide_attack()
@@ -140,6 +146,7 @@ func enemy_turn():
 		for happening in happened:
 			log_container.add_log_event(happening)
 		if extra_stuff[0]:
+			skill_ui.update()
 			skill_ui.player_turn = true
 		else:
 			enemy_turn()

@@ -46,6 +46,7 @@ text = "Menu"
 [node name="ButtonContinue" type="Button" parent="VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
+focus_mode = 0
 theme_override_colors/font_color = Color(0.0056611313, 0.0056611616, 0.0056611407, 1)
 theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
 theme_override_colors/font_hover_color = Color(0.95, 0.95, 0.95, 1)
@@ -58,6 +59,7 @@ icon_alignment = 1
 [node name="ButtonSettings" type="Button" parent="VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
+focus_mode = 0
 theme_override_colors/font_color = Color(0.0056611313, 0.0056611616, 0.0056611407, 1)
 theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
 theme_override_colors/font_hover_color = Color(0.95, 0.95, 0.95, 1)
@@ -70,6 +72,7 @@ icon_alignment = 1
 [node name="ButtonSave" type="Button" parent="VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
+focus_mode = 0
 theme_override_colors/font_color = Color(0.00011382764, 0.00011382824, 0.000113827795, 1)
 theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
 theme_override_colors/font_hover_color = Color(0.95, 0.95, 0.95, 1)
@@ -82,6 +85,7 @@ icon_alignment = 1
 [node name="ButtonQuit" type="Button" parent="VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
+focus_mode = 0
 theme_override_colors/font_color = Color(0.008201996, 0.008202039, 0.008202008, 1)
 theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
 theme_override_colors/font_hover_color = Color(0.95, 0.95, 0.95, 1)

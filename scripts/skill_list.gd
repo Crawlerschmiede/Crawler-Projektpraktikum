@@ -38,6 +38,13 @@ func setup(_player: Node, _enemy: Node, _battle_scene, _tooltip_container):
 	# 0 Skills, 1 Items, 2 Actions
 	tab_bar.current_tab = Tab.SKILLS
 	_populate_list(Tab.SKILLS)
+	
+func update():
+	for ability in player.abilities:
+		ability.tick_down()
+	for action in player.actions:
+		action.tick_down()
+	_populate_list(tab_bar.current_tab)
 
 
 func _on_tab_changed(tab_idx: int) -> void:
@@ -83,6 +90,20 @@ func _highlight_selected():
 func _clear_vbox(vbox: VBoxContainer) -> void:
 	for child in vbox.get_children():
 		child.queue_free()
+		
+func _add_button_disabled(label: String)->void:
+	var b := Button.new()
+	b.text = label
+	b.flat = true
+	b.focus_mode = Control.FOCUS_ALL
+	b.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
+	b.add_theme_stylebox_override("pressed", StyleBoxEmpty.new())
+	b.add_theme_stylebox_override("hover", StyleBoxEmpty.new())
+
+	b.add_theme_font_override("font", custom_font)
+	b.add_theme_color_override("font_color", Color(0.8, 0.8, 0.8))
+	list_vbox.add_child(b)
+	
 
 
 func _add_button(ability) -> void:
