@@ -68,6 +68,42 @@ var existing_skills = {
 			"effects": [["buff", 2, true, "No"]],
 			"cooldown": 0 # jorin pls implement enemy cooldown thanks
 		},
+				#Carnivorous Plant skills
+	"Vine Slash":
+		{
+			"tree": "plant things",
+			"description":"A sharp vine slashes across the room",
+			"effects":[["damage", 2, false, "No"], ["danger_dmg_mult", 2, false, "player_y"]],
+			"cooldown": 0
+		},
+	"Entwine":
+		{
+			"tree": "plant things",
+			"description": "Thick vines shoot from the ground at your legs and entwine your body. You are stunned!",
+			"effects": [["stun", 2, false, "No"]],
+			"cooldown": 0
+		},
+	"Poison Ivy":
+		{
+			"tree":"plant things",
+			"description":"Vines lash out, a thron scratches your skin. You don't feel so well..",
+			"effects":[["poison", 2, false, "No"]],
+			"cooldown":0
+		},
+	"Herbicide":
+		{
+			"tree":"plant things",
+			"description":"The trap gapes and lashes out trying to tear its teeth into your flesh.",
+			"effects":[["Damage", 3, false, "No"], ["Damage", 1, true, "No"]],
+			"cooldown": 0
+		},
+	"Mandrake's Screech":
+		{
+			"tree":"plant things",
+			"desciption":"The ground rumbles as your enemy lets out a deafening screech. Its getting angry..",
+			"effects":[["damage", 1, false, "No"], ["danger_dmg_mult", 2, false, "y=0"]],
+			"cooldown":0
+		},
 	#unarmed player stuff
 	"Punch":
 	{
