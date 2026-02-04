@@ -122,7 +122,7 @@ func _on_merchant_open(entity, data):
 		and not entity.player_left_merchant.is_connected(cb_left)
 	):
 		entity.player_left_merchant.connect(cb_left)
-
+	$Inventory/Inner/InventoryLabel/Label.text = "Merchant"
 
 func _on_node_added(node: Node) -> void:
 	if node == null:
@@ -156,3 +156,4 @@ func _on_merchant_left(_entity = null) -> void:
 	merchant_in_range = false
 	merchantgui.clear()
 	_disable_merchant_ui()
+	$Inventory/Inner/InventoryLabel/Label.text = "Inventory"

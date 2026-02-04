@@ -48,17 +48,23 @@ func _rebuild(data: Dictionary):
 		add_child(slot)
 		slot._refresh()
 
-		var idx := i
+		var idx = i
 		slot.buy_attempt.connect(
 			func(_slot):
 				if current_merchant:
-					var success = current_merchant.buy_item(idx, int(_slot.buy_amount))
-					if not success:
-						push_warning(
-							"Kauf fehlgeschlagen (z.B. zu wenig Coins oder nicht genug Bestand)"
-						)
-		)
+					# Use the exact amount displayed in the slot UI when requesting a purchase
+					var to_request := 0
+					if _slot != null and _slot.has_method("get") and _slot.get("visible_buy_amount") != null:
+						to_request = int(_slot.get("visible_buy_amount"))
+					else:
+						# fallback: compute minimal clamped amount (but clamp to 1 minimum)
+						var desired := int(_slot.buy_amount)
+						var available := int(_slot.item_count)
+						to_request = max(1, min(desired, available))
 
+					var success = current_merchant.buy_item(idx, to_request)
+					if not success:
+						push_warning("Kauf fehlgeschlagen (z.B. zu wenig Coins oder nicht genug Bestand)"))
 
 func clear():
 	for c in get_children():
