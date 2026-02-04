@@ -22,7 +22,6 @@ func _ready() -> void:
 
 
 func show_pickup(item_name: String, amount: int) -> void:
-	# 🔥 Sammeln (damit 5 pickups in 0.2s nicht 5 Zeilen spammen)
 	pending[item_name] = int(pending.get(item_name, 0)) + amount
 
 	if merge_timer.is_stopped():
