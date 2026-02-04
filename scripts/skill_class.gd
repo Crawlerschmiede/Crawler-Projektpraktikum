@@ -54,13 +54,14 @@ func activate_skill(user, target, battle, depth=0):
 func add_effect(type: String, value: float, targets_self: bool, details: String):
 	effects.append(Effect.new(type, value, targets_self, details))
 	
-func is_activateable(battle)->bool:
+func is_activateable(battle=null)->bool:
 	var activateable = true
 	if not turns_until_reuse==0:
 		activateable=false
-	for condition in conditions:
-		if not condition_met(condition, battle):
-			activateable=false
+	if not battle==null:
+		for condition in conditions:
+			if not condition_met(condition, battle):
+				activateable=false
 	return activateable
 	
 func tick_down():

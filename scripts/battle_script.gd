@@ -125,6 +125,8 @@ func enemy_turn():
 	enemy_hp_bar.value = (enemy.hp * 100.0) / enemy.max_hp
 	var happened = []
 	if !over:
+		for ability in enemy.abilities:
+			ability.tick_down()
 		var extra_stuff = enemy.deal_with_status_effects()
 		happened = extra_stuff[1]
 		for happening in happened:

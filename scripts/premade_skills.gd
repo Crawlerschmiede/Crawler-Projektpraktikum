@@ -45,6 +45,7 @@ var existing_skills = {
 		"tree": "void things",
 		"description": "You suddenly feel surrounded by non-existence",
 		"effects": [["death_zone", 1, false, "surrounding"]],
+		"cooldown":3
 	},
 	"Vortex":
 	{
