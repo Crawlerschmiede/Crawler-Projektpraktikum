@@ -216,7 +216,7 @@ func update_visibility():
 	var player_cell = tm.local_to_map(global_position)
 	var radius := 12  # Sichtweite in Tiles
 
-	var visible := {}
+	var visible_cells := {}
 
 	for x in range(-radius, radius + 1):
 		for y in range(-radius, radius + 1):
@@ -226,20 +226,20 @@ func update_visibility():
 				continue
 			if not is_path_blocked(player_cell, cell):
 				fog.erase_cell(cell)
-				visible[_cell_key(cell)] = cell
+				visible_cells[_cell_key(cell)] = cell
 
 	if dynamic_fog:
 		# Re-fog cells that were visible previously but are not visible now
 		for key in _prev_visible.keys():
-			if not visible.has(key):
+			if not visible_cells.has(key):
 				var c: Vector2i = _prev_visible[key]
 				if tm.get_cell_source_id(c) != -1:
 					fog.set_cell(c, 2, Vector2(2, 4), 0)
 
 	# store current visible set for next update
 	_prev_visible.clear()
-	for key in visible.keys():
-		_prev_visible[key] = visible[key]
+	for key in visible_cells.keys():
+		_prev_visible[key] = visible_cells[key]
 
 
 func is_path_blocked(start: Vector2i, end: Vector2i) -> bool:
