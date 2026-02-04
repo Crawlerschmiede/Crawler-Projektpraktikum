@@ -108,10 +108,16 @@ func _set_icon() -> void:
 
 	if tex == null:
 		push_warning("Icon nicht gefunden: " + path)
+		# if we expected an icon node, clear it safely
+		if icon != null:
+			icon.texture = null
 		return
 
 	if tex is Texture2D:
-		icon.texture = tex as Texture2D
+		if icon != null:
+			icon.texture = tex as Texture2D
+		else:
+			push_warning("Icon node is null, cannot set texture for %s" % item_name)
 
 
 func _set_coin_icon_and_qty() -> void:
@@ -129,22 +135,35 @@ func _set_coin_icon_and_qty() -> void:
 			break
 
 	if found != null:
-		icon.texture = found
+		if icon != null:
+			icon.texture = found
+		else:
+			push_warning("Icon node is null, cannot set coin texture")
 	else:
 		# fallback: clear texture and don't spam warnings
-		icon.texture = null
+		if icon != null:
+			icon.texture = null
 
 	# show quantity always for coins
-	qty_label.visible = true
-	qty_label.text = str(item_quantity)
+	if qty_label != null:
+		qty_label.visible = true
+		qty_label.text = str(item_quantity)
+	else:
+		push_warning("qty_label is null, cannot show coin qty")
 
 
 func _update_label(stack_size: int) -> void:
 	if stack_size <= 1:
-		qty_label.visible = false
+		if qty_label != null:
+			qty_label.visible = false
+		else:
+			push_warning("qty_label is null, cannot hide")
 	else:
-		qty_label.visible = true
-		qty_label.text = str(item_quantity)
+		if qty_label != null:
+			qty_label.visible = true
+			qty_label.text = str(item_quantity)
+		else:
+			push_warning("qty_label is null, cannot set text")
 
 
 # ---------------------------
