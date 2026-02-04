@@ -208,6 +208,13 @@ func _generate_merchant_data() -> void:
 		# price
 		var price := rng.randi_range(int(m.get("min_price", 1)), int(m.get("max_price", 1)))
 
+		# sell_price: how much this merchant will pay the player when buying from them.
+		# Use same logic as SellSlot: base on min_price with a random discount up to 40%.
+		var min_price := int(m.get("min_price", 0))
+		var discount := rng.randf_range(0.0, 0.4)
+		var sell_unit := int(floor(float(max(min_price, 0)) * (1.0 - discount)))
+		sell_unit = max(sell_unit, 0)
+
 		(
 			merchant_items
 			. append(
@@ -215,6 +222,7 @@ func _generate_merchant_data() -> void:
 					"name": item_key,
 					"count": count,
 					"price": price,
+					"sell_price": sell_unit,
 					# allow config to specify package size; fallback to sell_batch
 					"buy_amount": int(m.get("buy_amount", sell_batch))
 				}

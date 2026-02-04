@@ -10,6 +10,13 @@ var _last_item_name: String = ""
 var _sell_unit_price: int = 0
 var _rng := RandomNumberGenerator.new()
 var _register_attempts: int = 0
+var _merchant_sell_prices: Dictionary = {}
+
+func set_merchant_sell_prices(prices: Dictionary) -> void:
+	if prices == null:
+		_merchant_sell_prices = {}
+		return
+	_merchant_sell_prices = prices.duplicate(true)
 
 
 func _register_sell_slot() -> void:
@@ -110,17 +117,20 @@ func _process(delta: float) -> void:
 		return
 
 	if name != _last_item_name:
-		# compute unit sell price: between min_price*(1-0.4) .. min_price
-		var min_price := 0
-		if JsonData != null and ("item_data" in JsonData) and JsonData.item_data.has(name):
-			var info = JsonData.item_data[name]
-			if typeof(info) == TYPE_DICTIONARY and ("merchant" in info) and typeof(info["merchant"]) == TYPE_DICTIONARY and ("min_price" in info["merchant"]):
-				min_price = int(info["merchant"]["min_price"])
-
-		var discount := _rng.randf_range(0.0, 0.4)
-		var unit := int(floor(float(max(min_price, 0)) * (1.0 - discount)))
-		# ensure at least zero
-		_sell_unit_price = max(unit, 0)
+		# Prefer merchant-specific fixed sell price if available
+		if _merchant_sell_prices != null and _merchant_sell_prices.has(name):
+			_sell_unit_price = int(_merchant_sell_prices[name])
+		else:
+			# compute unit sell price: between min_price*(1-0.4) .. min_price
+			var min_price := 0
+			if JsonData != null and ("item_data" in JsonData) and JsonData.item_data.has(name):
+				var info = JsonData.item_data[name]
+				if typeof(info) == TYPE_DICTIONARY and ("merchant" in info) and typeof(info["merchant"]) == TYPE_DICTIONARY and ("min_price" in info["merchant"]):
+					min_price = int(info["merchant"]["min_price"]) 
+			var discount := _rng.randf_range(0.0, 0.4)
+			var unit := int(floor(float(max(min_price, 0)) * (1.0 - discount)))
+			# ensure at least zero
+			_sell_unit_price = max(unit, 0)
 
 		var total_price = _sell_unit_price * max(qty, 1)
 		if sell_item_price != null and sell_item_price.has_method("initialize_item"):

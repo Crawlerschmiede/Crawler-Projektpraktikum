@@ -66,6 +66,24 @@ func _rebuild(data: Dictionary):
 					if not success:
 						push_warning("Kauf fehlgeschlagen (z.B. zu wenig Coins oder nicht genug Bestand)"))
 
+	# Wenn vorhanden -> Merchant-spezifische Verkaufspreise an SellSlot(s) weitergeben
+	var sell_prices := {}
+	for item in data.get("items", []):
+		if typeof(item) == TYPE_DICTIONARY and item.has("name"):
+			sell_prices[str(item["name"])] = int(item.get("sell_price", 0))
+
+	var sells := get_tree().get_nodes_in_group("SellSlot")
+	for s in sells:
+		if s == null:
+			continue
+		# prefer method if provided
+		if s.has_method("set_merchant_sell_prices"):
+			s.call("set_merchant_sell_prices", sell_prices)
+		else:
+			# otherwise set a property so SellSlot can read it
+			if s.has_method("set"):
+				s.set("merchant_sell_prices", sell_prices)
+
 func clear():
 	for c in get_children():
 		c.queue_free()
