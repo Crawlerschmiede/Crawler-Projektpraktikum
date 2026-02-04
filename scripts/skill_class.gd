@@ -216,10 +216,14 @@ class Effect:
 				else:
 					ret = target.heal(value)
 			"damage_buff":
+				var dur = null
+				if "duration" in details:
+					var parts = details.split("=")
+					dur = int(parts[1])
 				if targets_self:
-					ret = user.add_alteration("dmg_buff", value, skill_name)
+					ret = user.add_alteration("dmg_buff", value, skill_name, dur)
 				else:
-					ret = target.add_alteration("dmg_buff", value, skill_name)
+					ret = target.add_alteration("dmg_buff", value, skill_name, dur)
 			"prepare":
 				ret = ["The enemy seems to be preparing something big... or maybe it's just tired?", "Hard to tell really"]
 		if depth<3 and not battle.battle_over():

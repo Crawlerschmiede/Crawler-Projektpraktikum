@@ -262,14 +262,19 @@ func activate_passives(user, target, battle):
 		if ability.is_passive:
 			ability.activate_skill(user, target, battle)
 			
-func add_alteration(type, value, source="test"):
-	alterations[source]={type:value}
+func add_alteration(type, value, source="test", duration=null):
+	if duration!=null:
+		alterations[source]={type:value, "duration":duration}
+	else:	
+		alterations[source]={type:value}
 	return []
 	
 func get_alterations():
 	return alterations
 	
 func deactivate_buff(source="test"):
+	if alterations[source].has("duration") and alterations[source].duration>0:
+			alterations[source].duration=int(alterations[source].duration)-1
 	alterations.erase(source)
 
 
