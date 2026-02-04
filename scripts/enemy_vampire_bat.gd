@@ -259,9 +259,10 @@ func check_sight() -> bool:
 		# --- finale Entscheidung ---
 		if in_player_group or is_player_character or (("is_player" in body) and body.is_player):
 			#print("✅✅✅ PLAYER DETECTED! -> setting chase_target =", body.name)
-			saw_player = true
-			chase_target = body
-			break
+			if not body.is_hiding() or self.grid_pos.y <= body.grid_pos.y:
+				saw_player = true
+				chase_target = body
+				break
 
 	return saw_player
 

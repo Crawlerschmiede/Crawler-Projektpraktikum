@@ -1,4 +1,4 @@
-[gd_scene load_steps=44 format=4 uid="uid://vn680b4hvj3x"]
+[gd_scene load_steps=52 format=4 uid="uid://vn680b4hvj3x"]
 
 [ext_resource type="Script" uid="uid://ccci32tj3j1fq" path="res://scripts/battle_script.gd" id="1_p1qf1"]
 [ext_resource type="Texture2D" uid="uid://rhw6r8lf8r0n" path="res://assets/menu/UI_TravelBook_BookCover01a.png" id="1_th188"]
@@ -14,6 +14,7 @@
 [ext_resource type="Texture2D" uid="uid://cen3xmvl56h11" path="res://assets/menu/pixil-frame-0(1).png" id="9_v7i3o"]
 [ext_resource type="Texture2D" uid="uid://ebhbokd4jrcf" path="res://assets/menu/c9a4d2bf1afc262.png" id="10_66ngm"]
 [ext_resource type="Texture2D" uid="uid://b8npjqrcm5ova" path="res://assets/fight_animations/Fight-Animation-2Hit.png" id="10_djc8l"]
+[ext_resource type="Texture2D" uid="uid://dasnbfy8q0ie" path="res://assets/fight_animations/player_2hit.png" id="10_h4dll"]
 [ext_resource type="Texture2D" uid="uid://i7gvsnx5i4bw" path="res://assets/fight_animations/Fight-Animation-3Hit.png" id="10_vceff"]
 [ext_resource type="Texture2D" uid="uid://b2h43jwgxfx6e" path="res://assets/fight_animations/Single-Hit-Flash.png" id="11_h4dll"]
 [ext_resource type="Texture2D" uid="uid://usclqp0io56r" path="res://assets/menu/UI_TravelBook_Line01a.png" id="12_22uqi"]
@@ -238,6 +239,56 @@ texture = ExtResource("9_6ni85")
 sources/0 = SubResource("TileSetAtlasSource_a12nh")
 sources/1 = SubResource("TileSetAtlasSource_vceff")
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_mpb26"]
+atlas = ExtResource("10_h4dll")
+region = Rect2(0, 0, 40, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4u087"]
+atlas = ExtResource("10_h4dll")
+region = Rect2(40, 0, 40, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_fqtyt"]
+atlas = ExtResource("10_h4dll")
+region = Rect2(80, 0, 40, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_8a2ah"]
+atlas = ExtResource("10_h4dll")
+region = Rect2(120, 0, 40, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ikjs2"]
+atlas = ExtResource("10_h4dll")
+region = Rect2(160, 0, 40, 40)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1rdfn"]
+atlas = ExtResource("10_h4dll")
+region = Rect2(200, 0, 40, 40)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_r0ctv"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_mpb26")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_4u087")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_fqtyt")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_8a2ah")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ikjs2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1rdfn")
+}],
+"loop": false,
+"name": &"default",
+"speed": 8.0
+}]
+
 [sub_resource type="AtlasTexture" id="AtlasTexture_saiin"]
 atlas = ExtResource("10_djc8l")
 region = Rect2(0, 0, 80, 80)
@@ -393,6 +444,7 @@ offset_left = 86.0
 offset_top = 81.0
 offset_right = 210.0
 offset_bottom = 157.0
+focus_mode = 0
 script = ExtResource("2_a12nh")
 
 [node name="TextureRect" type="TextureRect" parent="Battle_root/ItemList"]
@@ -452,6 +504,11 @@ tile_set = SubResource("TileSet_lpir7")
 
 [node name="EnemyPosition" type="Marker2D" parent="Battle_root"]
 position = Vector2(37, 30)
+
+[node name="player_attack_anim" type="AnimatedSprite2D" parent="Battle_root/EnemyPosition"]
+sprite_frames = SubResource("SpriteFrames_r0ctv")
+frame = 5
+frame_progress = 1.0
 
 [node name="PlayerPosition" type="Marker2D" parent="Battle_root"]
 position = Vector2(39.333332, 120.66667)

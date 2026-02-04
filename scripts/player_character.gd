@@ -38,7 +38,6 @@ func _ready() -> void:
 	for active_tree in ACTIVE_SKILLTREES:
 		existing_skilltrees.increase_tree_level(active_tree)
 	update_unlocked_skills()
-	setup(tilemap, 10, 1, 0)
 	add_to_group("player")
 
 
@@ -175,6 +174,15 @@ func _check_exit_tile() -> bool:
 
 	# Custom Data "exit" muss im Tileset gesetzt sein (bool)
 	return td.get_custom_data("exit") == true
+
+
+func is_hiding() -> bool:
+	var top_cell_coord = tilemap.map_to_local(grid_pos + Vector2i.DOWN)
+	var cell = top_layer.local_to_map(top_cell_coord)
+	var tile_data = top_layer.get_cell_tile_data(cell)
+	if not tile_data == null and tile_data.get_custom_data("pillar_base") == true:
+		return true
+	return false
 
 
 func update_unlocked_skills():
