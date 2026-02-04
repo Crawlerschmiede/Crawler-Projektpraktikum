@@ -46,6 +46,12 @@ var existing_skills = {
 		"description": "You suddenly feel surrounded by non-existence",
 		"effects": [["death_zone", 1, false, "surrounding"]],
 	},
+	"Vortex":
+	{
+		"tree": "void things",
+		"description": "A churning maelstrom of... something erupts",
+		"effects": [["damage", 1, false, "No"], ["danger_dmg_mult", 3, false, "area||rand||rand||2"]],
+	},
 	#Skeleton Stuff
 	"Feint":
 	{
