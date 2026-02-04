@@ -277,8 +277,10 @@ func get_alterations():
 	return alterations
 	
 func deactivate_buff(source="test"):
-	if alterations[source].has("duration") and alterations[source].duration>0:
-			alterations[source].duration=int(alterations[source].duration)-1
+	print("alterations ",alterations)
+	if alterations.has(source):
+		if alterations[source].has("duration") and alterations[source].duration>0:
+				alterations[source].duration=int(alterations[source].duration)-1
 	alterations.erase(source)
 
 
