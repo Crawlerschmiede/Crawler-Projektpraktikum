@@ -8,9 +8,11 @@ var merchant_in_range: bool = false
 @onready var equipment := $Inventory/Inner/Equiptment
 @onready var equipmentlabel := $Inventory/Inner/EquiptmentLabel
 @onready var player := $".."
-@onready var merchantgui := $Inventory/Inner/MerchantContainer/HBoxContainer2/HBoxContainer/VBoxContainer
+@onready
+var merchantgui := $Inventory/Inner/MerchantContainer/HBoxContainer2/HBoxContainer/VBoxContainer
 @onready var merchantgui_MerchantContainer := $Inventory/Inner/MerchantContainer
 @onready var coin_screen = $Inventory/price
+
 
 func _enable_merchant_ui():
 	merchantgui_MerchantContainer.visible = true
@@ -26,6 +28,7 @@ func _disable_merchant_ui():
 
 	equipment.visible = true
 	equipmentlabel.visible = true
+
 
 func _input(event):
 	if Input.is_action_just_pressed("open_inventory"):
@@ -66,10 +69,11 @@ func _input(event):
 			$Inventory/Inner.visible = true
 			$Inventory/Inner/InventoryLabel/Label.text = "Merchant"
 			return
-		
 
 	# Note: 'open_inventory' handling moved earlier to toggle inventory and
 	# disable merchant UI when appropriate. Removed duplicate handling.
+
+
 func _refresh_hotbar_styles() -> void:
 	# refresht ALLE Slot-Nodes im HotContainer
 	for child in hot_container.get_children():
@@ -97,14 +101,14 @@ func _ready() -> void:
 	if not InputMap.has_action("merchant_open"):
 		InputMap.add_action("merchant_open")
 		var ev_r := InputEventKey.new()
-		ev_r.unicode = 114 # 'r'
+		ev_r.unicode = 114  # 'r'
 		InputMap.action_add_event("merchant_open", ev_r)
 
 	# Ensure 'open_inventory' exists and contains 'e' as a binding (safe to add duplicate)
 	if not InputMap.has_action("open_inventory"):
 		InputMap.add_action("open_inventory")
 	var ev_e := InputEventKey.new()
-	ev_e.unicode = 101 # 'e'
+	ev_e.unicode = 101  # 'e'
 	InputMap.action_add_event("open_inventory", ev_e)
 
 	# Connect existing merchants (if any)
@@ -168,6 +172,7 @@ func _on_merchant_open(entity, data):
 		entity.player_left_merchant.connect(cb_left)
 	$Inventory/Inner/InventoryLabel/Label.text = "Merchant"
 
+
 func _on_node_added(node: Node) -> void:
 	if node == null:
 		return
@@ -189,11 +194,13 @@ func _on_merchant_updated(updated):
 	#print("rebuild Merchant")
 	merchantgui._rebuild(updated)
 
+
 func _set_mouse_filter_recursive(node: Node, filter: int) -> void:
 	if node is Control:
 		(node as Control).mouse_filter = filter
 	for c in node.get_children():
 		_set_mouse_filter_recursive(c, filter)
+
 
 func _on_merchant_left(_entity = null) -> void:
 	current_merchant = null

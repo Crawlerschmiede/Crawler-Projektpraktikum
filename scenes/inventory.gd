@@ -682,7 +682,11 @@ func right_click_put_one_unit(slot: Node) -> void:
 
 		# attempt to add to backend
 		var ok: bool = false
-		if typeof(PlayerInventory) != TYPE_NIL and PlayerInventory != null and PlayerInventory.has_method("add_item_to_empty_slot"):
+		if (
+			typeof(PlayerInventory) != TYPE_NIL
+			and PlayerInventory != null
+			and PlayerInventory.has_method("add_item_to_empty_slot")
+		):
 			ok = PlayerInventory.add_item_to_empty_slot(new_item, slot)
 		if not ok:
 			# cleanup and bail
@@ -719,7 +723,11 @@ func right_click_put_one_unit(slot: Node) -> void:
 		var slot_name := str(sitem.get("item_name"))
 		if slot_name == holding_name:
 			# add to backend
-			if typeof(PlayerInventory) != TYPE_NIL and PlayerInventory != null and PlayerInventory.has_method("add_item_quantity"):
+			if (
+				typeof(PlayerInventory) != TYPE_NIL
+				and PlayerInventory != null
+				and PlayerInventory.has_method("add_item_quantity")
+			):
 				PlayerInventory.add_item_quantity(slot, 1)
 			# update visual
 			if sitem.has_method("add_item_quantity"):
