@@ -20,15 +20,15 @@ func _input(event):
 	if merchant_in_range:
 		equipment.visible = false
 		equipmentlabel.visible = false
-		merchantgui.get_parent().visible = true
+		merchantgui.visible = true
 	else:
 		equipment.visible = true
 		equipmentlabel.visible = true
-		merchantgui.get_parent().visible = false
+		merchantgui.visible = false
 
 	# Hotbar 1..5 -> SlotIndex 13..17
 	for i in range(1, 6):
-		if event.is_action_pressed("hotbar_slot%d" % i):
+		if event.is_action_pressed("hotbar_slot%d" % i) and not $Inventory/Inner.visible:
 			var slot_index := i + 17
 			PlayerInventory.set_selectet_slot(slot_index)
 			#print("Slot:", slot_index, "selected!")

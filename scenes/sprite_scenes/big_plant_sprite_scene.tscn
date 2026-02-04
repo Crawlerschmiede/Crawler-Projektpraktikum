@@ -1,0 +1,43 @@
+[gd_scene load_steps=7 format=3 uid="uid://d07crhqskffkd"]
+
+[ext_resource type="Texture2D" uid="uid://ch7lrsgw4yqw3" path="res://assets/enemies/Carnivorous-Plant-Boss.png" id="1_jgwhm"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_fxkvb"]
+atlas = ExtResource("1_jgwhm")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ru5pa"]
+atlas = ExtResource("1_jgwhm")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_vpg6a"]
+atlas = ExtResource("1_jgwhm")
+region = Rect2(64, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4sc7b"]
+atlas = ExtResource("1_jgwhm")
+region = Rect2(96, 0, 32, 32)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_xtrj1"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_fxkvb")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ru5pa")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_vpg6a")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_4sc7b")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}]
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D"]
+sprite_frames = SubResource("SpriteFrames_xtrj1")
+frame_progress = 0.8454106

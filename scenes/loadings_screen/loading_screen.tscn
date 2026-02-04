@@ -8,7 +8,7 @@
 [ext_resource type="Texture2D" uid="uid://cju6jidnllrp5" path="res://assets/menu/over.png" id="5_gcv3i"]
 [ext_resource type="Texture2D" uid="uid://dts38v105xt8" path="res://assets/menu/progress.png" id="6_amnj2"]
 [ext_resource type="Script" uid="uid://di58yo072pri1" path="res://scripts/tip_label_flicking.gd" id="7_f7y4a"]
-[ext_resource type="FontFile" uid="uid://c558s6nklkoy0" path="res://assets/font/GothicByte.ttf" id="8_f7y4a"]
+[ext_resource type="FontFile" uid="uid://d4fqcjicieold" path="res://assets/font/PixelPurl.ttf" id="8_xmfuw"]
 [ext_resource type="Texture2D" uid="uid://bt7rrpanhbfvs" path="res://assets/menu/Orc-Walk.png" id="10_amnj2"]
 [ext_resource type="Script" uid="uid://b1ojvhdxb2bq3" path="res://scripts/loading_character.gd" id="10_gcv3i"]
 [ext_resource type="Texture2D" uid="uid://cgw6vhpjthe26" path="res://assets/menu/Orc-Idle.png" id="10_v1mdd"]
@@ -190,15 +190,15 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -293.0
+offset_left = -310.0
 offset_top = -130.0
-offset_right = 67.0
+offset_right = 50.0
 offset_bottom = -90.0
 grow_horizontal = 2
 grow_vertical = 2
-scale = Vector2(0.4, 0.4)
+scale = Vector2(0.5, 0.5)
 size_flags_horizontal = 5
-theme_override_fonts/font = ExtResource("8_f7y4a")
+theme_override_fonts/font = ExtResource("8_xmfuw")
 horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 2
