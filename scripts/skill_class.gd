@@ -19,10 +19,6 @@ var last_user = null
 var last_target = null
 var last_battle = null
 
-var last_user = null
-var last_target = null
-var last_battle = null
-
 
 func _init(
 	_name: String,
