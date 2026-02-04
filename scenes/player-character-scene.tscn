@@ -119,6 +119,26 @@ render_target_update_mode = 4
 [node name="MiniCam" type="Camera2D" parent="CanvasLayer/SubViewportContainer/SubViewport"]
 zoom = Vector2(0.2, 0.2)
 
+[node name="CanvasLayer2" type="CanvasLayer" parent="."]
+script = ExtResource("16_odrip")
+
+[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer2"]
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -231.0
+offset_top = -204.0
+offset_bottom = -4.0
+grow_horizontal = 0
+grow_vertical = 0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer2/MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 8
+
 [node name="UserInterface" type="CanvasLayer" parent="."]
 script = ExtResource("5_jmui6")
 
@@ -461,40 +481,40 @@ offset_right = 40.666664
 offset_bottom = 27.333332
 columns = 5
 
-[node name="Slot19" type="Panel" parent="UserInterface/Inventory/Hotbar/HotContainer" groups=["Equipment", "Inventory"]]
-custom_minimum_size = Vector2(20, 20)
+[node name="Slot19" type="Panel" parent="UserInterface/Inventory/Hotbar/HotContainer" groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "boss_room", "item", "merchant_room"]]
+custom_minimum_size = Vector2(17, 17)
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 4
 theme_override_styles/panel = SubResource("StyleBoxTexture_x2d4g")
 script = ExtResource("6_5c7wf")
 
-[node name="Slot20" type="Panel" parent="UserInterface/Inventory/Hotbar/HotContainer" groups=["Equipment", "Inventory"]]
-custom_minimum_size = Vector2(20, 20)
+[node name="Slot20" type="Panel" parent="UserInterface/Inventory/Hotbar/HotContainer" groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "boss_room", "item", "merchant_room"]]
+custom_minimum_size = Vector2(17, 17)
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 4
 theme_override_styles/panel = SubResource("StyleBoxTexture_x2d4g")
 script = ExtResource("6_5c7wf")
 
-[node name="Slot21" type="Panel" parent="UserInterface/Inventory/Hotbar/HotContainer" groups=["Equipment", "Inventory"]]
-custom_minimum_size = Vector2(20, 20)
+[node name="Slot21" type="Panel" parent="UserInterface/Inventory/Hotbar/HotContainer" groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "boss_room", "item", "merchant_room"]]
+custom_minimum_size = Vector2(17, 17)
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 4
 theme_override_styles/panel = SubResource("StyleBoxTexture_x2d4g")
 script = ExtResource("6_5c7wf")
 
-[node name="Slot22" type="Panel" parent="UserInterface/Inventory/Hotbar/HotContainer" groups=["Equipment", "Inventory"]]
-custom_minimum_size = Vector2(20, 20)
+[node name="Slot22" type="Panel" parent="UserInterface/Inventory/Hotbar/HotContainer" groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "boss_room", "item", "merchant_room"]]
+custom_minimum_size = Vector2(17, 17)
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 4
 theme_override_styles/panel = SubResource("StyleBoxTexture_x2d4g")
 script = ExtResource("6_5c7wf")
 
-[node name="Slot23" type="Panel" parent="UserInterface/Inventory/Hotbar/HotContainer" groups=["Equipment", "Inventory"]]
-custom_minimum_size = Vector2(20, 20)
+[node name="Slot23" type="Panel" parent="UserInterface/Inventory/Hotbar/HotContainer" groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "boss_room", "item", "merchant_room"]]
+custom_minimum_size = Vector2(17, 17)
 layout_mode = 2
 size_flags_horizontal = 0
 size_flags_vertical = 4
@@ -502,36 +522,16 @@ theme_override_styles/panel = SubResource("StyleBoxTexture_x2d4g")
 script = ExtResource("6_5c7wf")
 
 [node name="coin_sum" type="Panel" parent="UserInterface/Inventory" groups=["Equipment", "Inventory"]]
-custom_minimum_size = Vector2(20, 20)
+custom_minimum_size = Vector2(12, 12)
 layout_mode = 0
-offset_left = 59.666668
-offset_top = 58.0
-offset_right = 79.66667
-offset_bottom = 78.0
+offset_left = 65.66667
+offset_top = 56.333332
+offset_right = 77.66667
+offset_bottom = 68.33333
 size_flags_horizontal = 0
 size_flags_vertical = 4
 script = ExtResource("6_5c7wf")
 has_background = false
-
-[node name="CanvasLayer2" type="CanvasLayer" parent="."]
-visible = false
-script = ExtResource("16_odrip")
-
-[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer2"]
-anchors_preset = 3
-anchor_left = 1.0
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -100.0
-offset_top = -44.0
-offset_bottom = -4.0
-grow_horizontal = 0
-grow_vertical = 0
-
-[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer2/MarginContainer"]
-custom_minimum_size = Vector2(0, 200)
-layout_mode = 2
 
 [connection signal="area_entered" from="PickupZone" to="PickupZone" method="_on_area_entered"]
 [connection signal="area_exited" from="PickupZone" to="PickupZone" method="_on_area_exited"]
