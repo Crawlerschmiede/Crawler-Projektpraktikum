@@ -364,7 +364,7 @@ theme_override_styles/panel = SubResource("StyleBoxTexture_fxkes")
 script = ExtResource("6_5c7wf")
 empty_tex = ExtResource("10_j4pnj")
 
-[node name="Slot6" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" groups=["Equipment", "Inventory"]]
+[node name="Slot6" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "boss_room", "item", "merchant_room"]]
 custom_minimum_size = Vector2(20, 20)
 layout_mode = 2
 size_flags_horizontal = 0
@@ -373,7 +373,7 @@ theme_override_styles/panel = SubResource("StyleBoxTexture_72a5a")
 script = ExtResource("6_5c7wf")
 empty_tex = ExtResource("10_j4pnj")
 
-[node name="Slot7" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" groups=["Equipment", "Inventory"]]
+[node name="Slot7" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "boss_room", "item", "merchant_room"]]
 custom_minimum_size = Vector2(20, 20)
 layout_mode = 2
 size_flags_horizontal = 0
@@ -382,7 +382,7 @@ theme_override_styles/panel = SubResource("StyleBoxTexture_gdkvl")
 script = ExtResource("6_5c7wf")
 empty_tex = ExtResource("10_j4pnj")
 
-[node name="Slot8" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" groups=["Equipment", "Inventory"]]
+[node name="Slot8" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "boss_room", "item", "merchant_room"]]
 custom_minimum_size = Vector2(20, 20)
 layout_mode = 2
 size_flags_horizontal = 0
@@ -391,7 +391,7 @@ theme_override_styles/panel = SubResource("StyleBoxTexture_3710g")
 script = ExtResource("6_5c7wf")
 empty_tex = ExtResource("10_j4pnj")
 
-[node name="Slot9" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" groups=["Equipment", "Inventory"]]
+[node name="Slot9" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "boss_room", "item", "merchant_room"]]
 custom_minimum_size = Vector2(20, 20)
 layout_mode = 2
 size_flags_horizontal = 0
@@ -400,7 +400,7 @@ theme_override_styles/panel = SubResource("StyleBoxTexture_oag0m")
 script = ExtResource("6_5c7wf")
 empty_tex = ExtResource("10_j4pnj")
 
-[node name="Slot10" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" groups=["Equipment", "Inventory"]]
+[node name="Slot10" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "boss_room", "item", "merchant_room"]]
 custom_minimum_size = Vector2(20, 20)
 layout_mode = 2
 size_flags_horizontal = 0
@@ -409,7 +409,7 @@ theme_override_styles/panel = SubResource("StyleBoxTexture_cjry2")
 script = ExtResource("6_5c7wf")
 empty_tex = ExtResource("10_j4pnj")
 
-[node name="Slot11" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" groups=["Equipment", "Inventory"]]
+[node name="Slot11" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "boss_room", "item", "merchant_room"]]
 custom_minimum_size = Vector2(20, 20)
 layout_mode = 2
 size_flags_horizontal = 0
@@ -418,7 +418,7 @@ theme_override_styles/panel = SubResource("StyleBoxTexture_3r868")
 script = ExtResource("6_5c7wf")
 empty_tex = ExtResource("10_j4pnj")
 
-[node name="Slot12" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" groups=["Equipment", "Inventory"]]
+[node name="Slot12" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "boss_room", "item", "merchant_room"]]
 custom_minimum_size = Vector2(20, 20)
 layout_mode = 2
 size_flags_horizontal = 0
