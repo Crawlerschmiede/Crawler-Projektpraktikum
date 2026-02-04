@@ -10,9 +10,14 @@ extends Resource
 @export var conditions: Array
 var turns_until_reuse: int = 0
 var effects: Array[Effect] = []
+var second_turn_effects: Array[Effect] = []
 var pre_prepared_effects = ["danger_dmg_mult", "safety_dmg_reduc", "death_zone", "heal_zone"]
 # TODO: could do with a more sophisticated sorting system later.
 var high_prio_effects = ["movement"]
+
+var last_user = null
+var last_target = null
+var last_battle = null
 
 
 func _init(_name: String, _tree_path: String, _description: String, _cooldown:int, _is_passive:bool, _conditions:Array):
@@ -35,6 +40,7 @@ func prep_skill(user, target, battle):
 
 
 func activate_skill(user, target, battle, depth=0):
+	print("Activating Skill "+name)
 	turns_until_reuse = cooldown
 	var things_that_happened = []
 	var stuff = null
@@ -48,11 +54,37 @@ func activate_skill(user, target, battle, depth=0):
 			stuff = effect.apply(user, target, battle, name, depth)
 			for thing in stuff:
 				things_that_happened.append(thing)
+	if len(second_turn_effects)!=0:
+		last_user=user
+		last_target=target
+		last_battle=battle
+		battle.next_turn.append(self)
+	return things_that_happened
+
+func activate_followup():
+	print("Activating followup to "+name)
+	var depth = 0
+	var things_that_happened = []
+	things_that_happened.append("The preparations pay off!")
+	var stuff = null
+	for effect in second_turn_effects:
+		if effect.type in high_prio_effects && !effect.type in pre_prepared_effects:
+			stuff = effect.apply(last_user, last_target, last_battle, name, depth)
+			for thing in stuff:
+				things_that_happened.append(thing)
+	for effect in second_turn_effects:
+		if !effect.type in high_prio_effects && !effect.type in pre_prepared_effects:
+			stuff = effect.apply(last_user, last_target, last_battle, name, depth)
+			for thing in stuff:
+				things_that_happened.append(thing)
 	return things_that_happened
 
 
-func add_effect(type: String, value: float, targets_self: bool, details: String):
-	effects.append(Effect.new(type, value, targets_self, details))
+func add_effect(type: String, value: float, targets_self: bool, details: String, first_turn:bool=true):
+	if first_turn:
+		effects.append(Effect.new(type, value, targets_self, details))
+	else:
+		second_turn_effects.append(Effect.new(type, value, targets_self, details))
 	
 func is_activateable(battle=null)->bool:
 	var activateable = true
@@ -188,6 +220,8 @@ class Effect:
 					ret = user.add_alteration("dmg_buff", value, skill_name)
 				else:
 					ret = target.add_alteration("dmg_buff", value, skill_name)
+			"prepare":
+				ret = ["The enemy seems to be preparing something big... or maybe it's just tired?", "Hard to tell really"]
 		if depth<3 and not battle.battle_over():
 			battle.update_passives(depth+1)
 		return ret

@@ -60,6 +60,13 @@ var existing_skills = {
 		"description": "This strike looks easy to dodge... weirdly so",
 		"effects": [["damage", 2, false, "No"], ["safety_dmg_reduc", 0, false, "player_pos"]],
 	},
+	"Eye-Flash-Slash":
+	{
+		"tree": "skeleton things",
+		"description": "I promise the flashing eyes are more than just nonsense!",
+		"effects": [["prepare", 0, true, "No"]],
+		"next_turn_effects":[["damage_buff", 2, true, "duration=2"], ["damage",1 , false, "No"]]
+	},
 	#unarmed player stuff
 	"Punch":
 	{
@@ -67,6 +74,14 @@ var existing_skills = {
 		"description":  "It's a punch... you don't need an explanation",
 		"effects": [["damage", 2, false, "No"]],
 		"cooldown": 2
+	},
+	"Back and Forth":
+	{
+		"tree": "hitting and punching and biting and kicking people",
+		"description":  "It's a punch... you don't need an explanation",
+		"effects": [["movement", 1, true, "D"]],
+		"next_turn_effects":[["movement", 1, true, "U"]],
+		"cooldown": 0
 	},
 	"Right Pivot":
 	{
@@ -164,4 +179,7 @@ func get_skill(skill_name):
 	var new_skill = Skill.new(skill_name, values.tree, values.description, cool, passive, conditions)
 	for effect in values.effects:
 		new_skill.add_effect(effect[0], effect[1], effect[2], effect[3])
+	if values.has("next_turn_effects"):
+		for effect in values.next_turn_effects:
+			new_skill.add_effect(effect[0], effect[1], effect[2], effect[3], false)
 	return new_skill
