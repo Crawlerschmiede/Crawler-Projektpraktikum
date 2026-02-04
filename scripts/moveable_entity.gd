@@ -1,3 +1,4 @@
+# gdlint: disable=max-public-methods
 class_name MoveableEntity
 extends CharacterBody2D
 
@@ -5,8 +6,7 @@ extends CharacterBody2D
 # The size of one tile in pixels
 const TILE_SIZE: int = 16
 const SKILLS := preload("res://scripts/premade_skills.gd")
-const directions = [Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, Vector2i.RIGHT]
-
+const DIRECTIONS = [Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, Vector2i.RIGHT]
 
 # --- Member variables ---
 var is_player: bool = false
@@ -48,7 +48,7 @@ var sprites = {
 
 var grid_pos: Vector2i
 var tilemap: TileMapLayer = null
-var top_layer:TileMapLayer=null
+var top_layer: TileMapLayer = null
 var latest_direction = Vector2i.DOWN
 var is_moving: bool = false
 var rng := RandomNumberGenerator.new()
@@ -83,7 +83,7 @@ var animations = null
 
 
 # --- Setup ---
-func setup(tmap: TileMapLayer, top_map:TileMapLayer, _hp, _str, _def):
+func setup(tmap: TileMapLayer, top_map: TileMapLayer, _hp, _str, _def):
 	tilemap = tmap
 	top_layer = top_map
 	max_hp = _hp
@@ -159,6 +159,7 @@ func can_burrow_through(target_cell, direction):
 			return [true, new_target]
 	return [false]
 
+
 func move_to_tile(direction: Vector2i):
 	if is_moving:
 		return
@@ -217,7 +218,7 @@ func _on_move_finished():
 	check_collisions()
 
 
-func is_cell_walkable(cell: Vector2i, direction:Vector2i=Vector2i.ZERO) -> bool:
+func is_cell_walkable(cell: Vector2i, direction: Vector2i = Vector2i.ZERO) -> bool:
 	# Get the tile data from the TileMapLayer at the given cell
 	var tile_data = tilemap.get_cell_tile_data(cell)
 	if tile_data == null:
@@ -226,28 +227,29 @@ func is_cell_walkable(cell: Vector2i, direction:Vector2i=Vector2i.ZERO) -> bool:
 	# Check for your custom property "non_walkable"
 	if tile_data.get_custom_data("non_walkable") == true:
 		return false
-		
+
 	if is_cell_blocked(cell, direction):
 		return false
 
 	return true
-	
-func is_cell_blocked(cell: Vector2i, direction:Vector2i=Vector2i.ZERO):
+
+
+func is_cell_blocked(cell: Vector2i, direction: Vector2i = Vector2i.ZERO):
 	var top_cell_coord = tilemap.map_to_local(cell)
 	cell = top_layer.local_to_map(top_cell_coord)
 	var tile_data = top_layer.get_cell_tile_data(cell)
 	if tile_data == null:
 		return false
-	if not direction==Vector2i.ZERO:
-		var from = cell + (direction*-1)
+	if not direction == Vector2i.ZERO:
+		var from = cell + (direction * -1)
 		var from_data = top_layer.get_cell_tile_data(from)
 		if direction == Vector2i.UP:
 			if from_data == null:
-					return false
-			if from_data.get_custom_data("pillar_base")==true:
+				return false
+			if from_data.get_custom_data("pillar_base") == true:
 				return true
 		elif direction == Vector2i.DOWN:
-			if tile_data.get_custom_data("pillar_base")==true:
+			if tile_data.get_custom_data("pillar_base") == true:
 				return true
 
 
@@ -256,7 +258,8 @@ func add_skill(skill_name):
 	var skill = existing_skills.get_skill(skill_name)
 	if skill != null:
 		abilities.append(skill)
-		
+
+
 func activate_passives(user, target, battle):
 	for ability in abilities:
 		if ability.is_passive:
@@ -268,7 +271,8 @@ func add_alteration(type, value, source="test", duration=null):
 	else:	
 		alterations[source]={type:value}
 	return []
-	
+
+
 func get_alterations():
 	return alterations
 	

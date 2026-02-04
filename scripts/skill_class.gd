@@ -19,14 +19,25 @@ var last_user = null
 var last_target = null
 var last_battle = null
 
+var last_user = null
+var last_target = null
+var last_battle = null
 
-func _init(_name: String, _tree_path: String, _description: String, _cooldown:int, _is_passive:bool, _conditions:Array):
+
+func _init(
+	_name: String,
+	_tree_path: String,
+	_description: String,
+	_cooldown: int,
+	_is_passive: bool,
+	_conditions: Array
+):
 	name = _name
 	tree_path = _tree_path
 	description = _description
 	cooldown = _cooldown
-	is_passive =_is_passive
-	conditions=_conditions
+	is_passive = _is_passive
+	conditions = _conditions
 
 
 func prep_skill(user, target, battle):
@@ -39,8 +50,7 @@ func prep_skill(user, target, battle):
 	return things_that_happened
 
 
-func activate_skill(user, target, battle, depth=0):
-	print("Activating Skill "+name)
+func activate_skill(user, target, battle, depth = 0):
 	turns_until_reuse = cooldown
 	var things_that_happened = []
 	var stuff = null
@@ -95,25 +105,31 @@ func is_activateable(battle=null)->bool:
 			if not condition_met(condition, battle):
 				activateable=false
 	return activateable
-	
+
+
 func tick_down():
-	if turns_until_reuse>0:
-		turns_until_reuse =turns_until_reuse-1
-		
-func condition_met(condition_name, battle)->bool:
+	if turns_until_reuse > 0:
+		turns_until_reuse = turns_until_reuse - 1
+
+
+func condition_met(condition_name, battle) -> bool:
 	var is_met = true
 	match condition_name:
 		"short_range":
-			is_met = battle.is_player_in_range([0,1]) #TODO the whole [0,1] thing should come from a variable to become... variable
+			# TODO: the whole [0,1] thing should come from a variable to become
+			# variable.
+			is_met = battle.is_player_in_range([0, 1])
 		"medium_range":
-			is_met = battle.is_player_in_range([2,2])
+			is_met = battle.is_player_in_range([2, 2])
 		"long_range":
-			is_met = battle.is_player_in_range([3,4])
-	print("Condition "+condition_name+" is met? "+str(is_met))
+			is_met = battle.is_player_in_range([3, 4])
+	print("Condition " + condition_name + " is met? " + str(is_met))
 	return is_met
-	
+
+
 func deactivate(who):
 	who.deactivate_buff(name)
+
 
 class Effect:
 	var type: String
@@ -131,7 +147,7 @@ class Effect:
 	# gdlint: disable=max-returns
 	func apply(user, target, battle, skill_name, depth = 0):
 		var messages = []
-		var ret=[]
+		var ret = []
 		var active_placement_effects = battle.tile_modifiers.get(battle.player_gridpos, {})
 		print("All mods", battle.tile_modifiers)
 		print("Active mods: ", active_placement_effects)
@@ -155,10 +171,10 @@ class Effect:
 						"dmg_reduc_bad":
 							if user.is_player:
 								active_dmg *= modifier_value
-								
+
 				for alteration in user.alterations:
 					if user.alterations[alteration].has("dmg_buff"):
-						active_dmg*=user.alterations[alteration].dmg_buff
+						active_dmg *= user.alterations[alteration].dmg_buff
 
 				if targets_self:
 					messages = user.take_damage(active_dmg)

@@ -162,6 +162,14 @@ func spawn_traps() -> void:
 	if dungeon_floor == null or world_root == null:
 		return
 
+	var tile_set := dungeon_floor.tile_set
+	if tile_set == null:
+		return
+
+	if not _has_custom_data_layer(tile_set, "trap_spawnable"):
+		push_warning("TileSet has no custom data layer 'trap_spawnable'. Skipping trap spawns.")
+		return
+
 	# alte Lootboxen entfernen
 	for c in world_root.get_children():
 		if c != null and c.name.begins_with("Trap"):
@@ -197,6 +205,16 @@ func spawn_traps() -> void:
 
 func spawn_lootbox() -> void:
 	if dungeon_floor == null or world_root == null:
+		return
+
+	var tile_set := dungeon_floor.tile_set
+	if tile_set == null:
+		return
+
+	if not _has_custom_data_layer(tile_set, "lootbox_spawnable"):
+		push_warning(
+			"TileSet has no custom data layer 'lootbox_spawnable'. Skipping lootbox spawns."
+		)
 		return
 
 	# alte Lootboxen entfernen
@@ -256,6 +274,18 @@ func _disable_lootbox_blocking(loot: Node) -> void:
 	for s in shapes:
 		if s != null:
 			s.set_deferred("disabled", true)
+
+
+func _has_custom_data_layer(tile_set: TileSet, layer_name: String) -> bool:
+	if tile_set == null:
+		return false
+
+	var layer_count := tile_set.get_custom_data_layers_count()
+	for i in range(layer_count):
+		if tile_set.get_custom_data_layer_name(i) == layer_name:
+			return true
+
+	return false
 
 
 func update_color_filter() -> void:
@@ -361,7 +391,7 @@ func on_menu_closed():
 # SPAWNING
 # ---------------------------------------
 func spawn_enemies() -> void:
-	for i in range(5):
+	for i in range(3):
 		spawn_enemy("what", ["hostile", "wallbound"])
 	for i in range(3):
 		spawn_enemy("bat", ["passive", "enemy_flying"])
@@ -397,7 +427,7 @@ func spawn_player() -> void:
 	var e: PlayerCharacter = PLAYER_SCENE.instantiate()
 	e.name = "Player"
 
-	e.setup(dungeon_floor,dungeon_top, 10, 3, 0)
+	e.setup(dungeon_floor, dungeon_top, 10, 3, 0)
 	e.add_to_group("player")
 	world_root.add_child(e)
 	player = e
@@ -407,7 +437,7 @@ func spawn_player() -> void:
 	var start_pos := Vector2i(2, 2)
 
 	# erst tilemap, dann gridpos, dann position
-	player.setup(dungeon_floor,dungeon_top, 10, 3, 0)
+	player.setup(dungeon_floor, dungeon_top, 10, 3, 0)
 	player.grid_pos = start_pos
 	player.global_position = dungeon_floor.to_global(dungeon_floor.map_to_local(start_pos))
 	player.add_to_group("player")
