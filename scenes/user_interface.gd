@@ -27,19 +27,49 @@ func _disable_merchant_ui():
 	equipment.visible = true
 	equipmentlabel.visible = true
 
-
 func _input(event):
-	if event.is_action_pressed("open_inventory"):
-		$Inventory/Inner.visible = !$Inventory/Inner.visible
+	if Input.is_action_just_pressed("open_inventory"):
+		# If merchant UI is currently shown, close it and ensure the
+		# normal inventory remains visible (swap behaviour).
+		if merchantgui_MerchantContainer.visible:
+			# merchant UI open -> swap to normal inventory
+			_disable_merchant_ui()
+			$Inventory/Inner.visible = true
+			$Inventory/Inner/InventoryLabel/Label.text = "Inventory"
+		else:
+			# Normal toggle when no merchant UI is active
+			_disable_merchant_ui()
+			$Inventory/Inner.visible = !$Inventory/Inner.visible
+			if $Inventory/Inner.visible:
+				$Inventory/Inner/InventoryLabel/Label.text = "Inventory"
 
+	# Hotbar keys (1..5)
 	for i in range(1, 6):
-		if event.is_action_pressed("hotbar_slot%d" % i) and not $Inventory/Inner.visible:
+		if Input.is_action_just_pressed("hotbar_slot%d" % i) and not $Inventory/Inner.visible:
 			var slot_index := i + 17
 			PlayerInventory.set_selectet_slot(slot_index)
 			_refresh_hotbar_styles()
 			return
 
+	# Merchant / Inventory quick keys handled by actions
+	if Input.is_action_just_pressed("merchant_open"):
+		# If merchant UI is open, allow closing it regardless of range.
+		if merchantgui_MerchantContainer.visible:
+			_disable_merchant_ui()
+			# close merchant UI and hide the whole inventory (do not switch to normal inventory)
+			$Inventory/Inner/InventoryLabel/Label.text = "Inventory"
+			$Inventory/Inner.visible = false
+			return
+		# Otherwise open merchant UI only when in range
+		if merchant_in_range:
+			_enable_merchant_ui()
+			$Inventory/Inner.visible = true
+			$Inventory/Inner/InventoryLabel/Label.text = "Merchant"
+			return
+		
 
+	# Note: 'open_inventory' handling moved earlier to toggle inventory and
+	# disable merchant UI when appropriate. Removed duplicate handling.
 func _refresh_hotbar_styles() -> void:
 	# refresht ALLE Slot-Nodes im HotContainer
 	for child in hot_container.get_children():
@@ -62,6 +92,20 @@ func _ready() -> void:
 
 	# Initial update
 	_update_coin_screen()
+
+	# Ensure runtime input actions exist: 'merchant_open' (R) and add 'e' to 'open_inventory'
+	if not InputMap.has_action("merchant_open"):
+		InputMap.add_action("merchant_open")
+		var ev_r := InputEventKey.new()
+		ev_r.unicode = 114 # 'r'
+		InputMap.action_add_event("merchant_open", ev_r)
+
+	# Ensure 'open_inventory' exists and contains 'e' as a binding (safe to add duplicate)
+	if not InputMap.has_action("open_inventory"):
+		InputMap.add_action("open_inventory")
+	var ev_e := InputEventKey.new()
+	ev_e.unicode = 101 # 'e'
+	InputMap.action_add_event("open_inventory", ev_e)
 
 	# Connect existing merchants (if any)
 	for m in get_tree().get_nodes_in_group("merchant_entity"):
