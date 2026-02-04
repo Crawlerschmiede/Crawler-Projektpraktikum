@@ -49,7 +49,7 @@ var _closed_door_cache: Dictionary = {}
 var _corridor_cache: Dictionary = {}  # key: String(scene.resource_path) -> bool
 var _rng := RandomNumberGenerator.new()
 var _yield_counter := 0
-
+@export var yield_frame_chunk: int = 100 
 
 func _emit_progress_mapped(start: float, end: float, local_p: float, text: String) -> void:
 	# Map local_p (0..1) into global range [start..end] and emit
@@ -533,8 +533,8 @@ func bake_closed_doors_into_minimap() -> void:
 
 				target_layer.set_cell(cell + offset, source_id, atlas, alt)
 				counter += 1
-				if counter % 500 == 0:
-					await _yield_if_needed(500)
+				if counter % yield_frame_chunk == 0:
+					await _yield_if_needed(yield_frame_chunk)
 
 			inst.queue_free()
 			total += 1
@@ -798,7 +798,7 @@ func generate_with_genome(
 
 		# periodic yield so Godot can render / process input
 		loop_iter += 1
-		if loop_iter % 400 == 0:
+		if loop_iter % yield_frame_chunk == 0:
 			await _yield_if_needed(1)
 
 		if genome.door_fill_chance < 1.0 and _rng.randf() > genome.door_fill_chance:
@@ -843,7 +843,7 @@ func generate_with_genome(
 			if room_scene == null:
 				continue
 			# occasionally yield inside candidate loop
-			if _yield_counter % 200 == 0:
+			if _yield_counter % yield_frame_chunk == 0:
 				await _yield_if_needed(1)
 
 			var new_room := room_scene.instantiate() as Node2D
@@ -1355,7 +1355,7 @@ func copy_layer_into_world(
 	var total := cells.size()
 	# tuning: smaller chunks/emit frequency to keep UI responsive during large copies
 	var emit_every := 100
-	var yield_every := 500
+	var yield_every := yield_frame_chunk
 	for idx in range(total):
 		var cell = cells[idx]
 		var source_id := src.get_cell_source_id(cell)
@@ -1416,8 +1416,8 @@ func add_room_layer_to_minimap(room: Node2D) -> void:
 		var alt := floor_tm.get_cell_alternative_tile(cell)
 		room_layer.set_cell(cell, source_id, atlas, alt)
 		counter += 1
-		if counter % 2000 == 0:
-			await _yield_if_needed(2000)
+		if counter % yield_frame_chunk == 0:
+			await _yield_if_needed(yield_frame_chunk)
 
 
 func clear_children_rooms_only() -> void:

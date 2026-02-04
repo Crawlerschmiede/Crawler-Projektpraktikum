@@ -94,7 +94,7 @@ func chase():
 	for tile in my_tiles:
 		tiles_im_on.append(grid_pos + tile)
 	for tile in my_tiles:
-		for direction in directions:
+		for direction in DIRECTIONS:
 			var target_tile = grid_pos + tile + direction
 			if target_tile not in tiles_im_on:
 				if not is_cell_walkable(target_tile):
@@ -338,7 +338,7 @@ func elongate():
 	var x_offset = 0
 	var y_offset = 0
 	var rotation = 0
-	for direction in directions:
+	for direction in DIRECTIONS:
 		if is_next_to_wall(grid_pos + direction * 2) and not is_next_to_wall(grid_pos + direction):
 			expand = true
 			match direction:
