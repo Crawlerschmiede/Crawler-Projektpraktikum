@@ -4,9 +4,6 @@ extends Panel
 enum SlotType {
 	HOTBAR = 0,
 	INVENTORY = 1,
-	SHIRT = 2,
-	PANTS = 3,
-	SHOES = 4,
 }
 
 const SLOT_TEXTURE: Texture2D = preload("res://assets/menu/UI_TravelBook_Slot01b.png")
