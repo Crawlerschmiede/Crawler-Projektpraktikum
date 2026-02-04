@@ -1,7 +1,14 @@
 extends Node
 
+signal game_settings_changed
+
 const SETTINGS_PATH := "user://settings.json"
 const SCHEMA_VERSION := 1
+
+const DEFAULT_ZOOM_BASE := 1.5
+const DEFAULT_ZOOM_STEP := 0.1
+const DEFAULT_ZOOM_STEPS := 5
+const DEFAULT_ZOOM_LEVEL := 0
 
 # Settings are stored as a nested dictionary:
 # {
@@ -63,6 +70,27 @@ func apply_all() -> void:
 	apply_display()
 	apply_sound()
 	apply_hotkeys()
+	apply_game()
+
+
+func apply_game() -> void:
+	game_settings_changed.emit()
+
+
+func get_zoom_base() -> float:
+	return float(get_value(["game", "zoom_base"], DEFAULT_ZOOM_BASE))
+
+
+func get_zoom_step() -> float:
+	return float(get_value(["game", "zoom_step"], DEFAULT_ZOOM_STEP))
+
+
+func get_zoom_steps() -> int:
+	return int(get_value(["game", "zoom_steps"], DEFAULT_ZOOM_STEPS))
+
+
+func get_zoom_level() -> int:
+	return int(get_value(["game", "zoom_level"], DEFAULT_ZOOM_LEVEL))
 
 
 func apply_display() -> void:
@@ -211,7 +239,10 @@ func _get_defaults() -> Dictionary:
 		},
 		"game":
 		{
-			"placeholder_option": true,
+			"zoom_base": DEFAULT_ZOOM_BASE,
+			"zoom_step": DEFAULT_ZOOM_STEP,
+			"zoom_steps": DEFAULT_ZOOM_STEPS,
+			"zoom_level": DEFAULT_ZOOM_LEVEL,
 		},
 	}
 

@@ -122,7 +122,6 @@ func get_equipment_skills():
 # -------------------------
 func _ready() -> void:
 	#dgb("_ready() gestartet")
-	
 
 	var slots: Array[Node] = _get_slots()
 	#dgb("Slots im GridContainer gefunden: %d" % slots.size())
@@ -133,7 +132,7 @@ func _ready() -> void:
 
 	_setup_slots(slots)
 	_connect_inventory_signal()
-	
+
 	initialize_inventory()
 
 	# Ensure keyboard navigation works for inventory slots (only)
@@ -173,26 +172,26 @@ func _setup_slots(slots: Array[Node]) -> void:
 			# The method expects an enum value in Godot 4, not a bool — skip to avoid type errors.
 
 		# Debug info for this slot
-		
 
 		# Slot properties setzen
 		if _has_property(s, &"slot_index"):
 			s.set("slot_index", i)
-			# keep quick reference to inventory slot nodes by their index for fast lookup
+			# keep quick reference to inventory slot nodes by their index
+			# for fast lookup
 			if s.is_in_group("Inventory"):
 				_inv_slot_nodes_by_index[int(i)] = s
 		else:
 			push_error(
 				(
-					"Slot %d hat keine Property 'slot_index' (in Slot.gd: @export var slot_index:int)"
-					% i
+					"Slot %d hat keine Property 'slot_index'"
+					+ " (in Slot.gd: @export var slot_index:int)" % i
 				)
 			)
 
 		if _has_property(s, &"slot_type"):
 			# Respect designer-configured slot_type when present — do not overwrite.
 			var cur_type := int(s.get("slot_type"))
-			
+
 		else:
 			# Determine slot_type from groups or parent container when property is missing
 			var assigned_type = SlotScript.SlotType.INVENTORY
@@ -203,7 +202,6 @@ func _setup_slots(slots: Array[Node]) -> void:
 
 			# set property on slot so downstream logic sees a proper type
 			s.set("slot_type", assigned_type)
-			
 
 	# Invalidate cached slot list after setup
 	_rebuild_cached_inventory_slots()
@@ -212,38 +210,47 @@ func _setup_slots(slots: Array[Node]) -> void:
 func _connect_inventory_signal() -> void:
 	if PlayerInventory != null and PlayerInventory.has_signal("inventory_changed"):
 		var cb: Callable = Callable(self, "_on_inventory_changed")
-		# connect using Callable (Godot 4 compatible) and avoid double-connections
+		# connect using Callable (Godot 4 compatible)
+		# and avoid double-connections
 		if not PlayerInventory.inventory_changed.is_connected(cb):
 			PlayerInventory.inventory_changed.connect(cb)
 
 
 func _invalidate_cached_inventory_slots() -> void:
 	_cached_inv_slots_valid = false
-	# keep _inv_slot_nodes_by_index entries; if necessary, it can be rebuilt in _rebuild_cached_inventory_slots
+	# keep _inv_slot_nodes_by_index entries; if necessary,
+	# it can be rebuilt in _rebuild_cached_inventory_slots
 	# (we avoid clearing to preserve references)
 
 
 func _rebuild_cached_inventory_slots() -> void:
-	# Build ordered array of inventory slot Nodes from the index->node map. This avoids sorting by properties
+	# Build ordered array of inventory slot Nodes from the index->node map.
+	# This avoids sorting by properties
 	var out: Array = []
 	if _inv_slot_nodes_by_index.size() == 0:
 		# fallback: build map dynamically if not present
 		var all: Array = _get_slots()
 		for s in all:
-			if s is Node and s.is_in_group("Inventory") and is_instance_valid(s) and _has_property(s, &"slot_index"):
+			if (
+				s is Node
+				and s.is_in_group("Inventory")
+				and is_instance_valid(s)
+				and _has_property(s, &"slot_index")
+			):
 				var idx := int(s.get("slot_index"))
 				_inv_slot_nodes_by_index[idx] = s
 
 	var keys: Array = _inv_slot_nodes_by_index.keys()
 	# numeric sort
-	keys.sort_custom(func(a, b):
-		var ai := int(a)
-		var bi := int(b)
-		if ai < bi:
-			return -1
-		elif ai > bi:
-			return 1
-		return 0
+	keys.sort_custom(
+		func(a, b):
+			var ai := int(a)
+			var bi := int(b)
+			if ai < bi:
+				return -1
+			if ai > bi:
+				return 1
+			return 0
 	)
 
 	for k in keys:
@@ -265,7 +272,6 @@ func _on_inventory_changed() -> void:
 # Inventory -> UI Render
 # -------------------------
 func initialize_inventory() -> void:
-	
 	var ui := _get_ui()
 	var holding: Node = null
 	if ui != null and _has_property(ui, &"holding_item"):
@@ -340,8 +346,6 @@ func initialize_inventory() -> void:
 			push_error(
 				"Slot %d hat initialize_item() nicht – Item kann nicht angezeigt werden" % idx
 			)
-
-	
 
 	# Ensure selected slot is visible / styled after rebuild
 	_ensure_inventory_selection()
@@ -765,7 +769,7 @@ func verify_equipment_slots() -> Array:
 	# Collect all slot-like nodes under the equipment container and print a validation summary.
 	var out: Array[Node] = []
 	_collect_slots_recursive(inv_grid, out)
-	
+
 	var results: Array = []
 	for s in out:
 		var info := {}
@@ -788,14 +792,17 @@ func verify_equipment_slots() -> Array:
 		info["has_pick_from_slot"] = s.has_method("pick_from_slot")
 		# item presence (if PlayerInventory has inventory data)
 		var item_present := false
-		if _has_property(s, &"slot_index") and PlayerInventory != null and _has_property(PlayerInventory, &"inventory"):
+		if (
+			_has_property(s, &"slot_index")
+			and PlayerInventory != null
+			and _has_property(PlayerInventory, &"inventory")
+		):
 			var idx := int(s.get("slot_index"))
 			var inv = PlayerInventory.get("inventory")
 			if inv.has(idx) and inv[idx] != null:
 				item_present = true
 		info["item_present"] = item_present
 
-		
 		results.append(info)
 
 	return results
@@ -816,7 +823,7 @@ func _get_inventory_slot_nodes_sorted() -> Array:
 
 func _ensure_inventory_selection() -> void:
 	var inv_slots: Array = _get_inventory_slot_nodes_sorted()
-	
+
 	if inv_slots.size() == 0:
 		return
 
@@ -830,7 +837,7 @@ func _ensure_inventory_selection() -> void:
 	if not found:
 		# choose first inventory slot as default
 		var def_idx := int(inv_slots[0].get("slot_index"))
-		
+
 		if PlayerInventory.has_method("set_selectet_slot"):
 			PlayerInventory.set_selectet_slot(def_idx)
 		else:
@@ -889,23 +896,26 @@ func _move_inventory_selection(delta: int) -> void:
 	# try to give focus to the newly selected control so keyboard nav is visible
 	if new_slot_node is Control:
 		(new_slot_node as Control).grab_focus()
+
+
 func _get_hotbar_slot_nodes_sorted() -> Array:
 	var out: Array[Node] = []
 	_collect_slots_recursive(hotbar_grid, out)
 	# Keep visual order as in scene tree (children order)
-	out.sort_custom(func(a, b):
-		# If both have slot_index, sort by it
-		var ai := -1
-		var bi := -1
-		if a.has_method("get"):
-			ai = int(a.get("slot_index"))
-		if b.has_method("get"):
-			bi = int(b.get("slot_index"))
-		if ai < bi:
-			return -1
-		elif ai > bi:
-			return 1
-		return 0
+	out.sort_custom(
+		func(a, b):
+			# If both have slot_index, sort by it
+			var ai := -1
+			var bi := -1
+			if a.has_method("get"):
+				ai = int(a.get("slot_index"))
+			if b.has_method("get"):
+				bi = int(b.get("slot_index"))
+			if ai < bi:
+				return -1
+			if ai > bi:
+				return 1
+			return 0
 	)
 	return out
 
@@ -976,6 +986,8 @@ func _unhandled_input(event: InputEvent) -> void:
 
 	var key := event as InputEventKey
 
+	var handled := false
+
 	# -------------------
 	# Hotbar swap (1..5)
 	# -------------------
@@ -984,88 +996,80 @@ func _unhandled_input(event: InputEvent) -> void:
 		var hotbar_count := _get_hotbar_slot_nodes_sorted().size()
 		var mapped = clamp(hotbar_count - num + 1, 1, hotbar_count)
 		_swap_inventory_with_hotbar(mapped)
-		accept_event()
-		return
-
-	# -------------------
-	# Inventory navigation
-	# -------------------
-	var cols: int = inv_grid.columns if inv_grid != null else 0
-
-	if key.is_action_pressed("ui_left"):
+		handled = true
+	elif key.is_action_pressed("ui_left"):
+		# -------------------
+		# Inventory navigation
+		# -------------------
 		_move_inventory_selection(1)
-		accept_event()
-		return
-
-	if key.is_action_pressed("ui_right"):
+		handled = true
+	elif key.is_action_pressed("ui_right"):
 		_move_inventory_selection(-1)
-		accept_event()
-		return
-
-	if key.is_action_pressed("ui_up"):
+		handled = true
+	elif key.is_action_pressed("ui_up"):
+		var cols: int = inv_grid.columns if inv_grid != null else 0
 		_move_inventory_selection(cols if cols > 0 else 1)
-		accept_event()
-		return
-
-	if key.is_action_pressed("ui_down"):
+		handled = true
+	elif key.is_action_pressed("ui_down"):
+		var cols: int = inv_grid.columns if inv_grid != null else 0
 		_move_inventory_selection(-cols if cols > 0 else -1)
-		accept_event()
-		return
+		handled = true
+	elif key.is_action_pressed("ui_accept"):
+		# -------------------
+		# Equip with Enter
+		# -------------------
+		var can_equip := true
+		var cl2 := $"../../CanvasLayer2"
+		if cl2 != null and cl2.visible:
+			can_equip = false
 
-	# -------------------
-	# Equip with Enter
-	# -------------------
-	if not key.is_action_pressed("ui_accept"):
-		return
+		var sel_idx := int(PlayerInventory.get_selected_slot())
+		if sel_idx < 0:
+			can_equip = false
 
-	var cl2 := $"../../CanvasLayer2"
-	if cl2 != null and cl2.visible:
-		return
+		var inv: Dictionary = PlayerInventory.inventory
+		var data = inv.get(sel_idx)
+		if data == null:
+			can_equip = false
 
-	var sel_idx := int(PlayerInventory.get_selected_slot())
-	if sel_idx < 0:
-		return
+		var item_name: String = ""
+		if can_equip:
+			item_name = data[0]
 
-	var inv: Dictionary = PlayerInventory.inventory
-	var data = inv.get(sel_idx)
+		var item_group = (
+			PlayerInventory._get_item_group(item_name)
+			if PlayerInventory.has_method("_get_item_group")
+			else null
+		)
+		if item_group == null:
+			can_equip = false
 
-	if data == null:
-		return
+		if can_equip:
+			var chosen_idx := -1
+			for s in _get_slots():
+				if not _has_property(s, &"slot_index"):
+					continue
 
-	var item_name: String = data[0]
+				var tidx := int(s.get("slot_index"))
 
-	var item_group = (
-		PlayerInventory._get_item_group(item_name)
-		if PlayerInventory.has_method("_get_item_group")
-		else null
-	)
+				# equipment range only
+				if tidx < 0 or tidx > 6:
+					continue
 
-	if item_group == null:
-		return
+				# group match only
+				if not s.is_in_group(item_group):
+					continue
 
-	var chosen_idx := -1
+				if not inv.has(tidx):
+					chosen_idx = tidx
+					break
 
-	for s in _get_slots():
-		if not _has_property(s, &"slot_index"):
-			continue
+				if chosen_idx == -1:
+					chosen_idx = tidx
 
-		var tidx := int(s.get("slot_index"))
+			if chosen_idx >= 0:
+				_swap_slots_by_index(sel_idx, chosen_idx)
+				handled = true
 
-		# equipment range only
-		if tidx < 0 or tidx > 6:
-			continue
-
-		# group match only
-		if not s.is_in_group(item_group):
-			continue
-
-		if not inv.has(tidx):
-			chosen_idx = tidx
-			break
-
-		if chosen_idx == -1:
-			chosen_idx = tidx
-
-	if chosen_idx >= 0:
-		_swap_slots_by_index(sel_idx, chosen_idx)
+	if handled:
 		accept_event()

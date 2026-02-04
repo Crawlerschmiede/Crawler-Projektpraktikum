@@ -13,20 +13,19 @@ var player_turn: bool = true
 var battle_scene: CanvasLayer = null
 var custom_font = load("res://assets/font/PixelPurl.ttf")
 var selected_index := 0
+var hit_anim_player: AnimatedSprite2D
 
 @onready var tab_bar: TabBar = $TabBar
 @onready var list_vbox: VBoxContainer = $ScrollContainer/VBoxContainer
 
 
-func setup(_player: Node, _enemy: Node, _battle_scene, _tooltip_container):
+func setup(_player: Node, _enemy: Node, _battle_scene, _tooltip_container, anim_player):
 	player = _player
 	enemy = _enemy
 	battle_scene = _battle_scene
 	tooltip_container = _tooltip_container
+	hit_anim_player = anim_player
 	tab_bar.tab_changed.connect(_on_tab_changed)
-
-	print("[skill_list] setup called; player=", player, " enemy=", enemy)
-
 	# Ensure this Control receives input events (including when focus is elsewhere)
 	set_process_input(true)
 	set_process_unhandled_input(true)
@@ -38,7 +37,8 @@ func setup(_player: Node, _enemy: Node, _battle_scene, _tooltip_container):
 	# 0 Skills, 1 Items, 2 Actions
 	tab_bar.current_tab = Tab.SKILLS
 	_populate_list(Tab.SKILLS)
-	
+
+
 func update():
 	for ability in player.abilities:
 		ability.tick_down()
@@ -53,18 +53,18 @@ func _on_tab_changed(tab_idx: int) -> void:
 
 func _populate_list(tab_idx: int) -> void:
 	_clear_vbox(list_vbox)
-
-	print("[skill_list] _populate_list -> tab_idx=", tab_idx)
-
 	match tab_idx:
 		Tab.SKILLS:
 			for ability in player.abilities:
-				if ability.is_activateable():
-					_add_button(ability)
-				else:
-					var butt_label = ability.name
-					butt_label = butt_label+" (Cooldown: "+str(ability.turns_until_reuse)+")"
-					_add_button_disabled(butt_label)
+				if not ability.is_passive:
+					if ability.is_activateable(battle_scene):
+						_add_button(ability)
+					else:
+						var butt_label = ability.name
+						butt_label = (
+							butt_label + " (Cooldown: " + str(ability.turns_until_reuse) + ")"
+						)
+						_add_button_disabled(butt_label)
 		Tab.ACTIONS:
 			for ability in player.actions:
 				_add_button(ability)
@@ -95,8 +95,9 @@ func _highlight_selected():
 func _clear_vbox(vbox: VBoxContainer) -> void:
 	for child in vbox.get_children():
 		child.queue_free()
-		
-func _add_button_disabled(label: String)->void:
+
+
+func _add_button_disabled(label: String) -> void:
 	var b := Button.new()
 	b.text = label
 	b.flat = true
@@ -108,14 +109,11 @@ func _add_button_disabled(label: String)->void:
 	b.add_theme_font_override("font", custom_font)
 	b.add_theme_color_override("font_color", Color(0.8, 0.8, 0.8))
 	list_vbox.add_child(b)
-	
 
 
 func _add_button(ability) -> void:
 	var b := Button.new()
 	b.text = ability.name
-
-	print("[skill_list] _add_button -> ", ability.name)
 
 	b.flat = true
 	b.focus_mode = Control.FOCUS_CLICK
@@ -127,11 +125,15 @@ func _add_button(ability) -> void:
 	b.add_theme_color_override("font_color", Color(0.8, 0.8, 0.8))
 
 	# Mouse hover = selected -> pass name + description as binds (use Callable.bind)
-	b.mouse_entered.connect(Callable(self, "_on_mouse_entered").bind(ability.name, ability.description))
+	b.mouse_entered.connect(
+		Callable(self, "_on_mouse_entered").bind(ability.name, ability.description)
+	)
 	b.mouse_exited.connect(Callable(self, "remove_tooltip"))
 
 	# Keyboard focus = selected (SAME DESIGN)
-	b.focus_entered.connect(Callable(self, "_on_mouse_entered").bind(ability.name, ability.description))
+	b.focus_entered.connect(
+		Callable(self, "_on_mouse_entered").bind(ability.name, ability.description)
+	)
 	b.focus_exited.connect(Callable(self, "remove_tooltip"))
 
 	# Auto scroll to focused button (pass button as bind)
@@ -157,15 +159,19 @@ func _scroll_to_button(btn: Button) -> void:
 	var btn_list = $ScrollContainer/VBoxContainer.get_global_rect()
 
 	if btn_rect.position.y < $ScrollContainer/VBoxContainer.position.y:
-		$ScrollContainer/VBoxContainer.scroll_vertical -= $ScrollContainer/VBoxContainer.position.y - btn_rect.position.y + 8
-
+		$ScrollContainer/VBoxContainer.scroll_vertical -= (
+			$ScrollContainer/VBoxContainer.position.y - btn_rect.position.y + 8
+		)
 
 
 func _on_skill_pressed(ability) -> void:
 	if player_turn:
-		print("[skill_list] _on_skill_pressed -> ", ability.name)
+		#if hit_anim_player !=null:
+		#	hit_anim_player.visible=true
+		#	hit_anim_player.play("default")
+		#	await hit_anim_player.animation_finished
+		#	hit_anim_player.visible=false
 		var stuff = ability.activate_skill(player, enemy, battle_scene)
-		print("did the function thing!")
 		for thing in stuff:
 			battle_scene.log_container.add_log_event(thing)
 		player_turn = false
@@ -177,11 +183,9 @@ func _on_mouse_entered(skill_name, skill_description):
 		tooltip_container.state = "tooltip"
 		tooltip_container.changed = true
 		tooltip_container.tooltips = [skill_name.to_upper(), skill_description]
-		print("Test")
 
 
 func _process(_delta):
-
 	if Input.is_action_just_pressed("ui_down"):
 		selected_index += 1
 		if selected_index >= list_vbox.get_child_count():
@@ -213,7 +217,6 @@ func remove_tooltip():
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo:
-
 		# TAB komplett blockieren
 		if event.keycode == KEY_TAB:
 			accept_event()
@@ -243,9 +246,7 @@ func _input(event: InputEvent) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-
 	if event is InputEventKey and event.pressed and not event.echo:
-
 		# TAB blockieren
 		if event.keycode == KEY_TAB:
 			accept_event()
@@ -274,7 +275,6 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _select_next_tab() -> void:
 	var next_idx := (tab_bar.current_tab + 1) % tab_bar.get_tab_count()
-	print("[skill_list] _select_next_tab -> next_idx=", next_idx)
 	tab_bar.current_tab = next_idx
 	_populate_list(next_idx)
 
@@ -282,7 +282,6 @@ func _select_next_tab() -> void:
 func _select_prev_tab() -> void:
 	var count := tab_bar.get_tab_count()
 	var prev_idx := (tab_bar.current_tab - 1) % count
-	print("[skill_list] _select_prev_tab -> prev_idx=", prev_idx)
 	if prev_idx < 0:
 		prev_idx += count
 	tab_bar.current_tab = prev_idx
@@ -327,7 +326,6 @@ func _move_focus_delta(delta: int) -> void:
 	if new_idx >= children.size():
 		new_idx = children.size() - 1
 
-	print("[skill_list] _move_focus_delta -> idx=", idx, " new_idx=", new_idx, " children=", children.size())
 	children[new_idx].grab_focus()
 
 #var hover_tweens: Dictionary = {}
