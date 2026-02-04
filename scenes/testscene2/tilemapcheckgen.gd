@@ -397,7 +397,7 @@ func spawn_player() -> void:
 	var e: PlayerCharacter = PLAYER_SCENE.instantiate()
 	e.name = "Player"
 
-	e.setup(dungeon_floor,dungeon_top, 10, 3, 0)
+	e.setup(dungeon_floor, dungeon_top, 10, 3, 0)
 	e.add_to_group("player")
 	world_root.add_child(e)
 	player = e
@@ -407,7 +407,7 @@ func spawn_player() -> void:
 	var start_pos := Vector2i(2, 2)
 
 	# erst tilemap, dann gridpos, dann position
-	player.setup(dungeon_floor,dungeon_top, 10, 3, 0)
+	player.setup(dungeon_floor, dungeon_top, 10, 3, 0)
 	player.grid_pos = start_pos
 	player.global_position = dungeon_floor.to_global(dungeon_floor.map_to_local(start_pos))
 	player.add_to_group("player")

@@ -42,10 +42,10 @@ func _ready() -> void:
 		empty_style.texture = empty_tex
 		selected_style.texture = selected_tex
 		trash_style.texture = hover_tex
-		
+
 	self.mouse_entered.connect(_on_mouse_entered)
 	self.mouse_exited.connect(_on_mouse_exited)
-	
+
 	refresh_style()
 
 
@@ -81,13 +81,14 @@ func _fit_item_to_slot(it: Node) -> void:
 
 
 func _on_mouse_entered() -> void:
-	
 	if self.name == "Slot12":
 		set("theme_override_styles/panel", trash_style)
+
 
 func _on_mouse_exited() -> void:
 	# Return to normal when mouse leaves
 	refresh_style()
+
 
 func refresh_style() -> void:
 	#print(PlayerInventory.get_selected_slot())

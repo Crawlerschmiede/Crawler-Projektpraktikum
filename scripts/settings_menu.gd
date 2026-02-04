@@ -10,6 +10,7 @@ const PATH_RESOLUTION := NodePath("PanelContainer/VBoxContainer/TabContainer/Dis
 const PATH_VSYNC := NodePath("PanelContainer/VBoxContainer/TabContainer/Display/VSync")
 const PATH_MASTER_VOLUME := NodePath("PanelContainer/VBoxContainer/TabContainer/Sound/MasterVolume")
 const PATH_MUTE := NodePath("PanelContainer/VBoxContainer/TabContainer/Sound/Mute")
+const PATH_ZOOM_LEVEL := NodePath("PanelContainer/VBoxContainer/TabContainer/Game/ZoomLevel")
 const PATH_HOTKEY_LIST := NodePath(
 	"PanelContainer/VBoxContainer/TabContainer/Hotkeys/Scroll/ActionsList"
 )
@@ -31,6 +32,9 @@ var _resolution_items: Array[Vector2i] = []
 # Sound tab
 @onready var master_volume: HSlider = get_node(PATH_MASTER_VOLUME)
 @onready var mute: CheckBox = get_node(PATH_MUTE)
+
+# Game tab
+@onready var zoom_level: HSlider = get_node(PATH_ZOOM_LEVEL)
 
 # Hotkeys tab
 @onready var hotkey_list: VBoxContainer = get_node(PATH_HOTKEY_LIST)
@@ -59,6 +63,7 @@ func _ready() -> void:
 	vsync.toggled.connect(_on_vsync_toggled)
 	master_volume.value_changed.connect(_on_master_volume_changed)
 	mute.toggled.connect(_on_mute_toggled)
+	zoom_level.value_changed.connect(_on_zoom_level_changed)
 
 
 func _ensure_window_mode_items() -> void:
@@ -123,6 +128,14 @@ func _refresh_from_settings() -> void:
 	# Sound
 	master_volume.value = float(mgr.get_value(["sound", "master_volume"], 100.0))
 	mute.button_pressed = bool(mgr.get_value(["sound", "mute"], false))
+
+	# Game
+	var zoom_steps: int = mgr.get_zoom_steps()
+	zoom_steps = max(zoom_steps, 0)
+	zoom_level.min_value = float(-zoom_steps)
+	zoom_level.max_value = float(zoom_steps)
+	zoom_level.step = 1
+	zoom_level.value = float(clampi(mgr.get_zoom_level(), -zoom_steps, zoom_steps))
 
 
 func _build_hotkey_rows() -> void:
@@ -334,6 +347,20 @@ func _on_mute_toggled(enabled: bool) -> void:
 		return
 	mgr.set_value(["sound", "mute"], enabled)
 	mgr.apply_sound()
+	mgr.save_settings()
+
+
+func _on_zoom_level_changed(value: float) -> void:
+	var mgr = _get_manager()
+	if mgr == null:
+		return
+	var zoom_steps: int = mgr.get_zoom_steps()
+	zoom_steps = max(zoom_steps, 0)
+	var step_value := clampi(int(round(value)), -zoom_steps, zoom_steps)
+	if int(zoom_level.value) != step_value:
+		zoom_level.value = step_value
+	mgr.set_value(["game", "zoom_level"], step_value)
+	mgr.apply_game()
 	mgr.save_settings()
 
 
