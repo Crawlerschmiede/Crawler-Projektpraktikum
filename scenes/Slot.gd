@@ -65,9 +65,9 @@ func _fit_item_to_slot(it: Node) -> void:
 	c.offset_right = 0
 	c.offset_bottom = 0
 
-	# Sicherheit: gleiche Größe
-	c.size = size
-	c.position = Vector2.ZERO
+	# Nach _ready() setzen, um Anchor-Override zu vermeiden
+	c.set_deferred("size", size)
+	c.set_deferred("position", Vector2.ZERO)
 
 	for g in get_groups():
 		var regex := RegEx.new()
