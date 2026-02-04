@@ -15,18 +15,20 @@ var actions = []
 var existing_skilltrees = SKILLTREES.new()
 var minimap
 
+var fog_layer: TileMapLayer = null
+var dynamic_fog: bool = true
+var fog_tile_id: int = 0
+var _prev_visible := {}  # Dictionary storing previously visible cells as key -> Vector2i
+
 @onready var camera: Camera2D = $Camera2D
 @onready var minimap_viewport: SubViewport = $CanvasLayer/SubViewportContainer/SubViewport
 @onready var pickup_ui = $CanvasLayer2
 @onready var inventory = $UserInterface/Inventory
 
-var fog_layer: TileMapLayer = null
-var dynamic_fog: bool = true
-var fog_tile_id: int = 0
-var _prev_visible := {} # Dictionary storing previously visible cells as key -> Vector2i
 
 func _cell_key(cell: Vector2i) -> String:
 	return "%d,%d" % [cell.x, cell.y]
+
 
 func _ready() -> void:
 	if camera == null:
@@ -45,7 +47,6 @@ func _ready() -> void:
 	for active_tree in ACTIVE_SKILLTREES:
 		existing_skilltrees.increase_tree_level(active_tree)
 	update_unlocked_skills()
-	setup(tilemap, 10, 1, 0)
 	add_to_group("player")
 
 
@@ -90,7 +91,8 @@ func _physics_process(delta: float):
 # Function to get the current input direction vector
 func get_held_direction() -> Vector2i:
 	var direction = Vector2i.ZERO
-
+	if $UserInterface/Inventory/Inner.visible:
+		return direction
 	if Input.is_action_pressed("ui_right"):
 		direction = Vector2i.RIGHT
 	elif Input.is_action_pressed("ui_left"):
@@ -185,6 +187,15 @@ func _check_exit_tile() -> bool:
 	return td.get_custom_data("exit") == true
 
 
+func is_hiding() -> bool:
+	var top_cell_coord = tilemap.map_to_local(grid_pos + Vector2i.DOWN)
+	var cell = top_layer.local_to_map(top_cell_coord)
+	var tile_data = top_layer.get_cell_tile_data(cell)
+	if not tile_data == null and tile_data.get_custom_data("pillar_base") == true:
+		return true
+	return false
+
+
 func update_unlocked_skills():
 	print("update_skills")
 	abilities = []
@@ -195,6 +206,7 @@ func update_unlocked_skills():
 	for ability in gotten_skills:
 		add_skill(ability)
 
+
 func update_visibility():
 	if tilemap == null or fog_layer == null:
 		return
@@ -202,7 +214,7 @@ func update_visibility():
 	var tm := tilemap
 	var fog := fog_layer
 	var player_cell = tm.local_to_map(global_position)
-	var radius := 12 # Sichtweite in Tiles
+	var radius := 12  # Sichtweite in Tiles
 
 	var visible := {}
 

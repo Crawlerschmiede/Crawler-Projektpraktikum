@@ -8,8 +8,8 @@ const TRAP := preload("res://scenes/traps/Trap.tscn")
 const MERCHANT := preload("res://scenes/entity/merchant.tscn")
 const LOADING_SCENE := preload("res://scenes/loadings_screen/loading_screen.tscn")
 @export var menu_scene := preload("res://scenes/popup-menu.tscn")
-@export var fog_tile_id: int = 0 # set this in the inspector to the fog-tile id in your tileset
-@export var fog_dynamic: bool = true # if true, areas that are no longer visible get fogged again
+@export var fog_tile_id: int = 0  # set this in the inspector to the fog-tile id in your tileset
+@export var fog_dynamic: bool = true  # if true, areas that are no longer visible get fogged again
 
 # --- World state ---
 var world_index: int = 0
@@ -38,6 +38,7 @@ var switching_world := false
 @onready var colorfilter: ColorRect = $ColorFilter
 
 @onready var fog_war_layer := $FogWar
+
 
 func _ready() -> void:
 	generators = [generator1, generator2, generator3]
@@ -398,9 +399,9 @@ func spawn_enemies() -> void:
 		spawn_enemy("what", ["hostile", "wallbound"])
 	for i in range(3):
 		spawn_enemy("bat", ["passive", "enemy_flying"])
-	for i in range(3):
+	for i in range(10):
 		spawn_enemy("skeleton", ["hostile", "enemy_walking"])
-	for i in range(3):
+	for i in range(5):
 		spawn_enemy("base_zombie", ["hostile", "enemy_walking", "burrowing"])
 	for i in range(3):
 		spawn_enemy("ghost", ["hostile", "enemy_flying", "burrowing"])
@@ -415,7 +416,7 @@ func spawn_enemy(sprite_type: String, behaviour: Array) -> void:
 	e.sprite_type = sprite_type
 
 	# setup with Floor Tilemap
-	e.setup(dungeon_floor, 3, 1, 0)
+	e.setup(dungeon_floor, dungeon_top, 3, 1, 0)
 
 	# Enemies always in WorldRoot
 	if world_root != null:
@@ -433,7 +434,7 @@ func spawn_player() -> void:
 	var e: PlayerCharacter = PLAYER_SCENE.instantiate()
 	e.name = "Player"
 	# Floor setzen (einmal!)
-	e.setup(dungeon_floor, 10, 3, 0)
+	e.setup(dungeon_floor, dungeon_top, 10, 3, 0)
 	e.fog_layer = fog_war_layer
 	# pass dynamic flag and fog tile id to player for re-fogging
 	if e.has_method("set"):
@@ -448,6 +449,9 @@ func spawn_player() -> void:
 
 	# Spawn Position
 	var start_pos := Vector2i(2, 2)
+
+	# erst tilemap, dann gridpos, dann position
+	player.setup(dungeon_floor, dungeon_top, 10, 3, 0)
 	player.grid_pos = start_pos
 	player.global_position = dungeon_floor.to_global(dungeon_floor.map_to_local(start_pos))
 	player.add_to_group("player")
@@ -466,7 +470,6 @@ func spawn_player() -> void:
 	# WICHTIG: einmal initial Fog aufdecken
 	if player.has_method("update_visibility"):
 		player.update_visibility()
-
 
 
 func _on_player_moved() -> void:
@@ -490,10 +493,10 @@ func _on_player_moved() -> void:
 		var local_cell := world_cell - origin
 
 		if room_layer.get_cell_source_id(local_cell) != -1:
-				room_layer.visible = true
-				# Reveal entire room in FogWar
-				reveal_room_layer(room_layer)
-				return
+			room_layer.visible = true
+			# Reveal entire room in FogWar
+			reveal_room_layer(room_layer)
+			return
 
 
 func reveal_room_layer(room_layer: TileMapLayer) -> void:
@@ -571,6 +574,7 @@ func find_merchants() -> Array[Vector2]:
 
 
 func enemy_defeated(enemy):
+	print("The battle is won")
 	if battle != null and is_instance_valid(battle):
 		battle.queue_free()
 		battle = null

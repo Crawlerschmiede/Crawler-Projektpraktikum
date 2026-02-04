@@ -12,22 +12,39 @@ var enemy: Node
 var player_turn: bool = true
 var battle_scene: CanvasLayer = null
 var custom_font = load("res://assets/font/PixelPurl.ttf")
+var selected_index := 0
+var hit_anim_player: AnimatedSprite2D
 
 @onready var tab_bar: TabBar = $TabBar
 @onready var list_vbox: VBoxContainer = $ScrollContainer/VBoxContainer
 
 
-func setup(_player: Node, _enemy: Node, _battle_scene, _tooltip_container):
+func setup(_player: Node, _enemy: Node, _battle_scene, _tooltip_container, anim_player):
 	player = _player
 	enemy = _enemy
 	battle_scene = _battle_scene
 	tooltip_container = _tooltip_container
+	hit_anim_player = anim_player
 	tab_bar.tab_changed.connect(_on_tab_changed)
+	# Ensure this Control receives input events (including when focus is elsewhere)
+	set_process_input(true)
+	set_process_unhandled_input(true)
+
+	# Try to grab focus so this Control sees key events reliably
+	grab_focus()
 
 	# Make sure your tabs exist in this order
 	# 0 Skills, 1 Items, 2 Actions
 	tab_bar.current_tab = Tab.SKILLS
 	_populate_list(Tab.SKILLS)
+
+
+func update():
+	for ability in player.abilities:
+		ability.tick_down()
+	for action in player.actions:
+		action.tick_down()
+	_populate_list(tab_bar.current_tab)
 
 
 func _on_tab_changed(tab_idx: int) -> void:
@@ -36,22 +53,43 @@ func _on_tab_changed(tab_idx: int) -> void:
 
 func _populate_list(tab_idx: int) -> void:
 	_clear_vbox(list_vbox)
-
 	match tab_idx:
 		Tab.SKILLS:
 			for ability in player.abilities:
-				_add_button(
-					ability.name,
-					_on_skill_pressed.bind(ability),
-					_on_mouse_entered.bind(ability.name, ability.description),
-				)
+				if not ability.is_passive:
+					if ability.is_activateable(battle_scene):
+						_add_button(ability)
+					else:
+						var butt_label = ability.name
+						butt_label = (
+							butt_label + " (Cooldown: " + str(ability.turns_until_reuse) + ")"
+						)
+						_add_button_disabled(butt_label)
 		Tab.ACTIONS:
 			for ability in player.actions:
-				_add_button(
-					ability.name,
-					_on_skill_pressed.bind(ability),
-					_on_mouse_entered.bind(ability.name, ability.description),
-				)
+				_add_button(ability)
+	if list_vbox.get_child_count() > 0:
+		# wait one frame to ensure buttons are in scene tree and focusable
+		await get_tree().process_frame
+		var first := list_vbox.get_child(0)
+		if is_instance_valid(first) and first is Control:
+			first.grab_focus()
+	if list_vbox.get_child_count() > 0:
+		selected_index = 0
+		_highlight_selected()
+
+
+func _highlight_selected():
+	for i in range(list_vbox.get_child_count()):
+		var btn = list_vbox.get_child(i)
+		if i == selected_index:
+			btn.add_theme_color_override("font_color", Color(1, 1, 1))
+		else:
+			btn.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6))
+
+	# Auto scroll
+	var current = list_vbox.get_child(selected_index)
+	$ScrollContainer.ensure_control_visible(current)
 
 
 func _clear_vbox(vbox: VBoxContainer) -> void:
@@ -59,30 +97,81 @@ func _clear_vbox(vbox: VBoxContainer) -> void:
 		child.queue_free()
 
 
-func _add_button(label: String, pressed_cb: Callable, mouseover_cb: Callable) -> void:
+func _add_button_disabled(label: String) -> void:
 	var b := Button.new()
-
 	b.text = label
-	# overrides from the basic godot style into custom style
 	b.flat = true
+	b.focus_mode = Control.FOCUS_ALL
 	b.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
+	b.add_theme_stylebox_override("pressed", StyleBoxEmpty.new())
+	b.add_theme_stylebox_override("hover", StyleBoxEmpty.new())
 
-	b.add_theme_color_override("font_color", Color(0.8, 0.8, 0.8))  # Light gray
-
-	# 3. Connect Hover signals for the flicker effect
-	#b.mouse_entered.connect(_on_button_hover_start.bind(b))
-	#b.mouse_exited.connect(_on_button_hover_stop.bind(b))
-
-	b.pressed.connect(pressed_cb)
-	b.mouse_entered.connect(mouseover_cb)
 	b.add_theme_font_override("font", custom_font)
+	b.add_theme_color_override("font_color", Color(0.8, 0.8, 0.8))
 	list_vbox.add_child(b)
+
+
+func _add_button(ability) -> void:
+	var b := Button.new()
+	b.text = ability.name
+
+	b.flat = true
+	b.focus_mode = Control.FOCUS_CLICK
+	b.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
+	b.add_theme_stylebox_override("pressed", StyleBoxEmpty.new())
+	b.add_theme_stylebox_override("hover", StyleBoxEmpty.new())
+
+	b.add_theme_font_override("font", custom_font)
+	b.add_theme_color_override("font_color", Color(0.8, 0.8, 0.8))
+
+	# Mouse hover = selected -> pass name + description as binds (use Callable.bind)
+	b.mouse_entered.connect(
+		Callable(self, "_on_mouse_entered").bind(ability.name, ability.description)
+	)
+	b.mouse_exited.connect(Callable(self, "remove_tooltip"))
+
+	# Keyboard focus = selected (SAME DESIGN)
+	b.focus_entered.connect(
+		Callable(self, "_on_mouse_entered").bind(ability.name, ability.description)
+	)
+	b.focus_exited.connect(Callable(self, "remove_tooltip"))
+
+	# Auto scroll to focused button (pass button as bind)
+	b.focus_entered.connect(Callable(self, "_scroll_to_button").bind(b))
+
+	# Press (pass ability as bind)
+	b.pressed.connect(Callable(self, "_on_skill_pressed").bind(ability))
+
+	list_vbox.add_child(b)
+
+
+func _scroll_to_button(btn: Button) -> void:
+	# Button might already be freed when switching tabs
+	if not is_instance_valid(btn):
+		return
+
+	await get_tree().process_frame
+
+	if not is_instance_valid(btn):
+		return
+
+	var btn_rect = btn.get_global_rect()
+	var btn_list = $ScrollContainer/VBoxContainer.get_global_rect()
+
+	if btn_rect.position.y < $ScrollContainer/VBoxContainer.position.y:
+		$ScrollContainer/VBoxContainer.scroll_vertical -= (
+			$ScrollContainer/VBoxContainer.position.y - btn_rect.position.y + 8
+		)
 
 
 func _on_skill_pressed(ability) -> void:
 	if player_turn:
+		#if hit_anim_player !=null:
+		#	hit_anim_player.visible=true
+		#	hit_anim_player.play("default")
+		#	await hit_anim_player.animation_finished
+		#	hit_anim_player.visible=false
 		var stuff = ability.activate_skill(player, enemy, battle_scene)
-		print("did the function thing!")
 		for thing in stuff:
 			battle_scene.log_container.add_log_event(thing)
 		player_turn = false
@@ -96,15 +185,148 @@ func _on_mouse_entered(skill_name, skill_description):
 		tooltip_container.tooltips = [skill_name.to_upper(), skill_description]
 
 
-func _process(_delta: float) -> void:
-	if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
-		remove_tooltip()
+func _process(_delta):
+	if Input.is_action_just_pressed("ui_down"):
+		selected_index += 1
+		if selected_index >= list_vbox.get_child_count():
+			selected_index = list_vbox.get_child_count() - 1
+		_highlight_selected()
+
+	if Input.is_action_just_pressed("ui_up"):
+		selected_index -= 1
+		if selected_index < 0:
+			selected_index = 0
+		_highlight_selected()
+
+	if Input.is_action_just_pressed("ui_accept"):
+		var btn = list_vbox.get_child(selected_index)
+		btn.emit_signal("pressed")
+
+	if Input.is_action_just_pressed("ui_left"):
+		_select_next_tab()
+
+	if Input.is_action_just_pressed("ui_right"):
+		_select_prev_tab()
 
 
 func remove_tooltip():
 	if tooltip_container != null:
 		tooltip_container.state = "log"
 		tooltip_container.changed = true
+
+
+func _input(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed and not event.echo:
+		# TAB komplett blockieren
+		if event.keycode == KEY_TAB:
+			accept_event()
+			return
+
+		# Navigation
+		if event.is_action_pressed("ui_down"):
+			_move_focus_delta(1)
+			accept_event()
+			return
+
+		if event.is_action_pressed("ui_up"):
+			_move_focus_delta(-1)
+			accept_event()
+			return
+
+		# Optional: Tabs wechseln mit links/rechts
+		if event.is_action_pressed("ui_left"):
+			_select_next_tab()
+			accept_event()
+			return
+
+		if event.is_action_pressed("ui_right"):
+			_select_prev_tab()
+			accept_event()
+			return
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed and not event.echo:
+		# TAB blockieren
+		if event.keycode == KEY_TAB:
+			accept_event()
+			return
+
+		if Input.is_action_pressed("ui_down"):
+			_move_focus_delta(1)
+			accept_event()
+			return
+
+		if Input.is_action_pressed("ui_up"):
+			_move_focus_delta(-1)
+			accept_event()
+			return
+
+		if Input.is_action_pressed("ui_right"):
+			_select_next_tab()
+			accept_event()
+			return
+
+		if Input.is_action_pressed("ui_left"):
+			_select_prev_tab()
+			accept_event()
+			return
+
+
+func _select_next_tab() -> void:
+	var next_idx := (tab_bar.current_tab + 1) % tab_bar.get_tab_count()
+	tab_bar.current_tab = next_idx
+	_populate_list(next_idx)
+
+
+func _select_prev_tab() -> void:
+	var count := tab_bar.get_tab_count()
+	var prev_idx := (tab_bar.current_tab - 1) % count
+	if prev_idx < 0:
+		prev_idx += count
+	tab_bar.current_tab = prev_idx
+	_populate_list(prev_idx)
+
+
+func _move_focus_delta(delta: int) -> void:
+	# Move focus among the buttons in list_vbox by delta (+1 down, -1 up)
+	if list_vbox == null:
+		return
+	var children := []
+	for c in list_vbox.get_children():
+		if c is Control:
+			children.append(c)
+	if children.size() == 0:
+		return
+
+	var focused = null
+	if has_method("get_viewport"):
+		var vp = get_viewport()
+		if vp != null and vp.has_method("get_focus_owner"):
+			focused = vp.get_focus_owner()
+
+	# find index of focused child
+	var idx := -1
+	for i in range(children.size()):
+		if children[i] == focused:
+			idx = i
+			break
+
+	if idx == -1:
+		# no current focus -> pick first/last depending on direction
+		if delta > 0:
+			children[0].grab_focus()
+		else:
+			children[children.size() - 1].grab_focus()
+		return
+
+	var new_idx := idx + delta
+	if new_idx < 0:
+		new_idx = 0
+	if new_idx >= children.size():
+		new_idx = children.size() - 1
+
+	children[new_idx].grab_focus()
 
 #var hover_tweens: Dictionary = {}
 

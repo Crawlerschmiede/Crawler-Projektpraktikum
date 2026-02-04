@@ -45,13 +45,19 @@ func roam():
 		move_to_tile(direction)
 
 
+func is_closer_to_player(
+	current_tile: Vector2i, target_tile: Vector2i, chased_tile: Vector2i
+) -> bool:
+	var curr_distance = abs(current_tile.x - chased_tile.x) + abs(current_tile.y - chased_tile.y)
+	var target_distance = abs(target_tile.x - chased_tile.x) + abs(target_tile.y - chased_tile.y)
+	return target_distance <= curr_distance
+
+
 # gdlint: disable=max-returns
 func chase():
 	if !burrowed:
 		chased_pos = chase_target.grid_pos
 		chased_direction = chase_target.latest_direction
-	var x_move = Vector2i.ZERO
-	var y_move = Vector2i.ZERO
 	var used_animation = animations
 	if !chasing:
 		if "burrowing" in types:
@@ -76,49 +82,38 @@ func chase():
 			return
 
 	chasing = true
-	if chased_pos.x < grid_pos.x:
-		x_move = Vector2i.LEFT
-	if chased_pos.x > grid_pos.x:
-		x_move = Vector2i.RIGHT
-	if chased_pos.y < grid_pos.y:
-		y_move = Vector2i.UP
-	if chased_pos.y > grid_pos.y:
-		y_move = Vector2i.DOWN
-	if "wallbound" in types:
-		if is_next_to_wall(grid_pos + x_move) and x_move != Vector2i.ZERO:
-			move_to_tile(x_move)
-			chase_timer = CHASE_COOLDOWN
-			return
-		if is_next_to_wall(grid_pos + y_move) and y_move != Vector2i.ZERO:
-			move_to_tile(y_move)
-			chase_timer = CHASE_COOLDOWN
-			return
-	elif "burrowing" in types:
-		if tilemap.get_cell_tile_data(grid_pos + x_move) and x_move != Vector2i.ZERO:
-			move_to_tile(x_move)
-			chase_timer = CHASE_COOLDOWN
-			return
-		if tilemap.get_cell_tile_data(grid_pos + y_move) and y_move != Vector2i.ZERO:
-			move_to_tile(y_move)
-			chase_timer = CHASE_COOLDOWN
-			return
-	else:
-		if (
-			tilemap.get_cell_tile_data(grid_pos + x_move)
-			and !tilemap.get_cell_tile_data(grid_pos + x_move).get_custom_data("non_walkable")
-			and x_move != Vector2i.ZERO
-		):
-			move_to_tile(x_move)
-			chase_timer = CHASE_COOLDOWN
-			return
-		if (
-			tilemap.get_cell_tile_data(grid_pos + y_move)
-			and !tilemap.get_cell_tile_data(grid_pos + y_move).get_custom_data("non_walkable")
-			and y_move != Vector2i.ZERO
-		):
-			move_to_tile(y_move)
-			chase_timer = CHASE_COOLDOWN
-			return
+	var tiles_im_on = []
+	var viable_target_tiles = []
+	var viable_directions = []
+	for tile in my_tiles:
+		tiles_im_on.append(grid_pos + tile)
+	for tile in my_tiles:
+		for direction in directions:
+			var target_tile = grid_pos + tile + direction
+			if target_tile not in tiles_im_on:
+				if not is_cell_walkable(target_tile):
+					if "burrowing" in types:
+						var burrowable = can_burrow_through(target_tile, direction)
+						if not burrowable[0]:
+							continue
+					else:
+						continue
+				else:
+					if "wallbound" in types:
+						if not is_next_to_wall(target_tile):
+							continue
+					if is_closer_to_player(grid_pos + tile, target_tile, chased_pos):
+						viable_target_tiles.append(target_tile)
+						viable_directions.append(direction)
+	var chosen_direction = randi_range(0, len(viable_directions) - 1)
+	if len(viable_directions) > 0:
+		if "wallbound" in types:
+			elongate()
+			move_to_tile(viable_directions[chosen_direction])
+			elongate()
+		else:
+			move_to_tile(viable_directions[chosen_direction])
+	return
 
 
 # gdlint: enable=max-returns
@@ -256,9 +251,10 @@ func check_sight() -> bool:
 		# --- finale Entscheidung ---
 		if in_player_group or is_player_character or (("is_player" in body) and body.is_player):
 			#print("✅✅✅ PLAYER DETECTED! -> setting chase_target =", body.name)
-			saw_player = true
-			chase_target = body
-			break
+			if not body.is_hiding() or self.grid_pos.y <= body.grid_pos.y:
+				saw_player = true
+				chase_target = body
+				break
 
 	return saw_player
 
@@ -266,3 +262,119 @@ func check_sight() -> bool:
 func decide_attack() -> void:
 	var chosen_index = rng.randi_range(0, len(abilities) - 1)
 	chosen = abilities[chosen_index]
+	print("Next ability is ", chosen.name)
+
+
+#x and y offset in tiles
+func move_sprite(x_offset, y_offset, rotation):
+	sprite.rotation_degrees = rotation
+	sprite.position.y = y_offset * 16
+	sprite.position.x = x_offset * 16
+
+
+#standard size is 1,1->16px*16px
+#i.e. sizes are to be given in TILES
+#anchor is... uhh... [U], [D], [L], [R], [U,L], [U,R], [D,L], [D,R], [M]!
+#(as in Up, Down, Left, Right, Up-Left...Middle... you get the gist of it)
+func resize(x_size: int, y_size: int, anchors, _animation = null, _new_animation = null):
+	var coll_shape = $CollisionArea/CollisionShape2D
+	var coll_rect = coll_shape.shape.duplicate(true) as RectangleShape2D
+	coll_rect.size.x = x_size * 16
+	coll_rect.size.y = y_size * 16
+	coll_shape.shape = coll_rect
+	for anchor in anchors:
+		match anchor:
+			"U":
+				coll_shape.position.y = y_size * 8
+			"D":
+				coll_shape.position.y = y_size * (-8)
+			"L":
+				coll_shape.position.x = x_size * 8
+			"R":
+				coll_shape.position.x = x_size * (-8)
+			"M":
+				coll_shape.position.x = 0
+				coll_shape.position.y = 0
+	dimensions = Vector2i(x_size, y_size)
+	my_tiles = []
+	my_tiles.append(Vector2i(0, 0))
+	if y_size > 1 and x_size > 1:
+		for i in range(y_size - 1):
+			var y_offset = i + 1
+			if "D" in anchors:
+				y_offset = y_offset * -1
+			for j in range(x_size - 1):
+				var x_offset = j + 1
+				if "R" in anchors:
+					x_offset = x_offset * -1
+				my_tiles.append(Vector2i(x_offset, y_offset))
+	elif x_size > 1:
+		for i in range(x_size - 1):
+			var offset = i + 1
+			if "R" in anchors:
+				offset = offset * -1
+			my_tiles.append(Vector2i(offset, 0))
+	elif y_size > 1:
+		for i in range(y_size - 1):
+			var offset = i + 1
+			if "D" in anchors:
+				offset = offset * -1
+			my_tiles.append(Vector2i(0, offset))
+
+
+func elongate():
+	var expand = false
+	var anchor = "M"
+	var x_size = 1
+	var y_size = 1
+	var x_offset = 0
+	var y_offset = 0
+	var rotation = 0
+	for direction in directions:
+		if is_next_to_wall(grid_pos + direction * 2) and not is_next_to_wall(grid_pos + direction):
+			expand = true
+			match direction:
+				Vector2i.UP:
+					anchor = "D"
+					x_size = 1
+					y_size = 3
+					x_offset = 0
+					y_offset = -1
+					rotation = 270
+				Vector2i.DOWN:
+					anchor = "U"
+					x_size = 1
+					y_size = 3
+					x_offset = 0
+					y_offset = 1
+					rotation = 90
+				Vector2i.LEFT:
+					anchor = "R"
+					x_size = 3
+					y_size = 1
+					x_offset = -1
+					y_offset = 0
+					rotation = 180
+				Vector2i.RIGHT:
+					anchor = "L"
+					x_size = 3
+					y_size = 1
+					x_offset = 1
+					y_offset = 0
+					rotation = 0
+			if not expanded:
+				expanded = true
+				resize(x_size, y_size, [anchor])
+				move_sprite(x_offset, y_offset, rotation)
+				sprite.play("expand")
+				await sprite.animation_finished
+				sprite.play("expanded_idle")
+	if not expand and expanded:
+		sprite.play_backwards("expand")
+		await sprite.animation_finished
+		sprite.play("default")
+		expanded = false
+		resize(1, 1, ["M"])
+		move_sprite(0, 0, 0)
+
+	check_collisions()

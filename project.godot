@@ -8,6 +8,10 @@
 
 config_version=5
 
+[animation]
+
+compatibility/default_parent_skeleton_in_mesh_instance_3d=true
+
 [application]
 
 config/name="Crawler-Projektpraktikum"
@@ -28,9 +32,9 @@ MerchantRegistry="*res://scripts/merchant_registry.gd"
 
 window/size/viewport_width=640
 window/size/viewport_height=480
-window/stretch/mode="viewport"
-window/stretch/aspect="keep_height"
+window/stretch/mode="canvas_items"
 window/stretch/scale_mode="integer"
+window/stretch/aspect="keep_height"
 mouse_cursor/custom_image="uid://4wgcd0cgenrq"
 
 [dotnet]
@@ -50,6 +54,12 @@ item=""
 Inventar=""
 Equipment=""
 vision_objects=""
+Weapon=""
+Herd=""
+Chest=""
+Shoes=""
+Arms=""
+Sword=""
 
 [input]
 
