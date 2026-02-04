@@ -5,15 +5,20 @@ extends Resource
 #write skills here as
 # name : [skilltree, description, effects, cooldown]
 # The effects should be in the format:
-# [[type, value, targets_self, details], [same thing for more effects]...]]
+# [[type, value, targets_self, details],
+#  [same thing for more effects]...]]
 
-# for dmg reduction, 1 means full damage taken and 0 means full immunity with float values in between
+# for dmg reduction, 1 means full damage taken and 0 means full immunity
+# with float values in between
 
-# as for the cooldowns, for now enemies don't care about cooldowns, 
+# as for the cooldowns, for now enemies don't care about cooldowns,
 # so either keep enemy skills at cooldown 0 or make them care
-# for player cooldowns, because of how the ticking down works, please input them 1 higher than you want
-# i.e., a cooldown of 2 means it'll be unusable for 1 turn (it counts the turn it's used in)
-# this is fixable... but just not worth the time, you can all calculate +1 in your head
+# for player cooldowns, because of how the ticking down works,
+# please input them 1 higher than you want
+# i.e., a cooldown of 2 means it'll be unusable for 1 turn
+# (it counts the turn it's used in)
+# this is fixable... but just not worth the time,
+# you can all calculate +1 in your head
 var existing_skills = {
 	#bat stuff
 	"Screech":
@@ -37,7 +42,8 @@ var existing_skills = {
 	[
 		"void things",
 		"You suddenly feel surrounded by non-existence",
-		[["death_zone", 1, false, "surrounding"]], 0
+		[["death_zone", 1, false, "surrounding"]],
+		0
 	],
 	#Skeleton Stuff
 	"Feint":
@@ -121,7 +127,7 @@ var existing_skills = {
 		0
 	],
 	#item effects (maybe also here? Who knows what anything is at this point)
-	"Heal": ["potion stuff", "Modern Medicine rules", [["heal", 3, true, "No"]],0],
+	"Heal": ["potion stuff", "Modern Medicine rules", [["heal", 3, true, "No"]], 0],
 }
 
 

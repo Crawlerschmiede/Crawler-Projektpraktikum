@@ -5,8 +5,7 @@ extends CharacterBody2D
 # The size of one tile in pixels
 const TILE_SIZE: int = 16
 const SKILLS := preload("res://scripts/premade_skills.gd")
-const directions = [Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, Vector2i.RIGHT]
-
+const DIRECTIONS = [Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, Vector2i.RIGHT]
 
 # --- Member variables ---
 var is_player: bool = false
@@ -150,6 +149,7 @@ func can_burrow_through(target_cell, direction):
 		if is_cell_walkable(new_target):
 			return [true, new_target]
 	return [false]
+
 
 func move_to_tile(direction: Vector2i):
 	if is_moving:

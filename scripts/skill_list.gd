@@ -28,7 +28,8 @@ func setup(_player: Node, _enemy: Node, _battle_scene, _tooltip_container):
 	# 0 Skills, 1 Items, 2 Actions
 	tab_bar.current_tab = Tab.SKILLS
 	_populate_list(Tab.SKILLS)
-	
+
+
 func update():
 	for ability in player.abilities:
 		ability.tick_down()
@@ -51,27 +52,28 @@ func _populate_list(tab_idx: int) -> void:
 			add_buttons(player.actions)
 	if list_vbox.get_child_count() > 0:
 		list_vbox.get_child(0).grab_focus()
-		
+
+
 func add_buttons(contents):
 	for ability in contents:
 		var butt_label = ability.name
 		if not ability.is_activateable():
-			butt_label = butt_label+" (Cooldown: "+str(ability.turns_until_reuse)+")"
+			butt_label = butt_label + " (Cooldown: " + str(ability.turns_until_reuse) + ")"
 			_add_button_disabled(butt_label)
 		else:
 			_add_button(
 				butt_label,
 				_on_skill_pressed.bind(ability),
 				_on_mouse_entered.bind(ability.name, ability.description),
-				)
-
+			)
 
 
 func _clear_vbox(vbox: VBoxContainer) -> void:
 	for child in vbox.get_children():
 		child.queue_free()
-		
-func _add_button_disabled(label: String)->void:
+
+
+func _add_button_disabled(label: String) -> void:
 	var b := Button.new()
 	b.text = label
 	b.flat = true
@@ -83,7 +85,6 @@ func _add_button_disabled(label: String)->void:
 	b.add_theme_font_override("font", custom_font)
 	b.add_theme_color_override("font_color", Color(0.8, 0.8, 0.8))
 	list_vbox.add_child(b)
-	
 
 
 func _add_button(label: String, pressed_cb: Callable, mouseover_cb: Callable) -> void:
@@ -130,8 +131,9 @@ func _scroll_to_button(btn: Button) -> void:
 	var btn_list = $ScrollContainer/VBoxContainer.get_global_rect()
 
 	if btn_rect.position.y < $ScrollContainer/VBoxContainer.position.y:
-		$ScrollContainer/VBoxContainer.scroll_vertical -= $ScrollContainer/VBoxContainer.position.y - btn_rect.position.y + 8
-
+		$ScrollContainer/VBoxContainer.scroll_vertical -= (
+			$ScrollContainer/VBoxContainer.position.y - btn_rect.position.y + 8
+		)
 
 
 func _on_skill_pressed(ability) -> void:
