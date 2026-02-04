@@ -38,7 +38,6 @@ func _ready() -> void:
 	for active_tree in ACTIVE_SKILLTREES:
 		existing_skilltrees.increase_tree_level(active_tree)
 	update_unlocked_skills()
-	setup(tilemap, 10, 1, 0)
 	add_to_group("player")
 
 
