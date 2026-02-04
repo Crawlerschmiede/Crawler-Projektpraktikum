@@ -33,11 +33,33 @@ func _collect_slots_recursive(root: Node, out: Array[Node]) -> void:
 				_collect_slots_recursive(c, out)
 
 
+func _is_descendant(parent: Node, child: Node) -> bool:
+	# Safe replacement for Engine-specific "is_a_parent_of" across Node types.
+	if parent == null or child == null:
+		return false
+	var p: Node = child.get_parent()
+	while p != null:
+		if p == parent:
+			return true
+		p = p.get_parent()
+	return false
+
+
 func _get_all_slots() -> Array[Node]:
 	var out: Array[Node] = []
 	_collect_slots_recursive(inv_grid, out)
 	_collect_slots_recursive(equip_grid, out)
 	_collect_slots_recursive(hotbar_grid, out)
+
+	# Include special slots (e.g. SellSlot, CraftSlot, ChestSlot) which might live
+	# outside of the regular grid containers but still should be part of the
+	# global slot index space. We use groups so scenes can opt-in their nodes.
+	if get_tree() != null:
+		var special := get_tree().get_nodes_in_group("SellSlot")
+		for s in special:
+			if s != null and s is Node:
+				out.append(s)
+
 	return out
 
 
@@ -175,7 +197,7 @@ func _setup_slots(slots: Array[Node]) -> void:
 			var assigned_type = SlotScript.SlotType.INVENTORY
 			if s.is_in_group("Inventory"):
 				assigned_type = SlotScript.SlotType.INVENTORY
-			elif hotbar_grid != null and hotbar_grid.is_a_parent_of(s):
+			elif hotbar_grid != null and _is_descendant(hotbar_grid, s):
 				assigned_type = SlotScript.SlotType.HOTBAR
 
 			# set property on slot so downstream logic sees a proper type
@@ -287,7 +309,7 @@ func initialize_inventory() -> void:
 
 	for k in keys:
 		var idx: int = int(k)
-
+		print("Slot size: ", slots.size())
 		if idx < 0 or idx >= slots.size():
 			push_error(
 				"Inventory enthält slot_index %s, aber UI hat nur %d Slots" % [str(k), slots.size()]

@@ -27,7 +27,8 @@ func _ready() -> void:
 # ---------------------------------------------------
 func set_item(nm: String, qt: int) -> void:
 	item_name = nm
-	item_quantity = max(qt, 1)
+	# Allow zero quantity for display purposes (e.g. price = 0)
+	item_quantity = max(qt, 0)
 	_refresh()
 
 
@@ -38,8 +39,9 @@ func add_item_quantity(amount_to_add: int) -> void:
 
 func decrease_item_quantity(amount_to_remove: int) -> void:
 	item_quantity -= max(amount_to_remove, 0)
-	if item_quantity < 1:
-		item_quantity = 1
+	# allow zero quantity (visuals handle empty case)
+	if item_quantity < 0:
+		item_quantity = 0
 	_refresh()
 
 
