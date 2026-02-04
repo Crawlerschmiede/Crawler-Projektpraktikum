@@ -6,6 +6,8 @@ signal player_victory
 const MARKER_PREFAB := preload("res://scenes/marker.tscn")
 @onready var hit_anim_enemy: AnimatedSprite2D = $Battle_root/PlayerPosition/enemy_attack_anim
 @onready var hit_anim_player: AnimatedSprite2D = $Battle_root/EnemyPosition/player_attack_anim
+var rng := RandomNumberGenerator.new()
+
 
 const MARKER_FLAVOURS = {
 	"dmg_reduc_":
@@ -256,6 +258,20 @@ func check_curr_tile_mods():
 			"heal_bad":
 				enemy.heal(modifier_value)
 	check_victory()
+	
+func get_min_x():
+	var min_x = 99999999999999
+	for tile in used_cells:
+		if tile.x < min_x:
+			min_x = tile.x
+	return min_x
+			
+func get_min_y():
+	var min_y = 99999999999999
+	for tile in used_cells:
+		if tile.y < min_y:
+			min_y = tile.y
+	return min_y
 
 
 func apply_zones(zone_type, mult, pos, _dur, direction):
@@ -292,22 +308,50 @@ func apply_zones(zone_type, mult, pos, _dur, direction):
 				)
 			):
 				tile_modifiers[tile] = {mult_type: mult}
+	elif "area" in pos: #expecting a string like "area||<x>||<y>||<size>"
+		var min_x = get_min_x()
+		var min_y = get_min_y()
+		var splits = pos.split("||")
+		var targ_x=splits[1]
+		var targ_y=splits[2]
+		var area = int(splits[3])
+		
+		if targ_x== "rand":
+			targ_x=rng.randi_range(0, 4)
+		elif targ_x=="p":
+			targ_x=player_gridpos.x
+		
+		if targ_y== "rand":
+			targ_y=rng.randi_range(0, 4)
+		elif targ_y=="p":
+			targ_y = player_gridpos.y
+			
+		var center_point =Vector2i(min_x+int(targ_x), min_y+int(targ_y))
+		for tile in used_cells:
+			for i in range(area):
+				if  (
+					(
+						tile.x == center_point.x - i
+						or tile.x == center_point.x
+						or tile.x == center_point.x + i
+					)
+					and (
+						tile.y == center_point.y - i
+						or tile.y == center_point.y
+						or tile.y == center_point.y + i
+					)
+				):
+					tile_modifiers[tile] = {mult_type: mult}
 	elif "x" in pos:
 		var parts = pos.split("=")
-		var min_x = 99999999999999
-		for tile in used_cells:
-			if tile.x < min_x:
-				min_x = tile.x
+		var min_x = get_min_x()
 		for tile in used_cells:
 			if tile.x == min_x + int(parts[1]):
 				tile_modifiers[tile] = {mult_type: mult}
 	elif "y" in pos:
 		var parts = pos.split("=")
 		#print("parts: ", parts)
-		var min_y = 99999999999999
-		for tile in used_cells:
-			if tile.y < min_y:
-				min_y = tile.y
+		var min_y=get_min_y()
 		for tile in used_cells:
 			if tile.y == min_y + int(parts[1]):
 				tile_modifiers[tile] = {mult_type: mult}

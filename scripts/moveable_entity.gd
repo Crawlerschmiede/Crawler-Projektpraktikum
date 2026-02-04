@@ -31,7 +31,7 @@ var sprites = {
 	"what":
 	[
 		preload("res://scenes/sprite_scenes/what_sprite_scene.tscn"),
-		["Screech", "Swoop", "Encroaching Void"],
+		["Screech", "Vortex", "Encroaching Void"],
 		{"idle": "default", "expand": "expand", "alt_default": "expanded_idle"},
 		{"standard": [1, 1], "expanded": [1, 3]}
 	],
