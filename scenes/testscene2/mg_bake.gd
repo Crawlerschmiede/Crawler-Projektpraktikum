@@ -5,7 +5,16 @@ class_name MGBake
 const MGIO = preload("res://scenes/testscene2/mg_io.gd")
 const MGCOL = preload("res://scenes/testscene2/mg_collision.gd")
 
-func copy_layer_into_world(gen, src: TileMapLayer, dst: TileMapLayer, offset: Vector2i, emit_start: float = -1.0, emit_end: float = -1.0, emit_text: String = "") -> void:
+
+func copy_layer_into_world(
+	gen,
+	src: TileMapLayer,
+	dst: TileMapLayer,
+	offset: Vector2i,
+	emit_start: float = -1.0,
+	emit_end: float = -1.0,
+	emit_text: String = ""
+) -> void:
 	var counter = 0
 	var cells = src.get_used_cells()
 	var total = cells.size()
@@ -24,7 +33,9 @@ func copy_layer_into_world(gen, src: TileMapLayer, dst: TileMapLayer, offset: Ve
 			if gen != null and gen.has_method("_emit_progress_mapped"):
 				gen._emit_progress_mapped(emit_start, emit_end, clamp(local_p, 0.0, 1.0), emit_text)
 			elif dst.get_parent() != null and dst.get_parent().has_method("_emit_progress_mapped"):
-				dst.get_parent()._emit_progress_mapped(emit_start, emit_end, clamp(local_p, 0.0, 1.0), emit_text)
+				dst.get_parent()._emit_progress_mapped(
+					emit_start, emit_end, clamp(local_p, 0.0, 1.0), emit_text
+				)
 		if counter % yield_every == 0:
 			await _safe_process_frame(gen, dst)
 	if emit_start >= 0.0:
@@ -110,14 +121,23 @@ func bake_rooms_into_world_tilemap(gen) -> void:
 		var room_offset: Vector2i = room.get_meta("tile_origin", Vector2i.ZERO)
 		if floor_tm != null:
 			await add_room_layer_to_minimap(gen, room)
-			await copy_layer_into_world(gen, floor_tm, gen.world_tilemap, room_offset, 0.75, 0.92, "Building tilemaps")
+			await copy_layer_into_world(
+				gen, floor_tm, gen.world_tilemap, room_offset, 0.75, 0.92, "Building tilemaps"
+			)
 			i += 1
 			if total_rooms > 0:
 				var local_p = float(i) / float(total_rooms)
-				gen._emit_progress_mapped(0.75, 0.92, clamp(local_p, 0.0, 1.0), "Building tilemaps: %d/%d" % [i, total_rooms])
+				gen._emit_progress_mapped(
+					0.75,
+					0.92,
+					clamp(local_p, 0.0, 1.0),
+					"Building tilemaps: %d/%d" % [i, total_rooms]
+				)
 				await gen.get_tree().process_frame
 		if top_tm != null:
-			await copy_layer_into_world(gen, top_tm, gen.world_tilemap_top, room_offset, 0.75, 0.92, "Building tilemaps")
+			await copy_layer_into_world(
+				gen, top_tm, gen.world_tilemap_top, room_offset, 0.75, 0.92, "Building tilemaps"
+			)
 	gen._emit_progress_mapped(0.92, 0.98, 0.0, "Baking doors...")
 	await gen.get_tree().process_frame
 	await bake_closed_doors_into_world_simple(gen)
@@ -155,13 +175,20 @@ func bake_closed_doors_into_world_simple(gen) -> void:
 			gen.add_child(inst)
 			inst.global_position = door.global_position
 			inst.force_update_transform()
-			var tile_origin = Vector2i(int(round(inst.global_position.x / tile_size.x)), int(round(inst.global_position.y / tile_size.y)))
+			var tile_origin = Vector2i(
+				int(round(inst.global_position.x / tile_size.x)),
+				int(round(inst.global_position.y / tile_size.y))
+			)
 			var src_floor = inst.get_node_or_null("TileMapLayer") as TileMapLayer
 			var src_top = inst.get_node_or_null("TopLayer") as TileMapLayer
 			if src_floor != null:
-				await copy_layer_into_world(gen, src_floor, gen.world_tilemap, tile_origin, 0.92, 0.98, "Baking doors")
+				await copy_layer_into_world(
+					gen, src_floor, gen.world_tilemap, tile_origin, 0.92, 0.98, "Baking doors"
+				)
 			if src_top != null:
-				await copy_layer_into_world(gen, src_top, gen.world_tilemap_top, tile_origin, 0.92, 0.98, "Baking doors")
+				await copy_layer_into_world(
+					gen, src_top, gen.world_tilemap_top, tile_origin, 0.92, 0.98, "Baking doors"
+				)
 			inst.queue_free()
 			door.used = true
 			processed += 1
@@ -184,7 +211,10 @@ func bake_closed_doors_into_minimap(gen) -> void:
 			gen.add_child(inst)
 			inst.global_position = door.global_position
 			inst.force_update_transform()
-			var world_cell = Vector2i(int(round(inst.global_position.x / tile_size.x)), int(round(inst.global_position.y / tile_size.y)))
+			var world_cell = Vector2i(
+				int(round(inst.global_position.x / tile_size.x)),
+				int(round(inst.global_position.y / tile_size.y))
+			)
 			var src_floor = inst.get_node_or_null("TileMapLayer") as TileMapLayer
 			if src_floor == null:
 				inst.queue_free()

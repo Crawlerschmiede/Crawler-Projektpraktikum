@@ -42,7 +42,7 @@ func spawn_player() -> void:
 	add_child(player)
 
 	var start_pos := Vector2i(2, 2)
-	player.setup(dungeon_floor, 10, 3, 0)
+	player.setup(dungeon_floor, dungeon_top, 10, 3, 0)
 	player.grid_pos = start_pos
 	player.global_position = dungeon_floor.to_global(dungeon_floor.map_to_local(start_pos))
 	player.set_minimap(minimap)
@@ -73,7 +73,7 @@ func spawn_enemy(sprite_type: String, behaviour: Array) -> void:
 	e.types = behaviour
 	e.sprite_type = sprite_type
 
-	e.setup(dungeon_floor, 3, 1, 0)
+	e.setup(dungeon_floor, dungeon_top, 3, 1, 0)
 	add_child(e)
 
 
