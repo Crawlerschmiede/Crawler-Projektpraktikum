@@ -4,13 +4,30 @@ extends HBoxContainer
 # (with children named "Sell Slot", "Price", "Hammer") or directly
 # to the "Sell Slot" Panel node. Resolve nodes flexibly.
 @onready var sell_item_input_slot = $"Sell Slot" if has_node("Sell Slot") else self
-@onready var sell_item_price = $Price if has_node("Price") else (get_parent().get_node("Price") if get_parent() != null and get_parent().has_node("Price") else null)
-@onready var sell_button = $Hammer if has_node("Hammer") else (get_parent().get_node("Hammer") if get_parent() != null and get_parent().has_node("Hammer") else null)
+@onready var sell_item_price = (
+	$Price
+	if has_node("Price")
+	else (
+		get_parent().get_node("Price")
+		if get_parent() != null and get_parent().has_node("Price")
+		else null
+	)
+)
+@onready var sell_button = (
+	$Hammer
+	if has_node("Hammer")
+	else (
+		get_parent().get_node("Hammer")
+		if get_parent() != null and get_parent().has_node("Hammer")
+		else null
+	)
+)
 var _last_item_name: String = ""
 var _sell_unit_price: int = 0
 var _rng := RandomNumberGenerator.new()
 var _register_attempts: int = 0
 var _merchant_sell_prices: Dictionary = {}
+
 
 func set_merchant_sell_prices(prices: Dictionary) -> void:
 	if prices == null:
@@ -26,18 +43,28 @@ func _register_sell_slot() -> void:
 
 	# ensure slot_index set
 	if sell_item_input_slot.has_method("get"):
-		var idx = sell_item_input_slot.get("slot_index") if sell_item_input_slot.get("slot_index") != null else -1
+		var idx = (
+			sell_item_input_slot.get("slot_index")
+			if sell_item_input_slot.get("slot_index") != null
+			else -1
+		)
 		if int(idx) < 0:
 			sell_item_input_slot.set("slot_index", 23)
 			print("[SellSlot] set slot_index -> 23")
 
 	# wait for PlayerInventory to be available
-	if typeof(PlayerInventory) == TYPE_NIL or PlayerInventory == null or not PlayerInventory.has_method("register_slot_index"):
+	if (
+		typeof(PlayerInventory) == TYPE_NIL
+		or PlayerInventory == null
+		or not PlayerInventory.has_method("register_slot_index")
+	):
 		if _register_attempts < 10:
 			# try again next idle frame
 			call_deferred("_register_sell_slot")
 		else:
-			push_warning("[SellSlot] PlayerInventory.register_slot_index not available after retries")
+			push_warning(
+				"[SellSlot] PlayerInventory.register_slot_index not available after retries"
+			)
 		return
 
 	var groups = []
@@ -125,8 +152,13 @@ func _process(delta: float) -> void:
 			var min_price := 0
 			if JsonData != null and ("item_data" in JsonData) and JsonData.item_data.has(name):
 				var info = JsonData.item_data[name]
-				if typeof(info) == TYPE_DICTIONARY and ("merchant" in info) and typeof(info["merchant"]) == TYPE_DICTIONARY and ("min_price" in info["merchant"]):
-					min_price = int(info["merchant"]["min_price"]) 
+				if (
+					typeof(info) == TYPE_DICTIONARY
+					and ("merchant" in info)
+					and typeof(info["merchant"]) == TYPE_DICTIONARY
+					and ("min_price" in info["merchant"])
+				):
+					min_price = int(info["merchant"]["min_price"])
 			var discount := _rng.randf_range(0.0, 0.4)
 			var unit := int(floor(float(max(min_price, 0)) * (1.0 - discount)))
 			# ensure at least zero
@@ -162,7 +194,11 @@ func _on_sell_slot_gui_input(event: InputEvent) -> void:
 				return
 
 			# Try to add to PlayerInventory at this sell slot
-			if typeof(PlayerInventory) != TYPE_NIL and PlayerInventory != null and PlayerInventory.has_method("add_item_to_empty_slot"):
+			if (
+				typeof(PlayerInventory) != TYPE_NIL
+				and PlayerInventory != null
+				and PlayerInventory.has_method("add_item_to_empty_slot")
+			):
 				var ok: bool = PlayerInventory.add_item_to_empty_slot(holding, sell_item_input_slot)
 				print("[SellSlot] add_item_to_empty_slot ->", ok)
 				if ok:
@@ -192,7 +228,11 @@ func _try_sell() -> void:
 
 	var total = int(_sell_unit_price) * max(qty, 1)
 	# give coins
-	if typeof(PlayerInventory) != TYPE_NIL and PlayerInventory != null and PlayerInventory.has_method("add_coins"):
+	if (
+		typeof(PlayerInventory) != TYPE_NIL
+		and PlayerInventory != null
+		and PlayerInventory.has_method("add_coins")
+	):
 		PlayerInventory.add_coins(total)
 
 	# remove the item from the inventory backend (important!)

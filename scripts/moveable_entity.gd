@@ -207,7 +207,7 @@ func check_collisions() -> void:
 			for tile in my_tiles:
 				for other_tile in body.my_tiles:
 					if (grid_pos + tile) == (body.grid_pos + other_tile):
-						if self.hp>0 and body.hp>0:
+						if self.hp > 0 and body.hp > 0:
 							if self.is_player:
 								initiate_battle(self, body)
 							elif body.is_player:

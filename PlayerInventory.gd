@@ -158,9 +158,6 @@ func add_item(item_name: String, item_quantity: int = 1) -> void:
 			_emit_changed()
 			return
 
-
-
-
 	# 2) neue Slots belegen
 	var wanted_group: String = _get_item_group(item_name)
 
@@ -220,6 +217,7 @@ func can_add_amount(item_name: String, desired: int) -> int:
 			total_space += stack_sz
 
 	return min(desired, total_space)
+
 
 func _priority(i):
 	if i >= 6 and i <= 16:
