@@ -43,7 +43,7 @@ func ensure_required_rooms(gen, parent_node: Node, local_placed: Array, genome) 
 			for d in r.get_free_doors():
 				if d != null and not d.used:
 					free_doors.append(d)
-	free_doors.shuffle()
+	GlobalRNG.shuffle_array(free_doors, gen._rng)
 	for scene in required_scenes:
 		var key = mg_io.get_room_key(scene)
 		var temp = scene.instantiate()
@@ -62,7 +62,14 @@ func ensure_required_rooms(gen, parent_node: Node, local_placed: Array, genome) 
 				gen.room_type_counts[key] = current
 
 
-func try_place_specific_room(gen, scene: PackedScene, door, parent_node: Node, local_placed: Array, _genome) -> bool:
+func try_place_specific_room(
+	gen,
+	scene: PackedScene,
+	door,
+	parent_node: Node,
+	local_placed: Array,
+	_genome
+) -> bool:
 	if scene == null:
 		return false
 	var new_room = scene.instantiate() as Node2D
@@ -99,7 +106,10 @@ func try_place_specific_room(gen, scene: PackedScene, door, parent_node: Node, l
 	var room_tm = new_room.get_node_or_null("TileMapLayer") as TileMapLayer
 	if room_tm:
 		var tile_size = room_tm.tile_set.tile_size
-		var tile_origin = Vector2i(int(round(new_room.global_position.x / tile_size.x)), int(round(new_room.global_position.y / tile_size.y)))
+		var tile_origin = Vector2i(
+			int(round(new_room.global_position.x / tile_size.x)),
+			int(round(new_room.global_position.y / tile_size.y))
+		)
 		new_room.set_meta("tile_origin", tile_origin)
 	local_placed.append(new_room)
 	return true
@@ -160,7 +170,7 @@ func generate_with_genome(gen, genome, trial_seed: int, verbose: bool, parent_ov
 		var from_chain: int = int(from_room.get_meta("corridor_chain", 0))
 		var from_corridor: bool = mg_coll.is_corridor_room(gen, from_room)
 		var candidates = gen.room_scenes.duplicate()
-		candidates.shuffle()
+		GlobalRNG.shuffle_array(candidates, gen._rng)
 		if abs(genome.corridor_bias - 1.0) > 0.01:
 			candidates.sort_custom(func(a,b)->bool: return int(mg_coll._scene_is_corridor(gen,a)) > int(mg_coll._scene_is_corridor(gen,b)) if genome.corridor_bias>1.0 else int(mg_coll._scene_is_corridor(gen,a)) < int(mg_coll._scene_is_corridor(gen,b)))
 		var placed = false

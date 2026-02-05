@@ -50,21 +50,21 @@ func _process(delta):
 
 
 func _reset_character(first_spawn: bool):
-	current_speed = randf_range(min_speed, max_speed)
-	if randf() > 0.5:
+	current_speed = GlobalRNG.randf_range(min_speed, max_speed)
+	if GlobalRNG.randf() > 0.5:
 		current_speed *= -1
-	time = randf() * 10.0
+	time = GlobalRNG.randf() * 10.0
 
 	if horizontal:
-		anchor_pos = randf_range(50, screen_size.y - 50)
+		anchor_pos = GlobalRNG.randf_range(50, screen_size.y - 50)
 		if first_spawn:
-			position.x = randf_range(0, screen_size.x)
+			position.x = GlobalRNG.randf_range(0, screen_size.x)
 		else:
 			position.x = -sprite_dim if current_speed > 0 else screen_size.x + sprite_dim
 	else:
 		# For Vertical, the "anchor" is the X position
-		anchor_pos = randf_range(50, screen_size.x - 50)
+		anchor_pos = GlobalRNG.randf_range(50, screen_size.x - 50)
 		if first_spawn:
-			position.y = randf_range(0, screen_size.y)
+			position.y = GlobalRNG.randf_range(0, screen_size.y)
 		else:
 			position.y = -sprite_dim if current_speed > 0 else screen_size.y + sprite_dim
