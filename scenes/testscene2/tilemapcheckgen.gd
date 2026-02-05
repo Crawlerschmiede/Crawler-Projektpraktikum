@@ -678,27 +678,6 @@ func enemy_defeated(enemy):
 
 
 func _on_battle_player_loss() -> void:
-	print("_on_battle_player_loss: handler invoked — attempting to stop battle and call game_over()")
-
-	# Ensure the battle stops processing immediately
-	if battle != null and is_instance_valid(battle):
-		print("_on_battle_player_loss: stopping battle instance")
-		if battle.has_method("force_stop"):
-			battle.call("force_stop")
-		else:
-			# best-effort fallback
-			battle.set_process(false)
-			battle.set_physics_process(false)
-
-		# queue free the battle UI
-		battle.call_deferred("queue_free")
-		battle = null
-
-	# Unpause the tree to resume normal execution
-	if get_tree().paused:
-		print("_on_battle_player_loss: unpausing tree")
-		get_tree().paused = false
-
 	# Now forward to existing game_over handler
 	game_over()
 
