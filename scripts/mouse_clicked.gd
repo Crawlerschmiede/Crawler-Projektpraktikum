@@ -1,4 +1,4 @@
-extends CanvasLayer
+extends Control
 
 const SETTINGS_MENU_SCENE := preload("res://scenes/settings_menu.tscn")
 const MAP_GENERATOR_SCENE := preload("res://scenes/testscene2/Map_Generator.tscn")
@@ -37,6 +37,7 @@ func _ready():
 		).set_trans(Tween.TRANS_SINE)
 
 	_wire_buttons()
+	_setup_focus_navigation()
 
 
 # ==========================
@@ -117,3 +118,18 @@ func _on_settings_closed() -> void:
 
 	_settings_layer = null
 	_settings_instance = null
+
+
+func _setup_focus_navigation():
+
+	if not has_node("BoxContainer/VBoxContainer2"):
+		return
+
+	var container = $BoxContainer/VBoxContainer2
+
+	for child in container.get_children():
+		if child is Button:
+			child.focus_mode = Control.FOCUS_ALL
+
+	# Fokus auf ersten Button
+	container.get_child(0).grab_focus()
