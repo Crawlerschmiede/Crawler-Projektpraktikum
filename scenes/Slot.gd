@@ -4,9 +4,6 @@ extends Panel
 enum SlotType {
 	HOTBAR = 0,
 	INVENTORY = 1,
-	SHIRT = 2,
-	PANTS = 3,
-	SHOES = 4,
 }
 
 const SLOT_TEXTURE: Texture2D = preload("res://assets/menu/UI_TravelBook_Slot01b.png")
@@ -18,7 +15,7 @@ const ITEM_SCENE: PackedScene = preload("res://scenes/Item/item.tscn")
 # Textures
 @export var default_tex: Texture2D = SLOT_TEXTURE
 @export var empty_tex: Texture2D = SLOT_TEXTURE
-@export var selected_tex: Texture2D = preload("res://assets/menu/Selected_slot.png")
+@export var selected_tex: Texture2D = SLOT_TEXTURE
 @export var hover_tex: Texture2D = preload("res://assets/menu/Mülltonne_open.png")
 @export var has_background: bool = true
 
@@ -45,10 +42,10 @@ func _ready() -> void:
 		empty_style.texture = empty_tex
 		selected_style.texture = selected_tex
 		trash_style.texture = hover_tex
-		
+
 	self.mouse_entered.connect(_on_mouse_entered)
 	self.mouse_exited.connect(_on_mouse_exited)
-	
+
 	refresh_style()
 
 
@@ -68,9 +65,9 @@ func _fit_item_to_slot(it: Node) -> void:
 	c.offset_right = 0
 	c.offset_bottom = 0
 
-	# Sicherheit: gleiche Größe
-	c.size = size
-	c.position = Vector2.ZERO
+	# Nach _ready() setzen, um Anchor-Override zu vermeiden
+	c.set_deferred("size", size)
+	c.set_deferred("position", Vector2.ZERO)
 
 	for g in get_groups():
 		var regex := RegEx.new()
@@ -84,13 +81,14 @@ func _fit_item_to_slot(it: Node) -> void:
 
 
 func _on_mouse_entered() -> void:
-	
 	if self.name == "Slot12":
 		set("theme_override_styles/panel", trash_style)
+
 
 func _on_mouse_exited() -> void:
 	# Return to normal when mouse leaves
 	refresh_style()
+
 
 func refresh_style() -> void:
 	#print(PlayerInventory.get_selected_slot())

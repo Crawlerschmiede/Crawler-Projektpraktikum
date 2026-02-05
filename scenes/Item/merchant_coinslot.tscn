@@ -1,10 +1,8 @@
-[gd_scene load_steps=3 format=3 uid="uid://c08iipnerkqs"]
+[gd_scene load_steps=2 format=3 uid="uid://c08iipnerkqs"]
 
-[ext_resource type="Script" uid="uid://hijadbdg8ivs" path="res://scenes/Item/merchant.gd" id="1_0bcp3"]
 [ext_resource type="Texture2D" uid="uid://lumkwdapp0ll" path="res://assets/menu/Box3.png" id="2_l06eo"]
 
 [node name="Item" type="Panel"]
-script = ExtResource("1_0bcp3")
 
 [node name="TextureRect" type="TextureRect" parent="."]
 layout_mode = 0

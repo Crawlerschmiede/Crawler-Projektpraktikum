@@ -10,6 +10,7 @@ signal buy_attempt(slot)
 
 var sold := false
 var can_buy := true
+var visible_buy_amount: int = 0
 
 @onready var item = $item
 @onready var price_node = $price
@@ -28,22 +29,45 @@ func set_price(v: int) -> void:
 func _refresh() -> void:
 	if price_node == null:
 		return
+	# Show item in UI
+	item.initialize_item(item_name, 1)
 
-	item.initialize_item(item_name, item_count)
+	# Force UI to show only single-unit purchases: either 1 (if stock & player space)
+	# or 0 (sold out / can't fit)
+	var one_available := int(item_count) >= 1
+	var player_has_space := true
+	if (
+		typeof(PlayerInventory) != TYPE_NIL
+		and PlayerInventory != null
+		and PlayerInventory.has_method("can_add_amount")
+	):
+		player_has_space = PlayerInventory.can_add_amount(item_name, 1) >= 1
 
-	price_node.initialize_item("Coin", price)
+	if one_available and player_has_space:
+		visible_buy_amount = 1
+	else:
+		visible_buy_amount = 0
 
+	# Show total price for one unit (or 0)
+	var total_price = int(price) * max(visible_buy_amount, 0)
+	price_node.initialize_item("Coin", total_price)
+
+	# Determine if player has enough coins for the unit price
 	if (
 		typeof(PlayerInventory) != TYPE_NIL
 		and PlayerInventory != null
 		and PlayerInventory.has_method("has_coins")
 	):
-		can_buy = PlayerInventory.has_coins(price)
+		can_buy = PlayerInventory.has_coins(total_price)
 	else:
 		can_buy = true
 
-	# mark sold when quantity is zero
-	sold = int(buy_amount) <= 0
+	# mark sold when no stock left for this slot
+	sold = (visible_buy_amount <= 0)
+
+	# hide this control when nothing left to buy
+	visible = not sold
+
 	_update_visual_state()
 
 

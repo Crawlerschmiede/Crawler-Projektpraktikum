@@ -8,7 +8,6 @@ const CHASE_COOLDOWN: float = 0.5
 var roam_timer: float = 5.0
 var chase_timer: float = 5.0
 var burrowed = false
-var expanded = false
 var chased_pos: Vector2i
 var chased_direction: Vector2i
 
@@ -17,6 +16,7 @@ var sprite_type: String = "bat"
 var behaviour = "idle"
 var chase_target: PlayerCharacter
 var chasing: bool = false
+var expanded: bool = false
 
 @onready var sight_area: Area2D = $SightArea
 
@@ -26,11 +26,6 @@ func roam():
 		if burrowed:
 			burrowed = false
 			sprite.play("default")
-	if expanded:
-		expanded = false
-		resize(1, 1, ["M"])
-		move_sprite(0, 0, 0)
-		sprite.play("default")
 	chasing = false
 	var direction_int = 0
 	var direction = Vector2i.ZERO
@@ -50,10 +45,14 @@ func roam():
 	else:
 		move_to_tile(direction)
 
-func is_closer_to_player(current_tile: Vector2i, target_tile: Vector2i, chased_tile: Vector2i) -> bool:
+
+func is_closer_to_player(
+	current_tile: Vector2i, target_tile: Vector2i, chased_tile: Vector2i
+) -> bool:
 	var curr_distance = abs(current_tile.x - chased_tile.x) + abs(current_tile.y - chased_tile.y)
 	var target_distance = abs(target_tile.x - chased_tile.x) + abs(target_tile.y - chased_tile.y)
 	return target_distance <= curr_distance
+
 
 # gdlint: disable=max-returns
 func chase():
@@ -85,13 +84,13 @@ func chase():
 
 	chasing = true
 	var tiles_im_on = []
-	var viable_target_tiles =[]
+	var viable_target_tiles = []
 	var viable_directions = []
 	for tile in my_tiles:
-		tiles_im_on.append(grid_pos+tile)
+		tiles_im_on.append(grid_pos + tile)
 	for tile in my_tiles:
-		for direction in directions:
-			var target_tile = grid_pos+tile+direction
+		for direction in DIRECTIONS:
+			var target_tile = grid_pos + tile + direction
 			if target_tile not in tiles_im_on:
 				if not is_cell_walkable(target_tile):
 					if "burrowing" in types:
@@ -104,11 +103,11 @@ func chase():
 					if "wallbound" in types:
 						if not is_next_to_wall(target_tile):
 							continue
-					if is_closer_to_player((grid_pos+tile), target_tile, chased_pos):
+					if is_closer_to_player(grid_pos + tile, target_tile, chased_pos):
 						viable_target_tiles.append(target_tile)
 						viable_directions.append(direction)
-	var chosen_direction = randi_range(0, len(viable_directions)-1)
-	if len(viable_directions)>0:
+	var chosen_direction = GlobalRNG.randi_range(0, len(viable_directions) - 1)
+	if len(viable_directions) > 0:
 		if "wallbound" in types:
 			elongate()
 			move_to_tile(viable_directions[chosen_direction])
@@ -171,8 +170,6 @@ func _process(delta: float) -> void:
 
 func move_it():
 	#print("Move1")
-	check_collisions()
-
 	if multi_turn_action == null:
 		#print("Move2")
 		var saw_player = check_sight()
@@ -255,22 +252,27 @@ func check_sight() -> bool:
 		# --- finale Entscheidung ---
 		if in_player_group or is_player_character or (("is_player" in body) and body.is_player):
 			#print("✅✅✅ PLAYER DETECTED! -> setting chase_target =", body.name)
-			saw_player = true
-			chase_target = body
-			break
+			if not body.is_hiding() or self.grid_pos.y <= body.grid_pos.y:
+				saw_player = true
+				chase_target = body
+				break
 
 	return saw_player
 
 
 func decide_attack() -> void:
-	var chosen_index = rng.randi_range(0, len(abilities) - 1)
-	chosen = abilities[chosen_index]
+	var activateable_abilities = []
+	for ability in abilities:
+		if ability.is_activateable():
+			activateable_abilities.append(ability)
+	var chosen_index = rng.randi_range(0, len(activateable_abilities) - 1)
+	chosen = activateable_abilities[chosen_index]
 	print("Next ability is ", chosen.name)
 
 
 #x and y offset in tiles
-func move_sprite(x_offset, y_offset, rotation):
-	sprite.rotation_degrees = rotation
+func move_sprite(x_offset, y_offset, rotation_deg):
+	sprite.rotation_degrees = rotation_deg
 	sprite.position.y = y_offset * 16
 	sprite.position.x = x_offset * 16
 
@@ -309,11 +311,11 @@ func resize(x_size: int, y_size: int, anchors, _animation = null, _new_animation
 			for j in range(x_size - 1):
 				var x_offset = j + 1
 				if "R" in anchors:
-					x_offset=x_offset*-1
-				my_tiles.append(Vector2i(x_offset,y_offset))
-	elif x_size>1:
-		for i in range(x_size-1):
-			var offset = i+1
+					x_offset = x_offset * -1
+				my_tiles.append(Vector2i(x_offset, y_offset))
+	elif x_size > 1:
+		for i in range(x_size - 1):
+			var offset = i + 1
 			if "R" in anchors:
 				offset = offset * -1
 			my_tiles.append(Vector2i(offset, 0))
@@ -332,8 +334,8 @@ func elongate():
 	var y_size = 1
 	var x_offset = 0
 	var y_offset = 0
-	var rotation = 0
-	for direction in directions:
+	var rotation_deg = 0
+	for direction in DIRECTIONS:
 		if is_next_to_wall(grid_pos + direction * 2) and not is_next_to_wall(grid_pos + direction):
 			expand = true
 			match direction:
@@ -343,32 +345,32 @@ func elongate():
 					y_size = 3
 					x_offset = 0
 					y_offset = -1
-					rotation = 270
+					rotation_deg = 270
 				Vector2i.DOWN:
 					anchor = "U"
 					x_size = 1
 					y_size = 3
 					x_offset = 0
 					y_offset = 1
-					rotation = 90
+					rotation_deg = 90
 				Vector2i.LEFT:
 					anchor = "R"
 					x_size = 3
 					y_size = 1
 					x_offset = -1
 					y_offset = 0
-					rotation = 180
+					rotation_deg = 180
 				Vector2i.RIGHT:
 					anchor = "L"
 					x_size = 3
 					y_size = 1
 					x_offset = 1
 					y_offset = 0
-					rotation = 0
+					rotation_deg = 0
 			if not expanded:
 				expanded = true
 				resize(x_size, y_size, [anchor])
-				move_sprite(x_offset, y_offset, rotation)
+				move_sprite(x_offset, y_offset, rotation_deg)
 				sprite.play("expand")
 				await sprite.animation_finished
 				sprite.play("expanded_idle")
