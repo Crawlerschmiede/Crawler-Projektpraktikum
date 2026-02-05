@@ -9,7 +9,7 @@ var skilltrees = {
 	"unarmed":
 	{
 		"tier": 0,
-		"skills": [["Punch", 1], ["Back and Forth", 1], ["Right Pivot", 2], ["Left Pivot", 2], ["Strong as frick", 1], ["Full Power Punch", 4]]
+		"skills": [["Punch", 1], ["Back and Forth", 1], ["Right Pivot", 2], ["Left Pivot", 2], ["Strong as frick", 1], ["Fast as frick", 1], ["Full Power Punch", 4]]
 	}
 }
 
