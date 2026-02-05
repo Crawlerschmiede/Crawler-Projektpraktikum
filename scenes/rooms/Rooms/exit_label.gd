@@ -18,6 +18,6 @@ func _on_body_entered(body: Node2D) -> void:
 
 func _on_body_exited(body: Node2D) -> void:
 	if body.is_in_group("player"):
-		if label.visible== true:
+		if label.visible == true:
 			print("Player left tutorial room, in which he was before.")
 		label.visible = false

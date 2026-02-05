@@ -1,4 +1,4 @@
-[gd_scene load_steps=3 format=3 uid="uid://1113so5clvhx"]
+[gd_scene format=3 uid="uid://1113so5clvhx"]
 
 [ext_resource type="Script" uid="uid://jcsvg1pxjdge" path="res://scenes/marker.gd" id="1_hy4mp"]
 

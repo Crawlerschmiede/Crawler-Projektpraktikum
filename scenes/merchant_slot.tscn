@@ -1,4 +1,4 @@
-[gd_scene load_steps=4 format=3 uid="uid://drywgjsqyrugh"]
+[gd_scene format=3 uid="uid://drywgjsqyrugh"]
 
 [ext_resource type="Script" uid="uid://bfkmyd2nt27gh" path="res://scenes/merchant_item_buy_box.gd" id="1_f2anx"]
 [ext_resource type="Script" uid="uid://c46g0i67damgr" path="res://scenes/Slot.gd" id="2_f2anx"]
