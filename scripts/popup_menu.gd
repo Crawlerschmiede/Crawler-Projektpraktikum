@@ -44,7 +44,10 @@ func _on_settings_pressed() -> void:
 	$VBoxContainer.visible = false
 	_settings_layer = CanvasLayer.new()
 	_settings_layer.name = "SettingsOverlay"
-	_settings_layer.layer = 100
+	if _settings_layer != null:
+		_settings_layer.layer = 100
+	else:
+		push_error("_on_settings_pressed: failed to create _settings_layer")
 	get_tree().root.add_child(_settings_layer)
 
 	_settings_instance = SETTINGS_MENU_SCENE.instantiate()

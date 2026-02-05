@@ -42,3 +42,8 @@ func has(id: String) -> bool:
 
 func clear() -> void:
 	_registry.clear()
+
+
+func reset() -> void:
+	# Clear in-memory registry
+	_registry.clear()

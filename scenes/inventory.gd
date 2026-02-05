@@ -858,16 +858,24 @@ func _ensure_inventory_selection() -> void:
 
 func _move_inventory_selection(delta: int) -> void:
 	var t0 := 0
-
 	var inv_slots: Array = _get_inventory_slot_nodes_sorted()
 	if inv_slots.size() == 0:
+		return
+
+	# Filter out any freed/null nodes so we don't call methods on them.
+	var slots: Array = []
+	for s in inv_slots:
+		if s != null and is_instance_valid(s) and _has_property(s, &"slot_index"):
+			slots.append(s)
+
+	if slots.size() == 0:
 		return
 
 	var cur := int(PlayerInventory.get_selected_slot())
 
 	var idx := -1
-	for i in range(inv_slots.size()):
-		if int(inv_slots[i].get("slot_index")) == cur:
+	for i in range(slots.size()):
+		if int(slots[i].get("slot_index")) == cur:
 			idx = i
 			break
 
@@ -876,17 +884,17 @@ func _move_inventory_selection(delta: int) -> void:
 		if delta > 0:
 			idx = 0
 		else:
-			idx = inv_slots.size() - 1
+			idx = slots.size() - 1
 
-	var new_idx = clamp(idx + delta, 0, inv_slots.size() - 1)
+	var new_idx = clamp(idx + delta, 0, slots.size() - 1)
 
-	var new_slot_node: Node = inv_slots[new_idx]
+	var new_slot_node: Node = slots[new_idx]
 	var new_slot_index: int = int(new_slot_node.get("slot_index"))
 
 	# determine previous node (if any) so we can refresh only the two affected slots
 	var prev_node: Node = null
-	if idx >= 0 and idx < inv_slots.size():
-		prev_node = inv_slots[idx]
+	if idx >= 0 and idx < slots.size():
+		prev_node = slots[idx]
 
 	if PlayerInventory.has_method("set_selectet_slot"):
 		PlayerInventory.set_selectet_slot(new_slot_index)

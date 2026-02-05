@@ -504,10 +504,10 @@ script = ExtResource("6_5c7wf")
 [node name="coin_sum" type="Panel" parent="UserInterface/Inventory" unique_id=472838441 groups=["Equipment", "Inventory"]]
 custom_minimum_size = Vector2(20, 20)
 layout_mode = 0
-offset_left = 47.66667
-offset_top = 55.66667
-offset_right = 67.66667
-offset_bottom = 75.66667
+offset_left = 34.66667
+offset_top = 60.666603
+offset_right = 46.66667
+offset_bottom = 72.6666
 size_flags_horizontal = 0
 size_flags_vertical = 4
 script = ExtResource("6_5c7wf")

@@ -42,3 +42,10 @@ func _join_args(args: Array) -> String:
 		out += str(a)
 		first = false
 	return out
+
+
+func reset() -> void:
+	# Close any open file handle and reset file state
+	if _file != null:
+		_file.close()
+	_file = null
