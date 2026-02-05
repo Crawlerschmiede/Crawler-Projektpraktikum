@@ -60,15 +60,16 @@ func activate_skill(user, target, battle, depth = 0):
 			stuff = effect.apply(user, target, battle, name, depth)
 			for thing in stuff:
 				things_that_happened.append(thing)
-	if len(second_turn_effects)!=0:
-		last_user=user
-		last_target=target
-		last_battle=battle
+	if len(second_turn_effects) != 0:
+		last_user = user
+		last_target = target
+		last_battle = battle
 		battle.next_turn.append(self)
 	return things_that_happened
 
+
 func activate_followup():
-	print("Activating followup to "+name)
+	print("Activating followup to " + name)
 	var depth = 0
 	var things_that_happened = []
 	things_that_happened.append("The preparations pay off!")
@@ -87,11 +88,7 @@ func activate_followup():
 
 
 func add_effect(
-	type: String,
-	value: float,
-	targets_self: bool,
-	details: String,
-	first_turn: bool = true
+	type: String, value: float, targets_self: bool, details: String, first_turn: bool = true
 ):
 	var eff := Effect.new(type, value, targets_self, details)
 	if first_turn:
@@ -99,14 +96,15 @@ func add_effect(
 	else:
 		second_turn_effects.append(eff)
 
-func is_activateable(battle=null)->bool:
+
+func is_activateable(battle = null) -> bool:
 	var activateable = true
-	if not turns_until_reuse==0:
-		activateable=false
-	if not battle==null:
+	if not turns_until_reuse == 0:
+		activateable = false
+	if not battle == null:
 		for condition in conditions:
 			if not condition_met(condition, battle):
-				activateable=false
+				activateable = false
 	return activateable
 
 
@@ -128,9 +126,10 @@ func condition_met(condition_name, battle) -> bool:
 			is_met = battle.is_player_in_range([3, 4])
 	if "every_x_turns" in condition_name:
 		var splits = condition_name.split("=")
-		is_met = battle.turn_counter%int(splits[1])==0
+		is_met = battle.turn_counter % int(splits[1]) == 0
 	print("Condition " + condition_name + " is met? " + str(is_met))
 	return is_met
+
 
 func deactivate(who):
 	who.deactivate_buff(name)
@@ -256,20 +255,24 @@ class Effect:
 					var parts = details.split("=")
 					dur = int(parts[1])
 				var recipient = user if targets_self else target
-				ret = _safe_invoke(recipient, "add_alteration", ["dmg_buff", value, skill_name, dur])
+				ret = _safe_invoke(
+					recipient, "add_alteration", ["dmg_buff", value, skill_name, dur]
+				)
 			"action_bonus":
 				var dur = null
 				if "duration" in details:
 					var parts = details.split("=")
 					dur = int(parts[1])
 				var recipient = user if targets_self else target
-				ret = _safe_invoke(recipient, "add_alteration", ["action_bonus", value, skill_name, dur])
+				ret = _safe_invoke(
+					recipient, "add_alteration", ["action_bonus", value, skill_name, dur]
+				)
 			"prepare":
 				var prep_msg := "The enemy seems to be preparing something big... or maybe it's just tired?"
 				var prep_hint := "Hard to tell really"
 				ret = [prep_msg, prep_hint]
-		if depth<3 and not battle.battle_over():
-			battle.update_passives(depth+1)
+		if depth < 3 and not battle.battle_over():
+			battle.update_passives(depth + 1)
 		return ret
 
 	# gdlint: enable=max-returns

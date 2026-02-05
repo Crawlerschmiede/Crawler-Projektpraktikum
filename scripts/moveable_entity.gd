@@ -60,7 +60,7 @@ var str_stat: int = 1
 var def_stat: int = 0
 var abilities: Array[Skill] = []
 var base_action_points: int = 1
-var action_points:int
+var action_points: int
 
 #--- status effects (not sure if this is the best way... it'll be fine!) ---
 #--- update it won't be, this is [not very good] and I'll fix it... someday
@@ -93,7 +93,6 @@ func setup(tmap: TileMapLayer, top_map: TileMapLayer, _hp, _str, _def):
 	str_stat = _str
 	def_stat = _def
 	action_points = base_action_points
-
 
 
 func super_ready(sprite_type: String, entity_type: Array):
@@ -270,21 +269,24 @@ func activate_passives(user, target, battle):
 		if ability.is_passive:
 			ability.activate_skill(user, target, battle)
 
-func add_alteration(type, value, source="test", duration=null):
-	if duration!=null:
-		alterations[source]={type:value, "duration":duration}
+
+func add_alteration(type, value, source = "test", duration = null):
+	if duration != null:
+		alterations[source] = {type: value, "duration": duration}
 	else:
-		alterations[source]={type:value}
+		alterations[source] = {type: value}
 	return []
+
 
 func get_alterations():
 	return alterations
 
-func deactivate_buff(source="test"):
-	print("alterations ",alterations)
+
+func deactivate_buff(source = "test"):
+	print("alterations ", alterations)
 	if alterations.has(source):
-		if alterations[source].has("duration") and alterations[source].duration>0:
-				alterations[source].duration=int(alterations[source].duration)-1
+		if alterations[source].has("duration") and alterations[source].duration > 0:
+			alterations[source].duration = int(alterations[source].duration) - 1
 	alterations.erase(source)
 
 
@@ -311,12 +313,13 @@ func heal(healing):
 	hp = hp + healed_hp
 	#print("Now has ", hp, "HP")
 	return [" healed by " + str(healed_hp), " now has " + str(hp) + " HP"]
-	
+
+
 func refill_actions():
-	action_points=base_action_points
+	action_points = base_action_points
 	for alteration in alterations:
 		if alterations[alteration].has("action_bonus"):
-			action_points+=int(alterations[alteration].action_bonus)
+			action_points += int(alterations[alteration].action_bonus)
 
 
 #-- status effect logic --

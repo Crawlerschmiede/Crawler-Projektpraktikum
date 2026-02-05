@@ -2,6 +2,7 @@
 
 class_name MGIOModule
 
+
 func load_room_scenes_from_folder(path: String) -> Array:
 	var result: Array = []
 	var dir := DirAccess.open(path)
