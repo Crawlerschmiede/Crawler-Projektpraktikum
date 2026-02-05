@@ -181,12 +181,12 @@ func _generate_merchant_data() -> void:
 		push_error("JsonData.item_data missing!")
 		return
 
-	var rng := RandomNumberGenerator.new()
-	rng.seed = seed if seed != 0 else randi()
+	var rng := GlobalRNG.get_rng()
+	rng.seed = seed if seed != 0 else GlobalRNG.randi()
 
 	var items: Dictionary = JsonData.item_data
 	var keys := items.keys()
-	keys.shuffle()
+	GlobalRNG.shuffle_array(keys, rng)
 
 	var target_weight := rng.randi_range(min_total_weight, max_total_weight)
 	var current_weight := 0

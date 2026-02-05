@@ -1,0 +1,57 @@
+extends Node
+
+# Global deterministic RNG autoload.
+# Provides a base RNG seeded with `base_seed` and helpers.
+
+var base_seed: int = 42
+var _counter: int = 0
+var rng: RandomNumberGenerator = RandomNumberGenerator.new()
+
+func _ready() -> void:
+    rng.seed = int(base_seed)
+
+func seed_base(s: int) -> void:
+    base_seed = int(s)
+    _counter = 0
+    rng.seed = int(base_seed)
+
+func next_seed() -> int:
+    _counter += 1
+    return int(base_seed + _counter)
+
+func get_rng() -> RandomNumberGenerator:
+    var r := RandomNumberGenerator.new()
+    r.seed = next_seed()
+    return r
+
+func randf() -> float:
+    return rng.randf()
+
+func randi() -> int:
+    return rng.randi()
+
+func randi_range(min_v: int, max_v: int) -> int:
+    return rng.randi_range(min_v, max_v)
+
+func rand_range(a: float, b: float) -> float:
+    return rng.rand_range(a, b)
+
+func randf_range(a: float, b: float) -> float:
+    return rng.randf_range(a, b)
+
+func shuffle_array(arr: Array, r: RandomNumberGenerator = null) -> void:
+    # In-place Fisher-Yates shuffle using provided RNG (or internal rng)
+    var rr: RandomNumberGenerator = r if r != null else rng
+    var n := arr.size()
+    for i in range(n - 1, 0, -1):
+        var j := rr.randi_range(0, i)
+        var tmp = arr[i]
+        arr[i] = arr[j]
+        arr[j] = tmp
+
+func pick_random(arr: Array, r: RandomNumberGenerator = null):
+    if arr == null or arr.is_empty():
+        return null
+    var rr: RandomNumberGenerator = r if r != null else rng
+    var idx := rr.randi_range(0, arr.size() - 1)
+    return arr[idx]

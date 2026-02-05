@@ -26,7 +26,7 @@ signal generation_progress(p: float, text: String)
 @export var ga_elite_keep: int = 4  # Top 4 bleiben
 @export var ga_mutation_rate: float = 0.25
 @export var ga_crossover_rate: float = 0.70
-@export var ga_seed: int = randi()
+@export var ga_seed: int = 42
 
 # Optional: Wenn du willst, dass nach dem GA die beste Map sofort gebaut wird
 @export var build_best_map_after_ga: bool = true
@@ -47,7 +47,7 @@ var room_id: int = 0
 # --- Private vars ---
 var _closed_door_cache: Dictionary = {}
 var _corridor_cache: Dictionary = {}  # key: String(scene.resource_path) -> bool
-var _rng := RandomNumberGenerator.new()
+var _rng := GlobalRNG.get_rng()
 var _yield_counter := 0
 
 
@@ -105,7 +105,7 @@ func get_closed_door_for_direction(dir: String) -> PackedScene:
 
 	if candidates.is_empty():
 		return null
-	return candidates.pick_random()
+	return GlobalRNG.pick_random(candidates)
 
 
 func load_closed_door_scenes_from_folder(path: String) -> Array[PackedScene]:
@@ -395,7 +395,7 @@ func ensure_required_rooms(
 				if d != null and not d.used:
 					free_doors.append(d)
 
-	free_doors.shuffle()
+	GlobalRNG.shuffle_array(free_doors, _rng)
 
 	for scene in required_scenes:
 		var key := get_room_key(scene)
@@ -732,8 +732,8 @@ class GenStats:
 func generate_with_genome(
 	genome: Genome, trial_seed: int, verbose: bool, parent_override: Node = null
 ) -> GenStats:
-	# seed global RNG for legacy code, and seed our local _rng
-	seed(trial_seed)
+	# seed GlobalRNG for legacy code, and seed our local _rng
+	GlobalRNG.seed_base(trial_seed)
 	_rng.seed = int(trial_seed)
 	room_type_counts.clear()
 	var stats := GenStats.new()
@@ -818,7 +818,7 @@ func generate_with_genome(
 
 		# Kandidaten in zufälliger Reihenfolge
 		var candidates := room_scenes.duplicate()
-		candidates.shuffle()
+		GlobalRNG.shuffle_array(candidates, _rng)
 
 		# optionaler Bias: Corridors vs Rooms
 		# Wir sortieren leicht um (ohne massiv umzubauen):
@@ -1137,37 +1137,37 @@ func make_default_genome() -> Genome:
 func random_genome() -> Genome:
 	var g := make_default_genome()
 	# breit streuen
-	g.door_fill_chance = clamp(randf_range(0.60, 1.0), 0.0, 1.0)
-	g.max_corridors = int(clamp(randi_range(0, 25), 0, 9999))
-	g.max_corridor_chain = int(clamp(randi_range(1, 4), 0, 10))
-	g.corridor_bias = clamp(randf_range(0.6, 1.6), 0.1, 3.0)
+	g.door_fill_chance = clamp(GlobalRNG.randf_range(0.60, 1.0), 0.0, 1.0)
+	g.max_corridors = int(clamp(GlobalRNG.randi_range(0, 25), 0, 9999))
+	g.max_corridor_chain = int(clamp(GlobalRNG.randi_range(1, 4), 0, 10))
+	g.corridor_bias = clamp(GlobalRNG.randf_range(0.6, 1.6), 0.1, 3.0)
 	return g
 
 
 func crossover(a: Genome, b: Genome) -> Genome:
 	var c := a.clone()
 	# zufällig Gene wählen
-	if randf() < 0.5:
+	if GlobalRNG.randf() < 0.5:
 		c.door_fill_chance = b.door_fill_chance
-	if randf() < 0.5:
+	if GlobalRNG.randf() < 0.5:
 		c.max_corridors = b.max_corridors
-	if randf() < 0.5:
+	if GlobalRNG.randf() < 0.5:
 		c.max_corridor_chain = b.max_corridor_chain
-	if randf() < 0.5:
+	if GlobalRNG.randf() < 0.5:
 		c.corridor_bias = b.corridor_bias
 	return c
 
 
 func mutate(g: Genome) -> void:
 	# kleine Mutationen
-	if randf() < 0.5:
-		g.door_fill_chance = clamp(g.door_fill_chance + randf_range(-0.12, 0.12), 0.2, 1.0)
-	if randf() < 0.5:
-		g.max_corridors = int(clamp(g.max_corridors + randi_range(-4, 6), 0, 40))
-	if randf() < 0.5:
-		g.max_corridor_chain = int(clamp(g.max_corridor_chain + randi_range(-1, 1), 0, 6))
-	if randf() < 0.5:
-		g.corridor_bias = clamp(g.corridor_bias + randf_range(-0.25, 0.25), 0.3, 2.5)
+	if GlobalRNG.randf() < 0.5:
+		g.door_fill_chance = clamp(g.door_fill_chance + GlobalRNG.randf_range(-0.12, 0.12), 0.2, 1.0)
+	if GlobalRNG.randf() < 0.5:
+		g.max_corridors = int(clamp(g.max_corridors + GlobalRNG.randi_range(-4, 6), 0, 40))
+	if GlobalRNG.randf() < 0.5:
+		g.max_corridor_chain = int(clamp(g.max_corridor_chain + GlobalRNG.randi_range(-1, 1), 0, 6))
+	if GlobalRNG.randf() < 0.5:
+		g.corridor_bias = clamp(g.corridor_bias + GlobalRNG.randf_range(-0.25, 0.25), 0.3, 2.5)
 
 
 # -----------------------------

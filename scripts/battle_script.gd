@@ -44,7 +44,7 @@ var tile_modifiers: Dictionary = {}
 
 var enemy_sprite
 var player_sprite
-var rng := RandomNumberGenerator.new()
+var rng := GlobalRNG.get_rng()
 
 @onready var hit_anim_enemy: AnimatedSprite2D = $Battle_root/PlayerPosition/enemy_attack_anim
 @onready var hit_anim_player: AnimatedSprite2D = $Battle_root/EnemyPosition/player_attack_anim

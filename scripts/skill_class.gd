@@ -91,7 +91,6 @@ func condition_met(condition_name, battle) -> bool:
 	print("Condition " + condition_name + " is met? " + str(is_met))
 	return is_met
 
-
 func deactivate(who):
 	who.deactivate_buff(name)
 

@@ -190,7 +190,7 @@ func spawn_traps() -> void:
 		return
 
 	# maximal 20 Lootboxen
-	candidates.shuffle()
+	GlobalRNG.shuffle_array(candidates)
 	var amount = min(20, candidates.size())
 
 	for i in range(amount):
@@ -237,7 +237,7 @@ func spawn_lootbox() -> void:
 		return
 
 	# maximal 20 Lootboxen
-	candidates.shuffle()
+	GlobalRNG.shuffle_array(candidates)
 	var amount = min(20, candidates.size())
 
 	for i in range(amount):
@@ -434,8 +434,8 @@ func spawn_enemies() -> void:
 		total = float(weights.size())
 
 	# --- Spawn-Plan erstellen ---
-	var rng := RandomNumberGenerator.new()
-	rng.randomize()
+	var rng := GlobalRNG.get_rng()
+	rng.seed = GlobalRNG.next_seed()
 
 	var current_weight := 0
 	var spawn_plan := {}
