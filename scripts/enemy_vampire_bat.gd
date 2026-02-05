@@ -268,8 +268,12 @@ func check_sight() -> bool:
 
 
 func decide_attack() -> void:
-	var chosen_index = rng.randi_range(0, len(abilities) - 1)
-	chosen = abilities[chosen_index]
+	var activateable_abilities = []
+	for ability in abilities:
+		if ability.is_activateable():
+			activateable_abilities.append(ability)
+	var chosen_index = rng.randi_range(0, len(activateable_abilities) - 1)
+	chosen = activateable_abilities[chosen_index]
 	print("Next ability is ", chosen.name)
 
 

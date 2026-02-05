@@ -26,7 +26,7 @@ var sprites = {
 	"skeleton":
 	[
 		preload("res://scenes/sprite_scenes/skeleton_sprite_scene.tscn"),
-		["Screech", "Swoop", "Feint"]
+		["Eye-Flash-Slash", "Swoop", "Feint"]
 	],
 	"what":
 	[
@@ -265,15 +265,22 @@ func activate_passives(user, target, battle):
 	for ability in abilities:
 		if ability.is_passive:
 			ability.activate_skill(user, target, battle)
-
-func add_alteration(type, value, source = "test"):
-	alterations[source] = {type: value}
+			
+func add_alteration(type, value, source="test", duration=null):
+	if duration!=null:
+		alterations[source]={type:value, "duration":duration}
+	else:	
+		alterations[source]={type:value}
 	return []
 
 func get_alterations():
 	return alterations
-
-func deactivate_buff(source = "test"):
+	
+func deactivate_buff(source="test"):
+	print("alterations ",alterations)
+	if alterations.has(source):
+		if alterations[source].has("duration") and alterations[source].duration>0:
+				alterations[source].duration=int(alterations[source].duration)-1
 	alterations.erase(source)
 
 

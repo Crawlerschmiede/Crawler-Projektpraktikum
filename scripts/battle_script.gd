@@ -4,6 +4,13 @@ signal player_loss
 signal player_victory
 
 const MARKER_PREFAB := preload("res://scenes/marker.tscn")
+@onready var hit_anim_enemy: AnimatedSprite2D = $Battle_root/PlayerPosition/enemy_attack_anim
+@onready var hit_anim_player: AnimatedSprite2D = $Battle_root/EnemyPosition/player_attack_anim
+var rng := RandomNumberGenerator.new()
+var next_turn:Array[Skill]=[]
+var turn_counter = 0
+
+
 const MARKER_FLAVOURS = {
 	"dmg_reduc_":
 	{
@@ -44,10 +51,11 @@ var tile_modifiers: Dictionary = {}
 
 var enemy_sprite
 var player_sprite
+<<<<<<< fix_battle
 var rng := GlobalRNG.get_rng()
+=======
+>>>>>>> dev
 
-@onready var hit_anim_enemy: AnimatedSprite2D = $Battle_root/PlayerPosition/enemy_attack_anim
-@onready var hit_anim_player: AnimatedSprite2D = $Battle_root/EnemyPosition/player_attack_anim
 @onready var enemy_marker = $Battle_root/EnemyPosition
 @onready var player_marker = $Battle_root/PlayerPosition
 @onready var combat_tilemap = $Battle_root/TileMapLayer
@@ -124,6 +132,8 @@ func enemy_prepare_turn():
 
 
 func enemy_turn():
+	turn_counter+=1
+	print("It is turn "+str(turn_counter))
 	var over = check_victory()
 	if player != null and is_instance_valid(player):
 		player_hp_bar.value = (player.hp * 100.0) / player.max_hp
@@ -131,6 +141,8 @@ func enemy_turn():
 		enemy_hp_bar.value = (enemy.hp * 100.0) / enemy.max_hp
 	var happened = []
 	if !over:
+		for ability in enemy.abilities:
+			ability.tick_down()
 		var extra_stuff = enemy.deal_with_status_effects()
 		happened = extra_stuff[1]
 		for happening in happened:
@@ -159,6 +171,10 @@ func enemy_turn():
 			enemy_hp_bar.value = (enemy.hp * 100.0) / enemy.max_hp
 		for happening in happened:
 			log_container.add_log_event(happening)
+		if not len(next_turn) == 0:
+			for ability in next_turn:
+				ability.activate_followup()
+		next_turn=[]
 		if extra_stuff[0]:
 			player_turn()
 		else:
