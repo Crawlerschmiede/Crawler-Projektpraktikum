@@ -470,10 +470,7 @@ func spawn_enemies() -> void:
 		var def := defs[chosen]
 
 		var sc = def.get("spawncount", {})
-		var count := rng.randi_range(
-			int(sc.get("min", 0)),
-			int(sc.get("max", 1))
-		)
+		var count := rng.randi_range(int(sc.get("min", 0)), int(sc.get("max", 1)))
 
 		var w := int(def.get("weight", 1))
 		var id = def["_id"]
@@ -494,13 +491,8 @@ func spawn_enemies() -> void:
 			def = data[def["alias_of"]]
 
 		for i in range(spawn_plan[id]):
-			spawn_enemy(
-				def.get("sprite_type", id),
-				def.get("behaviour", [])
-			)
+			spawn_enemy(def.get("sprite_type", id), def.get("behaviour", []))
 			print("spawn: ", def.get("sprite_type", id))
-
-	
 
 
 func spawn_enemy(sprite_type: String, behaviour: Array) -> void:

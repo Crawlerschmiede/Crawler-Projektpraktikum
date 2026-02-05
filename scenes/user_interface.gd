@@ -10,21 +10,21 @@ var merchant_in_range: bool = false
 @onready var player := $".."
 @onready
 var merchantgui := $Inventory/Inner/MerchantContainer/HBoxContainer2/HBoxContainer/VBoxContainer
-@onready var merchantguicontainer := $Inventory/Inner/MerchantContainer
+@onready var merchantgui_merchant_container := $Inventory/Inner/MerchantContainer
 @onready var coin_screen = $Inventory/price
 
 
 func _enable_merchant_ui():
-	merchantguicontainer.visible = true
-	_set_mouse_filter_recursive(merchantguicontainer, Control.MOUSE_FILTER_STOP)
+	merchantgui_merchant_container.visible = true
+	_set_mouse_filter_recursive(merchantgui_merchant_container, Control.MOUSE_FILTER_STOP)
 
 	equipment.visible = false
 	equipmentlabel.visible = false
 
 
 func _disable_merchant_ui():
-	merchantguicontainer.visible = false
-	_set_mouse_filter_recursive(merchantguicontainer, Control.MOUSE_FILTER_IGNORE)
+	merchantgui_merchant_container.visible = false
+	_set_mouse_filter_recursive(merchantgui_merchant_container, Control.MOUSE_FILTER_IGNORE)
 
 	equipment.visible = true
 	equipmentlabel.visible = true
@@ -34,7 +34,7 @@ func _input(_event):
 	if Input.is_action_just_pressed("open_inventory"):
 		# If merchant UI is currently shown, close it and ensure the
 		# normal inventory remains visible (swap behaviour).
-		if merchantguicontainer.visible:
+		if merchantgui_merchant_container.visible:
 			# merchant UI open -> swap to normal inventory
 			_disable_merchant_ui()
 			$Inventory/Inner.visible = true
@@ -57,7 +57,7 @@ func _input(_event):
 	# Merchant / Inventory quick keys handled by actions
 	if Input.is_action_just_pressed("merchant_open"):
 		# If merchant UI is open, allow closing it regardless of range.
-		if merchantguicontainer.visible:
+		if merchantgui_merchant_container.visible:
 			_disable_merchant_ui()
 			# close merchant UI and hide the whole inventory (do not switch to normal inventory)
 			$Inventory/Inner/InventoryLabel/Label.text = "Inventory"

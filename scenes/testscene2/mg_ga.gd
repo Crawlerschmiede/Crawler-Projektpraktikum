@@ -9,11 +9,14 @@ const MGGEN = preload("res://scenes/testscene2/mg_generation.gd")
 var mg_genome = MGGENOME.new()
 var mg_gen = MGGEN.new()
 
+
 func genetic_search_best(gen):
 	if gen.room_scenes.is_empty() or gen.start_room == null:
 		push_error("❌ [GA] room_scenes leer oder start_room NULL")
 		var dummy = mg_genome.EvalResult.new()
-		dummy.genome = mg_genome.make_default_genome(gen.base_door_fill_chance, gen.base_max_corridors, gen.base_max_corridor_chain)
+		dummy.genome = mg_genome.make_default_genome(
+			gen.base_door_fill_chance, gen.base_max_corridors, gen.base_max_corridor_chain
+		)
 		return dummy
 
 	gen.ga_population_size = max(2, gen.ga_population_size)
@@ -32,7 +35,9 @@ func genetic_search_best(gen):
 		population.append(mg_genome.random_genome(gen._rng))
 
 	var best_overall = mg_genome.EvalResult.new()
-	best_overall.genome = mg_genome.make_default_genome(gen.base_door_fill_chance, gen.base_max_corridors, gen.base_max_corridor_chain)
+	best_overall.genome = mg_genome.make_default_genome(
+		gen.base_door_fill_chance, gen.base_max_corridors, gen.base_max_corridor_chain
+	)
 	best_overall.rooms_placed = -1
 
 	var eval_counter = 0
@@ -45,10 +50,15 @@ func genetic_search_best(gen):
 			var res = await evaluate_genome(gen, population[i], trial_seed)
 			results.append(res)
 			eval_counter += 1
-			gen._emit_progress_mapped(0.05, 0.45, clamp(float(eval_counter) / float(target), 0.0, 1.0), "GA eval %d/%d" % [eval_counter, target])
+			gen._emit_progress_mapped(
+				0.05,
+				0.45,
+				clamp(float(eval_counter) / float(target), 0.0, 1.0),
+				"GA eval %d/%d" % [eval_counter, target]
+			)
 			await gen.get_tree().process_frame
 
-		results.sort_custom(func(a,b)->bool: return a.rooms_placed > b.rooms_placed)
+		results.sort_custom(func(a, b) -> bool: return a.rooms_placed > b.rooms_placed)
 
 		if results.size() > 0 and results[0].rooms_placed > best_overall.rooms_placed:
 			best_overall = results[0]
@@ -95,18 +105,18 @@ func evaluate_genome(gen, genome, trial_seed: int):
 
 	var prev_seed = 0
 	if Engine.has_singleton("SettingsManager"):
-		var SM = Engine.get_singleton("SettingsManager")
-		if SM.has_method("get_game_seed"):
-			prev_seed = SM.get_game_seed()
-		if SM.has_method("set_game_seed"):
-			SM.set_game_seed(trial_seed)
+		var settings_manager = Engine.get_singleton("SettingsManager")
+		if settings_manager.has_method("get_game_seed"):
+			prev_seed = settings_manager.get_game_seed()
+		if settings_manager.has_method("set_game_seed"):
+			settings_manager.set_game_seed(trial_seed)
 
 	var stats = await mg_gen.generate_with_genome(gen, genome, trial_seed, false, container)
 
 	if Engine.has_singleton("SettingsManager"):
-		var SM2 = Engine.get_singleton("SettingsManager")
-		if SM2.has_method("set_game_seed"):
-			SM2.set_game_seed(prev_seed)
+		var settings_manager_reset = Engine.get_singleton("SettingsManager")
+		if settings_manager_reset.has_method("set_game_seed"):
+			settings_manager_reset.set_game_seed(prev_seed)
 
 	container.queue_free()
 

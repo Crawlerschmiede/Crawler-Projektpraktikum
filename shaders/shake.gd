@@ -15,6 +15,9 @@ func shake():
 	var tween = create_tween()
 	for i in range(5):
 		tween.tween_property(
-			self, "position", Vector2(GlobalRNG.randf_range(-10, 10), GlobalRNG.randf_range(-10, 10)), 0.02
+			self,
+			"position",
+			Vector2(GlobalRNG.randf_range(-10, 10), GlobalRNG.randf_range(-10, 10)),
+			0.02
 		)
 	tween.tween_property(self, "position", Vector2.ZERO, 0.02)

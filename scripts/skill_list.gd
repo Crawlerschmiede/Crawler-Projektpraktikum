@@ -175,16 +175,16 @@ func _on_button_mouse_entered(btn: Button) -> void:
 
 func _on_skill_pressed(ability) -> void:
 	if player_turn:
-		if hit_anim_player !=null:
-			hit_anim_player.visible=true
+		if hit_anim_player != null:
+			hit_anim_player.visible = true
 			hit_anim_player.play("default")
 			await hit_anim_player.animation_finished
-			hit_anim_player.visible=false
+			hit_anim_player.visible = false
 		var stuff = ability.activate_skill(player, enemy, battle_scene)
 		for thing in stuff:
 			battle_scene.log_container.add_log_event(thing)
-		player.action_points-=1
-		if player.action_points<1:
+		player.action_points -= 1
+		if player.action_points < 1:
 			player_turn = false
 			player_turn_done.emit()
 		else:
