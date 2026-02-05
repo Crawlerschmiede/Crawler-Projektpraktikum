@@ -1,8 +1,8 @@
 extends Node
 
+var rng: RandomNumberGenerator
 var base_seed: int = 42
 var _counter: int = 0
-var rng: RandomNumberGenerator
 
 func _ready() -> void:
     rng = RandomNumberGenerator.new()

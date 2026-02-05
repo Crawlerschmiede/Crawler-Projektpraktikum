@@ -86,7 +86,13 @@ func activate_followup():
 	return things_that_happened
 
 
-func add_effect(type: String, value: float, targets_self: bool, details: String, first_turn:bool=true):
+func add_effect(
+	type: String,
+	value: float,
+	targets_self: bool,
+	details: String,
+	first_turn: bool = true
+):
 	var eff := Effect.new(type, value, targets_self, details)
 	if first_turn:
 		effects.append(eff)

@@ -34,6 +34,14 @@ const MGBake = preload("res://scenes/testscene2/mg_bake.gd")
 @export var build_best_map_after_ga: bool = true
 @export var yield_frame_chunk: int = 100
 
+# Runtime instances of modules
+var mg_genome = null
+var mg_coll = null
+var mg_io = null
+var mg_ga = null
+var mg_gen = null
+var mg_bake = null
+
 # --- Public state ---
 var closed_door_scenes: Array = []
 var room_scenes: Array = []
@@ -52,14 +60,6 @@ var _closed_door_cache: Dictionary = {}
 var _corridor_cache: Dictionary = {}
 var _rng := GlobalRNG.get_rng()
 var _yield_counter := 0
-
-# Runtime instances of modules
-var mg_genome = null
-var mg_coll = null
-var mg_io = null
-var mg_ga = null
-var mg_gen = null
-var mg_bake = null
 
 func _ready() -> void:
 	mg_genome = MGGENOME.new()
