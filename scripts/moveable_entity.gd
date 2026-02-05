@@ -26,7 +26,7 @@ var sprites = {
 	"skeleton":
 	[
 		preload("res://scenes/sprite_scenes/skeleton_sprite_scene.tscn"),
-		["Screech", "Swoop", "Feint"]
+		["Eye-Flash-Slash", "Swoop", "Feint"]
 	],
 	"what":
 	[
@@ -51,7 +51,7 @@ var tilemap: TileMapLayer = null
 var top_layer: TileMapLayer = null
 var latest_direction = Vector2i.DOWN
 var is_moving: bool = false
-var rng := RandomNumberGenerator.new()
+var rng := GlobalRNG.get_rng()
 
 #--- combat stats ---
 var max_hp: int = 1
@@ -59,6 +59,8 @@ var hp: int = 1
 var str_stat: int = 1
 var def_stat: int = 0
 var abilities: Array[Skill] = []
+var base_action_points: int = 1
+var action_points: int
 
 #--- status effects (not sure if this is the best way... it'll be fine!) ---
 #--- update it won't be, this is [not very good] and I'll fix it... someday
@@ -90,6 +92,7 @@ func setup(tmap: TileMapLayer, top_map: TileMapLayer, _hp, _str, _def):
 	hp = _hp
 	str_stat = _str
 	def_stat = _def
+	action_points = base_action_points
 
 
 func super_ready(sprite_type: String, entity_type: Array):
@@ -212,10 +215,11 @@ func check_collisions() -> void:
 		for tile in my_tiles:
 			for other_tile in body.my_tiles:
 				if (grid_pos + tile) == (body.grid_pos + other_tile):
-					if self.is_player:
-						initiate_battle(self, body)
-					elif body.is_player:
-						initiate_battle(body, self)
+					if self.hp > 0 and body.hp > 0:
+						if self.is_player:
+							initiate_battle(self, body)
+						elif body.is_player:
+							initiate_battle(body, self)
 
 
 func _on_move_finished():
@@ -271,8 +275,11 @@ func activate_passives(user, target, battle):
 			ability.activate_skill(user, target, battle)
 
 
-func add_alteration(type, value, source = "test"):
-	alterations[source] = {type: value}
+func add_alteration(type, value, source = "test", duration = null):
+	if duration != null:
+		alterations[source] = {type: value, "duration": duration}
+	else:
+		alterations[source] = {type: value}
 	return []
 
 
@@ -281,6 +288,10 @@ func get_alterations():
 
 
 func deactivate_buff(source = "test"):
+	print("alterations ", alterations)
+	if alterations.has(source):
+		if alterations[source].has("duration") and alterations[source].duration > 0:
+			alterations[source].duration = int(alterations[source].duration) - 1
 	alterations.erase(source)
 
 
@@ -307,6 +318,13 @@ func heal(healing):
 	hp = hp + healed_hp
 	#print("Now has ", hp, "HP")
 	return [" healed by " + str(healed_hp), " now has " + str(hp) + " HP"]
+
+
+func refill_actions():
+	action_points = base_action_points
+	for alteration in alterations:
+		if alterations[alteration].has("action_bonus"):
+			action_points += int(alterations[alteration].action_bonus)
 
 
 #-- status effect logic --

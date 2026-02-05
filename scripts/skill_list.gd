@@ -39,11 +39,12 @@ func setup(_player: Node, _enemy: Node, _battle_scene, _tooltip_container, anim_
 	_populate_list(Tab.SKILLS)
 
 
-func update():
-	for ability in player.abilities:
-		ability.tick_down()
-	for action in player.actions:
-		action.tick_down()
+func update(new_turn = true):
+	if new_turn:
+		for ability in player.abilities:
+			ability.tick_down()
+		for action in player.actions:
+			action.tick_down()
 	_populate_list(tab_bar.current_tab)
 
 
@@ -69,11 +70,8 @@ func _populate_list(tab_idx: int) -> void:
 			for ability in player.actions:
 				_add_button(ability)
 	if list_vbox.get_child_count() > 0:
-		# wait one frame to ensure buttons are in scene tree and focusable
+		# wait one frame to ensure buttons are in scene tree
 		await get_tree().process_frame
-		var first := list_vbox.get_child(0)
-		if is_instance_valid(first) and first is Control:
-			first.grab_focus()
 	if list_vbox.get_child_count() > 0:
 		selected_index = 0
 		_highlight_selected()
@@ -101,14 +99,15 @@ func _add_button_disabled(label: String) -> void:
 	var b := Button.new()
 	b.text = label
 	b.flat = true
-	b.focus_mode = Control.FOCUS_ALL
+	b.focus_mode = Control.FOCUS_NONE
 	b.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
 	b.add_theme_stylebox_override("pressed", StyleBoxEmpty.new())
-	b.add_theme_stylebox_override("hover", StyleBoxEmpty.new())
 
 	b.add_theme_font_override("font", custom_font)
 	b.add_theme_color_override("font_color", Color(0.8, 0.8, 0.8))
 	list_vbox.add_child(b)
+	# Make mouse hover update selection (we don't want Tab to change focus)
+	b.mouse_entered.connect(Callable(self, "_on_button_mouse_entered").bind(b))
 
 
 func _add_button(ability) -> void:
@@ -116,10 +115,9 @@ func _add_button(ability) -> void:
 	b.text = ability.name
 
 	b.flat = true
-	b.focus_mode = Control.FOCUS_CLICK
+	b.focus_mode = Control.FOCUS_NONE
 	b.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
 	b.add_theme_stylebox_override("pressed", StyleBoxEmpty.new())
-	b.add_theme_stylebox_override("hover", StyleBoxEmpty.new())
 
 	b.add_theme_font_override("font", custom_font)
 	b.add_theme_color_override("font_color", Color(0.8, 0.8, 0.8))
@@ -131,13 +129,15 @@ func _add_button(ability) -> void:
 	b.mouse_exited.connect(Callable(self, "remove_tooltip"))
 
 	# Keyboard focus = selected (SAME DESIGN)
-	b.focus_entered.connect(
+	# We don't rely on Control focus (Tab should not change selection).
+	# Use mouse hover to update selection + tooltip instead.
+	b.mouse_entered.connect(
 		Callable(self, "_on_mouse_entered").bind(ability.name, ability.description)
 	)
-	b.focus_exited.connect(Callable(self, "remove_tooltip"))
+	b.mouse_exited.connect(Callable(self, "remove_tooltip"))
 
-	# Auto scroll to focused button (pass button as bind)
-	b.focus_entered.connect(Callable(self, "_scroll_to_button").bind(b))
+	# Mouse hover also sets the internal selection index and scrolls
+	b.mouse_entered.connect(Callable(self, "_on_button_mouse_entered").bind(b))
 
 	# Press (pass ability as bind)
 	b.pressed.connect(Callable(self, "_on_skill_pressed").bind(ability))
@@ -164,18 +164,34 @@ func _scroll_to_button(btn: Button) -> void:
 		)
 
 
+func _on_button_mouse_entered(btn: Button) -> void:
+	# Update selected_index to the hovered button and highlight/scroll
+	for i in range(list_vbox.get_child_count()):
+		if list_vbox.get_child(i) == btn:
+			selected_index = i
+			_highlight_selected()
+			return
+
+
 func _on_skill_pressed(ability) -> void:
 	if player_turn:
-		#if hit_anim_player !=null:
-		#	hit_anim_player.visible=true
-		#	hit_anim_player.play("default")
-		#	await hit_anim_player.animation_finished
-		#	hit_anim_player.visible=false
+		if hit_anim_player != null:
+			hit_anim_player.visible = true
+			hit_anim_player.play("default")
+			await hit_anim_player.animation_finished
+			hit_anim_player.visible = false
 		var stuff = ability.activate_skill(player, enemy, battle_scene)
 		for thing in stuff:
 			battle_scene.log_container.add_log_event(thing)
-		player_turn = false
-		player_turn_done.emit()
+		player.action_points -= 1
+		if player.action_points < 1:
+			player_turn = false
+			player_turn_done.emit()
+		else:
+			var over = battle_scene.check_victory()
+			if not over:
+				update(false)
+				battle_scene.update_health_bars()
 
 
 func _on_mouse_entered(skill_name, skill_description):
@@ -203,10 +219,10 @@ func _process(_delta):
 		btn.emit_signal("pressed")
 
 	if Input.is_action_just_pressed("ui_left"):
-		_select_next_tab()
+		_select_prev_tab()
 
 	if Input.is_action_just_pressed("ui_right"):
-		_select_prev_tab()
+		_select_next_tab()
 
 
 func remove_tooltip():
@@ -217,60 +233,52 @@ func remove_tooltip():
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo:
-		# TAB komplett blockieren
-		if event.keycode == KEY_TAB:
+		# TAB komplett blockieren (sicher prüfen, je nach Godot-Version unterschiedliche APIs)
+		var is_tab := false
+		if event.has_method("get_scancode"):
+			if event.get_scancode() == KEY_TAB:
+				is_tab = true
+		elif event.has_method("get_keycode"):
+			if event.get_keycode() == KEY_TAB:
+				is_tab = true
+		else:
+			# Fallback: Textuelle Prüfung (robust, falls Property-API anders ist)
+			var txt := ""
+			if event.has_method("as_text"):
+				txt = event.as_text()
+			else:
+				txt = str(event)
+			if txt.to_lower().find("tab") != -1:
+				is_tab = true
+		if is_tab:
 			accept_event()
 			return
-
-		# Navigation
-		if event.is_action_pressed("ui_down"):
-			_move_focus_delta(1)
-			accept_event()
-			return
-
-		if event.is_action_pressed("ui_up"):
-			_move_focus_delta(-1)
-			accept_event()
-			return
-
-		# Optional: Tabs wechseln mit links/rechts
-		if event.is_action_pressed("ui_left"):
-			_select_next_tab()
-			accept_event()
-			return
-
-		if event.is_action_pressed("ui_right"):
-			_select_prev_tab()
-			accept_event()
-			return
+		# Navigation is handled in _process() to avoid double-handling
+		# (prevent skipping/fast increments when multiple input callbacks fire).
 
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo:
 		# TAB blockieren
-		if event.keycode == KEY_TAB:
+		var is_tab := false
+		if event.has_method("get_scancode") and event.get_scancode() == KEY_TAB:
+			is_tab = true
+		elif event.has_method("get_keycode") and event.get_keycode() == KEY_TAB:
+			is_tab = true
+		else:
+			var txt := ""
+			if event.has_method("as_text"):
+				txt = event.as_text()
+			else:
+				txt = str(event)
+			if txt.to_lower().find("tab") != -1:
+				is_tab = true
+		if is_tab:
 			accept_event()
 			return
 
-		if Input.is_action_pressed("ui_down"):
-			_move_focus_delta(1)
-			accept_event()
-			return
-
-		if Input.is_action_pressed("ui_up"):
-			_move_focus_delta(-1)
-			accept_event()
-			return
-
-		if Input.is_action_pressed("ui_right"):
-			_select_next_tab()
-			accept_event()
-			return
-
-		if Input.is_action_pressed("ui_left"):
-			_select_prev_tab()
-			accept_event()
-			return
+		# Navigation is handled in _process() to avoid double-processing
+		# of the same key event (prevents skipping the first entry).
 
 
 func _select_next_tab() -> void:
@@ -288,45 +296,11 @@ func _select_prev_tab() -> void:
 	_populate_list(prev_idx)
 
 
-func _move_focus_delta(delta: int) -> void:
+func _move_focus_delta() -> void:
 	# Move focus among the buttons in list_vbox by delta (+1 down, -1 up)
-	if list_vbox == null:
-		return
-	var children := []
-	for c in list_vbox.get_children():
-		if c is Control:
-			children.append(c)
-	if children.size() == 0:
-		return
-
-	var focused = null
-	if has_method("get_viewport"):
-		var vp = get_viewport()
-		if vp != null and vp.has_method("get_focus_owner"):
-			focused = vp.get_focus_owner()
-
-	# find index of focused child
-	var idx := -1
-	for i in range(children.size()):
-		if children[i] == focused:
-			idx = i
-			break
-
-	if idx == -1:
-		# no current focus -> pick first/last depending on direction
-		if delta > 0:
-			children[0].grab_focus()
-		else:
-			children[children.size() - 1].grab_focus()
-		return
-
-	var new_idx := idx + delta
-	if new_idx < 0:
-		new_idx = 0
-	if new_idx >= children.size():
-		new_idx = children.size() - 1
-
-	children[new_idx].grab_focus()
+	# Deprecated: we no longer rely on Control focus traversal.
+	# Selection is handled via `selected_index` and `_highlight_selected()`.
+	return
 
 #var hover_tweens: Dictionary = {}
 
