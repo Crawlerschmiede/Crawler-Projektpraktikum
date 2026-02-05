@@ -87,7 +87,7 @@ func _fit_item_to_slot(it: Node) -> void:
 func _on_mouse_entered() -> void:
 	if self.name == "Slot12":
 		set("theme_override_styles/panel", trash_style)
-	elif self.name =="Hammer":
+	elif self.name == "Hammer":
 		set("theme_override_styles/panel", hammer_style)
 
 
