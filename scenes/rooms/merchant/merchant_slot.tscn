@@ -1,8 +1,8 @@
 [gd_scene format=3 uid="uid://drywgjsqyrugh"]
 
-[ext_resource type="Script" uid="uid://bfkmyd2nt27gh" path="res://scripts/merchant_item_buy_box.gd" id="1_f2anx"]
-[ext_resource type="Script" uid="uid://c46g0i67damgr" path="res://scripts/Slot.gd" id="2_f2anx"]
-[ext_resource type="Script" uid="uid://u4efks5fjcn0" path="res://scripts/buy_bt.gd" id="4_alqq2"]
+[ext_resource type="Script" uid="uid://ymt6jotu3r5l" path="res://scripts/rooms/merchant/merchant_item_buy_box.gd" id="1_f2anx"]
+[ext_resource type="Script" uid="uid://c46g0i67damgr" path="res://scripts/UI/Slot.gd" id="2_f2anx"]
+[ext_resource type="Script" uid="uid://u4efks5fjcn0" path="res://scripts/UI/buy_bt.gd" id="4_alqq2"]
 
 [node name="row" type="HBoxContainer" unique_id=1261252993]
 custom_minimum_size = Vector2(100, 0)
@@ -26,3 +26,4 @@ script = ExtResource("2_f2anx")
 custom_minimum_size = Vector2(20, 0)
 layout_mode = 2
 script = ExtResource("4_alqq2")
+

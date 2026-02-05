@@ -1,353 +1,775 @@
 extends Node2D
 
-const CELL_SIZE: float = 256.0
+const ENEMY_SCENE := preload("res://scenes/entity/enemy.tscn")
+const BATTLE_SCENE := preload("res://scenes/UI/battle.tscn")
+const PLAYER_SCENE := preload("res://scenes/entity/player-character-scene.tscn")
+const LOOTBOX := preload("res://scenes/Interactables/Lootbox.tscn")
+const TRAP := preload("res://scenes/Interactables/Trap.tscn")
+const MERCHANT := preload("res://scenes/entity/merchant.tscn")
+const LOADING_SCENE := preload("res://scenes/UI/loading_screen.tscn")
+const START_SCENE := "res://scenes/UI/start-menu.tscn"
+@export var menu_scene := preload("res://scenes/UI/popup-menu.tscn")
+@export var fog_tile_id: int = 0  # set this in the inspector to the fog-tile id in your tileset
+@export var fog_dynamic: bool = true  # if true, areas that are no longer visible get fogged again
 
-@export var room_count: int = 3000
-@export var start_position: Vector2 = Vector2(500, 500)
-@export var rooms_available: int = 5
-@export var ga_iterations: int = 500
+# --- World state ---
+var world_index: int = 0
+var generators: Array[Node2D] = []
 
-var used_doors: Array[Marker2D] = []
-var open_doors: Array[Marker2D] = []
-var room_scenes: Array[PackedScene] = []
-# {"scene":PackedScene, "doors":Array[Dictionary], "rect":Rect2}
-var room_defs: Array[Dictionary] = []
+var world_root: Node2D = null
+var dungeon_floor: TileMapLayer = null
+var dungeon_top: TileMapLayer = null
+
+var player: PlayerCharacter = null
+var menu_instance: CanvasLayer = null
+var battle: CanvasLayer = null
+
+var loading_screen: CanvasLayer = null
+
+var switching_world := false
+
+@onready var backgroundtile = $TileMapLayer
+
+@onready var minimap: TileMapLayer
+
+@onready var generator1: Node2D = $World1
+@onready var generator2: Node2D = $World2
+@onready var generator3: Node2D = $World3
+
+@onready var colorfilter: ColorRect = $ColorFilter
+
+@onready var fog_war_layer := $FogWar
 
 
 func _ready() -> void:
-	# use deterministic global RNG
-	GlobalRNG.seed_base(42)
-	_load_room_scenes()
-	if room_defs.is_empty():
-		push_error("Keine Room-Szenen gefunden!")
+	generators = [generator1, generator2, generator3]
+	await _load_world(world_index)
+
+
+func _load_world(idx: int) -> void:
+	get_tree().paused = true
+	await _show_loading()
+
+	# sorgt dafür, dass Loading immer weggeht
+	var success := false
+
+	_clear_world()
+
+	if idx < 0 or idx >= generators.size():
+		push_error("No more worlds left!")
+		_hide_loading()
+		get_tree().paused = false
 		return
 
-	_run_simple_ga()
+	var gen := generators[idx]
+
+	# Ensure loading screen binds to this generator so progress updates show immediately
+	if loading_screen != null and is_instance_valid(loading_screen) and gen != null:
+		if loading_screen.has_method("bind_to_generator"):
+			loading_screen.call("bind_to_generator", gen)
+
+	world_root = Node2D.new()
+	world_root.name = "WorldRoot"
+	add_child(world_root)
+
+	var maps: Dictionary = await gen.get_random_tilemap()
+
+	if maps.is_empty():
+		push_error("Generator returned empty dictionary!")
+		_hide_loading()
+		get_tree().paused = false
+		return
+
+	dungeon_floor = maps.get("floor", null)
+	dungeon_top = maps.get("top", null)
+	minimap = maps.get("minimap", null)
+
+	# initialize fog layer tiles so Player.update_visibility can erase them later
+	if fog_war_layer != null and dungeon_floor != null:
+		init_fog_layer()
+
+	if dungeon_floor == null:
+		push_error("Generator returned null floor tilemap!")
+		_hide_loading()
+		get_tree().paused = false
+		return
+
+	# minimap background
+	if minimap != null and backgroundtile != null:
+		var bg := backgroundtile.duplicate() as TileMapLayer
+		bg.name = "MinimapBackground"
+		bg.visibility_layer = 1 << 1
+		bg.z_index = -100
+		minimap.add_child(bg)
+		minimap.move_child(bg, -1)
+
+	if dungeon_floor.get_parent() == null:
+		world_root.add_child(dungeon_floor)
+	if dungeon_top != null and dungeon_top.get_parent() == null:
+		world_root.add_child(dungeon_top)
+
+	dungeon_floor.visibility_layer = 1
+	update_color_filter()
+
+	spawn_player()
+	spawn_enemies()
+	spawn_lootbox()
+	spawn_traps()
+
+	var merchants = find_merchants()
+
+	for i in merchants:
+		spawn_merchant_entity(i)
+
+	_hide_loading()
+	get_tree().paused = false
 
 
-# -------------------------------------------------------------------
-# ROOM SCENE LOADING + CACHING
-# -------------------------------------------------------------------
+func spawn_merchant_entity(cords: Vector2) -> void:
+	var e = MERCHANT.instantiate()
+	e.add_to_group("merchant_entity")
+
+	e.global_position = cords
+
+	# assign a stable merchant id based on spawn coordinates and world index
+	# so the in-memory registry can distinguish merchants reliably
+	if e.has_method("set"):
+		var id := "merchant_%d_%d_world%d" % [int(cords.x), int(cords.y), int(world_index)]
+		# set merchant_id via set() (safe even if exported property is empty)
+		e.set("merchant_id", id)
+		# set merchant_room key as requested
+		e.set("merchant_room", "merchant_room")
+
+	if world_root != null:
+		world_root.add_child(e)
+	else:
+		add_child(e)
 
 
-func _load_room_scenes() -> void:
-	room_scenes.clear()
-	room_defs.clear()
+func _show_loading() -> void:
+	loading_screen = LOADING_SCENE.instantiate() as CanvasLayer
+	add_child(loading_screen)
 
-	for i in range(1, rooms_available + 1):
-		var path: String = "res://scenes/Room%d.tscn" % i
+	if loading_screen != null:
+		loading_screen.layer = 100
+	else:
+		push_error("_show_loading: loading_screen instance is null")
+	loading_screen.visible = true
+	loading_screen.process_mode = Node.PROCESS_MODE_ALWAYS
 
-		if not ResourceLoader.exists(path):
-			push_warning("Fehlt: " + path)
+	move_child(loading_screen, get_child_count() - 1)
+
+	await get_tree().process_frame
+	await get_tree().process_frame
+
+
+func _show_start() -> void:
+	var start_screen = preload(START_SCENE).instantiate() as CanvasLayer
+	add_child(start_screen)
+
+	start_screen.layer = 1000
+
+	start_screen.visible = true
+	start_screen.process_mode = Node.PROCESS_MODE_ALWAYS
+
+	move_child(start_screen, get_child_count() - 1)
+
+	# Connect Start New signal so clicking the button starts a new game (loads a new map)
+	if start_screen.has_signal("start_new_pressed"):
+		start_screen.start_new_pressed.connect(_on_start_new_pressed)
+
+	await get_tree().process_frame
+	await get_tree().process_frame
+
+
+func _on_start_new_pressed() -> void:
+	# Close start menu if present
+	var start_node := get_node_or_null("StartMenu")
+	if start_node != null and is_instance_valid(start_node):
+		start_node.call_deferred("queue_free")
+
+	# Reset to first world and load
+	world_index = 0
+	await _load_world(world_index)
+
+
+func _hide_loading() -> void:
+	if loading_screen != null and is_instance_valid(loading_screen):
+		loading_screen.visible = false
+
+
+func spawn_traps() -> void:
+	if dungeon_floor == null or world_root == null:
+		return
+
+	var tile_set := dungeon_floor.tile_set
+	if tile_set == null:
+		return
+
+	if not _has_custom_data_layer(tile_set, "trap_spawnable"):
+		push_warning("TileSet has no custom data layer 'trap_spawnable'. Skipping trap spawns.")
+		return
+
+	# alte Lootboxen entfernen
+	for c in world_root.get_children():
+		if c != null and c.name.begins_with("Trap"):
+			c.queue_free()
+
+	# alle möglichen Lootbox-Spawns sammeln
+	var candidates: Array[Vector2i] = []
+	for cell in dungeon_floor.get_used_cells():
+		var td := dungeon_floor.get_cell_tile_data(cell)
+		if td == null:
 			continue
 
-		var sc: Resource = load(path)
-		if not (sc is PackedScene):
-			push_warning("Ungültige Scene: " + path)
+		# Tileset Custom Data Bool
+		if td.get_custom_data("trap_spawnable") == true:
+			candidates.append(cell)
+
+	if candidates.is_empty():
+		return
+
+	# maximal 20 Lootboxen
+	GlobalRNG.shuffle_array(candidates)
+	var amount = min(20, candidates.size())
+
+	for i in range(amount):
+		var spawn_cell := candidates[i]
+		var world_pos := dungeon_floor.to_global(dungeon_floor.map_to_local(spawn_cell))
+
+		var loot := TRAP.instantiate() as Node2D
+		loot.name = "Trap_%s" % i
+		world_root.add_child(loot)
+		loot.global_position = world_pos
+
+
+func spawn_lootbox() -> void:
+	if dungeon_floor == null or world_root == null:
+		return
+
+	var tile_set := dungeon_floor.tile_set
+	if tile_set == null:
+		return
+
+	if not _has_custom_data_layer(tile_set, "lootbox_spawnable"):
+		push_warning(
+			"TileSet has no custom data layer 'lootbox_spawnable'. Skipping lootbox spawns."
+		)
+		return
+
+	# alte Lootboxen entfernen
+	for c in world_root.get_children():
+		if c != null and c.name.begins_with("Lootbox"):
+			c.queue_free()
+
+	# alle möglichen Lootbox-Spawns sammeln
+	var candidates: Array[Vector2i] = []
+	for cell in dungeon_floor.get_used_cells():
+		var td := dungeon_floor.get_cell_tile_data(cell)
+		if td == null:
 			continue
 
-		var scene: PackedScene = sc
-		room_scenes.append(scene)
+		# Tileset Custom Data Bool
+		if td.get_custom_data("lootbox_spawnable") == true:
+			candidates.append(cell)
 
-		# Room instanzieren, um Türen & AABB auszulesen
-		var temp: Node2D = scene.instantiate() as Node2D
-		if temp == null:
-			push_warning("Scene ist kein Node2D: " + path)
-			continue
+	if candidates.is_empty():
+		return
 
-		var doors_local: Array[Dictionary] = []
-		for c in temp.get_children():
-			if c is Marker2D and c.name.begins_with("Door"):
-				var marker := c as Marker2D
-				doors_local.append({"pos": marker.position, "rot": marker.rotation})
+	# maximal 20 Lootboxen
+	GlobalRNG.shuffle_array(candidates)
+	var amount = min(20, candidates.size())
 
-		var local_rect: Rect2 = Rect2(Vector2.ZERO, Vector2(128, 128))
+	for i in range(amount):
+		var spawn_cell := candidates[i]
+		var world_pos := dungeon_floor.to_global(dungeon_floor.map_to_local(spawn_cell))
 
-		var area: Area2D = temp.get_node_or_null("Area2D")
-		if area == null:
-			var found := temp.find_child("Area2D", true, false)
-			if found is Area2D:
-				area = found
-
-		if area:
-			var cs := area.get_child(0) as CollisionShape2D
-			if cs and cs.shape and cs.shape.has_method("get_rect"):
-				local_rect = cs.shape.get_rect()
-
-		room_defs.append({"scene": scene, "doors": doors_local, "rect": local_rect})
-
-		temp.queue_free()
+		var loot := LOOTBOX.instantiate() as Node2D
+		loot.name = "Lootbox_%s" % i
+		world_root.add_child(loot)
+		loot.global_position = world_pos
 
 
-# -------------------------------------------------------------------
-# SPATIAL HASH
-# -------------------------------------------------------------------
+func _disable_lootbox_blocking(loot: Node) -> void:
+	if loot == null:
+		return
+
+	# Falls Lootbox StaticBody2D / CharacterBody2D etc. hat: deaktivieren
+	var bodies := loot.find_children("*", "PhysicsBody2D", true, false)
+	for b in bodies:
+		if b != null:
+			b.set_deferred("collision_layer", 0)
+			b.set_deferred("collision_mask", 0)
+
+	# Falls Lootbox Area2D hat: darf triggern, aber nicht blocken
+	var areas := loot.find_children("*", "Area2D", true, false)
+	for a in areas:
+		if a != null:
+			# Area darf nur "triggern", aber nix blocken
+			a.set_deferred("collision_layer", 0)
+			a.set_deferred("collision_mask", 0)
+
+	# Alle CollisionShapes deaktivieren (sicherster Weg)
+	var shapes := loot.find_children("*", "CollisionShape2D", true, false)
+	for s in shapes:
+		if s != null:
+			s.set_deferred("disabled", true)
 
 
-func _rect_to_global_aabb(local_rect: Rect2, room_pos: Vector2, room_rot: float) -> Rect2:
-	var corners: Array[Vector2] = [
-		local_rect.position,
-		local_rect.position + Vector2(local_rect.size.x, 0.0),
-		local_rect.position + Vector2(0.0, local_rect.size.y),
-		local_rect.position + local_rect.size
-	]
-
-	var min_x: float = INF
-	var min_y: float = INF
-	var max_x: float = -INF
-	var max_y: float = -INF
-
-	for c: Vector2 in corners:
-		var g: Vector2 = c.rotated(room_rot) + room_pos
-		min_x = min(min_x, g.x)
-		min_y = min(min_y, g.y)
-		max_x = max(max_x, g.x)
-		max_y = max(max_y, g.y)
-
-	return Rect2(Vector2(min_x, min_y), Vector2(max_x - min_x, max_y - min_y))
-
-
-func _cell_from_point(p: Vector2) -> Vector2i:
-	return Vector2i(int(floor(p.x / CELL_SIZE)), int(floor(p.y / CELL_SIZE)))
-
-
-func _grid_register_room(aabb: Rect2, grid: Dictionary) -> void:
-	var min_cell: Vector2i = _cell_from_point(aabb.position)
-	var max_cell: Vector2i = _cell_from_point(aabb.position + aabb.size)
-
-	for x in range(min_cell.x, max_cell.x + 1):
-		for y in range(min_cell.y, max_cell.y + 1):
-			var cell := Vector2i(x, y)
-			if not grid.has(cell):
-				grid[cell] = []
-			(grid[cell] as Array).append(aabb)
-
-
-func _room_overlaps_grid(aabb: Rect2, grid: Dictionary) -> bool:
-	if grid.is_empty():
+func _has_custom_data_layer(tile_set: TileSet, layer_name: String) -> bool:
+	if tile_set == null:
 		return false
 
-	var min_cell: Vector2i = _cell_from_point(aabb.position)
-	var max_cell: Vector2i = _cell_from_point(aabb.position + aabb.size)
-
-	for x in range(min_cell.x - 1, max_cell.x + 2):
-		for y in range(min_cell.y - 1, max_cell.y + 2):
-			var cell := Vector2i(x, y)
-			if not grid.has(cell):
-				continue
-
-			var list: Array = grid[cell]
-			for other_aabb: Rect2 in list:
-				if aabb.intersects(other_aabb):
-					return true
+	var layer_count := tile_set.get_custom_data_layers_count()
+	for i in range(layer_count):
+		if tile_set.get_custom_data_layer_name(i) == layer_name:
+			return true
 
 	return false
 
 
-# -------------------------------------------------------------------
-# ROOM HELPERS
-# -------------------------------------------------------------------
+func update_color_filter() -> void:
+	if world_index == 0:
+		colorfilter.visible = false
+		return
+
+	colorfilter.visible = true
+
+	if world_index == 1:
+		colorfilter.color = Color(1.0, 0.9, 0.3, 0.20)
+	elif world_index == 2:
+		colorfilter.color = Color(1.0, 0.2, 0.2, 0.25)
 
 
-func _clear_rooms() -> void:
-	for r in get_tree().get_nodes_in_group("rooms"):
-		r.queue_free()
+func init_fog_layer() -> void:
+	# Fill the FogWar TileMapLayer with a fog tile so Player.update_visibility can erase cells.
+	if fog_war_layer == null or dungeon_floor == null:
+		return
 
-	used_doors.clear()
-	open_doors.clear()
+	# align tileset + transform so coordinates match
+	fog_war_layer.clear()
+	fog_war_layer.tile_set = dungeon_floor.tile_set
+	# align position/visibility/z so it overlays the floor
+	fog_war_layer.position = dungeon_floor.position
+	fog_war_layer.visibility_layer = dungeon_floor.visibility_layer
+	fog_war_layer.z_index = (dungeon_floor.z_index if dungeon_floor != null else 0) + 10
 
-
-func get_doors(room: Node2D) -> Array[Marker2D]:
-	var arr: Array[Marker2D] = []
-	for c in room.get_children():
-		if c is Marker2D and c.name.begins_with("Door"):
-			arr.append(c as Marker2D)
-	return arr
-
-
-# -------------------------------------------------------------------
-# GENOME
-# -------------------------------------------------------------------
-
-
-func create_genome() -> Array[int]:
-	var g: Array[int] = []
-	var weighted: Array[int] = [1, 2, 4, 4, 4, 3, 3, 3, 3, 5, 5, 5, 5]
-
-	for i in range(room_count):
-		g.append(weighted[GlobalRNG.randi_range(0, weighted.size() - 1)])
-
-	return g
+	var counter := 0
+	var used_rect := dungeon_floor.get_used_rect()
+	var yield_every := 300
+	for x in range(used_rect.position.x, used_rect.position.x + used_rect.size.x):
+		for y in range(used_rect.position.y, used_rect.position.y + used_rect.size.y):
+			var cell := Vector2i(x, y)
+			# skip empty cells
+			if dungeon_floor.get_cell_source_id(cell) == -1:
+				continue
+			fog_war_layer.set_cell(cell, 2, Vector2(2, 4), 0)
+			counter += 1
+			if counter % yield_every == 0:
+				await get_tree().process_frame
 
 
-# -------------------------------------------------------------------
-# FITNESS
-# -------------------------------------------------------------------
+func _clear_world() -> void:
+	# battle weg
+	if battle != null and is_instance_valid(battle):
+		battle.queue_free()
+		battle = null
+
+	# menu weg (optional)
+	if menu_instance != null and is_instance_valid(menu_instance):
+		menu_instance.queue_free()
+		menu_instance = null
+
+	# player weg
+	if player != null and is_instance_valid(player):
+		player.queue_free()
+		player = null
+
+	if world_root != null and is_instance_valid(world_root):
+		world_root.queue_free()
+		world_root = null
+
+	dungeon_floor = null
+	dungeon_top = null
 
 
-func compute_fitness(stats: Dictionary) -> float:
-	var p: int = stats["placed_rooms"]
-	var s: int = stats["room_score"]
-	var o: int = stats["open_doors"]
+func _on_player_exit_reached() -> void:
+	if switching_world:
+		return
+	switching_world = true
 
-	var f: float = 0.0
-	f += s * 8.0
-	f += p * 12.0
-	f += sqrt(float(p)) * 25.0
+	world_index += 1
+	await _load_world(world_index)
 
-	if p > 0:
-		f -= float(o) / float(p) * 30.0
-
-	if s > p * 2:
-		f += s * 5.0
-
-	return f
+	switching_world = false
 
 
-# -------------------------------------------------------------------
-# DUNGEON GENERATION (Optimiert + Typisiert)
-# -------------------------------------------------------------------
+# ---------------------------------------
+# UI / MENU
+# ---------------------------------------
+func _process(_delta) -> void:
+	if Input.is_action_just_pressed("ui_menu"):
+		toggle_menu()
 
 
-func generate_from_genome(genome: Array[int]) -> Dictionary:
-	used_doors.clear()
-	open_doors.clear()
+func update_minimap_player_marker() -> void:
+	if minimap == null or dungeon_floor == null or player == null:
+		return
 
-	var stats: Dictionary = {"room_score": 0, "open_doors": 0, "placed_rooms": 0}
+	var marker := minimap.get_node_or_null("PlayerMarker")
+	if marker == null:
+		push_warning("Minimap has no PlayerMarker node")
+		return
 
-	var grid: Dictionary = {}
+	# 1) Player global -> floor local -> map cell
+	var world_cell: Vector2i = dungeon_floor.local_to_map(
+		dungeon_floor.to_local(player.global_position)
+	)
 
-	# -------- erster Raum --------
-	var type0: int = clamp(genome[0], 1, rooms_available)
-	var rdef: Dictionary = room_defs[type0 - 1]
-	var rect0: Rect2 = rdef["rect"]
+	# 2) world_cell -> minimap local position
+	# minimap.map_to_local gibt dir Pixelposition im Minimap-Tilegrid
+	var mini_pos: Vector2 = minimap.map_to_local(world_cell)
 
-	var pos0: Vector2 = start_position
-	var rot0: float = 0.0
+	# 3) Marker setzen (lokal zur minimap)
+	marker.position = mini_pos
 
-	var aabb0 := _rect_to_global_aabb(rect0, pos0, rot0)
-	_grid_register_room(aabb0, grid)
 
-	var room0: Node2D = (rdef["scene"] as PackedScene).instantiate()
-	add_child(room0)
-	room0.add_to_group("rooms")
-	room0.global_position = pos0
-	room0.rotation = rot0
+func toggle_menu():
+	if menu_instance == null:
+		menu_instance = menu_scene.instantiate()
+		add_child(menu_instance)
 
-	stats["placed_rooms"] += 1
-	stats["room_score"] += (10 if type0 in [3, 5] else 1)
+		get_tree().paused = true
 
-	open_doors.append_array(get_doors(room0))
+		if menu_instance.has_signal("menu_closed"):
+			menu_instance.menu_closed.connect(on_menu_closed)
+	else:
+		on_menu_closed()
 
-	# -------- weitere Räume --------
-	for i in range(1, genome.size()):
-		if open_doors.is_empty():
+
+func on_menu_closed():
+	if menu_instance != null and is_instance_valid(menu_instance):
+		menu_instance.queue_free()
+		menu_instance = null
+	get_tree().paused = false
+
+
+func spawn_enemies() -> void:
+	var data: Dictionary = EntityAutoload.item_data
+	var settings: Dictionary = data.get("_settings", {})
+
+	var max_weights = settings.get("max_total_weight_per_level", [])
+	var max_weight: int = settings.get("default_max_total_weight", 30)
+
+	if world_index < max_weights.size():
+		max_weight = max_weights[world_index]
+
+	# --- Enemy Definitions sammeln ---
+	var defs: Array[Dictionary] = []
+
+	for k in data.keys():
+		if str(k).begins_with("_"):
+			continue
+
+		var d: Dictionary = data[k]
+		if d.get("entityCategory") != "enemy":
+			continue
+
+		# Alias auflösen
+		if d.has("alias_of"):
+			var base = data[d["alias_of"]]
+			var merged = base.duplicate(true)
+			for x in d.keys():
+				merged[x] = d[x]
+			d = merged
+
+		d["_id"] = str(k)
+		defs.append(d)
+
+	# --- Wahrscheinlichkeiten ---
+	var weights: Array[float] = []
+	var total := 0.0
+
+	for d in defs:
+		var sr = d.get("spawnrate", {})
+		var avg := (float(sr.get("min", 0)) + float(sr.get("max", 0))) * 0.5
+		weights.append(avg)
+		total += avg
+
+	if total <= 0:
+		for i in range(weights.size()):
+			weights[i] = 1.0
+		total = float(weights.size())
+
+	# --- Spawn-Plan erstellen ---
+	var rng := GlobalRNG.get_rng()
+	rng.seed = GlobalRNG.next_seed()
+
+	var current_weight := 0
+	var spawn_plan := {}
+
+	for _i in range(100):
+		if current_weight >= max_weight:
 			break
 
-		var prev: Marker2D = open_doors.pop_front()
-		if not is_instance_valid(prev):
+		# weighted pick
+		var roll := rng.randf() * total
+		var acc := 0.0
+		var chosen := 0
+
+		for j in range(defs.size()):
+			acc += weights[j]
+			if roll <= acc:
+				chosen = j
+				break
+
+		var def := defs[chosen]
+
+		var sc = def.get("spawncount", {})
+		var count := rng.randi_range(int(sc.get("min", 0)), int(sc.get("max", 1)))
+
+		var w := int(def.get("weight", 1))
+		var id = def["_id"]
+
+		for _j in range(count):
+			if current_weight + w > max_weight:
+				break
+
+			spawn_plan[id] = spawn_plan.get(id, 0) + 1
+			current_weight += w
+
+	# --- Enemies wirklich spawnen ---
+	for id in spawn_plan.keys():
+		var def = data[id]
+
+		# Alias nochmal auflösen (für behaviour/sprite)
+		if def.has("alias_of"):
+			def = data[def["alias_of"]]
+
+		for i in range(spawn_plan[id]):
+			spawn_enemy(def.get("sprite_type", id), def.get("behaviour", []))
+			print("spawn: ", def.get("sprite_type", id))
+
+
+func spawn_enemy(sprite_type: String, behaviour: Array) -> void:
+	# default: spawn normal enemy
+	var e = ENEMY_SCENE.instantiate()
+	e.add_to_group("enemy")
+	e.add_to_group("vision_objects")
+	e.types = behaviour
+	e.sprite_type = sprite_type
+
+	# setup with Floor Tilemap
+	e.setup(dungeon_floor, dungeon_top, 3, 1, 0)
+
+	# Enemies always in WorldRoot
+	if world_root != null:
+		world_root.add_child(e)
+	else:
+		add_child(e)
+
+
+func spawn_player() -> void:
+	# alte Player entfernen
+	for n in get_tree().get_nodes_in_group("player"):
+		if n != null and is_instance_valid(n):
+			n.queue_free()
+
+	var e: PlayerCharacter = PLAYER_SCENE.instantiate()
+	e.name = "Player"
+	# Floor setzen (einmal!)
+	e.setup(dungeon_floor, dungeon_top, 10, 3, 0)
+	e.fog_layer = fog_war_layer
+	# pass dynamic flag and fog tile id to player for re-fogging
+	if e.has_method("set"):
+		e.set("dynamic_fog", fog_dynamic)
+		e.set("fog_tile_id", fog_tile_id)
+	# in WorldRoot hängen
+	world_root.add_child(e)
+	player = e
+
+	# minimap rein
+	player.set_minimap(minimap)
+
+	# Spawn Position
+	var start_pos := Vector2i(2, 2)
+
+	# erst tilemap, dann gridpos, dann position
+	player.setup(dungeon_floor, dungeon_top, 10, 3, 0)
+	player.grid_pos = start_pos
+	player.global_position = dungeon_floor.to_global(dungeon_floor.map_to_local(start_pos))
+	player.add_to_group("player")
+
+	# Signale verbinden
+	if player.has_signal("exit_reached"):
+		if not player.exit_reached.is_connected(_on_player_exit_reached):
+			player.exit_reached.connect(_on_player_exit_reached)
+	else:
+		push_warning("player has no exit_reached signal")
+
+	if player.has_signal("player_moved"):
+		if not player.player_moved.is_connected(_on_player_moved):
+			player.player_moved.connect(_on_player_moved)
+
+	# WICHTIG: einmal initial Fog aufdecken
+	if player.has_method("update_visibility"):
+		player.update_visibility()
+
+
+func _on_player_moved() -> void:
+	if minimap == null or dungeon_floor == null or player == null:
+		return
+	# 1) Player -> Cell in FLOOR Tilemap
+	var world_cell: Vector2i = dungeon_floor.local_to_map(
+		dungeon_floor.to_local(player.global_position)
+	)
+	# 2) passende RoomLayer finden, deren tile_origin passt
+	for child in minimap.get_children():
+		if not (child is TileMapLayer):
 			continue
+		var room_layer := child as TileMapLayer
 
-		var placed := false
-		var gene_type: float = clamp(genome[i], 1, rooms_available)
+		# RoomOrigin steht im Namen: Room_x_y
+		# oder du speicherst es als Meta beim Erstellen (besser)
+		var origin: Vector2i = room_layer.get_meta("tile_origin", Vector2i.ZERO)
 
-		for attempt in range(50):
-			var try_type: int = (
-				gene_type if attempt == 0 else GlobalRNG.randi_range(1, rooms_available)
-			)
-			var def := room_defs[try_type - 1]
+		# Player Cell relativ zum RoomLayer
+		var local_cell := world_cell - origin
 
-			var doors_template: Array[Dictionary] = def["doors"]
-			if doors_template.is_empty():
+		if room_layer.get_cell_source_id(local_cell) != -1:
+			room_layer.visible = true
+			# Reveal entire room in FogWar
+			reveal_room_layer(room_layer)
+			return
+
+
+func reveal_room_layer(room_layer: TileMapLayer) -> void:
+	if fog_war_layer == null:
+		return
+
+	var origin: Vector2i = room_layer.get_meta("tile_origin", Vector2i.ZERO)
+	var rect = room_layer.get_meta("room_rect", Rect2i(Vector2i.ZERO, Vector2i.ZERO))
+	if rect.size == Vector2i.ZERO:
+		# fallback: iterate used cells of the room layer
+		for cell in room_layer.get_used_cells():
+			var world_cell := origin + cell
+			fog_war_layer.erase_cell(world_cell)
+		return
+
+	var counter := 0
+	var yield_every := 300
+	for x in range(rect.position.x, rect.position.x + rect.size.x):
+		for y in range(rect.position.y, rect.position.y + rect.size.y):
+			var local_cell := Vector2i(x, y)
+			# skip empty tiles in the room
+			if room_layer.get_cell_source_id(local_cell) == -1:
 				continue
+			var world_cell := origin + local_cell
+			fog_war_layer.erase_cell(world_cell)
+			counter += 1
+			if counter % yield_every == 0:
+				await get_tree().process_frame
 
-			var indices: Array[int] = []
-			for idx in range(doors_template.size()):
-				indices.append(idx)
-			GlobalRNG.shuffle_array(indices)
 
-			for idx in indices:
-				var dtemp: Dictionary = doors_template[idx]
-				var door_pos: Vector2 = dtemp["pos"]
-				var door_rot: float = dtemp["rot"]
+# ---------------------------------------
+# BATTLE
+# ---------------------------------------
+func instantiate_battle(player_node: Node, enemy: Node):
+	if battle == null:
+		print("instantiate_battle: creating battle instance")
+		battle = BATTLE_SCENE.instantiate()
+		battle.player = player_node
+		battle.enemy = enemy
 
-				var target_rot := prev.global_rotation + PI
-				var new_rot := target_rot - door_rot
-				var rotated_door_pos := door_pos.rotated(new_rot)
-				var new_pos := prev.global_position - rotated_door_pos
+		battle.process_mode = Node.PROCESS_MODE_WHEN_PAUSED
+		add_child(battle)
 
-				var rect_local: Rect2 = def["rect"]
-				var test_aabb := _rect_to_global_aabb(rect_local, new_pos, new_rot)
+		# Connect signals and log results for debugging
+		if battle.has_signal("player_victory"):
+			# Connect to a wrapper that logs and then calls enemy_defeated
+			var victory_callable_base := Callable(self, "_on_battle_player_victory")
+			var victory_callable := victory_callable_base.bind(enemy)
+			if not battle.is_connected("player_victory", victory_callable):
+				# connect using Callable (already bound to enemy)
+				battle.connect("player_victory", victory_callable)
+				print("instantiate_battle: connected player_victory -> _on_battle_player_victory")
+			else:
+				print("instantiate_battle: player_victory already connected")
+		else:
+			print("instantiate_battle: battle has no signal player_victory")
 
-				if _room_overlaps_grid(test_aabb, grid):
-					continue
+		if battle.has_signal("player_loss"):
+			# Connect to a wrapper that logs and then calls game_over
+			var loss_callable := Callable(self, "_on_battle_player_loss")
+			if not battle.is_connected("player_loss", loss_callable):
+				battle.connect("player_loss", loss_callable)
+				print("instantiate_battle: connected player_loss -> _on_battle_player_loss")
+			else:
+				print("instantiate_battle: player_loss already connected")
+		else:
+			print("instantiate_battle: battle has no signal player_loss")
 
-				var new_room: Node2D = (def["scene"] as PackedScene).instantiate()
-				add_child(new_room)
-				new_room.add_to_group("rooms")
-				new_room.global_position = new_pos
-				new_room.rotation = new_rot
+		print("instantiate_battle: pausing tree to run battle")
+		get_tree().paused = true
 
-				_grid_register_room(test_aabb, grid)
 
-				placed = true
-				stats["placed_rooms"] += 1
-				stats["room_score"] += (10 if try_type in [3, 5] else 1)
+func find_merchants() -> Array[Vector2]:
+	var merchants: Array[Vector2] = []
 
-				var room_doors := get_doors(new_room)
-				var used_door: Marker2D = null
-				var min_dist := INF
+	var cells = dungeon_floor.get_used_cells()
 
-				for d in room_doors:
-					var dist := d.global_position.distance_to(prev.global_position)
-					if dist < min_dist:
-						min_dist = dist
-						used_door = d
+	for cell in cells:
+		var data = dungeon_floor.get_cell_tile_data(cell)
 
-				for d in room_doors:
-					if d != used_door:
-						open_doors.append(d)
-
-				used_doors.append(prev)
-				if used_door:
-					used_doors.append(used_door)
-
-				break
-
-			if placed:
-				break
-
-		if not placed:
+		if data == null:
 			continue
 
-	stats["open_doors"] = open_doors.size()
-	return stats
+		if not data.get_custom_data("merchant"):
+			continue
+
+		var right = cell + Vector2i(1, 0)
+		var right_data = dungeon_floor.get_cell_tile_data(right)
+
+		if right_data and right_data.get_custom_data("merchant"):
+			var a = dungeon_floor.map_to_local(cell)
+			var b = dungeon_floor.map_to_local(right)
+
+			merchants.append((a + b) * 0.5)
+
+	return merchants
 
 
-# -------------------------------------------------------------------
-# GENETIC SEARCH
-# -------------------------------------------------------------------
+func enemy_defeated(enemy):
+	print("enemy_defeated: The battle is won - handler called")
+	# Make sure game is unpaused first so UI can update
+	if get_tree().paused:
+		print("enemy_defeated: unpausing tree")
+		get_tree().paused = false
+
+	if battle != null and is_instance_valid(battle):
+		print("enemy_defeated: freeing battle UI")
+		battle.call_deferred("queue_free")
+		battle = null
+
+	if enemy != null and is_instance_valid(enemy):
+		print("enemy_defeated: freeing enemy node")
+		enemy.call_deferred("queue_free")
+
+	if player != null and is_instance_valid(player):
+		print("enemy_defeated: leveling up player")
+		player.level_up()
 
 
-func _run_simple_ga() -> void:
-	var best_genome: Array[int] = []
-	var best_fitness: float = -INF
+func _on_battle_player_loss() -> void:
+	# Now forward to existing game_over handler
+	game_over()
 
-	for i in range(ga_iterations):
-		var genome: Array[int] = create_genome()
-		_clear_rooms()
 
-		var stats: Dictionary = generate_from_genome(genome)
-		var fitness := compute_fitness(stats)
+func _on_battle_player_victory(enemy) -> void:
+	print("_on_battle_player_victory: handler invoked — calling enemy_defeated")
+	enemy_defeated(enemy)
 
-		print("Layout ", i, " -> Fitness =", fitness, " | ", stats)
 
-		if fitness > best_fitness:
-			best_fitness = fitness
-			best_genome = genome.duplicate()
-
-	_clear_rooms()
-	var final_stats := generate_from_genome(best_genome)
-
-	print("\nBESTES GENOM =", best_genome)
-	print("BESTE FITNESS =", best_fitness)
+func game_over():
+	get_tree().paused = false
+	get_tree().change_scene_to_file(START_SCENE)

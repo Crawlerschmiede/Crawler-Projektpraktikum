@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://dimpg00hfok7n"]
 
-[ext_resource type="Script" uid="uid://cwborsjwcvm42" path="res://scripts/trap.gd" id="1_g0wxk"]
+[ext_resource type="Script" uid="uid://cwborsjwcvm42" path="res://scripts/Interactables/trap.gd" id="1_g0wxk"]
 [ext_resource type="Texture2D" uid="uid://b5h154to842sa" path="res://assets/item_icons/Hund.png" id="2_g0wxk"]
 
 [sub_resource type="Animation" id="Animation_cu0on"]
@@ -45,3 +45,4 @@ shape = SubResource("RectangleShape2D_mhsm6")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=551056047]
 sprite_frames = SubResource("SpriteFrames_ngp3t")
+

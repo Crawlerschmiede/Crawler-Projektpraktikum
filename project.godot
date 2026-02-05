@@ -21,13 +21,13 @@ config/icon="res://icon.svg"
 
 [autoload]
 
-SettingsManager="*res://scripts/settings_manager.gd"
-JsonData="*res://scripts/JSONData.gd"
-PlayerInventory="*res://scripts/PlayerInventory.gd"
+SettingsManager="*res://scripts/Autoloadscripts/settings_manager.gd"
+JsonData="*res://scripts/Autoloadscripts/JSONData.gd"
+PlayerInventory="*res://scripts/Autoloadscripts/PlayerInventory.gd"
 Setting="*res://scripts/Autoloadscripts/setting.gd"
-Logger="*res://scripts/Logger.gd"
-MerchantRegistry="*res://scripts/merchant_registry.gd"
-EntityAutoload="*res://scripts/entity_autoload.gd"
+Logger="*res://scripts/Autoloadscripts/Logger.gd"
+MerchantRegistry="*res://scripts/rooms/merchant/merchant_registry.gd"
+EntityAutoload="*res://scripts/Autoloadscripts/entity_autoload.gd"
 GlobalRNG="*res://scripts/Autoloadscripts/GlobalRNG.gd"
 AutoloadResetRunner="*res://scripts/Autoloadscripts/AutoloadResetRunner.gd"
 

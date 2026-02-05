@@ -1,0 +1,30 @@
+[gd_scene load_steps=5 format=3 uid="uid://dmc5spi7xs0v6"]
+
+[ext_resource type="Script" uid="uid://b7x880xhs86o4" path="res://scripts/enemy_vampire_bat.gd" id="1_eqs6b"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_erdrp"]
+size = Vector2(16, 16)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_eqs6b"]
+radius = 8.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_erdrp"]
+
+[node name="enemy-vampire-bat" type="CharacterBody2D"]
+script = ExtResource("1_eqs6b")
+
+[node name="CollisionArea" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CollisionArea" groups=["vision_objects"]]
+shape = SubResource("RectangleShape2D_erdrp")
+debug_color = Color(0, 0.6, 0.69803923, 0.5137255)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, 1)
+shape = SubResource("CircleShape2D_eqs6b")
+
+[node name="SightArea" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="SightArea"]
+scale = Vector2(10, 10)
+shape = SubResource("CircleShape2D_erdrp")

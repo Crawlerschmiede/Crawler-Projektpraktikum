@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://b7ipllkuce5ui"]
 
-[ext_resource type="Script" uid="uid://d1d1nniopokva" path="res://scripts/Lootbox.gd" id="1_f4uf5"]
+[ext_resource type="Script" uid="uid://d1d1nniopokva" path="res://scripts/Interactables/Lootbox.gd" id="1_f4uf5"]
 [ext_resource type="Texture2D" uid="uid://cyt6v2ro0ketk" path="res://assets/menu/UI_TravelBook_IconStar01a.png" id="2_f4uf5"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_mhsm6"]
@@ -59,3 +59,4 @@ shape = SubResource("RectangleShape2D_mhsm6")
 libraries = {
 &"": SubResource("AnimationLibrary_ecfyl")
 }
+
