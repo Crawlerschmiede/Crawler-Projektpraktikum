@@ -157,7 +157,15 @@ class Effect:
 
 				var recipient = user if targets_self else target
 				messages = _safe_invoke(recipient, "take_damage", [active_dmg])
-				ret = ["Target " + (messages[0] if messages.size() > 0 else "") + " from " + skill_name, "Target " + (messages[1] if messages.size() > 1 else "")] 
+				ret = [
+					(
+						"Target "
+						+ (messages[0] if messages.size() > 0 else "")
+						+ " from "
+						+ skill_name
+					),
+					"Target " + (messages[1] if messages.size() > 1 else "")
+				]
 			"movement":
 				print("Activating movement")
 				var basic_directions = ["U", "D", "L", "R"]
@@ -171,12 +179,12 @@ class Effect:
 				print("Activating poison!")
 				var recipient = user if targets_self else target
 				messages = _safe_invoke(recipient, "increase_poison", [value])
-				ret = ["Targets " + (messages[0] if messages.size() > 0 else "")] 
+				ret = ["Targets " + (messages[0] if messages.size() > 0 else "")]
 			"stun":
 				print("Stunning!")
 				var recipient = user if targets_self else target
 				messages = _safe_invoke(recipient, "increase_stun", [value])
-				ret = ["Targets " + (messages[0] if messages.size() > 0 else "")] 
+				ret = ["Targets " + (messages[0] if messages.size() > 0 else "")]
 			"safety_dmg_reduc":
 				print("Activating safety")
 				var duration = 1

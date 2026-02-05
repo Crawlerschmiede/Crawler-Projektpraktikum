@@ -102,7 +102,6 @@ func _add_button_disabled(label: String) -> void:
 	b.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
 	b.add_theme_stylebox_override("pressed", StyleBoxEmpty.new())
 
-
 	b.add_theme_font_override("font", custom_font)
 	b.add_theme_color_override("font_color", Color(0.8, 0.8, 0.8))
 	list_vbox.add_child(b)
@@ -119,7 +118,6 @@ func _add_button(ability) -> void:
 	b.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
 	b.add_theme_stylebox_override("pressed", StyleBoxEmpty.new())
 
-
 	b.add_theme_font_override("font", custom_font)
 	b.add_theme_color_override("font_color", Color(0.8, 0.8, 0.8))
 
@@ -132,7 +130,9 @@ func _add_button(ability) -> void:
 	# Keyboard focus = selected (SAME DESIGN)
 	# We don't rely on Control focus (Tab should not change selection).
 	# Use mouse hover to update selection + tooltip instead.
-	b.mouse_entered.connect(Callable(self, "_on_mouse_entered").bind(ability.name, ability.description))
+	b.mouse_entered.connect(
+		Callable(self, "_on_mouse_entered").bind(ability.name, ability.description)
+	)
 	b.mouse_exited.connect(Callable(self, "remove_tooltip"))
 
 	# Mouse hover also sets the internal selection index and scrolls

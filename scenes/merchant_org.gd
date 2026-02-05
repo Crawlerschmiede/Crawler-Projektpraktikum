@@ -54,7 +54,11 @@ func _rebuild(data: Dictionary):
 				if current_merchant:
 					# Use the exact amount displayed in the slot UI when requesting a purchase
 					var to_request := 0
-					if _slot != null and _slot.has_method("get") and _slot.get("visible_buy_amount") != null:
+					if (
+						_slot != null
+						and _slot.has_method("get")
+						and _slot.get("visible_buy_amount") != null
+					):
 						to_request = int(_slot.get("visible_buy_amount"))
 					else:
 						# fallback: compute minimal clamped amount (but clamp to 1 minimum)
@@ -64,7 +68,10 @@ func _rebuild(data: Dictionary):
 
 					var success = current_merchant.buy_item(idx, to_request)
 					if not success:
-						push_warning("Kauf fehlgeschlagen (z.B. zu wenig Coins oder nicht genug Bestand)"))
+						push_warning(
+							"Kauf fehlgeschlagen (z.B. zu wenig Coins oder nicht genug Bestand)"
+						)
+		)
 
 	# Wenn vorhanden -> Merchant-spezifische Verkaufspreise an SellSlot(s) weitergeben
 	var sell_prices := {}
@@ -83,6 +90,7 @@ func _rebuild(data: Dictionary):
 			# otherwise set a property so SellSlot can read it
 			if s.has_method("set"):
 				s.set("merchant_sell_prices", sell_prices)
+
 
 func clear():
 	for c in get_children():

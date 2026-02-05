@@ -119,7 +119,11 @@ func buy_item(index: int, amount: int = -1) -> bool:
 
 	# Record how many of this item the player currently has so we can detect partial adds
 	var before_total := 0
-	if typeof(PlayerInventory) != TYPE_NIL and PlayerInventory != null and PlayerInventory.has_method("get"):
+	if (
+		typeof(PlayerInventory) != TYPE_NIL
+		and PlayerInventory != null
+		and PlayerInventory.has_method("get")
+	):
 		var inv: Dictionary = PlayerInventory.get("inventory")
 		for k in inv.keys():
 			var v = inv[k]
@@ -131,7 +135,11 @@ func buy_item(index: int, amount: int = -1) -> bool:
 
 	# measure how many actually added
 	var after_total := 0
-	if typeof(PlayerInventory) != TYPE_NIL and PlayerInventory != null and PlayerInventory.has_method("get"):
+	if (
+		typeof(PlayerInventory) != TYPE_NIL
+		and PlayerInventory != null
+		and PlayerInventory.has_method("get")
+	):
 		var inv2: Dictionary = PlayerInventory.get("inventory")
 		for k in inv2.keys():
 			var v2 = inv2[k]
