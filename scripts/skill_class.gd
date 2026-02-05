@@ -109,6 +109,20 @@ class Effect:
 		targets_self = _targets_self
 		details = _details
 
+	func _safe_invoke(obj, method_name: String, args := []):
+		# Return a safe default (empty array) if the object is null/freed/missing method.
+		if obj == null:
+			print("Warning: safe_invoke - null object for method:", method_name)
+			return []
+		# If it's an Object, check instance validity (prevents 'previously freed')
+		if typeof(obj) == TYPE_OBJECT and not is_instance_valid(obj):
+			print("Warning: safe_invoke - instance not valid (freed) for method:", method_name)
+			return []
+		if not obj.has_method(method_name):
+			print("Warning: safe_invoke - missing method", method_name, "on", obj)
+			return []
+		return obj.callv(method_name, args)
+
 	# gdlint: disable=max-returns
 	func apply(user, target, battle, skill_name, depth = 0):
 		var messages = []
@@ -141,11 +155,9 @@ class Effect:
 					if user.alterations[alteration].has("dmg_buff"):
 						active_dmg *= user.alterations[alteration].dmg_buff
 
-				if targets_self:
-					messages = user.take_damage(active_dmg)
-				else:
-					messages = target.take_damage(active_dmg)
-				ret = ["Target " + messages[0] + " from " + skill_name, "Target " + messages[1]]
+				var recipient = user if targets_self else target
+				messages = _safe_invoke(recipient, "take_damage", [active_dmg])
+				ret = ["Target " + (messages[0] if messages.size() > 0 else "") + " from " + skill_name, "Target " + (messages[1] if messages.size() > 1 else "")] 
 			"movement":
 				print("Activating movement")
 				var basic_directions = ["U", "D", "L", "R"]
@@ -157,18 +169,14 @@ class Effect:
 				ret = battle.apply_zones("dmg_mult_", value, details, duration, "bad")
 			"poison":
 				print("Activating poison!")
-				if targets_self:
-					messages = user.increase_poison(value)
-				else:
-					messages = target.increase_poison(value)
-				ret = ["Targets " + messages[0]]
+				var recipient = user if targets_self else target
+				messages = _safe_invoke(recipient, "increase_poison", [value])
+				ret = ["Targets " + (messages[0] if messages.size() > 0 else "")] 
 			"stun":
 				print("Stunning!")
-				if targets_self:
-					messages = user.increase_stun(value)
-				else:
-					messages = target.increase_stun(value)
-				ret = ["Targets " + messages[0]]
+				var recipient = user if targets_self else target
+				messages = _safe_invoke(recipient, "increase_stun", [value])
+				ret = ["Targets " + (messages[0] if messages.size() > 0 else "")] 
 			"safety_dmg_reduc":
 				print("Activating safety")
 				var duration = 1
@@ -192,15 +200,11 @@ class Effect:
 					direction = "bad"
 				ret = battle.apply_zones("heal_", value, details, duration, direction)
 			"heal":
-				if targets_self:
-					ret = user.heal(value)
-				else:
-					ret = target.heal(value)
+				var recipient = user if targets_self else target
+				ret = _safe_invoke(recipient, "heal", [value])
 			"damage_buff":
-				if targets_self:
-					ret = user.add_alteration("dmg_buff", value, skill_name)
-				else:
-					ret = target.add_alteration("dmg_buff", value, skill_name)
+				var recipient = user if targets_self else target
+				ret = _safe_invoke(recipient, "add_alteration", ["dmg_buff", value, skill_name])
 		if depth < 3 and not battle.battle_over():
 			battle.update_passives(depth + 1)
 		return ret

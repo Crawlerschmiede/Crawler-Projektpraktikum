@@ -1,4 +1,4 @@
-[gd_resource type="Theme" format=3 uid="uid://0spcfhiug0ar"]
+[gd_resource type="Theme" load_steps=7 format=3 uid="uid://0spcfhiug0ar"]
 
 [ext_resource type="Texture2D" uid="uid://csrl31y7cxsxj" path="res://assets/menu/UI_TravelBook_Toggle03b.png" id="1_wv2kn"]
 [ext_resource type="Texture2D" uid="uid://dp5wgevvgve8m" path="res://assets/menu/UI_TravelBook_Toggle03a.png" id="2_rwl2p"]
