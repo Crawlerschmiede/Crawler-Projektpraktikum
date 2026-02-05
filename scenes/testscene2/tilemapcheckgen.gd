@@ -7,8 +7,9 @@ const LOOTBOX := preload("res://scenes/Lootbox/Lootbox.tscn")
 const TRAP := preload("res://scenes/traps/Trap.tscn")
 const MERCHANT := preload("res://scenes/entity/merchant.tscn")
 const LOADING_SCENE := preload("res://scenes/loadings_screen/loading_screen.tscn")
-
 @export var menu_scene := preload("res://scenes/popup-menu.tscn")
+@export var fog_tile_id: int = 0  # set this in the inspector to the fog-tile id in your tileset
+@export var fog_dynamic: bool = true  # if true, areas that are no longer visible get fogged again
 
 # --- World state ---
 var world_index: int = 0
@@ -35,6 +36,8 @@ var switching_world := false
 @onready var generator3: Node2D = $World3
 
 @onready var colorfilter: ColorRect = $ColorFilter
+
+@onready var fog_war_layer := $FogWar
 
 
 func _ready() -> void:
@@ -79,6 +82,10 @@ func _load_world(idx: int) -> void:
 	dungeon_floor = maps.get("floor", null)
 	dungeon_top = maps.get("top", null)
 	minimap = maps.get("minimap", null)
+
+	# initialize fog layer tiles so Player.update_visibility can erase them later
+	if fog_war_layer != null and dungeon_floor != null:
+		init_fog_layer()
 
 	if dungeon_floor == null:
 		push_error("Generator returned null floor tilemap!")
@@ -301,6 +308,34 @@ func update_color_filter() -> void:
 		colorfilter.color = Color(1.0, 0.2, 0.2, 0.25)
 
 
+func init_fog_layer() -> void:
+	# Fill the FogWar TileMapLayer with a fog tile so Player.update_visibility can erase cells.
+	if fog_war_layer == null or dungeon_floor == null:
+		return
+
+	# align tileset + transform so coordinates match
+	fog_war_layer.clear()
+	fog_war_layer.tile_set = dungeon_floor.tile_set
+	# align position/visibility/z so it overlays the floor
+	fog_war_layer.position = dungeon_floor.position
+	fog_war_layer.visibility_layer = dungeon_floor.visibility_layer
+	fog_war_layer.z_index = (dungeon_floor.z_index if dungeon_floor != null else 0) + 10
+
+	var counter := 0
+	var used_rect := dungeon_floor.get_used_rect()
+	var yield_every := 300
+	for x in range(used_rect.position.x, used_rect.position.x + used_rect.size.x):
+		for y in range(used_rect.position.y, used_rect.position.y + used_rect.size.y):
+			var cell := Vector2i(x, y)
+			# skip empty cells
+			if dungeon_floor.get_cell_source_id(cell) == -1:
+				continue
+			fog_war_layer.set_cell(cell, 2, Vector2(2, 4), 0)
+			counter += 1
+			if counter % yield_every == 0:
+				await get_tree().process_frame
+
+
 func _clear_world() -> void:
 	# battle weg
 	if battle != null and is_instance_valid(battle):
@@ -487,6 +522,7 @@ func spawn_enemy(sprite_type: String, behaviour: Array) -> void:
 	# default: spawn normal enemy
 	var e = ENEMY_SCENE.instantiate()
 	e.add_to_group("enemy")
+	e.add_to_group("vision_objects")
 	e.types = behaviour
 	e.sprite_type = sprite_type
 
@@ -501,18 +537,27 @@ func spawn_enemy(sprite_type: String, behaviour: Array) -> void:
 
 
 func spawn_player() -> void:
+	# alte Player entfernen
 	for n in get_tree().get_nodes_in_group("player"):
 		if n != null and is_instance_valid(n):
 			n.queue_free()
+
 	var e: PlayerCharacter = PLAYER_SCENE.instantiate()
 	e.name = "Player"
-
+	# Floor setzen (einmal!)
 	e.setup(dungeon_floor, dungeon_top, 10, 3, 0)
-	e.add_to_group("player")
+	e.fog_layer = fog_war_layer
+	# pass dynamic flag and fog tile id to player for re-fogging
+	if e.has_method("set"):
+		e.set("dynamic_fog", fog_dynamic)
+		e.set("fog_tile_id", fog_tile_id)
+	# in WorldRoot hängen
 	world_root.add_child(e)
 	player = e
 
+	# minimap rein
 	player.set_minimap(minimap)
+
 	# Spawn Position
 	var start_pos := Vector2i(2, 2)
 
@@ -522,15 +567,20 @@ func spawn_player() -> void:
 	player.global_position = dungeon_floor.to_global(dungeon_floor.map_to_local(start_pos))
 	player.add_to_group("player")
 
-	# Exit-Signal verbinden
+	# Signale verbinden
 	if player.has_signal("exit_reached"):
 		if not player.exit_reached.is_connected(_on_player_exit_reached):
 			player.exit_reached.connect(_on_player_exit_reached)
-			push_warning("player has no exit_reached signal")
+	else:
+		push_warning("player has no exit_reached signal")
 
 	if player.has_signal("player_moved"):
 		if not player.player_moved.is_connected(_on_player_moved):
 			player.player_moved.connect(_on_player_moved)
+
+	# WICHTIG: einmal initial Fog aufdecken
+	if player.has_method("update_visibility"):
+		player.update_visibility()
 
 
 func _on_player_moved() -> void:
@@ -555,7 +605,37 @@ func _on_player_moved() -> void:
 
 		if room_layer.get_cell_source_id(local_cell) != -1:
 			room_layer.visible = true
+			# Reveal entire room in FogWar
+			reveal_room_layer(room_layer)
 			return
+
+
+func reveal_room_layer(room_layer: TileMapLayer) -> void:
+	if fog_war_layer == null:
+		return
+
+	var origin: Vector2i = room_layer.get_meta("tile_origin", Vector2i.ZERO)
+	var rect = room_layer.get_meta("room_rect", Rect2i(Vector2i.ZERO, Vector2i.ZERO))
+	if rect.size == Vector2i.ZERO:
+		# fallback: iterate used cells of the room layer
+		for cell in room_layer.get_used_cells():
+			var world_cell := origin + cell
+			fog_war_layer.erase_cell(world_cell)
+		return
+
+	var counter := 0
+	var yield_every := 300
+	for x in range(rect.position.x, rect.position.x + rect.size.x):
+		for y in range(rect.position.y, rect.position.y + rect.size.y):
+			var local_cell := Vector2i(x, y)
+			# skip empty tiles in the room
+			if room_layer.get_cell_source_id(local_cell) == -1:
+				continue
+			var world_cell := origin + local_cell
+			fog_war_layer.erase_cell(world_cell)
+			counter += 1
+			if counter % yield_every == 0:
+				await get_tree().process_frame
 
 
 # ---------------------------------------

@@ -202,19 +202,24 @@ func teleport_to_tile(coordinates: Vector2i, animation = null) -> void:
 
 func check_collisions() -> void:
 	for body in collision_area.get_overlapping_bodies():
+		# Nur andere Entities prüfen
+		if not body is MoveableEntity:
+			continue
+
 		if body == self:
 			continue
-		elif body.is_in_group("item"):
+
+		if body.is_in_group("item"):
 			continue
-		else:
-			for tile in my_tiles:
-				for other_tile in body.my_tiles:
-					if (grid_pos + tile) == (body.grid_pos + other_tile):
-						if self.hp > 0 and body.hp > 0:
-							if self.is_player:
-								initiate_battle(self, body)
-							elif body.is_player:
-								initiate_battle(body, self)
+
+		for tile in my_tiles:
+			for other_tile in body.my_tiles:
+				if (grid_pos + tile) == (body.grid_pos + other_tile):
+					if self.hp > 0 and body.hp > 0:
+						if self.is_player:
+							initiate_battle(self, body)
+						elif body.is_player:
+							initiate_battle(body, self)
 
 
 func _on_move_finished():
@@ -361,3 +366,64 @@ func deal_with_status_effects() -> Array:
 # --- helpers ---
 func has_animation(checked_sprite: AnimatedSprite2D, anim_name: String) -> bool:
 	return checked_sprite.sprite_frames.has_animation(anim_name)
+
+
+func update_visibility():
+	var objects = get_tree().get_nodes_in_group("vision_objects")
+
+	for obj in objects:
+		if can_see(obj.global_position):
+			obj.visible = true
+			print("Updating visibility")
+		else:
+			obj.visible = false
+
+
+func can_see(target_pos: Vector2) -> bool:
+	if tilemap == null:
+		return true
+
+	var start_cell = tilemap.local_to_map(global_position)
+	var end_cell = tilemap.local_to_map(target_pos)
+
+	var cells = get_line_cells(start_cell, end_cell)
+
+	# Start- und Ziel-Tile ignorieren!
+	for i in range(1, cells.size() - 1):
+		var cell = cells[i]
+
+		var tile_data = tilemap.get_cell_tile_data(cell)
+		if tile_data:
+			if tile_data.get_custom_data("non_walkable") == true:
+				return false
+
+	return true
+
+
+func get_line_cells(start: Vector2i, end: Vector2i) -> Array:
+	var points := []
+
+	var x0 = start.x
+	var y0 = start.y
+	var x1 = end.x
+	var y1 = end.y
+
+	var dx = abs(x1 - x0)
+	var dy = abs(y1 - y0)
+
+	var sx = 1 if x0 < x1 else -1
+	var sy = 1 if y0 < y1 else -1
+	var err = dx - dy
+
+	while true:
+		points.append(Vector2i(x0, y0))
+		if x0 == x1 and y0 == y1:
+			break
+		var e2 = err * 2
+		if e2 > -dy:
+			err -= dy
+			x0 += sx
+		if e2 < dx:
+			err += dx
+			y0 += sy
+	return points

@@ -21,6 +21,9 @@
 [ext_resource type="Script" uid="uid://d4hyvrayuhs65" path="res://scenes/sellslot.gd" id="19_fxkes"]
 [ext_resource type="Texture2D" uid="uid://cplcai6qfr0ae" path="res://assets/menu/UI_TravelBook_IconCross01a.png" id="20_72a5a"]
 
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_6k8oa"]
+light_mode = 1
+
 [sub_resource type="CircleShape2D" id="CircleShape2D_r5wgn"]
 radius = 8.0
 
@@ -83,6 +86,8 @@ texture = ExtResource("10_j4pnj")
 texture = ExtResource("16_nq0iv")
 
 [node name="Player" type="CharacterBody2D" unique_id=749009665]
+light_mask = 2
+material = SubResource("CanvasItemMaterial_6k8oa")
 script = ExtResource("1_no27k")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1041864340]

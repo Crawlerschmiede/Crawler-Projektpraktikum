@@ -8,7 +8,6 @@ const CHASE_COOLDOWN: float = 0.5
 var roam_timer: float = 5.0
 var chase_timer: float = 5.0
 var burrowed = false
-var expanded = false
 var chased_pos: Vector2i
 var chased_direction: Vector2i
 
@@ -17,6 +16,7 @@ var sprite_type: String = "bat"
 var behaviour = "idle"
 var chase_target: PlayerCharacter
 var chasing: bool = false
+var expanded: bool = false
 
 @onready var sight_area: Area2D = $SightArea
 
@@ -26,11 +26,6 @@ func roam():
 		if burrowed:
 			burrowed = false
 			sprite.play("default")
-	if expanded:
-		expanded = false
-		resize(1, 1, ["M"])
-		move_sprite(0, 0, 0)
-		sprite.play("default")
 	chasing = false
 	var direction_int = 0
 	var direction = Vector2i.ZERO
@@ -175,8 +170,6 @@ func _process(delta: float) -> void:
 
 func move_it():
 	#print("Move1")
-	check_collisions()
-
 	if multi_turn_action == null:
 		#print("Move2")
 		var saw_player = check_sight()
@@ -278,8 +271,8 @@ func decide_attack() -> void:
 
 
 #x and y offset in tiles
-func move_sprite(x_offset, y_offset, rotation):
-	sprite.rotation_degrees = rotation
+func move_sprite(x_offset, y_offset, rotation_deg):
+	sprite.rotation_degrees = rotation_deg
 	sprite.position.y = y_offset * 16
 	sprite.position.x = x_offset * 16
 
@@ -341,7 +334,7 @@ func elongate():
 	var y_size = 1
 	var x_offset = 0
 	var y_offset = 0
-	var rotation = 0
+	var rotation_deg = 0
 	for direction in DIRECTIONS:
 		if is_next_to_wall(grid_pos + direction * 2) and not is_next_to_wall(grid_pos + direction):
 			expand = true
@@ -352,32 +345,32 @@ func elongate():
 					y_size = 3
 					x_offset = 0
 					y_offset = -1
-					rotation = 270
+					rotation_deg = 270
 				Vector2i.DOWN:
 					anchor = "U"
 					x_size = 1
 					y_size = 3
 					x_offset = 0
 					y_offset = 1
-					rotation = 90
+					rotation_deg = 90
 				Vector2i.LEFT:
 					anchor = "R"
 					x_size = 3
 					y_size = 1
 					x_offset = -1
 					y_offset = 0
-					rotation = 180
+					rotation_deg = 180
 				Vector2i.RIGHT:
 					anchor = "L"
 					x_size = 3
 					y_size = 1
 					x_offset = 1
 					y_offset = 0
-					rotation = 0
+					rotation_deg = 0
 			if not expanded:
 				expanded = true
 				resize(x_size, y_size, [anchor])
-				move_sprite(x_offset, y_offset, rotation)
+				move_sprite(x_offset, y_offset, rotation_deg)
 				sprite.play("expand")
 				await sprite.animation_finished
 				sprite.play("expanded_idle")
