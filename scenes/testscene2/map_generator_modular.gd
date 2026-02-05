@@ -61,6 +61,7 @@ var _corridor_cache: Dictionary = {}
 var _rng := GlobalRNG.get_rng()
 var _yield_counter := 0
 
+
 func _ready() -> void:
 	mg_genome = MGGENOME.new()
 	mg_coll = MGCOLL.new()
@@ -68,6 +69,7 @@ func _ready() -> void:
 	mg_ga = MGGA.new()
 	mg_gen = MGGEN.new()
 	mg_bake = MGBake.new()
+
 
 func _emit_progress_mapped(start: float, end: float, local_p: float, text: String) -> void:
 	var lp = clamp(local_p, 0.0, 1.0)
@@ -80,12 +82,15 @@ func _yield_if_needed(step: int = 200) -> void:
 	if _yield_counter % step == 0:
 		await get_tree().process_frame
 
+
 # --- Delegating API ---
 func load_room_scenes_from_folder(path: String) -> Array:
 	return mg_io.load_room_scenes_from_folder(path)
 
+
 func load_closed_door_scenes_from_folder(path: String) -> Array:
 	return mg_io.load_closed_door_scenes_from_folder(path)
+
 
 func get_closed_door_for_direction(dir: String) -> PackedScene:
 	dir = dir.to_lower()
@@ -97,21 +102,27 @@ func get_closed_door_for_direction(dir: String) -> PackedScene:
 		return null
 	return GlobalRNG.pick_random(candidates)
 
+
 func genetic_search_best():
 	return await mg_ga.genetic_search_best(self)
 
+
 func generate_with_genome(genome, trial_seed: int, verbose: bool, parent_override: Node = null):
 	return await mg_gen.generate_with_genome(self, genome, trial_seed, verbose, parent_override)
+
 
 func bake_rooms_into_world_tilemap() -> void:
 	await mg_bake.bake_rooms_into_world_tilemap(self)
 	return
 
+
 func clear_children_rooms_only() -> void:
 	mg_io.clear_children_rooms_only(self)
 
+
 func clear_world_tilemaps() -> void:
 	mg_io.clear_world_tilemaps(self)
+
 
 func get_main_tilemap() -> TileMapLayer:
 	return mg_io.get_main_tilemap(self)

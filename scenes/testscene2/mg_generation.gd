@@ -10,6 +10,7 @@ const MGGENOME = preload("res://scenes/testscene2/mg_genome.gd")
 var mg_coll = MGCOL.new()
 var mg_io = MGIO.new()
 
+
 func can_spawn_room(gen, scene: PackedScene, room_instance: Node, placed_count: int) -> bool:
 	var spawn_chance: float = float(get_rule(room_instance, "spawn_chance", 1.0))
 	var max_count: int = int(get_rule(room_instance, "max_count", 999999))
@@ -63,12 +64,7 @@ func ensure_required_rooms(gen, parent_node: Node, local_placed: Array, genome) 
 
 
 func try_place_specific_room(
-	gen,
-	scene: PackedScene,
-	door,
-	parent_node: Node,
-	local_placed: Array,
-	_genome
+	gen, scene: PackedScene, door, parent_node: Node, local_placed: Array, _genome
 ) -> bool:
 	if scene == null:
 		return false
@@ -115,7 +111,9 @@ func try_place_specific_room(
 	return true
 
 
-func generate_with_genome(gen, genome, trial_seed: int, verbose: bool, parent_override: Node = null):
+func generate_with_genome(
+	gen, genome, trial_seed: int, verbose: bool, parent_override: Node = null
+):
 	# Diese Funktion nutzt viele gen.-Felder und ist bewusst kompakt gehalten.
 	gen._rng.seed = int(trial_seed)
 	gen.room_type_counts.clear()
@@ -150,7 +148,12 @@ func generate_with_genome(gen, genome, trial_seed: int, verbose: bool, parent_ov
 			var local_p = 0.0
 			if gen.max_rooms > 0:
 				local_p = float(local_placed.size()) / float(gen.max_rooms)
-			gen._emit_progress_mapped(0.45, 0.75, clamp(local_p, 0.0, 1.0), "Placing rooms: %d/%d" % [local_placed.size(), gen.max_rooms])
+			gen._emit_progress_mapped(
+				0.45,
+				0.75,
+				clamp(local_p, 0.0, 1.0),
+				"Placing rooms: %d/%d" % [local_placed.size(), gen.max_rooms]
+			)
 			await gen.get_tree().process_frame
 		var door = current_doors.pop_front()
 		if door == null or door.used:
@@ -172,7 +175,20 @@ func generate_with_genome(gen, genome, trial_seed: int, verbose: bool, parent_ov
 		var candidates = gen.room_scenes.duplicate()
 		GlobalRNG.shuffle_array(candidates, gen._rng)
 		if abs(genome.corridor_bias - 1.0) > 0.01:
-			candidates.sort_custom(func(a,b)->bool: return int(mg_coll._scene_is_corridor(gen,a)) > int(mg_coll._scene_is_corridor(gen,b)) if genome.corridor_bias>1.0 else int(mg_coll._scene_is_corridor(gen,a)) < int(mg_coll._scene_is_corridor(gen,b)))
+			candidates.sort_custom(
+				func(a, b) -> bool:
+					return (
+						(
+							int(mg_coll._scene_is_corridor(gen, a))
+							> int(mg_coll._scene_is_corridor(gen, b))
+						)
+						if genome.corridor_bias > 1.0
+						else (
+							int(mg_coll._scene_is_corridor(gen, a))
+							< int(mg_coll._scene_is_corridor(gen, b))
+						)
+					)
+			)
 		var placed = false
 		for room_scene in candidates:
 			if room_scene == null:
@@ -197,7 +213,11 @@ func generate_with_genome(gen, genome, trial_seed: int, verbose: bool, parent_ov
 				if new_chain > genome.max_corridor_chain:
 					new_room.queue_free()
 					continue
-			if from_corridor and from_chain >= genome.max_corridor_chain and mg_coll.is_corridor_room(gen, new_room):
+			if (
+				from_corridor
+				and from_chain >= genome.max_corridor_chain
+				and mg_coll.is_corridor_room(gen, new_room)
+			):
 				new_room.queue_free()
 				continue
 			var matching_door = mg_coll.find_matching_door(gen, new_room, door.direction)
@@ -223,7 +243,10 @@ func generate_with_genome(gen, genome, trial_seed: int, verbose: bool, parent_ov
 			var room_tm = new_room.get_node_or_null("TileMapLayer") as TileMapLayer
 			if room_tm:
 				var tile_size = room_tm.tile_set.tile_size
-				var tile_origin = Vector2i(int(round(new_room.global_position.x / tile_size.x)), int(round(new_room.global_position.y / tile_size.y)))
+				var tile_origin = Vector2i(
+					int(round(new_room.global_position.x / tile_size.x)),
+					int(round(new_room.global_position.y / tile_size.y))
+				)
 				new_room.set_meta("tile_origin", tile_origin)
 			local_placed.append(new_room)
 			next_doors += new_room.get_free_doors()

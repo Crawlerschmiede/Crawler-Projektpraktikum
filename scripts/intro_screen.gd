@@ -94,7 +94,9 @@ func apply_impact_shake(duration: float, force: float):
 
 	# Rapid, decaying random movements
 	for i in range(12):
-		var offset = Vector2(GlobalRNG.randf_range(-force, force), GlobalRNG.randf_range(-force, force))
+		var offset = Vector2(
+			GlobalRNG.randf_range(-force, force), GlobalRNG.randf_range(-force, force)
+		)
 		s_tween.tween_property(logo_container, "position", original_pos + offset, duration / 12.0)
 		force *= 0.8  # Make the shake get smaller over time
 
