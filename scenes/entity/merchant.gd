@@ -112,15 +112,56 @@ func buy_item(index: int, amount: int = -1) -> bool:
 	var total_price = int(item["price"]) * to_buy
 
 	# try pay; only proceed when payment succeeds
+	# try pay; only proceed when payment succeeds
 	if not PlayerInventory.spend_coins(total_price):
 		# payment failed
 		return false
 
-	# give player
+	# Record how many of this item the player currently has so we can detect partial adds
+	var before_total := 0
+	if (
+		typeof(PlayerInventory) != TYPE_NIL
+		and PlayerInventory != null
+		and PlayerInventory.has_method("get")
+	):
+		var inv: Dictionary = PlayerInventory.get("inventory")
+		for k in inv.keys():
+			var v = inv[k]
+			if typeof(v) == TYPE_ARRAY and v.size() >= 2 and str(v[0]) == str(item["name"]):
+				before_total += int(v[1])
+
+	# give player (may fail partially if inventory full)
 	PlayerInventory.add_item(item["name"], to_buy)
 
-	# reduce stock and update merchant_items
-	item["buy_amount"] -= 1
+	# measure how many actually added
+	var after_total := 0
+	if (
+		typeof(PlayerInventory) != TYPE_NIL
+		and PlayerInventory != null
+		and PlayerInventory.has_method("get")
+	):
+		var inv2: Dictionary = PlayerInventory.get("inventory")
+		for k in inv2.keys():
+			var v2 = inv2[k]
+			if typeof(v2) == TYPE_ARRAY and v2.size() >= 2 and str(v2[0]) == str(item["name"]):
+				after_total += int(v2[1])
+
+	var actually_added := after_total - before_total
+	if actually_added <= 0:
+		# nothing added -> refund full amount and abort
+		PlayerInventory.add_coins(total_price)
+		return false
+
+	# If only a partial amount was added, refund the difference
+	if actually_added < to_buy:
+		var missing := to_buy - actually_added
+		var refund_amount := int(item["price"]) * missing
+		PlayerInventory.add_coins(refund_amount)
+
+	# reduce stock by the number actually sold
+	item["count"] = int(item.get("count", 0)) - actually_added
+	if item["count"] < 0:
+		item["count"] = 0
 	merchant_items[index] = item
 
 	# update registry in MerchantRegistry autoload (if present)
@@ -175,6 +216,13 @@ func _generate_merchant_data() -> void:
 		# price
 		var price := rng.randi_range(int(m.get("min_price", 1)), int(m.get("max_price", 1)))
 
+		# sell_price: how much this merchant will pay the player when buying from them.
+		# Use same logic as SellSlot: base on min_price with a random discount up to 40%.
+		var min_price := int(m.get("min_price", 0))
+		var discount := rng.randf_range(0.0, 0.4)
+		var sell_unit := int(floor(float(max(min_price, 0)) * (1.0 - discount)))
+		sell_unit = max(sell_unit, 0)
+
 		(
 			merchant_items
 			. append(
@@ -182,6 +230,7 @@ func _generate_merchant_data() -> void:
 					"name": item_key,
 					"count": count,
 					"price": price,
+					"sell_price": sell_unit,
 					# allow config to specify package size; fallback to sell_batch
 					"buy_amount": int(m.get("buy_amount", sell_batch))
 				}
