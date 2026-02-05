@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://btw2kw1wvojby"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_2bcsb"]
+
+[node name="ShopHammer" type="AnimatedSprite2D" unique_id=488665507]
+sprite_frames = SubResource("SpriteFrames_2bcsb")
