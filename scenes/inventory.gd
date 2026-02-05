@@ -8,6 +8,7 @@ const DEBUG: bool = true
 
 # Slot Script (Pfad prüfen!)
 const SlotScript: GDScript = preload("res://scenes/Slot.gd")
+const ITEM_SCENE: PackedScene = preload("res://scenes/Item/item.tscn")
 
 var _ui: Node = null
 var _slot_callables: Dictionary = {}  # key: Node (slot), value: Callable
@@ -33,11 +34,33 @@ func _collect_slots_recursive(root: Node, out: Array[Node]) -> void:
 				_collect_slots_recursive(c, out)
 
 
+func _is_descendant(parent: Node, child: Node) -> bool:
+	# Safe replacement for Engine-specific "is_a_parent_of" across Node types.
+	if parent == null or child == null:
+		return false
+	var p: Node = child.get_parent()
+	while p != null:
+		if p == parent:
+			return true
+		p = p.get_parent()
+	return false
+
+
 func _get_all_slots() -> Array[Node]:
 	var out: Array[Node] = []
 	_collect_slots_recursive(inv_grid, out)
 	_collect_slots_recursive(equip_grid, out)
 	_collect_slots_recursive(hotbar_grid, out)
+
+	# Include special slots (e.g. SellSlot, CraftSlot, ChestSlot) which might live
+	# outside of the regular grid containers but still should be part of the
+	# global slot index space. We use groups so scenes can opt-in their nodes.
+	if get_tree() != null:
+		var special := get_tree().get_nodes_in_group("SellSlot")
+		for s in special:
+			if s != null and s is Node:
+				out.append(s)
+
 	return out
 
 
@@ -174,7 +197,7 @@ func _setup_slots(slots: Array[Node]) -> void:
 			var assigned_type = SlotScript.SlotType.INVENTORY
 			if s.is_in_group("Inventory"):
 				assigned_type = SlotScript.SlotType.INVENTORY
-			elif hotbar_grid != null and hotbar_grid.is_a_parent_of(s):
+			elif hotbar_grid != null and _is_descendant(hotbar_grid, s):
 				assigned_type = SlotScript.SlotType.HOTBAR
 
 			# set property on slot so downstream logic sees a proper type
@@ -293,7 +316,7 @@ func initialize_inventory() -> void:
 
 	for k in keys:
 		var idx: int = int(k)
-
+		print("Slot size: ", slots.size())
 		if idx < 0 or idx >= slots.size():
 			push_error(
 				"Inventory enthält slot_index %s, aber UI hat nur %d Slots" % [str(k), slots.size()]
@@ -337,8 +360,14 @@ func slot_gui_input(event: InputEvent, slot: Node) -> void:
 		return
 
 	var mbe: InputEventMouseButton = event as InputEventMouseButton
-	#dgb("InputEventMouseButton überprüfung")
-	if mbe.button_index != MOUSE_BUTTON_LEFT or not mbe.pressed:
+	# only care about pressed mouse button events
+	if not mbe.pressed:
+		return
+
+	# Right-click special: if player is holding an item, allow placing it into the slot
+	if mbe.button_index == MOUSE_BUTTON_RIGHT:
+		# place a single unit on right-click (or fallback to existing swap behavior)
+		right_click_put_one_unit(slot)
 		return
 
 	#dgb("Knopf erkannt")
@@ -613,6 +642,113 @@ func left_click_not_holding(slot: Node) -> void:
 
 	if DEBUG:
 		_validate_slot(slot)
+
+
+func right_click_put_one_unit(slot: Node) -> void:
+	# Place exactly one unit from the holding item into `slot`. If holding has only one
+	# unit we fall back to the full-place behavior so ownership of the node moves.
+	var ui: Node = _get_ui()
+	if ui == null:
+		return
+	if not _has_property(ui, &"holding_item"):
+		return
+	var holding: Variant = ui.get("holding_item")
+	if holding == null or not (holding is Node):
+		return
+	var hnode: Node = holding as Node
+	var holding_name: String = str(hnode.get("item_name"))
+	var holding_qty: int = int(hnode.get("item_quantity"))
+
+	var slot_item: Variant = null
+	if _has_property(slot, &"item"):
+		slot_item = slot.get("item")
+
+	# empty slot: put one unit
+	if slot_item == null:
+		if holding_qty <= 1:
+			# just put the whole item (node moves)
+			left_click_empty_slot(slot)
+			return
+		# create a new visual item node with qty 1
+		var new_item = ITEM_SCENE.instantiate()
+		if new_item == null:
+			push_error("Failed to instantiate ITEM_SCENE")
+			return
+		if new_item.has_method("set_item"):
+			new_item.call("set_item", holding_name, 1)
+		else:
+			push_error("Instantiated item has no set_item()")
+			return
+
+		# attempt to add to backend
+		var ok: bool = false
+		if (
+			typeof(PlayerInventory) != TYPE_NIL
+			and PlayerInventory != null
+			and PlayerInventory.has_method("add_item_to_empty_slot")
+		):
+			ok = PlayerInventory.add_item_to_empty_slot(new_item, slot)
+		if not ok:
+			# cleanup and bail
+			if is_instance_valid(new_item):
+				new_item.queue_free()
+			return
+		# attach to UI
+		if slot.has_method("put_into_slot"):
+			slot.call("put_into_slot", new_item)
+		else:
+			push_error("Slot hat keine put_into_slot()")
+
+		# decrease holding quantity by 1
+		if hnode.has_method("decrease_item_quantity"):
+			hnode.call("decrease_item_quantity", 1)
+		else:
+			# best-effort: adjust property
+			var curq := int(hnode.get("item_quantity"))
+			hnode.set("item_quantity", max(0, curq - 1))
+
+		# if holding depleted, free and clear
+		if int(hnode.get("item_quantity")) <= 0:
+			if is_instance_valid(hnode):
+				hnode.queue_free()
+			ui.set("holding_item", null)
+		if DEBUG:
+			_validate_slot(slot)
+		return
+
+	# slot contains an item
+	# same item -> add one to stack
+	if slot_item != null and slot_item is Node and is_instance_valid(slot_item as Node):
+		var sitem := slot_item as Node
+		var slot_name := str(sitem.get("item_name"))
+		if slot_name == holding_name:
+			# add to backend
+			if (
+				typeof(PlayerInventory) != TYPE_NIL
+				and PlayerInventory != null
+				and PlayerInventory.has_method("add_item_quantity")
+			):
+				PlayerInventory.add_item_quantity(slot, 1)
+			# update visual
+			if sitem.has_method("add_item_quantity"):
+				sitem.call("add_item_quantity", 1)
+			# decrease holding
+			if hnode.has_method("decrease_item_quantity"):
+				hnode.call("decrease_item_quantity", 1)
+			else:
+				var curq2 := int(hnode.get("item_quantity"))
+				hnode.set("item_quantity", max(0, curq2 - 1))
+			# if holding depleted, free and clear
+			if int(hnode.get("item_quantity")) <= 0:
+				if is_instance_valid(hnode):
+					hnode.queue_free()
+				ui.set("holding_item", null)
+			if DEBUG:
+				_validate_slot(slot)
+			return
+		# different item -> fallback to full swap behavior
+		left_click_different_item(slot)
+		return
 
 
 # -------------------------

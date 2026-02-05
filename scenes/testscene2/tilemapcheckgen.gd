@@ -527,11 +527,11 @@ func find_merchants() -> Array[Vector2]:
 func enemy_defeated(enemy):
 	print("The battle is won")
 	if battle != null and is_instance_valid(battle):
-		battle.queue_free()
+		battle.call_deferred("queue_free")
 		battle = null
 
 	if enemy != null and is_instance_valid(enemy):
-		enemy.queue_free()
+		enemy.call_deferred("queue_free")
 
 	get_tree().paused = false
 

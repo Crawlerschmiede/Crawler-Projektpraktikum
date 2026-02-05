@@ -63,8 +63,10 @@ var player_sprite
 
 
 func _ready():
-	player.full_status_heal()
-	enemy.full_status_heal()
+	if player != null and is_instance_valid(player):
+		player.full_status_heal()
+	if enemy != null and is_instance_valid(enemy):
+		enemy.full_status_heal()
 	enemy_sprite = create_battle_sprite(enemy)
 	player_sprite = create_battle_sprite(player)
 	player_sprite.animation = "idle_up"
@@ -79,8 +81,10 @@ func _ready():
 	if skill_ui.has_signal("player_turn_done"):
 		# Ensure the connection is safe and only happens once
 		skill_ui.player_turn_done.connect(enemy_turn)
-	enemy_hp_bar.value = (enemy.hp * 100.0) / enemy.max_hp
-	player_hp_bar.value = (player.hp * 100.0) / player.max_hp
+	if enemy != null and is_instance_valid(enemy):
+		enemy_hp_bar.value = (enemy.hp * 100.0) / enemy.max_hp
+	if player != null and is_instance_valid(player):
+		player_hp_bar.value = (player.hp * 100.0) / player.max_hp
 	# We're doing this twice in case we extend a range and then end up in it
 	# because of that or something similar.
 	for i in range(2):
@@ -127,8 +131,10 @@ func enemy_turn():
 	turn_counter+=1
 	print("It is turn "+str(turn_counter))
 	var over = check_victory()
-	player_hp_bar.value = (player.hp * 100.0) / player.max_hp
-	enemy_hp_bar.value = (enemy.hp * 100.0) / enemy.max_hp
+	if player != null and is_instance_valid(player):
+		player_hp_bar.value = (player.hp * 100.0) / player.max_hp
+	if enemy != null and is_instance_valid(enemy):
+		enemy_hp_bar.value = (enemy.hp * 100.0) / enemy.max_hp
 	var happened = []
 	if !over:
 		for ability in enemy.abilities:
@@ -137,8 +143,10 @@ func enemy_turn():
 		happened = extra_stuff[1]
 		for happening in happened:
 			log_container.add_log_event(happening)
-		enemy_hp_bar.value = (enemy.hp * 100.0) / enemy.max_hp
-		player_hp_bar.value = (player.hp * 100.0) / player.max_hp
+		if enemy != null and is_instance_valid(enemy):
+			enemy_hp_bar.value = (enemy.hp * 100.0) / enemy.max_hp
+		if player != null and is_instance_valid(player):
+			player_hp_bar.value = (player.hp * 100.0) / player.max_hp
 		if extra_stuff[0]:
 			#print(enemy, " activates its Skill ", enemy.chosen.name, "!")
 			happened = enemy.chosen.activate_skill(enemy, player, self)
@@ -153,8 +161,10 @@ func enemy_turn():
 			enemy_prepare_turn()
 		extra_stuff = player.deal_with_status_effects()
 		happened = extra_stuff[1]
-		player_hp_bar.value = (player.hp * 100.0) / player.max_hp
-		enemy_hp_bar.value = (enemy.hp * 100.0) / enemy.max_hp
+		if player != null and is_instance_valid(player):
+			player_hp_bar.value = (player.hp * 100.0) / player.max_hp
+		if enemy != null and is_instance_valid(enemy):
+			enemy_hp_bar.value = (enemy.hp * 100.0) / enemy.max_hp
 		for happening in happened:
 			log_container.add_log_event(happening)
 		if not len(next_turn) == 0:
@@ -166,8 +176,10 @@ func enemy_turn():
 		else:
 			enemy_turn()
 		check_victory()
-		player_hp_bar.value = (player.hp * 100.0) / player.max_hp
-		enemy_hp_bar.value = (enemy.hp * 100.0) / enemy.max_hp
+		if player != null and is_instance_valid(player):
+			player_hp_bar.value = (player.hp * 100.0) / player.max_hp
+		if enemy != null and is_instance_valid(enemy):
+			enemy_hp_bar.value = (enemy.hp * 100.0) / enemy.max_hp
 
 
 func player_turn():
@@ -193,19 +205,20 @@ func trigger_passives(abilities, user, target, battle, depth):
 
 
 func check_victory():
-	if enemy.hp <= 0:
+	# Treat missing or freed enemy/player as defeat for that side
+	if enemy == null or not is_instance_valid(enemy) or enemy.hp <= 0:
 		player_victory.emit()
 		return true
-	if player.hp <= 0:
+	if player == null or not is_instance_valid(player) or player.hp <= 0:
 		player_loss.emit()
 		return true
 	return false
 
 
 func battle_over():
-	if enemy.hp <= 0:
+	if enemy == null or not is_instance_valid(enemy) or enemy.hp <= 0:
 		return true
-	if player.hp <= 0:
+	if player == null or not is_instance_valid(player) or player.hp <= 0:
 		return true
 	return false
 
