@@ -60,6 +60,8 @@ Herd=""
 Chest=""
 Shoes=""
 Arms=""
+player=""
+tutorial_room=""
 Sword=""
 scale_0.75=""
 
