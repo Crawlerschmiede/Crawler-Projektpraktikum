@@ -2,6 +2,13 @@ extends Node2D
 
 signal generation_progress(p: float, text: String)
 
+const MGGENOME = preload("res://scenes/testscene2/mg_genome.gd")
+const MGCOLL = preload("res://scenes/testscene2/mg_collision.gd")
+const MGIO = preload("res://scenes/testscene2/mg_io.gd")
+const MGGA = preload("res://scenes/testscene2/mg_ga.gd")
+const MGGEN = preload("res://scenes/testscene2/mg_generation.gd")
+const MGBake = preload("res://scenes/testscene2/mg_bake.gd")
+
 # --- Exports (copied from original) ---
 @export var closed_doors_folder: String = "res://scenes/rooms/Closed Doors/"
 @export var rooms_folder: String = "res://scenes/rooms/Rooms/"
@@ -25,6 +32,7 @@ signal generation_progress(p: float, text: String)
 @export var ga_crossover_rate: float = 0.70
 @export var ga_seed: int = 42
 @export var build_best_map_after_ga: bool = true
+@export var yield_frame_chunk: int = 100
 
 # --- Public state ---
 var closed_door_scenes: Array = []
@@ -44,14 +52,6 @@ var _closed_door_cache: Dictionary = {}
 var _corridor_cache: Dictionary = {}
 var _rng := GlobalRNG.get_rng()
 var _yield_counter := 0
-@export var yield_frame_chunk: int = 100
-
-const MGGENOME = preload("res://scenes/testscene2/mg_genome.gd")
-const MGCOLL = preload("res://scenes/testscene2/mg_collision.gd")
-const MGIO = preload("res://scenes/testscene2/mg_io.gd")
-const MGGA = preload("res://scenes/testscene2/mg_ga.gd")
-const MGGEN = preload("res://scenes/testscene2/mg_generation.gd")
-const MGBake = preload("res://scenes/testscene2/mg_bake.gd")
 
 # Runtime instances of modules
 var mg_genome = null
