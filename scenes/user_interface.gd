@@ -30,7 +30,7 @@ func _disable_merchant_ui():
 	equipmentlabel.visible = true
 
 
-func _input(event):
+func _input(_event):
 	if Input.is_action_just_pressed("open_inventory"):
 		# If merchant UI is currently shown, close it and ensure the
 		# normal inventory remains visible (swap behaviour).

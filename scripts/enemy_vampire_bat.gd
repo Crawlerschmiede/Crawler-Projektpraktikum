@@ -341,7 +341,7 @@ func elongate():
 	var y_size = 1
 	var x_offset = 0
 	var y_offset = 0
-	var rotation = 0
+	var _rotation = 0
 	for direction in DIRECTIONS:
 		if is_next_to_wall(grid_pos + direction * 2) and not is_next_to_wall(grid_pos + direction):
 			expand = true
@@ -352,38 +352,35 @@ func elongate():
 					y_size = 3
 					x_offset = 0
 					y_offset = -1
-					rotation = 270
+					_rotation = 270
 				Vector2i.DOWN:
 					anchor = "U"
 					x_size = 1
 					y_size = 3
 					x_offset = 0
 					y_offset = 1
-					rotation = 90
+					_rotation = 90
 				Vector2i.LEFT:
 					anchor = "R"
 					x_size = 3
 					y_size = 1
 					x_offset = -1
 					y_offset = 0
-					rotation = 180
+					_rotation = 180
 				Vector2i.RIGHT:
 					anchor = "L"
 					x_size = 3
 					y_size = 1
 					x_offset = 1
 					y_offset = 0
-					rotation = 0
+					_rotation = 0
 			if not expanded:
 				expanded = true
 				resize(x_size, y_size, [anchor])
-				move_sprite(x_offset, y_offset, rotation)
+				move_sprite(x_offset, y_offset, _rotation)
 				for body in collision_area.get_overlapping_bodies():
 					if body == self:
 						continue
-					if body.is_in_group("enemy"):
-						move_sprite(-x_offset, -y_offset, -rotation)
-						print("collision")
 				sprite.play("expand")
 				await sprite.animation_finished
 				sprite.play("expanded_idle")

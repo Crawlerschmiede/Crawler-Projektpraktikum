@@ -72,11 +72,11 @@ func item_exists() -> bool:
 	return true
 
 
-func _get_stack_size(name: String) -> int:
+func _get_stack_size(_name: String) -> int:
 	if !item_exists():
 		return 1
 	var data: Dictionary = JsonData.item_data
-	var info: Variant = data[name]
+	var info: Variant = data[_name]
 	if typeof(info) != TYPE_DICTIONARY:
 		return 1
 

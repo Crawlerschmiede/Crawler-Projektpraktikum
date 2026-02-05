@@ -156,7 +156,7 @@ func _scroll_to_button(btn: Button) -> void:
 		return
 
 	var btn_rect = btn.get_global_rect()
-	var btn_list = $ScrollContainer/VBoxContainer.get_global_rect()
+	#var btn_list = $ScrollContainer/VBoxContainer.get_global_rect()
 
 	if btn_rect.position.y < $ScrollContainer/VBoxContainer.position.y:
 		$ScrollContainer/VBoxContainer.scroll_vertical -= (
