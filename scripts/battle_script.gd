@@ -45,7 +45,7 @@ var enemy_sprite
 var player_sprite
 var rng = GlobalRNG.get_rng()
 
-var next_turn:Array[Skill]=[]
+var next_turn: Array[Skill] = []
 var turn_counter = 0
 
 @onready var hit_anim_enemy: AnimatedSprite2D = $Battle_root/PlayerPosition/enemy_attack_anim
@@ -58,6 +58,7 @@ var turn_counter = 0
 @onready var enemy_hp_bar = $Battle_root/Enemy_HPBar
 @onready var player_hp_bar = $Battle_root/Player_HPBar
 @onready var log_container = $Battle_root/TextureRect2/message_container
+
 
 func _ready():
 	if player != null and is_instance_valid(player):
@@ -127,8 +128,8 @@ func enemy_prepare_turn():
 
 
 func enemy_turn():
-	turn_counter+=1
-	print("It is turn "+str(turn_counter))
+	turn_counter += 1
+	print("It is turn " + str(turn_counter))
 	var over = check_victory()
 	update_health_bars()
 	var happened = []
@@ -160,20 +161,22 @@ func enemy_turn():
 		if not len(next_turn) == 0:
 			for ability in next_turn:
 				ability.activate_followup()
-		next_turn=[]
+		next_turn = []
 		if extra_stuff[0]:
 			player_turn()
 		else:
 			enemy_turn()
 		check_victory()
 		update_health_bars()
-		
+
 
 func update_health_bars():
 	if player != null and is_instance_valid(player):
 		player_hp_bar.value = (player.hp * 100.0) / player.max_hp
 	if enemy != null and is_instance_valid(enemy):
 		enemy_hp_bar.value = (enemy.hp * 100.0) / enemy.max_hp
+
+
 func player_turn():
 	skill_ui.update()
 	skill_ui.player_turn = true

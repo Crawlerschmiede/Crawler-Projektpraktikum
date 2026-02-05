@@ -252,7 +252,9 @@ func generate_from_genome(genome: Array[int]) -> Dictionary:
 		var gene_type: float = clamp(genome[i], 1, rooms_available)
 
 		for attempt in range(50):
-			var try_type: int = gene_type if attempt == 0 else GlobalRNG.randi_range(1, rooms_available)
+			var try_type: int = (
+				gene_type if attempt == 0 else GlobalRNG.randi_range(1, rooms_available)
+			)
 			var def := room_defs[try_type - 1]
 
 			var doors_template: Array[Dictionary] = def["doors"]
