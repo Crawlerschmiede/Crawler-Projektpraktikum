@@ -1,13 +1,11 @@
 extends Node
 
-# Global deterministic RNG autoload.
-# Provides a base RNG seeded with `base_seed` and helpers.
-
 var base_seed: int = 42
 var _counter: int = 0
-var rng: RandomNumberGenerator = RandomNumberGenerator.new()
+var rng: RandomNumberGenerator
 
 func _ready() -> void:
+    rng = RandomNumberGenerator.new()
     rng.seed = int(base_seed)
 
 func seed_base(s: int) -> void:
