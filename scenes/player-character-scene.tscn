@@ -80,7 +80,7 @@ texture = ExtResource("10_j4pnj")
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_hh3gd"]
 texture = ExtResource("16_nq0iv")
 
-[node name="Player" type="CharacterBody2D"]
+[node name="Player" type="CharacterBody2D" groups=["player"]]
 script = ExtResource("1_no27k")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
