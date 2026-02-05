@@ -32,15 +32,7 @@ jobs:
       - name: Run gdformat
         run: gdformat ./
 
-      - name: Strip unique_id from .tscn files
-        run: |
-          # remove editor-unique ids to avoid merge conflicts
-          git ls-files -z '*.tscn' | xargs -0 -r python3 scripts/strip_unique_id.py || true
-
       - name: Commit changes
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "style: auto-format GDScript files"
-          file_pattern: |
-            *.gd
-            *.tscn
