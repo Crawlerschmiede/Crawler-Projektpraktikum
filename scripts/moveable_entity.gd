@@ -51,7 +51,7 @@ var tilemap: TileMapLayer = null
 var top_layer: TileMapLayer = null
 var latest_direction = Vector2i.DOWN
 var is_moving: bool = false
-var rng := RandomNumberGenerator.new()
+var rng := GlobalRNG.get_rng()
 
 #--- combat stats ---
 var max_hp: int = 1
@@ -269,18 +269,17 @@ func activate_passives(user, target, battle):
 	for ability in abilities:
 		if ability.is_passive:
 			ability.activate_skill(user, target, battle)
-			
+
 func add_alteration(type, value, source="test", duration=null):
 	if duration!=null:
 		alterations[source]={type:value, "duration":duration}
-	else:	
+	else:
 		alterations[source]={type:value}
 	return []
 
-
 func get_alterations():
 	return alterations
-	
+
 func deactivate_buff(source="test"):
 	print("alterations ",alterations)
 	if alterations.has(source):

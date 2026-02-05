@@ -25,7 +25,7 @@ func _ready():
 	# Ensure the loading screen runs even if the game is paused
 	process_mode = Node.PROCESS_MODE_ALWAYS
 
-	tip_label.text = "TIP: " + TIPS.pick_random()
+	tip_label.text = "TIP: " + GlobalRNG.pick_random(TIPS)
 
 	# Initialize TextureProgressBar
 	if progress_bar:
@@ -54,7 +54,7 @@ func _on_timer_timeout():
 func display_random_tip():
 	var tween = create_tween()
 	tween.tween_property(tip_label, "modulate:a", 0.0, 0.5)
-	tween.tween_callback(func(): tip_label.text = "TIP: " + TIPS.pick_random())
+	tween.tween_callback(func(): tip_label.text = "TIP: " + GlobalRNG.pick_random(TIPS))
 	tween.tween_property(tip_label, "modulate:a", 1.0, 0.5)
 
 

@@ -111,7 +111,7 @@ func chase():
 					if is_closer_to_player(grid_pos + tile, target_tile, chased_pos):
 						viable_target_tiles.append(target_tile)
 						viable_directions.append(direction)
-	var chosen_direction = randi_range(0, len(viable_directions) - 1)
+	var chosen_direction = GlobalRNG.randi_range(0, len(viable_directions) - 1)
 	if len(viable_directions) > 0:
 		if "wallbound" in types:
 			elongate()

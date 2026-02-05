@@ -24,7 +24,7 @@ extends HBoxContainer
 )
 var _last_item_name: String = ""
 var _sell_unit_price: int = 0
-var _rng := RandomNumberGenerator.new()
+var _rng := GlobalRNG.get_rng()
 var _register_attempts: int = 0
 var _merchant_sell_prices: Dictionary = {}
 
@@ -94,7 +94,7 @@ func _has_property(obj: Object, prop: StringName) -> bool:
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_rng.randomize()
+	_rng.seed = GlobalRNG.next_seed()
 	# connect hammer click
 	if sell_button != null:
 		sell_button.mouse_filter = Control.MOUSE_FILTER_STOP
@@ -113,7 +113,8 @@ func _ready() -> void:
 		call_deferred("_register_sell_slot")
 
 
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
+	_delta = 0
 	# detect item in sell slot and update price display when changed
 	if sell_item_input_slot == null:
 		return

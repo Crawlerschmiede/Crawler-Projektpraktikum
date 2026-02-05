@@ -4,13 +4,6 @@ signal player_loss
 signal player_victory
 
 const MARKER_PREFAB := preload("res://scenes/marker.tscn")
-@onready var hit_anim_enemy: AnimatedSprite2D = $Battle_root/PlayerPosition/enemy_attack_anim
-@onready var hit_anim_player: AnimatedSprite2D = $Battle_root/EnemyPosition/player_attack_anim
-var rng := RandomNumberGenerator.new()
-var next_turn:Array[Skill]=[]
-var turn_counter = 0
-
-
 const MARKER_FLAVOURS = {
 	"dmg_reduc_":
 	{
@@ -41,7 +34,6 @@ const MARKER_FLAVOURS = {
 		"log": ["Seems like you can grab some healing here"]
 	},
 }
-
 @export var player: Node
 @export var enemy: Node
 
@@ -51,7 +43,13 @@ var tile_modifiers: Dictionary = {}
 
 var enemy_sprite
 var player_sprite
+var rng = GlobalRNG.get_rng()
 
+var next_turn:Array[Skill]=[]
+var turn_counter = 0
+
+@onready var hit_anim_enemy: AnimatedSprite2D = $Battle_root/PlayerPosition/enemy_attack_anim
+@onready var hit_anim_player: AnimatedSprite2D = $Battle_root/EnemyPosition/player_attack_anim
 @onready var enemy_marker = $Battle_root/EnemyPosition
 @onready var player_marker = $Battle_root/PlayerPosition
 @onready var combat_tilemap = $Battle_root/TileMapLayer
@@ -60,7 +58,6 @@ var player_sprite
 @onready var enemy_hp_bar = $Battle_root/Enemy_HPBar
 @onready var player_hp_bar = $Battle_root/Player_HPBar
 @onready var log_container = $Battle_root/TextureRect2/message_container
-
 
 func _ready():
 	if player != null and is_instance_valid(player):
