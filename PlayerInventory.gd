@@ -364,3 +364,13 @@ func add_coins(amount: int) -> void:
 		return
 	coins = int(coins) + int(amount)
 	_emit_changed()
+
+
+func reset() -> void:
+	# Clear runtime inventory state and reset to sane defaults
+	inventory.clear()
+	coins = 100
+	slot_group_by_index.clear()
+	suppress_signal = false
+	selected_slot = 18
+	_emit_changed()

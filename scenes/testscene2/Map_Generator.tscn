@@ -1,9 +1,8 @@
 [gd_scene format=3 uid="uid://dwghrpbxefkax"]
 
 [ext_resource type="Script" uid="uid://bqesf1yi7t0tf" path="res://scenes/testscene2/tilemapcheckgen.gd" id="1_eynfe"]
-[ext_resource type="PackedScene" uid="uid://cv2qafpxbe6uo" path="res://scenes/testscene2/fog_war.scn" id="2_araiu"]
+[ext_resource type="TileSet" uid="uid://rc7plds60u7s" path="res://scenes/rooms/Rooms/roomtiles.tres" id="3_3hgal"]
 [ext_resource type="Script" uid="uid://bano66v0h3idb" path="res://scenes/testscene2/map_generator_modular.gd" id="3_araiu"]
-[ext_resource type="PackedScene" uid="uid://bc6waxty10ex5" path="res://scenes/testscene2/tile_map_layer.scn" id="3_hgfm7"]
 
 [node name="MAIN Pet Dungeon" type="Node2D" unique_id=957214115]
 script = ExtResource("1_eynfe")

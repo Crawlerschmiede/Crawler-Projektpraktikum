@@ -7,6 +7,7 @@ const LOOTBOX := preload("res://scenes/Lootbox/Lootbox.tscn")
 const TRAP := preload("res://scenes/traps/Trap.tscn")
 const MERCHANT := preload("res://scenes/entity/merchant.tscn")
 const LOADING_SCENE := preload("res://scenes/loadings_screen/loading_screen.tscn")
+const START_SCENE := "res://scenes/start-menu.tscn"
 @export var menu_scene := preload("res://scenes/popup-menu.tscn")
 @export var fog_tile_id: int = 0  # set this in the inspector to the fog-tile id in your tileset
 @export var fog_dynamic: bool = true  # if true, areas that are no longer visible get fogged again
@@ -146,11 +147,13 @@ func spawn_merchant_entity(cords: Vector2) -> void:
 
 
 func _show_loading() -> void:
-	if loading_screen == null:
-		loading_screen = LOADING_SCENE.instantiate() as CanvasLayer
-		add_child(loading_screen)
+	loading_screen = LOADING_SCENE.instantiate() as CanvasLayer
+	add_child(loading_screen)
 
-	loading_screen.layer = 100
+	if loading_screen != null:
+		loading_screen.layer = 100
+	else:
+		push_error("_show_loading: loading_screen instance is null")
 	loading_screen.visible = true
 	loading_screen.process_mode = Node.PROCESS_MODE_ALWAYS
 
@@ -159,6 +162,34 @@ func _show_loading() -> void:
 	await get_tree().process_frame
 	await get_tree().process_frame
 
+func _show_start() -> void:
+	var start_screen = preload(START_SCENE).instantiate() as CanvasLayer
+	add_child(start_screen)
+
+	start_screen.layer = 1000
+
+	start_screen.visible = true
+	start_screen.process_mode = Node.PROCESS_MODE_ALWAYS
+
+	move_child(start_screen, get_child_count() - 1)
+
+	# Connect Start New signal so clicking the button starts a new game (loads a new map)
+	if start_screen.has_signal("start_new_pressed"):
+		start_screen.start_new_pressed.connect(_on_start_new_pressed)
+
+	await get_tree().process_frame
+	await get_tree().process_frame
+
+
+func _on_start_new_pressed() -> void:
+	# Close start menu if present
+	var start_node := get_node_or_null("StartMenu")
+	if start_node != null and is_instance_valid(start_node):
+		start_node.call_deferred("queue_free")
+
+	# Reset to first world and load
+	world_index = 0
+	await _load_world(world_index)
 
 func _hide_loading() -> void:
 	if loading_screen != null and is_instance_valid(loading_screen):
@@ -643,6 +674,7 @@ func reveal_room_layer(room_layer: TileMapLayer) -> void:
 # ---------------------------------------
 func instantiate_battle(player_node: Node, enemy: Node):
 	if battle == null:
+		print("instantiate_battle: creating battle instance")
 		battle = BATTLE_SCENE.instantiate()
 		battle.player = player_node
 		battle.enemy = enemy
@@ -650,11 +682,32 @@ func instantiate_battle(player_node: Node, enemy: Node):
 		battle.process_mode = Node.PROCESS_MODE_WHEN_PAUSED
 		add_child(battle)
 
+		# Connect signals and log results for debugging
 		if battle.has_signal("player_victory"):
-			battle.player_victory.connect(enemy_defeated.bind(enemy))
-		if battle.has_signal("player_loss"):
-			battle.player_loss.connect(game_over)
+			# Connect to a wrapper that logs and then calls enemy_defeated
+			var victory_callable_base := Callable(self, "_on_battle_player_victory")
+			var victory_callable := victory_callable_base.bind(enemy)
+			if not battle.is_connected("player_victory", victory_callable):
+				# connect using Callable (already bound to enemy)
+				battle.connect("player_victory", victory_callable)
+				print("instantiate_battle: connected player_victory -> _on_battle_player_victory")
+			else:
+				print("instantiate_battle: player_victory already connected")
+		else:
+			print("instantiate_battle: battle has no signal player_victory")
 
+		if battle.has_signal("player_loss"):
+			# Connect to a wrapper that logs and then calls game_over
+			var loss_callable := Callable(self, "_on_battle_player_loss")
+			if not battle.is_connected("player_loss", loss_callable):
+				battle.connect("player_loss", loss_callable)
+				print("instantiate_battle: connected player_loss -> _on_battle_player_loss")
+			else:
+				print("instantiate_battle: player_loss already connected")
+		else:
+			print("instantiate_battle: battle has no signal player_loss")
+
+		print("instantiate_battle: pausing tree to run battle")
 		get_tree().paused = true
 
 
@@ -685,19 +738,36 @@ func find_merchants() -> Array[Vector2]:
 
 
 func enemy_defeated(enemy):
-	print("The battle is won")
+	print("enemy_defeated: The battle is won - handler called")
+	# Make sure game is unpaused first so UI can update
+	if get_tree().paused:
+		print("enemy_defeated: unpausing tree")
+		get_tree().paused = false
+
 	if battle != null and is_instance_valid(battle):
+		print("enemy_defeated: freeing battle UI")
 		battle.call_deferred("queue_free")
 		battle = null
 
 	if enemy != null and is_instance_valid(enemy):
+		print("enemy_defeated: freeing enemy node")
 		enemy.call_deferred("queue_free")
 
-	get_tree().paused = false
-
 	if player != null and is_instance_valid(player):
+		print("enemy_defeated: leveling up player")
 		player.level_up()
 
 
+func _on_battle_player_loss() -> void:
+	# Now forward to existing game_over handler
+	game_over()
+
+
+func _on_battle_player_victory(enemy) -> void:
+	print("_on_battle_player_victory: handler invoked — calling enemy_defeated")
+	enemy_defeated(enemy)
+
+
 func game_over():
-	get_tree().quit()
+	get_tree().paused = false
+	get_tree().change_scene_to_file(START_SCENE)

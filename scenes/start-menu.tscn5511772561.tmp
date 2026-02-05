@@ -1,4 +1,4 @@
-[gd_scene format=3 uid="uid://b5v87f3uddnt5"]
+[gd_scene load_steps=17 format=3 uid="uid://b5v87f3uddnt5"]
 
 [ext_resource type="Texture2D" uid="uid://lumkwdapp0ll" path="res://assets/menu/Box3.png" id="1_3xs3o"]
 [ext_resource type="Script" uid="uid://n6k1jvf6nmyu" path="res://scripts/mouse_clicked.gd" id="1_o50yc"]
@@ -69,14 +69,12 @@ alpha_curve = SubResource("CurveTexture_ui70f")
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_ui70f"]
 shader = ExtResource("4_o1opb")
 
-[node name="StartMenu" type="Control"]
-layout_mode = 3
-anchors_preset = 0
+[node name="StartMenu" type="CanvasLayer"]
 scale = Vector2(3.2, 2.8)
+transform = Transform2D(3.2, 0, 0, 2.8, 0, 0)
 script = ExtResource("1_o50yc")
 
 [node name="TextureRect" type="TextureRect" parent="."]
-layout_mode = 0
 offset_right = 200.0
 offset_bottom = 171.0
 texture = ExtResource("1_q21ov")
@@ -131,7 +129,6 @@ autoplay = "fade_in"
 
 [node name="PanelContainer" type="PanelContainer" parent="."]
 modulate = Color(1, 1, 1, 0.827451)
-layout_mode = 0
 offset_right = 200.0
 offset_bottom = 171.0
 
@@ -150,7 +147,6 @@ layout_mode = 2
 [node name="BoxContainer" type="BoxContainer" parent="."]
 modulate = Color(1, 1, 1, 0)
 custom_minimum_size = Vector2(200, 0)
-layout_mode = 0
 offset_right = 200.0
 offset_bottom = 131.0
 vertical = true

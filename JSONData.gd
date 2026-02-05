@@ -22,3 +22,8 @@ func load_data(file_path: String) -> Dictionary:
 		return {}
 
 	return json.get_data()
+
+
+func reset() -> void:
+	# Reload item data from disk
+	item_data = load_data("res://data/itemData.json")

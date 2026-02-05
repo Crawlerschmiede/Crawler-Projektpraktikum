@@ -47,6 +47,7 @@ var rng = GlobalRNG.get_rng()
 
 var next_turn: Array[Skill] = []
 var turn_counter = 0
+var active: bool = true
 
 @onready var hit_anim_enemy: AnimatedSprite2D = $Battle_root/PlayerPosition/enemy_attack_anim
 @onready var hit_anim_player: AnimatedSprite2D = $Battle_root/EnemyPosition/player_attack_anim
@@ -128,6 +129,8 @@ func enemy_prepare_turn():
 
 
 func enemy_turn():
+	if not active:
+		return
 	turn_counter += 1
 	print("It is turn " + str(turn_counter))
 	var over = check_victory()
@@ -178,8 +181,23 @@ func update_health_bars():
 
 
 func player_turn():
+	if not active:
+		return
 	skill_ui.update()
 	skill_ui.player_turn = true
+
+
+func force_stop() -> void:
+	# Immediately stop any further processing inside this battle
+	active = false
+	# try to disable UI updates
+	if skill_ui != null and is_instance_valid(skill_ui):
+		skill_ui.player_turn = false
+	# hide animations
+	if hit_anim_enemy != null:
+		hit_anim_enemy.visible = false
+	if hit_anim_player != null:
+		hit_anim_player.visible = false
 
 
 func update_passives(depth = 0):
@@ -202,9 +220,11 @@ func trigger_passives(abilities, user, target, battle, depth):
 func check_victory():
 	# Treat missing or freed enemy/player as defeat for that side
 	if enemy == null or not is_instance_valid(enemy) or enemy.hp <= 0:
+		print("battle_script: emitting player_victory (enemy dead)")
 		player_victory.emit()
 		return true
 	if player == null or not is_instance_valid(player) or player.hp <= 0:
+		print("battle_script: emitting player_loss (player dead)")
 		player_loss.emit()
 		return true
 	return false
