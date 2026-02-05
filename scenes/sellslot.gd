@@ -113,7 +113,8 @@ func _ready() -> void:
 		call_deferred("_register_sell_slot")
 
 
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
+	_delta = 0
 	# detect item in sell slot and update price display when changed
 	if sell_item_input_slot == null:
 		return
