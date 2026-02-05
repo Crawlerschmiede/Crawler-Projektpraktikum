@@ -86,7 +86,7 @@ func add_loot(item_name: String, amount: int = 1) -> void:
 
 
 func _generate_random_loot(min_weight: int, max_weight: int) -> Dictionary:
-	var weight_limit = randi_range(min_weight, max_weight)
+	var weight_limit = GlobalRNG.randi_range(min_weight, max_weight)
 
 	# Kandidaten: Items die loot_stats haben
 	var candidates: Array[String] = []
@@ -116,7 +116,7 @@ func _generate_random_loot(min_weight: int, max_weight: int) -> Dictionary:
 	while weight_limit > 0 and tries < 200:
 		tries += 1
 
-		var item = candidates.pick_random()
+		var item = GlobalRNG.pick_random(candidates)
 		var ls = data[item]["loot_stats"]
 
 		var w = int(ls.get("weight", 1))
@@ -126,12 +126,12 @@ func _generate_random_loot(min_weight: int, max_weight: int) -> Dictionary:
 			continue
 
 		var chance = float(ls.get("chance", 1.0))
-		if chance < 1.0 and randf() > chance:
+		if chance < 1.0 and GlobalRNG.randf() > chance:
 			continue
 
 		var max_stack = int(ls.get("max_stack", 1))
 		max_stack = max(1, max_stack)
-		var amount = randi_range(1, max_stack)
+		var amount = GlobalRNG.randi_range(1, max_stack)
 
 		loot[item] = int(loot.get(item, 0)) + amount
 		weight_limit -= w

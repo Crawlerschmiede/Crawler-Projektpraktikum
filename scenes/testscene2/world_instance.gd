@@ -88,7 +88,7 @@ func spawn_lootbox() -> void:
 	if candidates.is_empty():
 		return
 
-	candidates.shuffle()
+	GlobalRNG.shuffle_array(candidates)
 	var amount = min(20, candidates.size())
 
 	for i in range(amount):

@@ -170,13 +170,13 @@ func _update_label(stack_size: int) -> void:
 # Debug / Editor Test only
 # ---------------------------
 func _debug_randomize_if_empty() -> void:
-	randomize()
+	# randomize() disabled — use GlobalRNG for deterministic randomness
 
 	if item_name == "":
 		if JsonData != null and ("item_data" in JsonData) and JsonData.item_data.size() > 0:
 			var keys: Array = JsonData.item_data.keys()
-			item_name = str(keys[randi() % keys.size()])
+			item_name = str(keys[GlobalRNG.randi() % keys.size()])
 			var stack_size: int = _get_stack_size(item_name)
-			item_quantity = (randi() % stack_size) + 1
+			item_quantity = (GlobalRNG.randi() % stack_size) + 1
 		else:
 			push_error("JsonData.item_data ist leer oder fehlt!")

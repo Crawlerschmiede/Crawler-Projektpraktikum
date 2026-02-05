@@ -15,7 +15,8 @@ var room_defs: Array[Dictionary] = []
 
 
 func _ready() -> void:
-	randomize()
+	# use deterministic global RNG
+	GlobalRNG.seed_base(42)
 	_load_room_scenes()
 	if room_defs.is_empty():
 		push_error("Keine Room-Szenen gefunden!")
@@ -174,7 +175,7 @@ func create_genome() -> Array[int]:
 	var weighted: Array[int] = [1, 2, 4, 4, 4, 3, 3, 3, 3, 5, 5, 5, 5]
 
 	for i in range(room_count):
-		g.append(weighted[randi_range(0, weighted.size() - 1)])
+		g.append(weighted[GlobalRNG.randi_range(0, weighted.size() - 1)])
 
 	return g
 
@@ -251,7 +252,9 @@ func generate_from_genome(genome: Array[int]) -> Dictionary:
 		var gene_type: float = clamp(genome[i], 1, rooms_available)
 
 		for attempt in range(50):
-			var try_type: int = gene_type if attempt == 0 else randi_range(1, rooms_available)
+			var try_type: int = (
+				gene_type if attempt == 0 else GlobalRNG.randi_range(1, rooms_available)
+			)
 			var def := room_defs[try_type - 1]
 
 			var doors_template: Array[Dictionary] = def["doors"]
@@ -261,7 +264,7 @@ func generate_from_genome(genome: Array[int]) -> Dictionary:
 			var indices: Array[int] = []
 			for idx in range(doors_template.size()):
 				indices.append(idx)
-			indices.shuffle()
+			GlobalRNG.shuffle_array(indices)
 
 			for idx in indices:
 				var dtemp: Dictionary = doors_template[idx]

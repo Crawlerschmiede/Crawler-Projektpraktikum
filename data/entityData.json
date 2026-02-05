@@ -1,0 +1,56 @@
+{
+	"_settings": {
+		"max_total_weight_per_level": [100, 110, 120],
+		"default_max_total_weight": 30
+	},
+
+	"bat": {
+		"entityCategory": "enemy",
+		"scene": "res://scenes/enemy_vampire_bat.tscn",
+		"sprite_type": "bat",
+		"behaviour": ["passive", "enemy_flying"],
+		"spawnrate": { "min": 0.0, "max": 0.44642857 },
+		"spawncount": { "min": 4, "max": 20 },
+		"weight": 3
+	},
+
+	"skeleton": {
+		"entityCategory": "enemy",
+		"scene": "res://scenes/enemy_skeleton.tscn",
+		"sprite_type": "skeleton",
+		"behaviour": ["hostile", "enemy_walking"],
+		"spawnrate": { "min": 0.0, "max": 0.17857143 },
+		"spawncount": { "min": 4, "max": 20 },
+		"weight": 3
+	},
+
+	"base_zombie": {
+		"entityCategory": "enemy",
+		"scene": "res://scenes/enemy_zombie.tscn",
+		"sprite_type": "base_zombie",
+		"behaviour": ["hostile", "enemy_walking", "burrowing"],
+		"spawnrate": { "min": 0.0, "max": 0.16785714 },
+		"spawncount": { "min": 4, "max": 20 },
+		"weight": 4
+	},
+
+	"ghost": {
+		"entityCategory": "enemy",
+		"scene": "res://scenes/enemy_ghost.tscn",
+		"sprite_type": "ghost",
+		"behaviour": ["hostile", "enemy_flying", "burrowing"],
+		"spawnrate": { "min": 0.0, "max": 0.01785714 },
+		"spawncount": { "min": 4, "max": 20 },
+		"weight": 5
+	},
+
+	"what": {
+		"entityCategory": "enemy",
+		"scene": "res://scenes/enemy_placeholder.tscn",
+		"sprite_type": "what",
+		"behaviour": ["hostile", "wallbound"],
+		"spawnrate": { "min": 0.0, "max": 0.1 },
+		"spawncount": { "min": 4, "max": 6 },
+		"weight": 6
+	}
+}
