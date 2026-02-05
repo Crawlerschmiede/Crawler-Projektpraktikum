@@ -11,17 +11,31 @@ fi
 
 for FILE in $STAGED; do
   case "$FILE" in
-    *.tscn)
-      if command -v python >/dev/null 2>&1; then
-        python scripts/strip_unique_id.py "$FILE" || true
-      elif command -v python3 >/dev/null 2>&1; then
-        python3 scripts/strip_unique_id.py "$FILE" || true
-      elif command -v py >/dev/null 2>&1; then
-        py -3 scripts/strip_unique_id.py "$FILE" || true
-      else
-        echo "No python interpreter found to run scripts/strip_unique_id.py" >&2
-        exit 1
+    *.tscn|*.gd)
+      # Optional: run formatter if FORMAT_CMD is set. Use %s as placeholder for filename.
+      if [ -n "$FORMAT_CMD" ]; then
+        # Build the command by substituting %s with the filename
+        CMD=$(printf "$FORMAT_CMD" "$FILE")
+        echo "Running formatter: $CMD"
+        eval "$CMD" || echo "Formatter exited with non-zero status" >&2
       fi
+
+      # Strip unique_id from .tscn files and ensure python helper is available
+      case "$FILE" in
+        *.tscn)
+          if command -v python >/dev/null 2>&1; then
+            python scripts/strip_unique_id.py "$FILE" || true
+          elif command -v python3 >/dev/null 2>&1; then
+            python3 scripts/strip_unique_id.py "$FILE" || true
+          elif command -v py >/dev/null 2>&1; then
+            py -3 scripts/strip_unique_id.py "$FILE" || true
+          else
+            echo "No python interpreter found to run scripts/strip_unique_id.py" >&2
+            exit 1
+          fi
+        ;;
+      esac
+
       git add "$FILE"
       ;;
   esac
