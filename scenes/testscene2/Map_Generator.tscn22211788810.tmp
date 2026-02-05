@@ -1,8 +1,8 @@
 [gd_scene load_steps=4 format=4 uid="uid://dwghrpbxefkax"]
 
 [ext_resource type="Script" uid="uid://bqesf1yi7t0tf" path="res://scenes/testscene2/tilemapcheckgen.gd" id="1_eynfe"]
+[ext_resource type="Script" uid="uid://d2rb43bq30iq0" path="res://scenes/testscene2/map_generator.gd" id="1_pa1ne"]
 [ext_resource type="TileSet" uid="uid://rc7plds60u7s" path="res://scenes/rooms/Rooms/roomtiles.tres" id="3_3hgal"]
-[ext_resource type="Script" uid="uid://bano66v0h3idb" path="res://scenes/testscene2/map_generator_modular.gd" id="3_araiu"]
 
 [node name="MAIN Pet Dungeon" type="Node2D"]
 script = ExtResource("1_eynfe")
@@ -17,15 +17,15 @@ tile_set = ExtResource("3_3hgal")
 
 [node name="World2" type="Node2D" parent="."]
 visible = false
-script = ExtResource("3_araiu")
+script = ExtResource("1_pa1ne")
 
 [node name="World1" type="Node2D" parent="."]
 visible = false
-script = ExtResource("3_araiu")
+script = ExtResource("1_pa1ne")
 
 [node name="World3" type="Node2D" parent="."]
 visible = false
-script = ExtResource("3_araiu")
+script = ExtResource("1_pa1ne")
 
 [node name="ColorFilter" type="ColorRect" parent="."]
 z_index = 1000

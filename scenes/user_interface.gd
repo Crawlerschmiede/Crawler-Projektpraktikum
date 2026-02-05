@@ -8,8 +8,7 @@ var merchant_in_range: bool = false
 @onready var equipment := $Inventory/Inner/Equiptment
 @onready var equipmentlabel := $Inventory/Inner/EquiptmentLabel
 @onready var player := $".."
-@onready
-var merchantgui := $Inventory/Inner/MerchantContainer/HBoxContainer2/HBoxContainer/VBoxContainer
+@onready var merchantgui := $Inventory/Inner/MerchantContainer/HBoxContainer/VBoxContainer
 @onready var merchantgui_merchant_container := $Inventory/Inner/MerchantContainer
 @onready var coin_screen = $Inventory/price
 

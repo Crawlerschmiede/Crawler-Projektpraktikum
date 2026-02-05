@@ -1,17 +1,18 @@
-name: GDScript Format
+name: Strip unique_id (non-dev branches)
 
 on:
   push:
-    branches: 
+    # run on all branches except dev
+    branches-ignore:
       - 'dev'
   pull_request:
-    branches: 
+    branches-ignore:
       - 'dev'
   workflow_dispatch:
 
 jobs:
-  format:
-    name: Auto-format GDScript
+  strip_ids:
+    name: Strip unique_id from .tscn
     runs-on: ubuntu-latest
     if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
     permissions:
@@ -23,24 +24,13 @@ jobs:
           ref: ${{ github.head_ref || github.ref }}
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Set up uv
-        uses: astral-sh/setup-uv@v4
-
-      - name: Install gdtoolkit
-        run: uv tool install "gdtoolkit==4.*"
-
-      - name: Run gdformat
-        run: gdformat ./
-
       - name: Strip unique_id from .tscn files
         run: |
-          # remove editor-unique ids to avoid merge conflicts
+          # remove editor-unique ids to avoid merge conflicts on non-dev branches
           git ls-files -z '*.tscn' | xargs -0 -r python3 scripts/strip_unique_id.py || true
 
-      - name: Commit changes
+      - name: Commit stripped .tscn files
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "style: auto-format GDScript files"
-          file_pattern: |
-            *.gd
-            *.tscn
+          commit_message: "chore: strip unique_id from .tscn (non-dev branches)"
+          file_pattern: "*.tscn"

@@ -15,14 +15,16 @@ const ITEM_SCENE: PackedScene = preload("res://scenes/Item/item.tscn")
 # Textures
 @export var default_tex: Texture2D = SLOT_TEXTURE
 @export var empty_tex: Texture2D = SLOT_TEXTURE
-@export var selected_tex: Texture2D = preload("res://assets/menu/Selected_slot.png")
+@export var selected_tex: Texture2D = SLOT_TEXTURE
 @export var hover_tex: Texture2D = preload("res://assets/menu/Mülltonne_open.png")
+@export var hover_tex_hammer: Texture2D = preload("res://assets/menu/Hammer-Down.png")
 @export var has_background: bool = true
 
 var default_style: StyleBoxTexture
 var empty_style: StyleBoxTexture
 var selected_style: StyleBoxTexture
 var trash_style: StyleBoxTexture
+var hammer_style: StyleBoxTexture
 
 # Item
 var item: Node = null
@@ -37,11 +39,13 @@ func _ready() -> void:
 		empty_style = StyleBoxTexture.new()
 		selected_style = StyleBoxTexture.new()
 		trash_style = StyleBoxTexture.new()
+		hammer_style = StyleBoxTexture.new()
 
 		default_style.texture = default_tex
 		empty_style.texture = empty_tex
 		selected_style.texture = selected_tex
 		trash_style.texture = hover_tex
+		hammer_style.texture = hover_tex_hammer
 
 	self.mouse_entered.connect(_on_mouse_entered)
 	self.mouse_exited.connect(_on_mouse_exited)
@@ -83,6 +87,8 @@ func _fit_item_to_slot(it: Node) -> void:
 func _on_mouse_entered() -> void:
 	if self.name == "Slot12":
 		set("theme_override_styles/panel", trash_style)
+	elif self.name =="Hammer":
+		set("theme_override_styles/panel", hammer_style)
 
 
 func _on_mouse_exited() -> void:
