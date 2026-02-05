@@ -161,7 +161,7 @@ func bake_closed_doors_into_world_simple(gen) -> void:
 			if d == null or d.used:
 				continue
 			total += 1
-	var _processed = 0
+	var processed = 0
 	for room in gen.placed_rooms:
 		if room == null or not room.has_method("get_free_doors"):
 			continue
@@ -191,7 +191,7 @@ func bake_closed_doors_into_world_simple(gen) -> void:
 				)
 			inst.queue_free()
 			door.used = true
-			_processed += 1
+			processed += 1
 
 
 func bake_closed_doors_into_minimap(gen) -> void:
