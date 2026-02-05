@@ -8,11 +8,10 @@ var _focused := false
 
 
 func _ready():
-
 	add_theme_constant_override("outline_size", 0)
 	add_theme_color_override("font_outline_color", outline_color)
 
-	add_theme_stylebox_override("focus", StyleBoxEmpty.new()) # <-- removes box
+	add_theme_stylebox_override("focus", StyleBoxEmpty.new())  # <-- removes box
 
 	mouse_entered.connect(_on_mouse_entered)
 	mouse_exited.connect(_on_mouse_exited)
@@ -28,13 +27,12 @@ func _ready():
 	pivot_offset = size / 2
 
 
-
 # ==========================
 # SHARED ANIMATION
 # ==========================
 
-func _animate_hover(on: bool):
 
+func _animate_hover(on: bool):
 	pivot_offset = size / 2
 
 	var tween = create_tween()
@@ -53,6 +51,7 @@ func _animate_hover(on: bool):
 # MOUSE
 # ==========================
 
+
 func _on_mouse_entered():
 	_hovered = true
 	_animate_hover(true)
@@ -68,6 +67,7 @@ func _on_mouse_exited():
 # ==========================
 # FOCUS (KEYBOARD/GAMEPAD)
 # ==========================
+
 
 func _on_focus_entered():
 	_focused = true
@@ -85,6 +85,7 @@ func _on_focus_exited():
 # CLICK
 # ==========================
 
+
 func _on_button_down():
 	scale = Vector2(0.95, 0.95)
 
@@ -99,6 +100,7 @@ func _on_button_up():
 # ==========================
 # OUTLINE
 # ==========================
+
 
 func set_outline_thickness(value: int):
 	add_theme_constant_override("outline_size", value)

@@ -6,7 +6,7 @@ Godot 4 project for a small crawler-style game.
 
 ### Prerequisites
 
-- Install **Godot 4.5.1** (this is the version used in CI).
+- Install **Godot 4.6** (this is the version used in CI).
 - Install Git (and ensure it is on your PATH).
 - Install Git LFS.
 - (Windows) Install the Visual C++ Redistributable (x64): https://aka.ms/vc14/vc_redist.x64.exe

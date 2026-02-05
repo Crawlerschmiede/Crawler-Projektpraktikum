@@ -13,8 +13,8 @@ var _settings_layer: CanvasLayer = null
 
 @onready var bg_music = $bg_music
 
-func _ready():
 
+func _ready():
 	# 👉 Reset ALL autoloads cleanly (kein new(), kein instantiate!)
 	if Engine.has_singleton("AutoloadResetRunner"):
 		AutoloadResetRunner.reset_all()
@@ -28,12 +28,7 @@ func _ready():
 		bg_music.play(13.0)
 
 		var fade_tween = create_tween()
-		fade_tween.tween_property(
-			bg_music,
-			"volume_db",
-			0.0,
-			2.0
-		).set_trans(Tween.TRANS_SINE)
+		fade_tween.tween_property(bg_music, "volume_db", 0.0, 2.0).set_trans(Tween.TRANS_SINE)
 
 	_wire_buttons()
 	_setup_focus_navigation()
@@ -43,8 +38,8 @@ func _ready():
 # BUTTON WIRING
 # ==========================
 
-func _wire_buttons() -> void:
 
+func _wire_buttons() -> void:
 	if has_node("BoxContainer/VBoxContainer2/Settings"):
 		$BoxContainer/VBoxContainer2/Settings.pressed.connect(_open_settings)
 
@@ -59,8 +54,8 @@ func _wire_buttons() -> void:
 # START GAME
 # ==========================
 
-func _on_start_pressed() -> void:
 
+func _on_start_pressed() -> void:
 	emit_signal("start_new_pressed")
 
 	# 👉 WICHTIG: kompletter Szenenwechsel
@@ -72,10 +67,9 @@ func _on_start_pressed() -> void:
 # CURSOR HANDLING
 # ==========================
 
+
 func _input(event):
-
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
-
 		if event.pressed:
 			Input.set_custom_mouse_cursor(cursor_click)
 		else:
@@ -86,8 +80,8 @@ func _input(event):
 # SETTINGS OVERLAY
 # ==========================
 
-func _open_settings() -> void:
 
+func _open_settings() -> void:
 	if _settings_instance != null:
 		return
 
@@ -111,7 +105,6 @@ func _open_settings() -> void:
 
 
 func _on_settings_closed() -> void:
-
 	if _settings_layer:
 		_settings_layer.queue_free()
 
@@ -120,7 +113,6 @@ func _on_settings_closed() -> void:
 
 
 func _setup_focus_navigation():
-
 	if not has_node("BoxContainer/VBoxContainer2"):
 		return
 

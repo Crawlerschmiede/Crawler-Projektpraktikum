@@ -11,6 +11,7 @@ var names: Array = [
 	"GlobalRNG",
 ]
 
+
 func reset_all() -> void:
 	GlobalRNG.reset()
 	MerchantRegistry.reset()

@@ -162,6 +162,7 @@ func _show_loading() -> void:
 	await get_tree().process_frame
 	await get_tree().process_frame
 
+
 func _show_start() -> void:
 	var start_screen = preload(START_SCENE).instantiate() as CanvasLayer
 	add_child(start_screen)
@@ -190,6 +191,7 @@ func _on_start_new_pressed() -> void:
 	# Reset to first world and load
 	world_index = 0
 	await _load_world(world_index)
+
 
 func _hide_loading() -> void:
 	if loading_screen != null and is_instance_valid(loading_screen):

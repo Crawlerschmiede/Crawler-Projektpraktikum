@@ -43,6 +43,14 @@ var sprites = {
 		["Screech", "Rabies"],
 		{"idle": "default", "teleport_start": "dig_down", "teleport_end": "dig_up"}
 	],
+	"goblin": [preload("res://scenes/sprite_scenes/goblin_sprite_scene.tscn"), ["Bonk", "War Cry"]],
+	"orc": [preload("res://scenes/sprite_scenes/orc_sprite_scene.tscn"), ["Bonk"]],
+	"plant":
+	[
+		preload("res://scenes/sprite_scenes/big_plant_sprite_scene.tscn"),
+		["Vine Slash", "Entwine", "Poison Ivy", "Herbicide"],
+		{"idle": "default", "teleport_start": "dig_down", "teleport_end": "dig_up"}
+	],
 	"pc": [preload("res://scenes/sprite_scenes/player_sprite_scene.tscn")]
 }
 
@@ -106,6 +114,23 @@ func super_ready(sprite_type: String, entity_type: Array):
 		position = tilemap.map_to_local(Vector2i(2, 2))
 		grid_pos = Vector2i(2, 2)
 		position = tilemap.map_to_local(grid_pos)
+
+	# spawn logic for bosses
+	elif "boss" in entity_type:
+		var possible_spawns = []
+
+		for cell in tilemap.get_used_cells():
+			var tile_data = tilemap.get_cell_tile_data(cell)
+			if tile_data:
+				var is_boss_tile = tile_data.get_custom_data("boss_spawn")
+				if is_boss_tile:
+					print("found boss tile! ", cell)
+					possible_spawns.append(cell)
+
+		var spawnpoint = possible_spawns[rng.randi_range(0, len(possible_spawns) - 1)]
+		position = tilemap.map_to_local(spawnpoint)
+		grid_pos = spawnpoint
+
 	# Spawn logic for enemies
 	else:
 		var possible_spawns = []
