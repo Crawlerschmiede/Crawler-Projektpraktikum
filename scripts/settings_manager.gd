@@ -365,3 +365,9 @@ func _key_event_to_text(e: InputEventKey) -> String:
 		key_name = "(unknown)"
 	parts.append(key_name)
 	return "+".join(parts)
+
+
+func reset() -> void:
+	# Reload settings from disk and re-apply them
+	load_settings()
+	apply_all()

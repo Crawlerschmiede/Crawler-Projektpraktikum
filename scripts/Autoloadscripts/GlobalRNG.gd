@@ -82,3 +82,10 @@ func _ensure_rng() -> void:
 	if rng == null:
 		rng = RandomNumberGenerator.new()
 		rng.seed = int(base_seed)
+
+
+func reset() -> void:
+	# Reset counter and reseed internal RNG
+	_counter = 0
+	_ensure_rng()
+	rng.seed = int(base_seed)
