@@ -15,7 +15,7 @@ const ITEM_SCENE: PackedScene = preload("res://scenes/Item/item.tscn")
 # Textures
 @export var default_tex: Texture2D = SLOT_TEXTURE
 @export var empty_tex: Texture2D = SLOT_TEXTURE
-@export var selected_tex: Texture2D = preload("res://assets/menu/Selected_slot.png")
+@export var selected_tex: Texture2D = SLOT_TEXTURE
 @export var hover_tex: Texture2D = preload("res://assets/menu/Mülltonne_open.png")
 @export var has_background: bool = true
 

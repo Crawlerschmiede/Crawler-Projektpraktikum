@@ -18,6 +18,7 @@
 [ext_resource type="Texture2D" uid="uid://i7gvsnx5i4bw" path="res://assets/fight_animations/Fight-Animation-3Hit.png" id="10_vceff"]
 [ext_resource type="Texture2D" uid="uid://b2h43jwgxfx6e" path="res://assets/fight_animations/Single-Hit-Flash.png" id="11_h4dll"]
 [ext_resource type="Texture2D" uid="uid://usclqp0io56r" path="res://assets/menu/UI_TravelBook_Line01a.png" id="12_22uqi"]
+[ext_resource type="Theme" uid="uid://do40vcwiibb8g" path="res://assets/theme/HealthBar.tres" id="13_h4dll"]
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_66ngm"]
 content_margin_left = 8.0
@@ -433,13 +434,13 @@ animations = [{
 "speed": 8.0
 }]
 
-[node name="Battle" type="CanvasLayer"]
+[node name="Battle" type="CanvasLayer" unique_id=1395063500]
 script = ExtResource("1_p1qf1")
 
-[node name="Battle_root" type="Node2D" parent="."]
+[node name="Battle_root" type="Node2D" parent="." unique_id=1671988325]
 scale = Vector2(3, 3)
 
-[node name="ItemList" type="ItemList" parent="Battle_root"]
+[node name="ItemList" type="ItemList" parent="Battle_root" unique_id=428069960]
 offset_left = 86.0
 offset_top = 81.0
 offset_right = 210.0
@@ -447,7 +448,7 @@ offset_bottom = 157.0
 focus_mode = 0
 script = ExtResource("2_a12nh")
 
-[node name="TextureRect" type="TextureRect" parent="Battle_root/ItemList"]
+[node name="TextureRect" type="TextureRect" parent="Battle_root/ItemList" unique_id=1033038157]
 layout_mode = 0
 offset_top = -0.99998474
 offset_right = 124.0
@@ -455,7 +456,7 @@ offset_bottom = 77.000015
 texture = ExtResource("1_th188")
 expand_mode = 1
 
-[node name="TabBar" type="TabBar" parent="Battle_root/ItemList"]
+[node name="TabBar" type="TabBar" parent="Battle_root/ItemList" unique_id=1104409895]
 layout_mode = 0
 offset_left = 1.9999948
 offset_top = 0.6666666
@@ -477,7 +478,7 @@ tab_1/tooltip = "Make use of what you found"
 tab_2/title = "Actions"
 tab_2/tooltip = "Generic Actions"
 
-[node name="ColorRect" type="ColorRect" parent="Battle_root/ItemList"]
+[node name="ColorRect" type="ColorRect" parent="Battle_root/ItemList" unique_id=1937388352]
 material = SubResource("ShaderMaterial_22uqi")
 layout_mode = 0
 offset_left = 2.1666718
@@ -486,7 +487,7 @@ offset_right = 121.16667
 offset_bottom = 76.333336
 color = Color(0.28627452, 0.2, 0.2, 1)
 
-[node name="ScrollContainer" type="ScrollContainer" parent="Battle_root/ItemList"]
+[node name="ScrollContainer" type="ScrollContainer" parent="Battle_root/ItemList" unique_id=12879542]
 layout_mode = 0
 offset_left = 3.5
 offset_top = 23.0
@@ -494,15 +495,15 @@ offset_right = 193.5
 offset_bottom = 85.0
 scale = Vector2(0.62, 0.8)
 
-[node name="VBoxContainer" type="VBoxContainer" parent="Battle_root/ItemList/ScrollContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="Battle_root/ItemList/ScrollContainer" unique_id=1465506574]
 custom_minimum_size = Vector2(170, 50)
 layout_mode = 2
 
-[node name="TileMapLayer" type="TileMapLayer" parent="Battle_root"]
+[node name="TileMapLayer" type="TileMapLayer" parent="Battle_root" unique_id=2044619669]
 tile_map_data = PackedByteArray("AAAAAAUAAQABAAgAAAAAAAYAAQAAAAgAAAAAAAcAAQABAAkAAAAAAAgAAQAAAAgAAAAAAAkAAQABAAgAAAABAAkAAQAAAAgAAAACAAkAAQAAAAgAAAADAAkAAQAAAAgAAAAEAAkAAQABAAgAAAAEAAgAAQAAAAgAAAAEAAcAAQABAAkAAAAEAAYAAQAAAAgAAAAEAAUAAQABAAgAAAADAAUAAQABAAkAAAACAAUAAQAAAAgAAAABAAUAAQAAAAgAAAABAAYAAQABAAkAAAABAAcAAQAAAAgAAAABAAgAAQABAAgAAAACAAgAAQABAAkAAAADAAgAAQAAAAgAAAADAAcAAQAAAAgAAAADAAYAAQABAAgAAAACAAYAAQAAAAgAAAACAAcAAQAAAAgAAAA=")
 tile_set = SubResource("TileSet_lpir7")
 
-[node name="EnemyPosition" type="Marker2D" parent="Battle_root"]
+[node name="EnemyPosition" type="Marker2D" parent="Battle_root" unique_id=1499421336]
 position = Vector2(37, 30)
 
 [node name="player_attack_anim" type="AnimatedSprite2D" parent="Battle_root/EnemyPosition"]
@@ -513,11 +514,11 @@ frame_progress = 1.0
 [node name="PlayerPosition" type="Marker2D" parent="Battle_root"]
 position = Vector2(39.333332, 120.66667)
 
-[node name="enemy_attack_anim" type="AnimatedSprite2D" parent="Battle_root/PlayerPosition"]
+[node name="enemy_attack_anim" type="AnimatedSprite2D" parent="Battle_root/PlayerPosition" unique_id=465486656]
 sprite_frames = SubResource("SpriteFrames_saiin")
 animation = &"triple_strike"
 
-[node name="Enemy_HPBar" type="ProgressBar" parent="Battle_root"]
+[node name="Enemy_HPBar" type="ProgressBar" parent="Battle_root" unique_id=710399650]
 offset_left = 45.0
 offset_top = 62.0
 offset_right = 85.0
@@ -526,7 +527,7 @@ scale = Vector2(1, 0.7)
 size_flags_vertical = 4
 theme_override_fonts/font = ExtResource("4_6vh42")
 
-[node name="Enemy_hp_label" type="Label" parent="Battle_root"]
+[node name="Enemy_hp_label" type="Label" parent="Battle_root" unique_id=1187527842]
 offset_left = 2.6666667
 offset_top = 61.000004
 offset_right = 85.666664
@@ -537,7 +538,7 @@ text = "Enemy HP:"
 horizontal_alignment = 1
 vertical_alignment = 2
 
-[node name="player_hp_label" type="Label" parent="Battle_root"]
+[node name="player_hp_label" type="Label" parent="Battle_root" unique_id=1864331501]
 offset_left = 129.33334
 offset_top = 63.0
 offset_right = 208.33333
@@ -547,7 +548,7 @@ theme_override_fonts/font = ExtResource("4_6vh42")
 text = "Player HP:"
 vertical_alignment = 1
 
-[node name="Player_HPBar" type="ProgressBar" parent="Battle_root"]
+[node name="Player_HPBar" type="ProgressBar" parent="Battle_root" unique_id=1521414318]
 offset_left = 166.0
 offset_top = 62.0
 offset_right = 206.0
@@ -555,7 +556,7 @@ offset_bottom = 80.0
 scale = Vector2(1, 0.7)
 theme_override_fonts/font = ExtResource("4_6vh42")
 
-[node name="TextureRect2" type="TextureRect" parent="Battle_root"]
+[node name="TextureRect2" type="TextureRect" parent="Battle_root" unique_id=837173725]
 z_index = -1
 offset_left = 79.0
 offset_top = 2.0
@@ -565,7 +566,7 @@ scale = Vector2(0.9938794, 0.7350163)
 texture = ExtResource("6_f4pi3")
 expand_mode = 1
 
-[node name="message_container" type="ScrollContainer" parent="Battle_root/TextureRect2"]
+[node name="message_container" type="ScrollContainer" parent="Battle_root/TextureRect2" unique_id=695246170]
 layout_mode = 0
 offset_left = 7.0
 offset_top = 11.0
@@ -574,14 +575,14 @@ offset_bottom = 81.0
 scale = Vector2(0.62, 0.8)
 script = ExtResource("5_lpir7")
 
-[node name="VBoxContainer" type="VBoxContainer" parent="Battle_root/TextureRect2/message_container"]
+[node name="VBoxContainer" type="VBoxContainer" parent="Battle_root/TextureRect2/message_container" unique_id=738247885]
 custom_minimum_size = Vector2(170, 50)
 layout_mode = 2
 size_flags_horizontal = 10
 size_flags_vertical = 6
 alignment = 1
 
-[node name="ColorRect" type="ColorRect" parent="."]
+[node name="ColorRect" type="ColorRect" parent="." unique_id=1535860157]
 z_index = -2
 anchors_preset = 15
 anchor_right = 1.0
@@ -591,7 +592,7 @@ grow_vertical = 2
 mouse_filter = 2
 color = Color(0.16717109, 0.00046630923, 0, 1)
 
-[node name="ColorRect2" type="TextureRect" parent="."]
+[node name="ColorRect2" type="TextureRect" parent="." unique_id=1093715669]
 self_modulate = Color(0.25565878, 0.25565878, 0.25565878, 1)
 z_index = -1
 offset_left = 38.0
@@ -603,7 +604,7 @@ mouse_filter = 2
 texture = ExtResource("10_66ngm")
 expand_mode = 1
 
-[node name="TextureRect2" type="TextureRect" parent="."]
+[node name="TextureRect2" type="TextureRect" parent="." unique_id=1217189958]
 offset_top = 236.0
 offset_right = 160.0
 offset_bottom = 237.0
@@ -612,7 +613,7 @@ texture = ExtResource("12_22uqi")
 expand_mode = 1
 stretch_mode = 1
 
-[node name="TextureRect" type="TextureRect" parent="."]
+[node name="TextureRect" type="TextureRect" parent="." unique_id=240264668]
 offset_right = 640.0
 offset_bottom = 480.0
 mouse_behavior_recursive = 1
