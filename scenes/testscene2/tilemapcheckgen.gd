@@ -1,14 +1,14 @@
 extends Node2D
 
-const ENEMY_SCENE := preload("res://scenes/enemy_vampire_bat.tscn")
-const BATTLE_SCENE := preload("res://scenes/battle.tscn")
-const PLAYER_SCENE := preload("res://scenes/player-character-scene.tscn")
-const LOOTBOX := preload("res://scenes/Lootbox/Lootbox.tscn")
-const TRAP := preload("res://scenes/traps/Trap.tscn")
+const ENEMY_SCENE := preload("res://scenes/entity/enemy.tscn")
+const BATTLE_SCENE := preload("res://scenes/UI/battle.tscn")
+const PLAYER_SCENE := preload("res://scenes/entity/player-character-scene.tscn")
+const LOOTBOX := preload("res://scenes/Interactables/Lootbox.tscn")
+const TRAP := preload("res://scenes/Interactables/Trap.tscn")
 const MERCHANT := preload("res://scenes/entity/merchant.tscn")
-const LOADING_SCENE := preload("res://scenes/loadings_screen/loading_screen.tscn")
-const START_SCENE := "res://scenes/start-menu.tscn"
-@export var menu_scene := preload("res://scenes/popup-menu.tscn")
+const LOADING_SCENE := preload("res://scenes/UI/loading_screen.tscn")
+const START_SCENE := "res://scenes/UI/start-menu.tscn"
+@export var menu_scene := preload("res://scenes/UI/popup-menu.tscn")
 @export var fog_tile_id: int = 0  # set this in the inspector to the fog-tile id in your tileset
 @export var fog_dynamic: bool = true  # if true, areas that are no longer visible get fogged again
 

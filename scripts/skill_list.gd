@@ -131,11 +131,6 @@ func _add_button(ability) -> void:
 	# Keyboard focus = selected (SAME DESIGN)
 	# We don't rely on Control focus (Tab should not change selection).
 	# Use mouse hover to update selection + tooltip instead.
-	b.mouse_entered.connect(
-		Callable(self, "_on_mouse_entered").bind(ability.name, ability.description)
-	)
-	b.mouse_exited.connect(Callable(self, "remove_tooltip"))
-
 	# Mouse hover also sets the internal selection index and scrolls
 	b.mouse_entered.connect(Callable(self, "_on_button_mouse_entered").bind(b))
 

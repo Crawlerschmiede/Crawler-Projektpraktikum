@@ -8,7 +8,7 @@ signal inventory_changed
 const DEBUG: bool = true
 
 # Slot Script (Pfad prüfen!)
-const SlotScript: GDScript = preload("res://scenes/Slot.gd")
+const SlotScript: GDScript = preload("res://scripts/Slot.gd")
 const ITEM_SCENE: PackedScene = preload("res://scenes/Item/item.tscn")
 
 var _ui: Node = null

@@ -2,7 +2,7 @@ extends Control
 
 signal start_new_pressed
 
-const SETTINGS_MENU_SCENE := preload("res://scenes/settings_menu.tscn")
+const SETTINGS_MENU_SCENE := preload("res://scenes/UI/settings_menu.tscn")
 const MAP_GENERATOR_SCENE := preload("res://scenes/testscene2/Map_Generator.tscn")
 
 var cursor_idle = preload("res://assets/menu/normal.png")

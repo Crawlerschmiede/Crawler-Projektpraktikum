@@ -3,7 +3,7 @@ extends CanvasLayer
 # custom signal to inform the main scene
 signal menu_closed
 
-const SETTINGS_MENU_SCENE := preload("res://scenes/settings_menu.tscn")
+const SETTINGS_MENU_SCENE := preload("res://scenes/UI/settings_menu.tscn")
 
 const REFERENCE_SIZE := Vector2(640.0, 480.0)
 const BASE_SCALE := Vector2(3.2, 2.8)

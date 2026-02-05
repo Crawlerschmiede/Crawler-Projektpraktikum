@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=4 uid="uid://bmeahwj3s0bds"]
+[gd_scene format=4 uid="uid://bmeahwj3s0bds"]
 
 [ext_resource type="Script" uid="uid://fl85x75xb6ny" path="res://scenes/rooms/Rooms/loot_box_label.gd" id="2_1s05d"]
 [ext_resource type="Script" uid="uid://c6uji18uxm162" path="res://scenes/rooms/Rooms/spawn_label.gd" id="2_j35cb"]

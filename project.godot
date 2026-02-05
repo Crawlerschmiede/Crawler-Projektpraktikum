@@ -16,20 +16,20 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 
 config/name="Crawler-Projektpraktikum"
 run/main_scene="uid://b5v87f3uddnt5"
-config/features=PackedStringArray("4.5", "Mobile")
+config/features=PackedStringArray("4.6", "Mobile")
 config/icon="res://icon.svg"
 
 [autoload]
 
 SettingsManager="*res://scripts/settings_manager.gd"
-JsonData="*res://JSONData.gd"
-PlayerInventory="*res://PlayerInventory.gd"
+JsonData="*res://scripts/JSONData.gd"
+PlayerInventory="*res://scripts/PlayerInventory.gd"
 Setting="*res://scripts/Autoloadscripts/setting.gd"
 Logger="*res://scripts/Logger.gd"
 MerchantRegistry="*res://scripts/merchant_registry.gd"
-EntityAutoload="*res://entity_autoload.gd"
+EntityAutoload="*res://scripts/entity_autoload.gd"
 GlobalRNG="*res://scripts/Autoloadscripts/GlobalRNG.gd"
-AutoloadResetRunner="*res://scripts/AutoloadResetRunner.gd"
+AutoloadResetRunner="*res://scripts/Autoloadscripts/AutoloadResetRunner.gd"
 
 [display]
 

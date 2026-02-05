@@ -3,7 +3,7 @@ extends CanvasLayer
 signal player_loss
 signal player_victory
 
-const MARKER_PREFAB := preload("res://scenes/marker.tscn")
+const MARKER_PREFAB := preload("res://scenes/rooms/helpers/marker.tscn")
 const MARKER_FLAVOURS = {
 	"dmg_reduc_":
 	{

@@ -1,57 +1,57 @@
 [gd_scene format=4 uid="uid://vn680b4hvj3x"]
 
-[ext_resource type="Script" uid="uid://ccci32tj3j1fq" path="res://scripts/battle_script.gd" id="1_p1qf1"]
-[ext_resource type="Texture2D" uid="uid://rhw6r8lf8r0n" path="res://assets/menu/UI_TravelBook_BookCover01a.png" id="1_th188"]
-[ext_resource type="Script" uid="uid://dy5stdv0mwwiu" path="res://scripts/skill_list.gd" id="2_a12nh"]
-[ext_resource type="Texture2D" uid="uid://bkugys8878hd" path="res://assets/testsprites/placeholder_floornwall_goodsize.png" id="2_p1qf1"]
-[ext_resource type="FontFile" uid="uid://d4fqcjicieold" path="res://assets/font/PixelPurl.ttf" id="4_6vh42"]
-[ext_resource type="Script" uid="uid://l7vprtnmuht3" path="res://scripts/message_container.gd" id="5_lpir7"]
-[ext_resource type="Texture2D" uid="uid://ceidsb110q7ug" path="res://assets/menu/UI_TravelBook_Marker01a inverted.png" id="5_v7i3o"]
-[ext_resource type="Texture2D" uid="uid://cpyoj2ajuoijt" path="res://assets/menu/UI_TravelBook_Marker01a.png" id="5_yahae"]
-[ext_resource type="Texture2D" uid="uid://drnogsosojksh" path="res://assets/menu/UI_TravelBook_Slot01b.png" id="6_f4pi3"]
-[ext_resource type="Shader" uid="uid://bhllwj1vey6kg" path="res://shaders/round_corners.gdshader" id="7_03edq"]
-[ext_resource type="Texture2D" uid="uid://p1r7l118n6so" path="res://assets/map-tiles/16x16 dungeon ii wall reconfig v04 spritesheet.png" id="9_6ni85"]
-[ext_resource type="Texture2D" uid="uid://cen3xmvl56h11" path="res://assets/menu/pixil-frame-0(1).png" id="9_v7i3o"]
-[ext_resource type="Texture2D" uid="uid://ebhbokd4jrcf" path="res://assets/menu/c9a4d2bf1afc262.png" id="10_66ngm"]
-[ext_resource type="Texture2D" uid="uid://b8npjqrcm5ova" path="res://assets/fight_animations/Fight-Animation-2Hit.png" id="10_djc8l"]
-[ext_resource type="Texture2D" uid="uid://dasnbfy8q0ie" path="res://assets/fight_animations/player_2hit.png" id="10_h4dll"]
-[ext_resource type="Texture2D" uid="uid://i7gvsnx5i4bw" path="res://assets/fight_animations/Fight-Animation-3Hit.png" id="10_vceff"]
-[ext_resource type="Texture2D" uid="uid://b2h43jwgxfx6e" path="res://assets/fight_animations/Single-Hit-Flash.png" id="11_h4dll"]
-[ext_resource type="Texture2D" uid="uid://usclqp0io56r" path="res://assets/menu/UI_TravelBook_Line01a.png" id="12_22uqi"]
-[ext_resource type="Theme" uid="uid://do40vcwiibb8g" path="res://assets/theme/HealthBar.tres" id="13_h4dll"]
+[ext_resource type="Script" uid="uid://ccci32tj3j1fq" path="res://scripts/battle_script.gd" id="1_fu7w4"]
+[ext_resource type="Script" uid="uid://dy5stdv0mwwiu" path="res://scripts/skill_list.gd" id="2_okw7b"]
+[ext_resource type="Texture2D" uid="uid://rhw6r8lf8r0n" path="res://assets/menu/UI_TravelBook_BookCover01a.png" id="3_i8jxl"]
+[ext_resource type="FontFile" uid="uid://d4fqcjicieold" path="res://assets/font/PixelPurl.ttf" id="4_jvqxm"]
+[ext_resource type="Texture2D" uid="uid://cpyoj2ajuoijt" path="res://assets/menu/UI_TravelBook_Marker01a.png" id="5_dxtsq"]
+[ext_resource type="Texture2D" uid="uid://ceidsb110q7ug" path="res://assets/menu/UI_TravelBook_Marker01a inverted.png" id="6_gwqu3"]
+[ext_resource type="Shader" uid="uid://bhllwj1vey6kg" path="res://shaders/round_corners.gdshader" id="7_e8pcg"]
+[ext_resource type="Texture2D" uid="uid://bkugys8878hd" path="res://assets/testsprites/placeholder_floornwall_goodsize.png" id="8_ryxhp"]
+[ext_resource type="Texture2D" uid="uid://p1r7l118n6so" path="res://assets/map-tiles/16x16 dungeon ii wall reconfig v04 spritesheet.png" id="9_qf25x"]
+[ext_resource type="Texture2D" uid="uid://dasnbfy8q0ie" path="res://assets/fight_animations/player_2hit.png" id="10_tqc8e"]
+[ext_resource type="Texture2D" uid="uid://b8npjqrcm5ova" path="res://assets/fight_animations/Fight-Animation-2Hit.png" id="11_12d72"]
+[ext_resource type="Texture2D" uid="uid://b2h43jwgxfx6e" path="res://assets/fight_animations/Single-Hit-Flash.png" id="12_wafox"]
+[ext_resource type="Texture2D" uid="uid://i7gvsnx5i4bw" path="res://assets/fight_animations/Fight-Animation-3Hit.png" id="13_5dqi7"]
+[ext_resource type="Theme" uid="uid://v7upv04bd66u" path="res://assets/theme/HealthBar.tres" id="14_ubutp"]
+[ext_resource type="Texture2D" uid="uid://drnogsosojksh" path="res://assets/menu/UI_TravelBook_Slot01b.png" id="15_prx66"]
+[ext_resource type="Script" uid="uid://l7vprtnmuht3" path="res://scripts/message_container.gd" id="16_d23n6"]
+[ext_resource type="Texture2D" uid="uid://ebhbokd4jrcf" path="res://assets/menu/c9a4d2bf1afc262.png" id="17_oxy7j"]
+[ext_resource type="Texture2D" uid="uid://usclqp0io56r" path="res://assets/menu/UI_TravelBook_Line01a.png" id="18_5vkhy"]
+[ext_resource type="Texture2D" uid="uid://cen3xmvl56h11" path="res://assets/menu/pixil-frame-0(1).png" id="19_nlk32"]
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_66ngm"]
 content_margin_left = 8.0
 content_margin_top = 0.0
 content_margin_right = 6.0
 content_margin_bottom = 0.0
-texture = ExtResource("5_yahae")
+texture = ExtResource("5_dxtsq")
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_22uqi"]
 content_margin_left = 8.0
 content_margin_top = 0.0
 content_margin_right = 6.0
 content_margin_bottom = 0.0
-texture = ExtResource("5_v7i3o")
+texture = ExtResource("6_gwqu3")
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_03edq"]
 content_margin_left = 8.0
 content_margin_top = 0.0
 content_margin_right = 6.0
 content_margin_bottom = 0.0
-texture = ExtResource("5_v7i3o")
+texture = ExtResource("6_gwqu3")
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_22uqi"]
-shader = ExtResource("7_03edq")
+shader = ExtResource("7_e8pcg")
 shader_parameter/radius = 0.2
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_a12nh"]
-texture = ExtResource("2_p1qf1")
+texture = ExtResource("8_ryxhp")
 0:0/0 = 0
 1:0/0 = 0
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_vceff"]
-texture = ExtResource("9_6ni85")
+texture = ExtResource("9_qf25x")
 0:0/0 = 0
 1:0/0 = 0
 2:0/0 = 0
@@ -241,27 +241,27 @@ sources/0 = SubResource("TileSetAtlasSource_a12nh")
 sources/1 = SubResource("TileSetAtlasSource_vceff")
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_mpb26"]
-atlas = ExtResource("10_h4dll")
+atlas = ExtResource("10_tqc8e")
 region = Rect2(0, 0, 40, 40)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_4u087"]
-atlas = ExtResource("10_h4dll")
+atlas = ExtResource("10_tqc8e")
 region = Rect2(40, 0, 40, 40)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_fqtyt"]
-atlas = ExtResource("10_h4dll")
+atlas = ExtResource("10_tqc8e")
 region = Rect2(80, 0, 40, 40)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_8a2ah"]
-atlas = ExtResource("10_h4dll")
+atlas = ExtResource("10_tqc8e")
 region = Rect2(120, 0, 40, 40)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_ikjs2"]
-atlas = ExtResource("10_h4dll")
+atlas = ExtResource("10_tqc8e")
 region = Rect2(160, 0, 40, 40)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_1rdfn"]
-atlas = ExtResource("10_h4dll")
+atlas = ExtResource("10_tqc8e")
 region = Rect2(200, 0, 40, 40)
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_r0ctv"]
@@ -291,75 +291,75 @@ animations = [{
 }]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_saiin"]
-atlas = ExtResource("10_djc8l")
+atlas = ExtResource("11_12d72")
 region = Rect2(0, 0, 80, 80)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_dd63g"]
-atlas = ExtResource("10_djc8l")
+atlas = ExtResource("11_12d72")
 region = Rect2(80, 0, 80, 80)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_fpf3k"]
-atlas = ExtResource("10_djc8l")
+atlas = ExtResource("11_12d72")
 region = Rect2(160, 0, 80, 80)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_bi5l8"]
-atlas = ExtResource("10_djc8l")
+atlas = ExtResource("11_12d72")
 region = Rect2(240, 0, 80, 80)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_jt4d8"]
-atlas = ExtResource("10_djc8l")
+atlas = ExtResource("11_12d72")
 region = Rect2(320, 0, 80, 80)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_kl6ie"]
-atlas = ExtResource("10_djc8l")
+atlas = ExtResource("11_12d72")
 region = Rect2(400, 0, 80, 80)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_1m01a"]
-atlas = ExtResource("10_djc8l")
+atlas = ExtResource("11_12d72")
 region = Rect2(480, 0, 80, 80)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_lv4so"]
-atlas = ExtResource("11_h4dll")
+atlas = ExtResource("12_wafox")
 region = Rect2(0, 0, 80, 80)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_eivww"]
-atlas = ExtResource("11_h4dll")
+atlas = ExtResource("12_wafox")
 region = Rect2(80, 0, 80, 80)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_rwtbh"]
-atlas = ExtResource("11_h4dll")
+atlas = ExtResource("12_wafox")
 region = Rect2(160, 0, 80, 80)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_f0g0v"]
-atlas = ExtResource("11_h4dll")
+atlas = ExtResource("12_wafox")
 region = Rect2(240, 0, 80, 80)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_at2n2"]
-atlas = ExtResource("11_h4dll")
+atlas = ExtResource("12_wafox")
 region = Rect2(320, 0, 80, 80)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_e50ek"]
-atlas = ExtResource("11_h4dll")
+atlas = ExtResource("12_wafox")
 region = Rect2(400, 0, 80, 80)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_ekamt"]
-atlas = ExtResource("10_vceff")
+atlas = ExtResource("13_5dqi7")
 region = Rect2(0, 0, 80, 80)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_djc8l"]
-atlas = ExtResource("10_vceff")
+atlas = ExtResource("13_5dqi7")
 region = Rect2(80, 0, 80, 80)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_h4dll"]
-atlas = ExtResource("10_vceff")
+atlas = ExtResource("13_5dqi7")
 region = Rect2(160, 0, 80, 80)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_p0caf"]
-atlas = ExtResource("10_vceff")
+atlas = ExtResource("13_5dqi7")
 region = Rect2(240, 0, 80, 80)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_61i1y"]
-atlas = ExtResource("10_vceff")
+atlas = ExtResource("13_5dqi7")
 region = Rect2(320, 0, 80, 80)
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_saiin"]
@@ -435,7 +435,7 @@ animations = [{
 }]
 
 [node name="Battle" type="CanvasLayer" unique_id=1395063500]
-script = ExtResource("1_p1qf1")
+script = ExtResource("1_fu7w4")
 
 [node name="Battle_root" type="Node2D" parent="." unique_id=1671988325]
 scale = Vector2(3, 3)
@@ -446,14 +446,14 @@ offset_top = 81.0
 offset_right = 210.0
 offset_bottom = 157.0
 focus_mode = 0
-script = ExtResource("2_a12nh")
+script = ExtResource("2_okw7b")
 
 [node name="TextureRect" type="TextureRect" parent="Battle_root/ItemList" unique_id=1033038157]
 layout_mode = 0
 offset_top = -0.99998474
 offset_right = 124.0
 offset_bottom = 77.000015
-texture = ExtResource("1_th188")
+texture = ExtResource("3_i8jxl")
 expand_mode = 1
 
 [node name="TabBar" type="TabBar" parent="Battle_root/ItemList" unique_id=1104409895]
@@ -465,7 +465,7 @@ offset_bottom = 31.666666
 scale = Vector2(0.64, 0.64)
 focus_mode = 0
 theme_override_colors/font_unselected_color = Color(0, 0, 0, 1)
-theme_override_fonts/font = ExtResource("4_6vh42")
+theme_override_fonts/font = ExtResource("4_jvqxm")
 theme_override_styles/tab_unselected = SubResource("StyleBoxTexture_66ngm")
 theme_override_styles/tab_hovered = SubResource("StyleBoxTexture_22uqi")
 theme_override_styles/tab_selected = SubResource("StyleBoxTexture_03edq")
@@ -525,8 +525,8 @@ offset_right = 85.0
 offset_bottom = 80.0
 scale = Vector2(1, 0.7)
 size_flags_vertical = 4
-theme = ExtResource("13_h4dll")
-theme_override_fonts/font = ExtResource("4_6vh42")
+theme = ExtResource("14_ubutp")
+theme_override_fonts/font = ExtResource("4_jvqxm")
 
 [node name="Enemy_hp_label" type="Label" parent="Battle_root" unique_id=1187527842]
 offset_left = 2.6666667
@@ -534,7 +534,7 @@ offset_top = 61.000004
 offset_right = 85.666664
 offset_bottom = 84.0
 scale = Vector2(0.5, 0.5)
-theme_override_fonts/font = ExtResource("4_6vh42")
+theme_override_fonts/font = ExtResource("4_jvqxm")
 text = "Enemy HP:"
 horizontal_alignment = 1
 vertical_alignment = 2
@@ -545,7 +545,7 @@ offset_top = 63.0
 offset_right = 208.33333
 offset_bottom = 86.0
 scale = Vector2(0.5, 0.5)
-theme_override_fonts/font = ExtResource("4_6vh42")
+theme_override_fonts/font = ExtResource("4_jvqxm")
 text = "Player HP:"
 vertical_alignment = 1
 
@@ -555,8 +555,8 @@ offset_top = 62.0
 offset_right = 206.0
 offset_bottom = 80.0
 scale = Vector2(1, 0.7)
-theme = ExtResource("13_h4dll")
-theme_override_fonts/font = ExtResource("4_6vh42")
+theme = ExtResource("14_ubutp")
+theme_override_fonts/font = ExtResource("4_jvqxm")
 
 [node name="TextureRect2" type="TextureRect" parent="Battle_root" unique_id=837173725]
 z_index = -1
@@ -565,7 +565,7 @@ offset_top = 2.0
 offset_right = 212.0
 offset_bottom = 82.0
 scale = Vector2(0.9938794, 0.7350163)
-texture = ExtResource("6_f4pi3")
+texture = ExtResource("15_prx66")
 expand_mode = 1
 
 [node name="message_container" type="ScrollContainer" parent="Battle_root/TextureRect2" unique_id=695246170]
@@ -575,7 +575,7 @@ offset_top = 11.0
 offset_right = 197.0
 offset_bottom = 81.0
 scale = Vector2(0.62, 0.8)
-script = ExtResource("5_lpir7")
+script = ExtResource("16_d23n6")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="Battle_root/TextureRect2/message_container" unique_id=738247885]
 custom_minimum_size = Vector2(170, 50)
@@ -603,7 +603,7 @@ offset_right = 78.0
 offset_bottom = 71.0
 scale = Vector2(3.6799989, 3.08)
 mouse_filter = 2
-texture = ExtResource("10_66ngm")
+texture = ExtResource("17_oxy7j")
 expand_mode = 1
 
 [node name="TextureRect2" type="TextureRect" parent="." unique_id=1217189958]
@@ -611,7 +611,7 @@ offset_top = 236.0
 offset_right = 160.0
 offset_bottom = 237.0
 scale = Vector2(4, 4)
-texture = ExtResource("12_22uqi")
+texture = ExtResource("18_5vkhy")
 expand_mode = 1
 stretch_mode = 1
 
@@ -619,4 +619,4 @@ stretch_mode = 1
 offset_right = 640.0
 offset_bottom = 480.0
 mouse_behavior_recursive = 1
-texture = ExtResource("9_v7i3o")
+texture = ExtResource("19_nlk32")

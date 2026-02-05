@@ -1,6 +1,6 @@
 extends VBoxContainer
 
-@export var merchant_slot = preload("res://scenes/merchant_slot.tscn")
+@export var merchant_slot = preload("res://scenes/rooms/merchant/merchant_slot.tscn")
 
 var current_merchant
 

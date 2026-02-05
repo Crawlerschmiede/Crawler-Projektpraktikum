@@ -1,7 +1,7 @@
-[gd_scene load_steps=7 format=3 uid="uid://ctw147xj16x67"]
+[gd_scene format=3 uid="uid://ctw147xj16x67"]
 
 [ext_resource type="Texture2D" uid="uid://lumkwdapp0ll" path="res://assets/menu/Box3.png" id="1_67o70"]
-[ext_resource type="Script" uid="uid://b5116o1cr5ici" path="res://scenes/Item/item_drop.gd" id="1_mhsm6"]
+[ext_resource type="Script" uid="uid://b5116o1cr5ici" path="res://scripts/item_drop.gd" id="1_mhsm6"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_mhsm6"]
 size = Vector2(9, 5)
@@ -44,18 +44,16 @@ _data = {
 &"RESET": SubResource("Animation_l23bc")
 }
 
-[node name="ItemDrop" type="CharacterBody2D" groups=["item"]]
+[node name="ItemDrop" type="CharacterBody2D" unique_id=1081161862 groups=["item"]]
 script = ExtResource("1_mhsm6")
 
-[node name="Sprite2D" type="Sprite2D" parent="."]
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1723186867]
 position = Vector2(2.3841858e-07, 2.3841858e-07)
 scale = Vector2(0.5161291, 0.5161291)
 texture = ExtResource("1_67o70")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=291135147]
 shape = SubResource("RectangleShape2D_mhsm6")
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
-libraries = {
-&"": SubResource("AnimationLibrary_ecfyl")
-}
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=330267516]
+libraries/ = SubResource("AnimationLibrary_ecfyl")
