@@ -1,4 +1,4 @@
-[gd_scene load_steps=52 format=4 uid="uid://vn680b4hvj3x"]
+[gd_scene format=4 uid="uid://vn680b4hvj3x"]
 
 [ext_resource type="Script" uid="uid://ccci32tj3j1fq" path="res://scripts/battle_script.gd" id="1_p1qf1"]
 [ext_resource type="Texture2D" uid="uid://rhw6r8lf8r0n" path="res://assets/menu/UI_TravelBook_BookCover01a.png" id="1_th188"]
@@ -506,12 +506,12 @@ tile_set = SubResource("TileSet_lpir7")
 [node name="EnemyPosition" type="Marker2D" parent="Battle_root" unique_id=1499421336]
 position = Vector2(37, 30)
 
-[node name="player_attack_anim" type="AnimatedSprite2D" parent="Battle_root/EnemyPosition"]
+[node name="player_attack_anim" type="AnimatedSprite2D" parent="Battle_root/EnemyPosition" unique_id=1752526242]
 sprite_frames = SubResource("SpriteFrames_r0ctv")
 frame = 5
 frame_progress = 1.0
 
-[node name="PlayerPosition" type="Marker2D" parent="Battle_root"]
+[node name="PlayerPosition" type="Marker2D" parent="Battle_root" unique_id=786789383]
 position = Vector2(39.333332, 120.66667)
 
 [node name="enemy_attack_anim" type="AnimatedSprite2D" parent="Battle_root/PlayerPosition" unique_id=465486656]
@@ -525,6 +525,7 @@ offset_right = 85.0
 offset_bottom = 80.0
 scale = Vector2(1, 0.7)
 size_flags_vertical = 4
+theme = ExtResource("13_h4dll")
 theme_override_fonts/font = ExtResource("4_6vh42")
 
 [node name="Enemy_hp_label" type="Label" parent="Battle_root" unique_id=1187527842]
@@ -554,6 +555,7 @@ offset_top = 62.0
 offset_right = 206.0
 offset_bottom = 80.0
 scale = Vector2(1, 0.7)
+theme = ExtResource("13_h4dll")
 theme_override_fonts/font = ExtResource("4_6vh42")
 
 [node name="TextureRect2" type="TextureRect" parent="Battle_root" unique_id=837173725]
