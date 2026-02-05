@@ -124,6 +124,8 @@ func enemy_prepare_turn():
 	var preps = enemy.chosen.prep_skill(enemy, player, self)
 	for prep in preps:
 		log_container.add_log_event(prep)
+	player.refill_actions()
+	enemy.refill_actions()
 	update_passives()
 
 
@@ -131,10 +133,7 @@ func enemy_turn():
 	turn_counter+=1
 	print("It is turn "+str(turn_counter))
 	var over = check_victory()
-	if player != null and is_instance_valid(player):
-		player_hp_bar.value = (player.hp * 100.0) / player.max_hp
-	if enemy != null and is_instance_valid(enemy):
-		enemy_hp_bar.value = (enemy.hp * 100.0) / enemy.max_hp
+	update_health_bars()
 	var happened = []
 	if !over:
 		for ability in enemy.abilities:
@@ -143,10 +142,7 @@ func enemy_turn():
 		happened = extra_stuff[1]
 		for happening in happened:
 			log_container.add_log_event(happening)
-		if enemy != null and is_instance_valid(enemy):
-			enemy_hp_bar.value = (enemy.hp * 100.0) / enemy.max_hp
-		if player != null and is_instance_valid(player):
-			player_hp_bar.value = (player.hp * 100.0) / player.max_hp
+		update_health_bars()
 		if extra_stuff[0]:
 			#print(enemy, " activates its Skill ", enemy.chosen.name, "!")
 			happened = enemy.chosen.activate_skill(enemy, player, self)
@@ -161,10 +157,7 @@ func enemy_turn():
 			enemy_prepare_turn()
 		extra_stuff = player.deal_with_status_effects()
 		happened = extra_stuff[1]
-		if player != null and is_instance_valid(player):
-			player_hp_bar.value = (player.hp * 100.0) / player.max_hp
-		if enemy != null and is_instance_valid(enemy):
-			enemy_hp_bar.value = (enemy.hp * 100.0) / enemy.max_hp
+		update_health_bars()
 		for happening in happened:
 			log_container.add_log_event(happening)
 		if not len(next_turn) == 0:
@@ -176,12 +169,14 @@ func enemy_turn():
 		else:
 			enemy_turn()
 		check_victory()
-		if player != null and is_instance_valid(player):
-			player_hp_bar.value = (player.hp * 100.0) / player.max_hp
-		if enemy != null and is_instance_valid(enemy):
-			enemy_hp_bar.value = (enemy.hp * 100.0) / enemy.max_hp
+		update_health_bars()
+		
 
-
+func update_health_bars():
+	if player != null and is_instance_valid(player):
+		player_hp_bar.value = (player.hp * 100.0) / player.max_hp
+	if enemy != null and is_instance_valid(enemy):
+		enemy_hp_bar.value = (enemy.hp * 100.0) / enemy.max_hp
 func player_turn():
 	skill_ui.update()
 	skill_ui.player_turn = true
