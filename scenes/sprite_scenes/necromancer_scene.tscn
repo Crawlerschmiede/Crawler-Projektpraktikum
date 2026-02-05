@@ -1,6 +1,6 @@
-[gd_scene format=3 uid="uid://rhg5pq4jaeck"]
+[gd_scene format=3 uid="uid://bd6vlhxgnk0rf"]
 
-[ext_resource type="Texture2D" uid="uid://dynhc7u0bx8ic" path="res://assets/enemies/Necromancer-Aura1.png" id="1_kd07q"]
+[ext_resource type="Texture2D" uid="uid://cjnocgyx6ttpn" path="res://assets/enemies/Necromancer-Standing.png" id="1_kd07q"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_02vta"]
 atlas = ExtResource("1_kd07q")
@@ -56,6 +56,6 @@ animations = [{
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" unique_id=358690754]
 sprite_frames = SubResource("SpriteFrames_7ojl6")
 animation = &"idle"
-frame = 2
-frame_progress = 0.77330834
+frame = 4
+frame_progress = 0.14863999
 centered = false
