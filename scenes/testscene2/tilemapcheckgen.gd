@@ -7,7 +7,7 @@ const LOOTBOX := preload("res://scenes/Lootbox/Lootbox.tscn")
 const TRAP := preload("res://scenes/traps/Trap.tscn")
 const MERCHANT := preload("res://scenes/entity/merchant.tscn")
 const LOADING_SCENE := preload("res://scenes/loadings_screen/loading_screen.tscn")
-
+const START_SCENE := preload("res://scenes/start-menu.tscn")
 @export var menu_scene := preload("res://scenes/popup-menu.tscn")
 
 # --- World state ---
@@ -152,6 +152,18 @@ func _show_loading() -> void:
 	await get_tree().process_frame
 	await get_tree().process_frame
 
+func _show_start() -> void:
+	var start_screen = START_SCENE.instantiate() as CanvasLayer
+	add_child(start_screen)
+
+	start_screen.layer = 1000
+	start_screen.visible = true
+	start_screen.process_mode = Node.PROCESS_MODE_ALWAYS
+
+	move_child(start_screen, get_child_count() - 1)
+
+	await get_tree().process_frame
+	await get_tree().process_frame
 
 func _hide_loading() -> void:
 	if loading_screen != null and is_instance_valid(loading_screen):
@@ -628,4 +640,4 @@ func enemy_defeated(enemy):
 
 
 func game_over():
-	get_tree().quit()
+	_show_start()

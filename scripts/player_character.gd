@@ -56,12 +56,10 @@ func set_minimap(mm: TileMapLayer) -> void:
 
 # --- Input Handling with Cooldown ---
 
-
 # Use _physics_process for time-based movement, and pass delta
 func _physics_process(delta: float):
 	# 1. Update the cooldown timer
 	step_timer -= delta
-
 	# 2. Get the current direction the player is holding
 	var input_direction = get_held_direction()
 

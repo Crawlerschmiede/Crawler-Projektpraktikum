@@ -1,4 +1,4 @@
-extends Control
+extends CanvasLayer
 
 const SETTINGS_MENU_SCENE := preload("res://scenes/settings_menu.tscn")
 
