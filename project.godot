@@ -27,6 +27,7 @@ PlayerInventory="*res://PlayerInventory.gd"
 Setting="*res://scripts/Autoloadscripts/setting.gd"
 Logger="*res://scripts/Logger.gd"
 MerchantRegistry="*res://scripts/merchant_registry.gd"
+EntityAutoload="*res://entity_autoload.gd"
 
 [display]
 
