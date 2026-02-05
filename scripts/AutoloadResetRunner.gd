@@ -18,6 +18,4 @@ func reset_all() -> void:
 	Setting.reset()
 	PlayerInventory.reset()
 	JsonData.reset()
-	SettingsManager.reset()
-	
-			
+	SettingsManager.reset()			

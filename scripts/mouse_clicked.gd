@@ -1,5 +1,7 @@
 extends Control
 
+signal start_new_pressed
+
 const SETTINGS_MENU_SCENE := preload("res://scenes/settings_menu.tscn")
 const MAP_GENERATOR_SCENE := preload("res://scenes/testscene2/Map_Generator.tscn")
 
@@ -10,9 +12,6 @@ var _settings_instance: Control = null
 var _settings_layer: CanvasLayer = null
 
 @onready var bg_music = $bg_music
-
-signal start_new_pressed
-
 
 func _ready():
 
