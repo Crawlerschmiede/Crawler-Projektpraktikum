@@ -30,6 +30,7 @@ signal generation_progress(p: float, text: String)
 
 # Optional: Wenn du willst, dass nach dem GA die beste Map sofort gebaut wird
 @export var build_best_map_after_ga: bool = true
+@export var yield_frame_chunk: int = 100
 
 # --- Public vars ---
 var closed_door_scenes: Array[PackedScene] = []
@@ -49,7 +50,7 @@ var _closed_door_cache: Dictionary = {}
 var _corridor_cache: Dictionary = {}  # key: String(scene.resource_path) -> bool
 var _rng := GlobalRNG.get_rng()
 var _yield_counter := 0
-@export var yield_frame_chunk: int = 100 
+
 
 func _emit_progress_mapped(start: float, end: float, local_p: float, text: String) -> void:
 	# Map local_p (0..1) into global range [start..end] and emit
