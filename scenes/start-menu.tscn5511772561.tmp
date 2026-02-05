@@ -70,7 +70,6 @@ alpha_curve = SubResource("CurveTexture_ui70f")
 shader = ExtResource("4_o1opb")
 
 [node name="StartMenu" type="CanvasLayer"]
-layer = 1000
 scale = Vector2(3.2, 2.8)
 transform = Transform2D(3.2, 0, 0, 2.8, 0, 0)
 script = ExtResource("1_o50yc")

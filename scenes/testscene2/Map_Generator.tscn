@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://bqesf1yi7t0tf" path="res://scenes/testscene2/tilemapcheckgen.gd" id="1_eynfe"]
 [ext_resource type="TileSet" uid="uid://rc7plds60u7s" path="res://scenes/rooms/Rooms/roomtiles.tres" id="3_3hgal"]
-[ext_resource type="Script" uid="uid://b4v4qfkfe60xj" path="res://scenes/testscene2/map_generator_modular.gd" id="3_araiu"]
+[ext_resource type="Script" uid="uid://bano66v0h3idb" path="res://scenes/testscene2/map_generator_modular.gd" id="3_araiu"]
 
 [node name="MAIN Pet Dungeon" type="Node2D"]
 script = ExtResource("1_eynfe")

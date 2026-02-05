@@ -10,6 +10,10 @@ var _settings_layer: CanvasLayer = null
 
 @onready var bg_music = $bg_music
 
+signal start_new_pressed
+
+@onready var on_start = $"BoxContainer/VBoxContainer2/Start New"
+@onready var map_generator = preload("res://scenes/testscene2/Map_Generator.tscn")
 
 func _ready():
 	Input.set_custom_mouse_cursor(cursor_idle)
@@ -33,9 +37,25 @@ func _wire_start_menu_buttons() -> void:
 	var settings_btn: Button = $BoxContainer/VBoxContainer2/Settings
 	settings_btn.pressed.connect(_open_settings)
 
+	# Wire Start New button to emit a signal so the parent scene can react (start new game)
+	if has_node("BoxContainer/VBoxContainer2/Start New"):
+		var start_btn = $"BoxContainer/VBoxContainer2/Start New"
+		start_btn.pressed.connect(_on_start_pressed)
+
 	if has_node("BoxContainer/VBoxContainer2/Exit"):
 		var exit_btn: Button = $BoxContainer/VBoxContainer2/Exit
 		exit_btn.pressed.connect(get_tree().quit)
+
+
+func _on_start_pressed() -> void:
+	emit_signal("start_new_pressed")
+	# Wechsel zur Map-Generator-Szene (Start-Spiel)
+	if map_generator != null:
+		var gen_instance = map_generator.instantiate()
+		# Add generator as child of the root so it becomes active
+		get_tree().get_root().add_child(gen_instance)
+		# Free the start menu (deferred to avoid freeing while handling signals)
+		call_deferred("queue_free")
 
 
 func _input(event):
@@ -51,7 +71,10 @@ func _open_settings() -> void:
 		return
 	_settings_layer = CanvasLayer.new()
 	_settings_layer.name = "SettingsOverlay"
-	_settings_layer.layer = 100
+	if _settings_layer != null:
+		_settings_layer.layer = 100
+	else:
+		push_error("_open_settings: failed to create _settings_layer")
 	get_tree().root.add_child(_settings_layer)
 
 	_settings_instance = SETTINGS_MENU_SCENE.instantiate()
