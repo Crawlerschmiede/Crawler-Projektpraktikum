@@ -1,4 +1,5 @@
 # InventoryUI.gd (Godot 4.x, vollständig typisiert & compile-safe)
+# gdlint: disable=max-file-lines
 
 extends Control
 
@@ -648,9 +649,7 @@ func right_click_put_one_unit(slot: Node) -> void:
 	# Place exactly one unit from the holding item into `slot`. If holding has only one
 	# unit we fall back to the full-place behavior so ownership of the node moves.
 	var ui: Node = _get_ui()
-	if ui == null:
-		return
-	if not _has_property(ui, &"holding_item"):
+	if ui == null or not _has_property(ui, &"holding_item"):
 		return
 	var holding: Variant = ui.get("holding_item")
 	if holding == null or not (holding is Node):
@@ -668,57 +667,58 @@ func right_click_put_one_unit(slot: Node) -> void:
 		if holding_qty <= 1:
 			# just put the whole item (node moves)
 			left_click_empty_slot(slot)
-			return
-		# create a new visual item node with qty 1
-		var new_item = ITEM_SCENE.instantiate()
-		if new_item == null:
-			push_error("Failed to instantiate ITEM_SCENE")
-			return
-		if new_item.has_method("set_item"):
-			new_item.call("set_item", holding_name, 1)
 		else:
-			push_error("Instantiated item has no set_item()")
-			return
+			# create a new visual item node with qty 1
+			var new_item = ITEM_SCENE.instantiate()
+			var can_place := true
+			if new_item == null:
+				push_error("Failed to instantiate ITEM_SCENE")
+				can_place = false
+			elif not new_item.has_method("set_item"):
+				push_error("Instantiated item has no set_item()")
+				can_place = false
+			else:
+				new_item.call("set_item", holding_name, 1)
 
-		# attempt to add to backend
-		var ok: bool = false
-		if (
-			typeof(PlayerInventory) != TYPE_NIL
-			and PlayerInventory != null
-			and PlayerInventory.has_method("add_item_to_empty_slot")
-		):
-			ok = PlayerInventory.add_item_to_empty_slot(new_item, slot)
-		if not ok:
-			# cleanup and bail
-			if is_instance_valid(new_item):
-				new_item.queue_free()
-			return
-		# attach to UI
-		if slot.has_method("put_into_slot"):
-			slot.call("put_into_slot", new_item)
-		else:
-			push_error("Slot hat keine put_into_slot()")
+			if can_place:
+				# attempt to add to backend
+				var ok: bool = false
+				if (
+					typeof(PlayerInventory) != TYPE_NIL
+					and PlayerInventory != null
+					and PlayerInventory.has_method("add_item_to_empty_slot")
+				):
+					ok = PlayerInventory.add_item_to_empty_slot(new_item, slot)
+				if not ok:
+					# cleanup and bail
+					if is_instance_valid(new_item):
+						new_item.queue_free()
+				else:
+					# attach to UI
+					if slot.has_method("put_into_slot"):
+						slot.call("put_into_slot", new_item)
+					else:
+						push_error("Slot hat keine put_into_slot()")
 
-		# decrease holding quantity by 1
-		if hnode.has_method("decrease_item_quantity"):
-			hnode.call("decrease_item_quantity", 1)
-		else:
-			# best-effort: adjust property
-			var curq := int(hnode.get("item_quantity"))
-			hnode.set("item_quantity", max(0, curq - 1))
+					# decrease holding quantity by 1
+					if hnode.has_method("decrease_item_quantity"):
+						hnode.call("decrease_item_quantity", 1)
+					else:
+						# best-effort: adjust property
+						var curq := int(hnode.get("item_quantity"))
+						hnode.set("item_quantity", max(0, curq - 1))
 
-		# if holding depleted, free and clear
-		if int(hnode.get("item_quantity")) <= 0:
-			if is_instance_valid(hnode):
-				hnode.queue_free()
-			ui.set("holding_item", null)
-		if DEBUG:
-			_validate_slot(slot)
-		return
+					# if holding depleted, free and clear
+					if int(hnode.get("item_quantity")) <= 0:
+						if is_instance_valid(hnode):
+							hnode.queue_free()
+						ui.set("holding_item", null)
+					if DEBUG:
+						_validate_slot(slot)
 
 	# slot contains an item
 	# same item -> add one to stack
-	if slot_item != null and slot_item is Node and is_instance_valid(slot_item as Node):
+	elif slot_item is Node and is_instance_valid(slot_item as Node):
 		var sitem := slot_item as Node
 		var slot_name := str(sitem.get("item_name"))
 		if slot_name == holding_name:
@@ -745,10 +745,9 @@ func right_click_put_one_unit(slot: Node) -> void:
 				ui.set("holding_item", null)
 			if DEBUG:
 				_validate_slot(slot)
-			return
-		# different item -> fallback to full swap behavior
-		left_click_different_item(slot)
-		return
+		else:
+			# different item -> fallback to full swap behavior
+			left_click_different_item(slot)
 
 
 # -------------------------

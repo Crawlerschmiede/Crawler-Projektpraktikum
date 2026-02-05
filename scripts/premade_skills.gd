@@ -51,7 +51,7 @@ var existing_skills = {
 		"tree": "void things",
 		"description": "You suddenly feel surrounded by non-existence",
 		"effects": [["death_zone", 1, false, "surrounding"]],
-		"cooldown":3
+		"cooldown": 3
 	},
 	"Vortex":
 	{
@@ -72,7 +72,7 @@ var existing_skills = {
 		"tree": "skeleton things",
 		"description": "I promise the flashing eyes are more than just nonsense!",
 		"effects": [["prepare", 0, true, "No"]],
-		"next_turn_effects":[["damage_buff", 2, true, "duration=2"], ["damage",1 , false, "No"]]
+		"next_turn_effects": [["damage_buff", 2, true, "duration=2"], ["damage", 1, false, "No"]]
 	},
 	#unarmed player stuff
 	"Punch":
@@ -85,9 +85,9 @@ var existing_skills = {
 	"Back and Forth":
 	{
 		"tree": "hitting and punching and biting and kicking people",
-		"description":  "It's a punch... you don't need an explanation",
+		"description": "It's a punch... you don't need an explanation",
 		"effects": [["movement", 1, true, "D"]],
-		"next_turn_effects":[["movement", 1, true, "U"]],
+		"next_turn_effects": [["movement", 1, true, "U"]],
 		"cooldown": 0
 	},
 	"Right Pivot":
