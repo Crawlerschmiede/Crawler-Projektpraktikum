@@ -101,7 +101,7 @@ func _add_button_disabled(label: String) -> void:
 	b.focus_mode = Control.FOCUS_NONE
 	b.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
 	b.add_theme_stylebox_override("pressed", StyleBoxEmpty.new())
-	b.add_theme_stylebox_override("hover", StyleBoxEmpty.new())
+
 
 	b.add_theme_font_override("font", custom_font)
 	b.add_theme_color_override("font_color", Color(0.8, 0.8, 0.8))
@@ -118,7 +118,7 @@ func _add_button(ability) -> void:
 	b.focus_mode = Control.FOCUS_NONE
 	b.add_theme_stylebox_override("focus", StyleBoxEmpty.new())
 	b.add_theme_stylebox_override("pressed", StyleBoxEmpty.new())
-	b.add_theme_stylebox_override("hover", StyleBoxEmpty.new())
+
 
 	b.add_theme_font_override("font", custom_font)
 	b.add_theme_color_override("font_color", Color(0.8, 0.8, 0.8))
@@ -245,31 +245,8 @@ func _input(event: InputEvent) -> void:
 		if is_tab:
 			accept_event()
 			return
-		# Navigation
-		if event.is_action_pressed("ui_down"):
-			if list_vbox.get_child_count() > 0:
-				selected_index = min(selected_index + 1, list_vbox.get_child_count() - 1)
-				_highlight_selected()
-			accept_event()
-			return
-
-		if event.is_action_pressed("ui_up"):
-			if list_vbox.get_child_count() > 0:
-				selected_index = max(selected_index - 1, 0)
-				_highlight_selected()
-			accept_event()
-			return
-
-		# Optional: Tabs wechseln mit links/rechts
-		if event.is_action_pressed("ui_left"):
-			_select_prev_tab()
-			accept_event()
-			return
-
-		if event.is_action_pressed("ui_right"):
-			_select_next_tab()
-			accept_event()
-			return
+		# Navigation is handled in _process() to avoid double-handling
+		# (prevent skipping/fast increments when multiple input callbacks fire).
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -292,29 +269,8 @@ func _unhandled_input(event: InputEvent) -> void:
 			accept_event()
 			return
 
-		if Input.is_action_pressed("ui_down"):
-			if list_vbox.get_child_count() > 0:
-				selected_index = min(selected_index + 1, list_vbox.get_child_count() - 1)
-				_highlight_selected()
-			accept_event()
-			return
-
-		if Input.is_action_pressed("ui_up"):
-			if list_vbox.get_child_count() > 0:
-				selected_index = max(selected_index - 1, 0)
-				_highlight_selected()
-			accept_event()
-			return
-
-		if Input.is_action_pressed("ui_right"):
-			_select_next_tab()
-			accept_event()
-			return
-
-		if Input.is_action_pressed("ui_left"):
-			_select_prev_tab()
-			accept_event()
-			return
+		# Navigation is handled in _process() to avoid double-processing
+		# of the same key event (prevents skipping the first entry).
 
 
 func _select_next_tab() -> void:
