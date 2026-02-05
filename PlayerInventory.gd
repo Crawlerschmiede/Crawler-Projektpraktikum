@@ -34,8 +34,7 @@ func get_selected_slot() -> int:
 
 
 func get_item_from_selected_slot():
-	var selected_slot = get_selected_slot()
-	return inventory[selected_slot]
+	return inventory[get_selected_slot()]
 
 
 func register_slot_index(idx: int, groups: Array[StringName]) -> void:
@@ -194,6 +193,30 @@ func add_item(item_name: String, item_quantity: int = 1) -> void:
 	# wenn wir hier sind: kein Platz
 	_emit_changed()
 	push_warning("Inventar voll! Item nicht vollständig hinzugefügt: %s" % item_name)
+
+
+func can_add_amount(item_name: String, desired: int) -> int:
+	# Returns how many of `item_name` can currently be added to the player's inventory
+	if desired <= 0:
+		return 0
+
+	var stack_sz := _get_stack_size(item_name)
+	var inv := inventory
+
+	var total_space := 0
+	# Count free space in existing stacks and empty slots
+	for i in range(NUM_INVENTORY_SLOTS):
+		if inv.has(i):
+			var v = inv[i]
+			if typeof(v) == TYPE_ARRAY and v.size() >= 2 and str(v[0]) == item_name:
+				var cur := int(v[1])
+				total_space += max(0, stack_sz - cur)
+			# else: occupied by other item -> no space in this slot
+		else:
+			# empty slot -> full stack fits
+			total_space += stack_sz
+
+	return min(desired, total_space)
 
 
 func _priority(i):

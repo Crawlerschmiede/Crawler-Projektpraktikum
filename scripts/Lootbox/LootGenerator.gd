@@ -23,12 +23,12 @@ static func generate_loot(min_total := 10, max_total := 15) -> Dictionary:
 	if pool.is_empty():
 		return {}
 
-	var target := randi_range(min_total, max_total)
+	var target := GlobalRNG.randi_range(min_total, max_total)
 	var used := 0
 	var loot := {}
 
 	while used < target:
-		var r := randf() * sum
+		var r := GlobalRNG.randf() * sum
 		var acc := 0.0
 		var picked := ""
 

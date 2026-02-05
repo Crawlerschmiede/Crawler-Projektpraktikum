@@ -50,10 +50,14 @@ func roam():
 	else:
 		move_to_tile(direction)
 
-func is_closer_to_player(current_tile: Vector2i, target_tile: Vector2i, chased_tile: Vector2i) -> bool:
+
+func is_closer_to_player(
+	current_tile: Vector2i, target_tile: Vector2i, chased_tile: Vector2i
+) -> bool:
 	var curr_distance = abs(current_tile.x - chased_tile.x) + abs(current_tile.y - chased_tile.y)
 	var target_distance = abs(target_tile.x - chased_tile.x) + abs(target_tile.y - chased_tile.y)
 	return target_distance <= curr_distance
+
 
 # gdlint: disable=max-returns
 func chase():
@@ -85,13 +89,13 @@ func chase():
 
 	chasing = true
 	var tiles_im_on = []
-	var viable_target_tiles =[]
+	var viable_target_tiles = []
 	var viable_directions = []
 	for tile in my_tiles:
-		tiles_im_on.append(grid_pos+tile)
+		tiles_im_on.append(grid_pos + tile)
 	for tile in my_tiles:
-		for direction in directions:
-			var target_tile = grid_pos+tile+direction
+		for direction in DIRECTIONS:
+			var target_tile = grid_pos + tile + direction
 			if target_tile not in tiles_im_on:
 				if not is_cell_walkable(target_tile):
 					if "burrowing" in types:
@@ -104,11 +108,11 @@ func chase():
 					if "wallbound" in types:
 						if not is_next_to_wall(target_tile):
 							continue
-					if is_closer_to_player((grid_pos+tile), target_tile, chased_pos):
+					if is_closer_to_player(grid_pos + tile, target_tile, chased_pos):
 						viable_target_tiles.append(target_tile)
 						viable_directions.append(direction)
-	var chosen_direction = randi_range(0, len(viable_directions)-1)
-	if len(viable_directions)>0:
+	var chosen_direction = GlobalRNG.randi_range(0, len(viable_directions) - 1)
+	if len(viable_directions) > 0:
 		if "wallbound" in types:
 			elongate()
 			move_to_tile(viable_directions[chosen_direction])
@@ -255,16 +259,21 @@ func check_sight() -> bool:
 		# --- finale Entscheidung ---
 		if in_player_group or is_player_character or (("is_player" in body) and body.is_player):
 			#print("✅✅✅ PLAYER DETECTED! -> setting chase_target =", body.name)
-			saw_player = true
-			chase_target = body
-			break
+			if not body.is_hiding() or self.grid_pos.y <= body.grid_pos.y:
+				saw_player = true
+				chase_target = body
+				break
 
 	return saw_player
 
 
 func decide_attack() -> void:
-	var chosen_index = rng.randi_range(0, len(abilities) - 1)
-	chosen = abilities[chosen_index]
+	var activateable_abilities = []
+	for ability in abilities:
+		if ability.is_activateable():
+			activateable_abilities.append(ability)
+	var chosen_index = rng.randi_range(0, len(activateable_abilities) - 1)
+	chosen = activateable_abilities[chosen_index]
 	print("Next ability is ", chosen.name)
 
 
@@ -309,11 +318,11 @@ func resize(x_size: int, y_size: int, anchors, _animation = null, _new_animation
 			for j in range(x_size - 1):
 				var x_offset = j + 1
 				if "R" in anchors:
-					x_offset=x_offset*-1
-				my_tiles.append(Vector2i(x_offset,y_offset))
-	elif x_size>1:
-		for i in range(x_size-1):
-			var offset = i+1
+					x_offset = x_offset * -1
+				my_tiles.append(Vector2i(x_offset, y_offset))
+	elif x_size > 1:
+		for i in range(x_size - 1):
+			var offset = i + 1
 			if "R" in anchors:
 				offset = offset * -1
 			my_tiles.append(Vector2i(offset, 0))
@@ -333,7 +342,7 @@ func elongate():
 	var x_offset = 0
 	var y_offset = 0
 	var rotation = 0
-	for direction in directions:
+	for direction in DIRECTIONS:
 		if is_next_to_wall(grid_pos + direction * 2) and not is_next_to_wall(grid_pos + direction):
 			expand = true
 			match direction:

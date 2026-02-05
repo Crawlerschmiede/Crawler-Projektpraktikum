@@ -48,16 +48,48 @@ func _rebuild(data: Dictionary):
 		add_child(slot)
 		slot._refresh()
 
-		var idx := i
+		var idx = i
 		slot.buy_attempt.connect(
 			func(_slot):
 				if current_merchant:
-					var success = current_merchant.buy_item(idx, int(_slot.buy_amount))
+					# Use the exact amount displayed in the slot UI when requesting a purchase
+					var to_request := 0
+					if (
+						_slot != null
+						and _slot.has_method("get")
+						and _slot.get("visible_buy_amount") != null
+					):
+						to_request = int(_slot.get("visible_buy_amount"))
+					else:
+						# fallback: compute minimal clamped amount (but clamp to 1 minimum)
+						var desired := int(_slot.buy_amount)
+						var available := int(_slot.item_count)
+						to_request = max(1, min(desired, available))
+
+					var success = current_merchant.buy_item(idx, to_request)
 					if not success:
 						push_warning(
 							"Kauf fehlgeschlagen (z.B. zu wenig Coins oder nicht genug Bestand)"
 						)
 		)
+
+	# Wenn vorhanden -> Merchant-spezifische Verkaufspreise an SellSlot(s) weitergeben
+	var sell_prices := {}
+	for item in data.get("items", []):
+		if typeof(item) == TYPE_DICTIONARY and item.has("name"):
+			sell_prices[str(item["name"])] = int(item.get("sell_price", 0))
+
+	var sells := get_tree().get_nodes_in_group("SellSlot")
+	for s in sells:
+		if s == null:
+			continue
+		# prefer method if provided
+		if s.has_method("set_merchant_sell_prices"):
+			s.call("set_merchant_sell_prices", sell_prices)
+		else:
+			# otherwise set a property so SellSlot can read it
+			if s.has_method("set"):
+				s.set("merchant_sell_prices", sell_prices)
 
 
 func clear():

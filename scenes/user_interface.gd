@@ -8,34 +8,70 @@ var merchant_in_range: bool = false
 @onready var equipment := $Inventory/Inner/Equiptment
 @onready var equipmentlabel := $Inventory/Inner/EquiptmentLabel
 @onready var player := $".."
-@onready var merchantgui := $Inventory/Inner/MerchantContainer/HBoxContainer/VBoxContainer
-
+@onready
+var merchantgui := $Inventory/Inner/MerchantContainer/HBoxContainer2/HBoxContainer/VBoxContainer
+@onready var merchantguicontainer := $Inventory/Inner/MerchantContainer
 @onready var coin_screen = $Inventory/price
 
 
+func _enable_merchant_ui():
+	merchantguicontainer.visible = true
+	_set_mouse_filter_recursive(merchantguicontainer, Control.MOUSE_FILTER_STOP)
+
+	equipment.visible = false
+	equipmentlabel.visible = false
+
+
+func _disable_merchant_ui():
+	merchantguicontainer.visible = false
+	_set_mouse_filter_recursive(merchantguicontainer, Control.MOUSE_FILTER_IGNORE)
+
+	equipment.visible = true
+	equipmentlabel.visible = true
+
+
 func _input(event):
-	if event.is_action_pressed("open_inventory"):
-		$Inventory/Inner.visible = !$Inventory/Inner.visible
+	if Input.is_action_just_pressed("open_inventory"):
+		# If merchant UI is currently shown, close it and ensure the
+		# normal inventory remains visible (swap behaviour).
+		if merchantguicontainer.visible:
+			# merchant UI open -> swap to normal inventory
+			_disable_merchant_ui()
+			$Inventory/Inner.visible = true
+			$Inventory/Inner/InventoryLabel/Label.text = "Inventory"
+		else:
+			# Normal toggle when no merchant UI is active
+			_disable_merchant_ui()
+			$Inventory/Inner.visible = !$Inventory/Inner.visible
+			if $Inventory/Inner.visible:
+				$Inventory/Inner/InventoryLabel/Label.text = "Inventory"
 
-	# Show merchant UI only when player is inside merchant Area2D
-	if merchant_in_range:
-		equipment.visible = false
-		equipmentlabel.visible = false
-		merchantgui.get_parent().visible = true
-	else:
-		equipment.visible = true
-		equipmentlabel.visible = true
-		merchantgui.get_parent().visible = false
-
-	# Hotbar 1..5 -> SlotIndex 13..17
+	# Hotbar keys (1..5)
 	for i in range(1, 6):
-		if event.is_action_pressed("hotbar_slot%d" % i):
+		if Input.is_action_just_pressed("hotbar_slot%d" % i) and not $Inventory/Inner.visible:
 			var slot_index := i + 17
 			PlayerInventory.set_selectet_slot(slot_index)
-			#print("Slot:", slot_index, "selected!")
-
 			_refresh_hotbar_styles()
 			return
+
+	# Merchant / Inventory quick keys handled by actions
+	if Input.is_action_just_pressed("merchant_open"):
+		# If merchant UI is open, allow closing it regardless of range.
+		if merchantguicontainer.visible:
+			_disable_merchant_ui()
+			# close merchant UI and hide the whole inventory (do not switch to normal inventory)
+			$Inventory/Inner/InventoryLabel/Label.text = "Inventory"
+			$Inventory/Inner.visible = false
+			return
+		# Otherwise open merchant UI only when in range
+		if merchant_in_range:
+			_enable_merchant_ui()
+			$Inventory/Inner.visible = true
+			$Inventory/Inner/InventoryLabel/Label.text = "Merchant"
+			return
+
+	# Note: 'open_inventory' handling moved earlier to toggle inventory and
+	# disable merchant UI when appropriate. Removed duplicate handling.
 
 
 func _refresh_hotbar_styles() -> void:
@@ -47,6 +83,8 @@ func _refresh_hotbar_styles() -> void:
 
 func _ready() -> void:
 	# Connect coin display to PlayerInventory changes
+	_disable_merchant_ui()
+
 	if (
 		typeof(PlayerInventory) != TYPE_NIL
 		and PlayerInventory != null
@@ -58,6 +96,20 @@ func _ready() -> void:
 
 	# Initial update
 	_update_coin_screen()
+
+	# Ensure runtime input actions exist: 'merchant_open' (R) and add 'e' to 'open_inventory'
+	if not InputMap.has_action("merchant_open"):
+		InputMap.add_action("merchant_open")
+		var ev_r := InputEventKey.new()
+		ev_r.unicode = 114  # 'r'
+		InputMap.action_add_event("merchant_open", ev_r)
+
+	# Ensure 'open_inventory' exists and contains 'e' as a binding (safe to add duplicate)
+	if not InputMap.has_action("open_inventory"):
+		InputMap.add_action("open_inventory")
+	var ev_e := InputEventKey.new()
+	ev_e.unicode = 101  # 'e'
+	InputMap.action_add_event("open_inventory", ev_e)
 
 	# Connect existing merchants (if any)
 	for m in get_tree().get_nodes_in_group("merchant_entity"):
@@ -89,7 +141,7 @@ func _on_merchant_open(entity, data):
 	# remember which merchant we're interacting with
 	current_merchant = entity
 	merchant_in_range = true
-	merchantgui.get_parent().visible = true
+	_enable_merchant_ui()
 
 	# Diagnostics: ensure data contains items
 	if typeof(data) != TYPE_DICTIONARY:
@@ -118,6 +170,7 @@ func _on_merchant_open(entity, data):
 		and not entity.player_left_merchant.is_connected(cb_left)
 	):
 		entity.player_left_merchant.connect(cb_left)
+	$Inventory/Inner/InventoryLabel/Label.text = "Merchant"
 
 
 func _on_node_added(node: Node) -> void:
@@ -142,10 +195,16 @@ func _on_merchant_updated(updated):
 	merchantgui._rebuild(updated)
 
 
-func _on_merchant_left(entity: Node) -> void:
-	#print("UI: merchant left:", entity)
-	if current_merchant == entity:
-		current_merchant = null
-		merchant_in_range = false
-		merchantgui.clear()
-		merchantgui.get_parent().visible = false
+func _set_mouse_filter_recursive(node: Node, filter: int) -> void:
+	if node is Control:
+		(node as Control).mouse_filter = filter
+	for c in node.get_children():
+		_set_mouse_filter_recursive(c, filter)
+
+
+func _on_merchant_left(_entity = null) -> void:
+	current_merchant = null
+	merchant_in_range = false
+	merchantgui.clear()
+	_disable_merchant_ui()
+	$Inventory/Inner/InventoryLabel/Label.text = "Inventory"
