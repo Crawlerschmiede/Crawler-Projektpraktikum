@@ -39,11 +39,12 @@ func setup(_player: Node, _enemy: Node, _battle_scene, _tooltip_container, anim_
 	_populate_list(Tab.SKILLS)
 
 
-func update():
-	for ability in player.abilities:
-		ability.tick_down()
-	for action in player.actions:
-		action.tick_down()
+func update(new_turn = true):
+	if new_turn:
+		for ability in player.abilities:
+			ability.tick_down()
+		for action in player.actions:
+			action.tick_down()
 	_populate_list(tab_bar.current_tab)
 
 
@@ -174,16 +175,23 @@ func _on_button_mouse_entered(btn: Button) -> void:
 
 func _on_skill_pressed(ability) -> void:
 	if player_turn:
-		#if hit_anim_player !=null:
-		#	hit_anim_player.visible=true
-		#	hit_anim_player.play("default")
-		#	await hit_anim_player.animation_finished
-		#	hit_anim_player.visible=false
+		if hit_anim_player !=null:
+			hit_anim_player.visible=true
+			hit_anim_player.play("default")
+			await hit_anim_player.animation_finished
+			hit_anim_player.visible=false
 		var stuff = ability.activate_skill(player, enemy, battle_scene)
 		for thing in stuff:
 			battle_scene.log_container.add_log_event(thing)
-		player_turn = false
-		player_turn_done.emit()
+		player.action_points-=1
+		if player.action_points<1:
+			player_turn = false
+			player_turn_done.emit()
+		else:
+			var over = battle_scene.check_victory()
+			if not over:
+				update(false)
+				battle_scene.update_health_bars()
 
 
 func _on_mouse_entered(skill_name, skill_description):

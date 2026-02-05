@@ -59,6 +59,8 @@ var hp: int = 1
 var str_stat: int = 1
 var def_stat: int = 0
 var abilities: Array[Skill] = []
+var base_action_points: int = 1
+var action_points:int
 
 #--- status effects (not sure if this is the best way... it'll be fine!) ---
 #--- update it won't be, this is [not very good] and I'll fix it... someday
@@ -90,6 +92,8 @@ func setup(tmap: TileMapLayer, top_map: TileMapLayer, _hp, _str, _def):
 	hp = _hp
 	str_stat = _str
 	def_stat = _def
+	action_points = base_action_points
+
 
 
 func super_ready(sprite_type: String, entity_type: Array):
@@ -307,6 +311,12 @@ func heal(healing):
 	hp = hp + healed_hp
 	#print("Now has ", hp, "HP")
 	return [" healed by " + str(healed_hp), " now has " + str(hp) + " HP"]
+	
+func refill_actions():
+	action_points=base_action_points
+	for alteration in alterations:
+		if alterations[alteration].has("action_bonus"):
+			action_points+=int(alterations[alteration].action_bonus)
 
 
 #-- status effect logic --

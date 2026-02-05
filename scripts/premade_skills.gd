@@ -119,6 +119,14 @@ var existing_skills = {
 		"passive": true,
 		"conditions": ["short_range"]
 	},
+	"Fast as frick":
+	{
+		"tree": "hitting and punching and biting and kicking people",
+		"description": "Oh shoot...",
+		"effects": [["action_bonus", 1, true, "No"]],
+		"passive": true,
+		"conditions": ["every_x_turns=2"]
+	},
 	#standard actions
 	"Move Up":
 	{

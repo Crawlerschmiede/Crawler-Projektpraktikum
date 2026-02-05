@@ -126,6 +126,9 @@ func condition_met(condition_name, battle) -> bool:
 			is_met = battle.is_player_in_range([2, 2])
 		"long_range":
 			is_met = battle.is_player_in_range([3, 4])
+	if "every_x_turns" in condition_name:
+		var splits = condition_name.split("=")
+		is_met = battle.turn_counter%int(splits[1])==0
 	print("Condition " + condition_name + " is met? " + str(is_met))
 	return is_met
 
@@ -254,6 +257,13 @@ class Effect:
 					dur = int(parts[1])
 				var recipient = user if targets_self else target
 				ret = _safe_invoke(recipient, "add_alteration", ["dmg_buff", value, skill_name, dur])
+			"action_bonus":
+				var dur = null
+				if "duration" in details:
+					var parts = details.split("=")
+					dur = int(parts[1])
+				var recipient = user if targets_self else target
+				ret = _safe_invoke(recipient, "add_alteration", ["action_bonus", value, skill_name, dur])
 			"prepare":
 				var prep_msg := "The enemy seems to be preparing something big... or maybe it's just tired?"
 				var prep_hint := "Hard to tell really"
