@@ -167,7 +167,7 @@ func can_burrow_through(target_cell, direction):
 func move_to_tile(direction: Vector2i):
 	if is_moving:
 		return
-
+	
 	var target_cell = grid_pos + direction
 	if not is_cell_walkable(target_cell, direction):
 		if "burrowing" in types:
@@ -177,6 +177,7 @@ func move_to_tile(direction: Vector2i):
 					sprite.play("dig_down")
 				multi_turn_action = {"name": "dig_to", "target": burrow[1], "countdown": 2}
 				return
+				
 		return
 
 	is_moving = true
@@ -256,8 +257,11 @@ func is_cell_walkable(cell: Vector2i, direction: Vector2i = Vector2i.ZERO) -> bo
 		for other_t in e.my_tiles:
 			var other_cell = e.grid_pos + other_t
 			for my_t in target_tiles:
+				if e.grid_pos == grid_pos:
+					return false
 				if my_t == other_cell:
 					return false
+				
 
 	return true
 
