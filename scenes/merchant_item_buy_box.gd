@@ -32,7 +32,8 @@ func _refresh() -> void:
 	# Show item in UI
 	item.initialize_item(item_name, 1)
 
-	# Force UI to show only single-unit purchases: either 1 (if stock & player space) or 0 (sold out / can't fit)
+	# Force UI to show only single-unit purchases: either 1 (if stock & player space)
+	# or 0 (sold out / can't fit)
 	var one_available := int(item_count) >= 1
 	var player_has_space := true
 	if (

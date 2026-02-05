@@ -1,5 +1,11 @@
 extends HBoxContainer
 
+var _last_item_name: String = ""
+var _sell_unit_price: int = 0
+var _rng := RandomNumberGenerator.new()
+var _register_attempts: int = 0
+var _merchant_sell_prices: Dictionary = {}
+
 # The scene may attach this script either to a parent HBoxContainer
 # (with children named "Sell Slot", "Price", "Hammer") or directly
 # to the "Sell Slot" Panel node. Resolve nodes flexibly.
@@ -22,11 +28,6 @@ extends HBoxContainer
 		else null
 	)
 )
-var _last_item_name: String = ""
-var _sell_unit_price: int = 0
-var _rng := RandomNumberGenerator.new()
-var _register_attempts: int = 0
-var _merchant_sell_prices: Dictionary = {}
 
 
 func set_merchant_sell_prices(prices: Dictionary) -> void:
@@ -113,7 +114,7 @@ func _ready() -> void:
 		call_deferred("_register_sell_slot")
 
 
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	# detect item in sell slot and update price display when changed
 	if sell_item_input_slot == null:
 		return
