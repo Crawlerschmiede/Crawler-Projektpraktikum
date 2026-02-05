@@ -288,7 +288,7 @@ func _select_prev_tab() -> void:
 	_populate_list(prev_idx)
 
 
-func _move_focus_delta(delta: int) -> void:
+func _move_focus_delta() -> void:
 	# Move focus among the buttons in list_vbox by delta (+1 down, -1 up)
 	# Deprecated: we no longer rely on Control focus traversal.
 	# Selection is handled via `selected_index` and `_highlight_selected()`.

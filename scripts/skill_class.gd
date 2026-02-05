@@ -87,11 +87,12 @@ func activate_followup():
 
 
 func add_effect(type: String, value: float, targets_self: bool, details: String, first_turn:bool=true):
+	var eff := Effect.new(type, value, targets_self, details)
 	if first_turn:
-		effects.append(Effect.new(type, value, targets_self, details))
+		effects.append(eff)
 	else:
-		second_turn_effects.append(Effect.new(type, value, targets_self, details))
-	
+		second_turn_effects.append(eff)
+
 func is_activateable(battle=null)->bool:
 	var activateable = true
 	if not turns_until_reuse==0:
@@ -248,7 +249,9 @@ class Effect:
 				var recipient = user if targets_self else target
 				ret = _safe_invoke(recipient, "add_alteration", ["dmg_buff", value, skill_name, dur])
 			"prepare":
-				ret = ["The enemy seems to be preparing something big... or maybe it's just tired?", "Hard to tell really"]
+				var prep_msg := "The enemy seems to be preparing something big... or maybe it's just tired?"
+				var prep_hint := "Hard to tell really"
+				ret = [prep_msg, prep_hint]
 		if depth<3 and not battle.battle_over():
 			battle.update_passives(depth+1)
 		return ret
