@@ -5,16 +5,21 @@ extends Resource
 #write skills here as
 # name : [skilltree, description, effects, cooldown]
 # The effects should be in the format:
-# [[type, value, targets_self, details], [same thing for more effects]...]]
+# [[type, value, targets_self, details],
+#  [same thing for more effects]...]]
 
-# for dmg reduction, 1 means full damage taken and 0 means full immunity with float values in between
+# for dmg reduction, 1 means full damage taken and 0 means full immunity
+# with float values in between
 
 # as for the cooldowns, they default to 0 if none is given
 #for now enemies don't care about cooldowns,
 # so either keep enemy skills at cooldown 0 or make them care
-# for player cooldowns, because of how the ticking down works, please input them 1 higher than you want
-# i.e., a cooldown of 2 means it'll be unusable for 1 turn (it counts the turn it's used in)
-# this is fixable... but just not worth the time, you can all calculate +1 in your head
+# for player cooldowns, because of how the ticking down works, please input them
+# 1 higher than you want
+# i.e., a cooldown of 2 means it'll be unusable for 1 turn (it counts the turn
+# it's used in)
+# this is fixable... but just not worth the time, you can all calculate +1 in
+# your head
 
 # as for passives, it defaults to being an actve skill if you don't specify,
 # I recommend making it explicit regardless, for readability
@@ -30,7 +35,8 @@ var existing_skills = {
 	"Swoop":
 	{
 		"tree": "bat things",
-		"description": "You'd think a bat headbutting you wouldn't hurt that much... you'd be wrong",
+		"description":
+		"You'd think a bat headbutting you wouldn't hurt that much... " + "you'd be wrong",
 		"effects": [["damage", 1, false, "No"], ["danger_dmg_mult", 2, false, "player_x"]],
 	},
 	"Rabies":
@@ -45,6 +51,14 @@ var existing_skills = {
 		"tree": "void things",
 		"description": "You suddenly feel surrounded by non-existence",
 		"effects": [["death_zone", 1, false, "surrounding"]],
+		"cooldown": 3
+	},
+	"Vortex":
+	{
+		"tree": "void things",
+		"description": "A churning maelstrom of... something erupts",
+		"effects":
+		[["damage", 1, false, "No"], ["danger_dmg_mult", 3, false, "area||rand||rand||2"]],
 	},
 	#Skeleton Stuff
 	"Feint":
@@ -53,64 +67,81 @@ var existing_skills = {
 		"description": "This strike looks easy to dodge... weirdly so",
 		"effects": [["damage", 2, false, "No"], ["safety_dmg_reduc", 0, false, "player_pos"]],
 	},
+	"Eye-Flash-Slash":
+	{
+		"tree": "skeleton things",
+		"description": "I promise the flashing eyes are more than just nonsense!",
+		"effects": [["prepare", 0, true, "No"]],
+		"next_turn_effects": [["damage_buff", 2, true, "duration=2"], ["damage", 1, false, "No"]]
+	},
 	#Goblin Stuff
-		"Bonk":
-		{
-			"tree": "goblin things",
-			"description": "If in doubt, bonk your enemy.",
-			"effects": [["damage", 2, false, "No"], ["danger_dmg_mult", 2, false, "player_pos"]],
-			"cooldown": 0
-		},
-		"War Cry": #buff dmg for next turn, jorin pls implement
-		{
-			"tree": "goblin things",
-			"description": "More scream, more damage",
-			"effects": [["buff", 2, true, "No"]],
-			"cooldown": 0 # jorin pls implement enemy cooldown thanks
-		},
-				#Carnivorous Plant skills
+	"Bonk":
+	{
+		"tree": "goblin things",
+		"description": "If in doubt, bonk your enemy.",
+		"effects": [["damage", 2, false, "No"], ["danger_dmg_mult", 2, false, "player_pos"]],
+		"cooldown": 0
+	},
+	"War Cry":  #buff dmg for next turn, jorin pls implement
+	{
+		"tree": "goblin things",
+		"description": "More scream, more damage",
+		"effects": [["buff", 2, true, "No"]],
+		"cooldown": 0  # jorin pls implement enemy cooldown thanks
+	},
+	#Carnivorous Plant skills
 	"Vine Slash":
-		{
-			"tree": "plant things",
-			"description":"A sharp vine slashes across the room",
-			"effects":[["damage", 2, false, "No"], ["danger_dmg_mult", 2, false, "player_y"]],
-			"cooldown": 0
-		},
+	{
+		"tree": "plant things",
+		"description": "A sharp vine slashes across the room",
+		"effects": [["damage", 2, false, "No"], ["danger_dmg_mult", 2, false, "player_y"]],
+		"cooldown": 0
+	},
 	"Entwine":
-		{
-			"tree": "plant things",
-			"description": "Thick vines shoot from the ground at your legs and entwine your body. You are stunned!",
-			"effects": [["stun", 2, false, "No"]],
-			"cooldown": 0
-		},
+	{
+		"tree": "plant things",
+		"description":
+		"Thick vines shoot from the ground at your legs and entwine your body. You are stunned!",
+		"effects": [["stun", 2, false, "No"]],
+		"cooldown": 0
+	},
 	"Poison Ivy":
-		{
-			"tree":"plant things",
-			"description":"Vines lash out, a thron scratches your skin. You don't feel so well..",
-			"effects":[["poison", 2, false, "No"]],
-			"cooldown":0
-		},
+	{
+		"tree": "plant things",
+		"description": "Vines lash out, a thron scratches your skin. You don't feel so well..",
+		"effects": [["poison", 2, false, "No"]],
+		"cooldown": 0
+	},
 	"Herbicide":
-		{
-			"tree":"plant things",
-			"description":"The trap gapes and lashes out trying to tear its teeth into your flesh.",
-			"effects":[["Damage", 3, false, "No"], ["Damage", 1, true, "No"]],
-			"cooldown": 0
-		},
+	{
+		"tree": "plant things",
+		"description": "The trap gapes and lashes out trying to tear its teeth into your flesh.",
+		"effects": [["Damage", 3, false, "No"], ["Damage", 1, true, "No"]],
+		"cooldown": 0
+	},
 	"Mandrake's Screech":
-		{
-			"tree":"plant things",
-			"desciption":"The ground rumbles as your enemy lets out a deafening screech. Its getting angry..",
-			"effects":[["damage", 1, false, "No"], ["danger_dmg_mult", 2, false, "y=0"]],
-			"cooldown":0
-		},
+	{
+		"tree": "plant things",
+		"desciption":
+		"The ground rumbles as your enemy lets out a deafening screech. Its getting angry..",
+		"effects": [["damage", 1, false, "No"], ["danger_dmg_mult", 2, false, "y=0"]],
+		"cooldown": 0
+	},
 	#unarmed player stuff
 	"Punch":
 	{
 		"tree": "hitting and punching and biting and kicking people",
-		"description":  "It's a punch... you don't need an explanation",
+		"description": "It's a punch... you don't need an explanation",
 		"effects": [["damage", 2, false, "No"]],
 		"cooldown": 2
+	},
+	"Back and Forth":
+	{
+		"tree": "hitting and punching and biting and kicking people",
+		"description": "It's a punch... you don't need an explanation",
+		"effects": [["movement", 1, true, "D"]],
+		"next_turn_effects": [["movement", 1, true, "U"]],
+		"cooldown": 0
 	},
 	"Right Pivot":
 	{
@@ -141,6 +172,14 @@ var existing_skills = {
 		"passive": true,
 		"conditions": ["short_range"]
 	},
+	"Fast as frick":
+	{
+		"tree": "hitting and punching and biting and kicking people",
+		"description": "Oh shoot...",
+		"effects": [["action_bonus", 1, true, "No"]],
+		"passive": true,
+		"conditions": ["every_x_turns=2"]
+	},
 	#standard actions
 	"Move Up":
 	{
@@ -157,7 +196,7 @@ var existing_skills = {
 	"Move Left":
 	{
 		"tree": "standard",
-		"description":  "Do you really need an explanation of what walking left is?",
+		"description": "Do you really need an explanation of what walking left is?",
 		"effects": [["movement", 1, true, "L"]],
 	},
 	"Move Right":
@@ -171,7 +210,8 @@ var existing_skills = {
 	{
 		"tree": "knife skills",
 		"description": "When one... or I suppose two stabs just aren't enough",
-		"effects": [["damage", 1, false, "No"], ["damage", 1, false, "No"], ["damage", 1, false, "No"]],
+		"effects":
+		[["damage", 1, false, "No"], ["damage", 1, false, "No"], ["damage", 1, false, "No"]],
 		"cooldown": 2
 	},
 	"Slash":
@@ -205,7 +245,12 @@ func get_skill(skill_name):
 	if values.has("conditions"):
 		conditions = values.conditions
 	print(skill_name, values.tree, values.description, cool, passive, conditions)
-	var new_skill = Skill.new(skill_name, values.tree, values.description, cool, passive, conditions)
+	var new_skill = Skill.new(
+		skill_name, values.tree, values.description, cool, passive, conditions
+	)
 	for effect in values.effects:
 		new_skill.add_effect(effect[0], effect[1], effect[2], effect[3])
+	if values.has("next_turn_effects"):
+		for effect in values.next_turn_effects:
+			new_skill.add_effect(effect[0], effect[1], effect[2], effect[3], false)
 	return new_skill

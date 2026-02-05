@@ -7,8 +7,9 @@ const LOOTBOX := preload("res://scenes/Lootbox/Lootbox.tscn")
 const TRAP := preload("res://scenes/traps/Trap.tscn")
 const MERCHANT := preload("res://scenes/entity/merchant.tscn")
 const LOADING_SCENE := preload("res://scenes/loadings_screen/loading_screen.tscn")
-
 @export var menu_scene := preload("res://scenes/popup-menu.tscn")
+@export var fog_tile_id: int = 0  # set this in the inspector to the fog-tile id in your tileset
+@export var fog_dynamic: bool = true  # if true, areas that are no longer visible get fogged again
 
 # --- World state ---
 var world_index: int = 0
@@ -35,6 +36,8 @@ var switching_world := false
 @onready var generator3: Node2D = $World3
 
 @onready var colorfilter: ColorRect = $ColorFilter
+
+@onready var fog_war_layer := $FogWar
 
 
 func _ready() -> void:
@@ -79,6 +82,10 @@ func _load_world(idx: int) -> void:
 	dungeon_floor = maps.get("floor", null)
 	dungeon_top = maps.get("top", null)
 	minimap = maps.get("minimap", null)
+
+	# initialize fog layer tiles so Player.update_visibility can erase them later
+	if fog_war_layer != null and dungeon_floor != null:
+		init_fog_layer()
 
 	if dungeon_floor == null:
 		push_error("Generator returned null floor tilemap!")
@@ -162,6 +169,14 @@ func spawn_traps() -> void:
 	if dungeon_floor == null or world_root == null:
 		return
 
+	var tile_set := dungeon_floor.tile_set
+	if tile_set == null:
+		return
+
+	if not _has_custom_data_layer(tile_set, "trap_spawnable"):
+		push_warning("TileSet has no custom data layer 'trap_spawnable'. Skipping trap spawns.")
+		return
+
 	# alte Lootboxen entfernen
 	for c in world_root.get_children():
 		if c != null and c.name.begins_with("Trap"):
@@ -182,7 +197,7 @@ func spawn_traps() -> void:
 		return
 
 	# maximal 20 Lootboxen
-	candidates.shuffle()
+	GlobalRNG.shuffle_array(candidates)
 	var amount = min(20, candidates.size())
 
 	for i in range(amount):
@@ -197,6 +212,16 @@ func spawn_traps() -> void:
 
 func spawn_lootbox() -> void:
 	if dungeon_floor == null or world_root == null:
+		return
+
+	var tile_set := dungeon_floor.tile_set
+	if tile_set == null:
+		return
+
+	if not _has_custom_data_layer(tile_set, "lootbox_spawnable"):
+		push_warning(
+			"TileSet has no custom data layer 'lootbox_spawnable'. Skipping lootbox spawns."
+		)
 		return
 
 	# alte Lootboxen entfernen
@@ -219,7 +244,7 @@ func spawn_lootbox() -> void:
 		return
 
 	# maximal 20 Lootboxen
-	candidates.shuffle()
+	GlobalRNG.shuffle_array(candidates)
 	var amount = min(20, candidates.size())
 
 	for i in range(amount):
@@ -258,6 +283,18 @@ func _disable_lootbox_blocking(loot: Node) -> void:
 			s.set_deferred("disabled", true)
 
 
+func _has_custom_data_layer(tile_set: TileSet, layer_name: String) -> bool:
+	if tile_set == null:
+		return false
+
+	var layer_count := tile_set.get_custom_data_layers_count()
+	for i in range(layer_count):
+		if tile_set.get_custom_data_layer_name(i) == layer_name:
+			return true
+
+	return false
+
+
 func update_color_filter() -> void:
 	if world_index == 0:
 		colorfilter.visible = false
@@ -269,6 +306,34 @@ func update_color_filter() -> void:
 		colorfilter.color = Color(1.0, 0.9, 0.3, 0.20)
 	elif world_index == 2:
 		colorfilter.color = Color(1.0, 0.2, 0.2, 0.25)
+
+
+func init_fog_layer() -> void:
+	# Fill the FogWar TileMapLayer with a fog tile so Player.update_visibility can erase cells.
+	if fog_war_layer == null or dungeon_floor == null:
+		return
+
+	# align tileset + transform so coordinates match
+	fog_war_layer.clear()
+	fog_war_layer.tile_set = dungeon_floor.tile_set
+	# align position/visibility/z so it overlays the floor
+	fog_war_layer.position = dungeon_floor.position
+	fog_war_layer.visibility_layer = dungeon_floor.visibility_layer
+	fog_war_layer.z_index = (dungeon_floor.z_index if dungeon_floor != null else 0) + 10
+
+	var counter := 0
+	var used_rect := dungeon_floor.get_used_rect()
+	var yield_every := 300
+	for x in range(used_rect.position.x, used_rect.position.x + used_rect.size.x):
+		for y in range(used_rect.position.y, used_rect.position.y + used_rect.size.y):
+			var cell := Vector2i(x, y)
+			# skip empty cells
+			if dungeon_floor.get_cell_source_id(cell) == -1:
+				continue
+			fog_war_layer.set_cell(cell, 2, Vector2(2, 4), 0)
+			counter += 1
+			if counter % yield_every == 0:
+				await get_tree().process_frame
 
 
 func _clear_world() -> void:
@@ -296,7 +361,6 @@ func _clear_world() -> void:
 
 
 func _on_player_exit_reached() -> void:
-	# ✅ verhindert doppelte Trigger
 	if switching_world:
 		return
 	switching_world = true
@@ -357,35 +421,113 @@ func on_menu_closed():
 	get_tree().paused = false
 
 
-# ---------------------------------------
-# SPAWNING
-# ---------------------------------------
 func spawn_enemies() -> void:
-	for i in range(5):
-		spawn_enemy("what", ["hostile", "wallbound"])
-	for i in range(3):
-		spawn_enemy("bat", ["passive", "enemy_flying"])
-	for i in range(10):
-		spawn_enemy("skeleton", ["hostile", "enemy_walking"])
-	for i in range(5):
-		spawn_enemy("base_zombie", ["hostile", "enemy_walking", "burrowing"])
-	for i in range(3):
-		spawn_enemy("ghost", ["hostile", "enemy_flying", "burrowing"])
-	for i in range(0):
-		spawn_enemy("goblin", ["hostile", "enemy_walking"])
-	for i in range(1):
-		spawn_enemy("orc", ["hostile", "boss"])
+	var data: Dictionary = EntityAutoload.item_data
+	var settings: Dictionary = data.get("_settings", {})
+
+	var max_weights = settings.get("max_total_weight_per_level", [])
+	var max_weight: int = settings.get("default_max_total_weight", 30)
+
+	if world_index < max_weights.size():
+		max_weight = max_weights[world_index]
+
+	# --- Enemy Definitions sammeln ---
+	var defs: Array[Dictionary] = []
+
+	for k in data.keys():
+		if str(k).begins_with("_"):
+			continue
+
+		var d: Dictionary = data[k]
+		if d.get("entityCategory") != "enemy":
+			continue
+
+		# Alias auflösen
+		if d.has("alias_of"):
+			var base = data[d["alias_of"]]
+			var merged = base.duplicate(true)
+			for x in d.keys():
+				merged[x] = d[x]
+			d = merged
+
+		d["_id"] = str(k)
+		defs.append(d)
+
+	# --- Wahrscheinlichkeiten ---
+	var weights: Array[float] = []
+	var total := 0.0
+
+	for d in defs:
+		var sr = d.get("spawnrate", {})
+		var avg := (float(sr.get("min", 0)) + float(sr.get("max", 0))) * 0.5
+		weights.append(avg)
+		total += avg
+
+	if total <= 0:
+		for i in range(weights.size()):
+			weights[i] = 1.0
+		total = float(weights.size())
+
+	# --- Spawn-Plan erstellen ---
+	var rng := GlobalRNG.get_rng()
+	rng.seed = GlobalRNG.next_seed()
+
+	var current_weight := 0
+	var spawn_plan := {}
+
+	for _i in range(100):
+		if current_weight >= max_weight:
+			break
+
+		# weighted pick
+		var roll := rng.randf() * total
+		var acc := 0.0
+		var chosen := 0
+
+		for j in range(defs.size()):
+			acc += weights[j]
+			if roll <= acc:
+				chosen = j
+				break
+
+		var def := defs[chosen]
+
+		var sc = def.get("spawncount", {})
+		var count := rng.randi_range(int(sc.get("min", 0)), int(sc.get("max", 1)))
+
+		var w := int(def.get("weight", 1))
+		var id = def["_id"]
+
+		for _j in range(count):
+			if current_weight + w > max_weight:
+				break
+
+			spawn_plan[id] = spawn_plan.get(id, 0) + 1
+			current_weight += w
+
+	# --- Enemies wirklich spawnen ---
+	for id in spawn_plan.keys():
+		var def = data[id]
+
+		# Alias nochmal auflösen (für behaviour/sprite)
+		if def.has("alias_of"):
+			def = data[def["alias_of"]]
+
+		for i in range(spawn_plan[id]):
+			spawn_enemy(def.get("sprite_type", id), def.get("behaviour", []))
+			print("spawn: ", def.get("sprite_type", id))
 
 
 func spawn_enemy(sprite_type: String, behaviour: Array) -> void:
 	# default: spawn normal enemy
 	var e = ENEMY_SCENE.instantiate()
 	e.add_to_group("enemy")
+	e.add_to_group("vision_objects")
 	e.types = behaviour
 	e.sprite_type = sprite_type
 
 	# setup with Floor Tilemap
-	e.setup(dungeon_floor, 3, 1, 0)
+	e.setup(dungeon_floor, dungeon_top, 3, 1, 0)
 
 	# Enemies always in WorldRoot
 	if world_root != null:
@@ -395,36 +537,50 @@ func spawn_enemy(sprite_type: String, behaviour: Array) -> void:
 
 
 func spawn_player() -> void:
+	# alte Player entfernen
 	for n in get_tree().get_nodes_in_group("player"):
 		if n != null and is_instance_valid(n):
 			n.queue_free()
+
 	var e: PlayerCharacter = PLAYER_SCENE.instantiate()
 	e.name = "Player"
-
-	e.setup(dungeon_floor, 10, 3, 0)
-	e.add_to_group("player")
+	# Floor setzen (einmal!)
+	e.setup(dungeon_floor, dungeon_top, 10, 3, 0)
+	e.fog_layer = fog_war_layer
+	# pass dynamic flag and fog tile id to player for re-fogging
+	if e.has_method("set"):
+		e.set("dynamic_fog", fog_dynamic)
+		e.set("fog_tile_id", fog_tile_id)
+	# in WorldRoot hängen
 	world_root.add_child(e)
 	player = e
 
+	# minimap rein
 	player.set_minimap(minimap)
+
 	# Spawn Position
 	var start_pos := Vector2i(2, 2)
 
 	# erst tilemap, dann gridpos, dann position
-	player.setup(dungeon_floor, 10, 3, 0)
+	player.setup(dungeon_floor, dungeon_top, 10, 3, 0)
 	player.grid_pos = start_pos
 	player.global_position = dungeon_floor.to_global(dungeon_floor.map_to_local(start_pos))
 	player.add_to_group("player")
 
-	# Exit-Signal verbinden
+	# Signale verbinden
 	if player.has_signal("exit_reached"):
 		if not player.exit_reached.is_connected(_on_player_exit_reached):
 			player.exit_reached.connect(_on_player_exit_reached)
-			push_warning("player has no exit_reached signal")
+	else:
+		push_warning("player has no exit_reached signal")
 
 	if player.has_signal("player_moved"):
 		if not player.player_moved.is_connected(_on_player_moved):
 			player.player_moved.connect(_on_player_moved)
+
+	# WICHTIG: einmal initial Fog aufdecken
+	if player.has_method("update_visibility"):
+		player.update_visibility()
 
 
 func _on_player_moved() -> void:
@@ -449,7 +605,37 @@ func _on_player_moved() -> void:
 
 		if room_layer.get_cell_source_id(local_cell) != -1:
 			room_layer.visible = true
+			# Reveal entire room in FogWar
+			reveal_room_layer(room_layer)
 			return
+
+
+func reveal_room_layer(room_layer: TileMapLayer) -> void:
+	if fog_war_layer == null:
+		return
+
+	var origin: Vector2i = room_layer.get_meta("tile_origin", Vector2i.ZERO)
+	var rect = room_layer.get_meta("room_rect", Rect2i(Vector2i.ZERO, Vector2i.ZERO))
+	if rect.size == Vector2i.ZERO:
+		# fallback: iterate used cells of the room layer
+		for cell in room_layer.get_used_cells():
+			var world_cell := origin + cell
+			fog_war_layer.erase_cell(world_cell)
+		return
+
+	var counter := 0
+	var yield_every := 300
+	for x in range(rect.position.x, rect.position.x + rect.size.x):
+		for y in range(rect.position.y, rect.position.y + rect.size.y):
+			var local_cell := Vector2i(x, y)
+			# skip empty tiles in the room
+			if room_layer.get_cell_source_id(local_cell) == -1:
+				continue
+			var world_cell := origin + local_cell
+			fog_war_layer.erase_cell(world_cell)
+			counter += 1
+			if counter % yield_every == 0:
+				await get_tree().process_frame
 
 
 # ---------------------------------------
@@ -501,11 +687,11 @@ func find_merchants() -> Array[Vector2]:
 func enemy_defeated(enemy):
 	print("The battle is won")
 	if battle != null and is_instance_valid(battle):
-		battle.queue_free()
+		battle.call_deferred("queue_free")
 		battle = null
 
 	if enemy != null and is_instance_valid(enemy):
-		enemy.queue_free()
+		enemy.call_deferred("queue_free")
 
 	get_tree().paused = false
 

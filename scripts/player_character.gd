@@ -15,10 +15,19 @@ var actions = []
 var existing_skilltrees = SKILLTREES.new()
 var minimap
 
+var fog_layer: TileMapLayer = null
+var dynamic_fog: bool = true
+var fog_tile_id: int = 0
+var _prev_visible := {}  # Dictionary storing previously visible cells as key -> Vector2i
+
 @onready var camera: Camera2D = $Camera2D
 @onready var minimap_viewport: SubViewport = $CanvasLayer/SubViewportContainer/SubViewport
 @onready var pickup_ui = $CanvasLayer2
 @onready var inventory = $UserInterface/Inventory
+
+
+func _cell_key(cell: Vector2i) -> String:
+	return "%d,%d" % [cell.x, cell.y]
 
 
 func _ready() -> void:
@@ -38,7 +47,6 @@ func _ready() -> void:
 	for active_tree in ACTIVE_SKILLTREES:
 		existing_skilltrees.increase_tree_level(active_tree)
 	update_unlocked_skills()
-	setup(tilemap, 10, 1, 0)
 	add_to_group("player")
 
 
@@ -76,13 +84,15 @@ func _physics_process(delta: float):
 			if _check_exit_tile():
 				exit_reached.emit()
 			player_moved.emit()
+			update_visibility()
 			minimap.global_position = -1 * global_position
 
 
 # Function to get the current input direction vector
 func get_held_direction() -> Vector2i:
 	var direction = Vector2i.ZERO
-
+	if $UserInterface/Inventory/Inner.visible:
+		return direction
 	if Input.is_action_pressed("ui_right"):
 		direction = Vector2i.RIGHT
 	elif Input.is_action_pressed("ui_left"):
@@ -177,6 +187,15 @@ func _check_exit_tile() -> bool:
 	return td.get_custom_data("exit") == true
 
 
+func is_hiding() -> bool:
+	var top_cell_coord = tilemap.map_to_local(grid_pos + Vector2i.DOWN)
+	var cell = top_layer.local_to_map(top_cell_coord)
+	var tile_data = top_layer.get_cell_tile_data(cell)
+	if not tile_data == null and tile_data.get_custom_data("pillar_base") == true:
+		return true
+	return false
+
+
 func update_unlocked_skills():
 	print("update_skills")
 	abilities = []
@@ -186,3 +205,87 @@ func update_unlocked_skills():
 		gotten_skills.append(extra)
 	for ability in gotten_skills:
 		add_skill(ability)
+
+
+func update_visibility():
+	if tilemap == null or fog_layer == null:
+		return
+
+	var tm := tilemap
+	var fog := fog_layer
+	var player_cell = tm.local_to_map(global_position)
+	var radius := 12  # Sichtweite in Tiles
+
+	var visible_cells := {}
+
+	for x in range(-radius, radius + 1):
+		for y in range(-radius, radius + 1):
+			var cell = player_cell + Vector2i(x, y)
+			# fast existence check
+			if tm.get_cell_source_id(cell) == -1:
+				continue
+			if not is_path_blocked(player_cell, cell):
+				fog.erase_cell(cell)
+				visible_cells[_cell_key(cell)] = cell
+
+	if dynamic_fog:
+		# Re-fog cells that were visible previously but are not visible now
+		for key in _prev_visible.keys():
+			if not visible_cells.has(key):
+				var c: Vector2i = _prev_visible[key]
+				if tm.get_cell_source_id(c) != -1:
+					fog.set_cell(c, 2, Vector2(2, 4), 0)
+
+	# store current visible set for next update
+	_prev_visible.clear()
+	for key in visible_cells.keys():
+		_prev_visible[key] = visible_cells[key]
+
+
+func is_path_blocked(start: Vector2i, end: Vector2i) -> bool:
+	var cells = get_line_cells(start, end)
+
+	# nur dazwischen prüfen
+	for i in range(1, cells.size() - 1):
+		var cell = cells[i]
+		var tile_data = tilemap.get_cell_tile_data(cell)
+
+		if tile_data and tile_data.get_custom_data("non_walkable") == true:
+			return true
+
+	return false
+
+
+func get_line_cells(start: Vector2i, end: Vector2i) -> Array:
+	var points := []
+
+	var x0 = start.x
+	var y0 = start.y
+	var x1 = end.x
+	var y1 = end.y
+
+	var dx = abs(x1 - x0)
+	var dy = abs(y1 - y0)
+
+	var sx = 1 if x0 < x1 else -1
+	var sy = 1 if y0 < y1 else -1
+
+	var err = dx - dy
+
+	while true:
+		points.append(Vector2i(x0, y0))
+
+		if x0 == x1 and y0 == y1:
+			break
+
+		var e2 = err * 2
+
+		if e2 > -dy:
+			err -= dy
+			x0 += sx
+
+		if e2 < dx:
+			err += dx
+			y0 += sy
+
+	return points

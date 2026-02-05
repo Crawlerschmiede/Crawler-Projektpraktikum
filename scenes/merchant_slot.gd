@@ -18,7 +18,7 @@ func _ready() -> void:
 # ----------------------------------
 # ITEM SETZEN (Anzeige only)
 # ----------------------------------
-func initialize_item(item_name: String, item_quantity: int) -> void:
+func initialize_item(item_name: String, _item_quantity: int) -> void:
 	clear_slot()
 
 	display_item = ItemScene.instantiate()
@@ -28,7 +28,7 @@ func initialize_item(item_name: String, item_quantity: int) -> void:
 
 	await display_item.ready
 
-	display_item.set_item(item_name, item_quantity)
+	display_item.set_item(item_name, 1)
 
 
 # ----------------------------------

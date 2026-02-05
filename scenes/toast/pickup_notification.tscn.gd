@@ -1,4 +1,4 @@
-extends Panel
+extends MarginContainer
 
 const ITEM_SCENE: PackedScene = preload("res://scenes/Item/item.tscn")
 
@@ -6,11 +6,11 @@ var tween: Tween
 var item_ui: Node = null
 
 @onready var label: Label = $HBoxContainer/Label
-@onready var holder: CenterContainer = $HBoxContainer/CenterContainer
+@onready var holder = $HBoxContainer/Panel
 
 
 func setup(item_name: String, amount: int) -> void:
-	label.text = "%s x%d" % [item_name, amount]
+	label.text = item_name
 	modulate.a = 0.0
 
 	# altes item entfernen
@@ -22,12 +22,9 @@ func setup(item_name: String, amount: int) -> void:
 	item_ui = ITEM_SCENE.instantiate()
 	holder.add_child(item_ui)
 
-	item_ui = ITEM_SCENE.instantiate()
-	holder.add_child(item_ui)
-
 	if item_ui is Control:
 		var c := item_ui as Control
-		c.scale = Vector2(6, 6)
+		c.scale = Vector2(1.7, 1.7)
 		c.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 	# Item setzen wie im Slot!
