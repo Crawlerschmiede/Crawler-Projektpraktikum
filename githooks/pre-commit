@@ -1,0 +1,30 @@
+#!/bin/sh
+# Git pre-commit hook to strip `unique_id=` lines from staged .tscn files.
+# It calls the Python helper and re-adds modified files to the index.
+
+set -e
+
+STAGED=$(git diff --cached --name-only --diff-filter=ACM)
+if [ -z "$STAGED" ]; then
+  exit 0
+fi
+
+for FILE in $STAGED; do
+  case "$FILE" in
+    *.tscn)
+      if command -v python >/dev/null 2>&1; then
+        python scripts/strip_unique_id.py "$FILE" || true
+      elif command -v python3 >/dev/null 2>&1; then
+        python3 scripts/strip_unique_id.py "$FILE" || true
+      elif command -v py >/dev/null 2>&1; then
+        py -3 scripts/strip_unique_id.py "$FILE" || true
+      else
+        echo "No python interpreter found to run scripts/strip_unique_id.py" >&2
+        exit 1
+      fi
+      git add "$FILE"
+      ;;
+  esac
+done
+
+exit 0
