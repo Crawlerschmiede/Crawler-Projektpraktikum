@@ -190,7 +190,7 @@ func spawn_traps() -> void:
 		return
 
 	# maximal 20 Lootboxen
-	candidates.shuffle()
+	GlobalRNG.shuffle_array(candidates)
 	var amount = min(20, candidates.size())
 
 	for i in range(amount):
@@ -237,7 +237,7 @@ func spawn_lootbox() -> void:
 		return
 
 	# maximal 20 Lootboxen
-	candidates.shuffle()
+	GlobalRNG.shuffle_array(candidates)
 	var amount = min(20, candidates.size())
 
 	for i in range(amount):
@@ -326,7 +326,6 @@ func _clear_world() -> void:
 
 
 func _on_player_exit_reached() -> void:
-	# ✅ verhindert doppelte Trigger
 	if switching_world:
 		return
 	switching_world = true
@@ -387,20 +386,109 @@ func on_menu_closed():
 	get_tree().paused = false
 
 
-# ---------------------------------------
-# SPAWNING
-# ---------------------------------------
 func spawn_enemies() -> void:
-	for i in range(3):
-		spawn_enemy("what", ["hostile", "wallbound"])
-	for i in range(3):
-		spawn_enemy("bat", ["passive", "enemy_flying"])
-	for i in range(10):
-		spawn_enemy("skeleton", ["hostile", "enemy_walking"])
-	for i in range(5):
-		spawn_enemy("base_zombie", ["hostile", "enemy_walking", "burrowing"])
-	for i in range(3):
-		spawn_enemy("ghost", ["hostile", "enemy_flying", "burrowing"])
+	var data: Dictionary = EntityAutoload.item_data
+	var settings: Dictionary = data.get("_settings", {})
+
+	var max_weights = settings.get("max_total_weight_per_level", [])
+	var max_weight: int = settings.get("default_max_total_weight", 30)
+
+	if world_index < max_weights.size():
+		max_weight = max_weights[world_index]
+
+	# --- Enemy Definitions sammeln ---
+	var defs: Array[Dictionary] = []
+
+	for k in data.keys():
+		if str(k).begins_with("_"):
+			continue
+
+		var d: Dictionary = data[k]
+		if d.get("entityCategory") != "enemy":
+			continue
+
+		# Alias auflösen
+		if d.has("alias_of"):
+			var base = data[d["alias_of"]]
+			var merged = base.duplicate(true)
+			for x in d.keys():
+				merged[x] = d[x]
+			d = merged
+
+		d["_id"] = str(k)
+		defs.append(d)
+
+	# --- Wahrscheinlichkeiten ---
+	var weights: Array[float] = []
+	var total := 0.0
+
+	for d in defs:
+		var sr = d.get("spawnrate", {})
+		var avg := (float(sr.get("min", 0)) + float(sr.get("max", 0))) * 0.5
+		weights.append(avg)
+		total += avg
+
+	if total <= 0:
+		for i in range(weights.size()):
+			weights[i] = 1.0
+		total = float(weights.size())
+
+	# --- Spawn-Plan erstellen ---
+	var rng := GlobalRNG.get_rng()
+	rng.seed = GlobalRNG.next_seed()
+
+	var current_weight := 0
+	var spawn_plan := {}
+
+	for _i in range(100):
+		if current_weight >= max_weight:
+			break
+
+		# weighted pick
+		var roll := rng.randf() * total
+		var acc := 0.0
+		var chosen := 0
+
+		for j in range(defs.size()):
+			acc += weights[j]
+			if roll <= acc:
+				chosen = j
+				break
+
+		var def := defs[chosen]
+
+		var sc = def.get("spawncount", {})
+		var count := rng.randi_range(
+			int(sc.get("min", 0)),
+			int(sc.get("max", 1))
+		)
+
+		var w := int(def.get("weight", 1))
+		var id = def["_id"]
+
+		for _j in range(count):
+			if current_weight + w > max_weight:
+				break
+
+			spawn_plan[id] = spawn_plan.get(id, 0) + 1
+			current_weight += w
+
+	# --- Enemies wirklich spawnen ---
+	for id in spawn_plan.keys():
+		var def = data[id]
+
+		# Alias nochmal auflösen (für behaviour/sprite)
+		if def.has("alias_of"):
+			def = data[def["alias_of"]]
+
+		for i in range(spawn_plan[id]):
+			spawn_enemy(
+				def.get("sprite_type", id),
+				def.get("behaviour", [])
+			)
+			print("spawn: ", def.get("sprite_type", id))
+
+	
 
 
 func spawn_enemy(sprite_type: String, behaviour: Array) -> void:
@@ -527,11 +615,11 @@ func find_merchants() -> Array[Vector2]:
 func enemy_defeated(enemy):
 	print("The battle is won")
 	if battle != null and is_instance_valid(battle):
-		battle.queue_free()
+		battle.call_deferred("queue_free")
 		battle = null
 
 	if enemy != null and is_instance_valid(enemy):
-		enemy.queue_free()
+		enemy.call_deferred("queue_free")
 
 	get_tree().paused = false
 

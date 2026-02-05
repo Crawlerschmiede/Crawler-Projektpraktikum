@@ -28,7 +28,7 @@ func initialize_item(item_name: String, item_quantity: int) -> void:
 
 	await display_item.ready
 
-	display_item.set_item(item_name, item_quantity)
+	display_item.set_item(item_name, 1)
 
 
 # ----------------------------------

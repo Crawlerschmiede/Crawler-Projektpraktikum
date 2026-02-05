@@ -94,7 +94,7 @@ func chase():
 	for tile in my_tiles:
 		tiles_im_on.append(grid_pos + tile)
 	for tile in my_tiles:
-		for direction in directions:
+		for direction in DIRECTIONS:
 			var target_tile = grid_pos + tile + direction
 			if target_tile not in tiles_im_on:
 				if not is_cell_walkable(target_tile):
@@ -111,7 +111,7 @@ func chase():
 					if is_closer_to_player(grid_pos + tile, target_tile, chased_pos):
 						viable_target_tiles.append(target_tile)
 						viable_directions.append(direction)
-	var chosen_direction = randi_range(0, len(viable_directions) - 1)
+	var chosen_direction = GlobalRNG.randi_range(0, len(viable_directions) - 1)
 	if len(viable_directions) > 0:
 		if "wallbound" in types:
 			elongate()
@@ -268,8 +268,12 @@ func check_sight() -> bool:
 
 
 func decide_attack() -> void:
-	var chosen_index = rng.randi_range(0, len(abilities) - 1)
-	chosen = abilities[chosen_index]
+	var activateable_abilities = []
+	for ability in abilities:
+		if ability.is_activateable():
+			activateable_abilities.append(ability)
+	var chosen_index = rng.randi_range(0, len(activateable_abilities) - 1)
+	chosen = activateable_abilities[chosen_index]
 	print("Next ability is ", chosen.name)
 
 
@@ -338,7 +342,7 @@ func elongate():
 	var x_offset = 0
 	var y_offset = 0
 	var rotation = 0
-	for direction in directions:
+	for direction in DIRECTIONS:
 		if is_next_to_wall(grid_pos + direction * 2) and not is_next_to_wall(grid_pos + direction):
 			expand = true
 			match direction:
