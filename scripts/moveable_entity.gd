@@ -174,7 +174,7 @@ func move_to_tile(direction: Vector2i):
 				if has_animation(sprite, "dig_down"):
 					sprite.play("dig_down")
 				multi_turn_action = {"name": "dig_to", "target": burrow[1], "countdown": 2}
-				return		
+				return
 		return
 
 	is_moving = true
