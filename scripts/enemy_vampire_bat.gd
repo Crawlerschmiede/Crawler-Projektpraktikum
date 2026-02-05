@@ -378,6 +378,12 @@ func elongate():
 				expanded = true
 				resize(x_size, y_size, [anchor])
 				move_sprite(x_offset, y_offset, rotation)
+				for body in collision_area.get_overlapping_bodies():
+					if body == self:
+						continue
+					if body.is_in_group("enemy"):
+						move_sprite(-x_offset, -y_offset, -rotation)
+						print("collision")
 				sprite.play("expand")
 				await sprite.animation_finished
 				sprite.play("expanded_idle")
