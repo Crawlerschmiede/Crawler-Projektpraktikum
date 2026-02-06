@@ -551,7 +551,7 @@ func spawn_enemies() -> void:
 			print("spawn: ", def.get("sprite_type", id))
 
 
-func spawn_enemy(sprite_type: String, behaviour: Array, skills:Array) -> void:
+func spawn_enemy(sprite_type: String, behaviour: Array, skills: Array) -> void:
 	# default: spawn normal enemy
 	var e = ENEMY_SCENE.instantiate()
 	e.add_to_group("enemy")
@@ -559,7 +559,6 @@ func spawn_enemy(sprite_type: String, behaviour: Array, skills:Array) -> void:
 	e.types = behaviour
 	e.sprite_type = sprite_type
 	e.abilities_this_has = skills
-
 
 	# setup with Floor Tilemap
 	e.setup(dungeon_floor, dungeon_top, 3, 1, 0)
