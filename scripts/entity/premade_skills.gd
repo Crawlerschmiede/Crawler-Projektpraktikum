@@ -136,6 +136,14 @@ var existing_skills = {
 		"effects": [["Damage", 3, false, "No"]],
 		"cooldown": 0
 	},
+	"Mimicry":
+	{
+		"tree": "wendigo things",
+		"description": "You hear a distorted familiar voice calling for you. From where? Who? You feel dizzy..",
+		"effects": [["Stun", 3, false, "No"]],
+		"cooldown": 0
+	},
+		
 	#unarmed player stuff
 	"Punch":
 	{
