@@ -17,26 +17,21 @@ var dimensions: Vector2i = Vector2i(1, 1)
 var my_tiles = [Vector2i(0, 0)]
 
 var sprites = {
-	"bat":
-	[preload("res://scenes/sprite_scenes/bat_sprite_scene.tscn"), ["Screech", "Swoop", "Rabies"]],
+	"bat": [preload("res://scenes/sprite_scenes/bat_sprite_scene.tscn")],
 	"skeleton":
 	[
 		preload("res://scenes/sprite_scenes/skeleton_sprite_scene.tscn"),
-		["Eye-Flash-Slash", "Swoop", "Feint"]
 	],
 	"what":
 	[
 		preload("res://scenes/sprite_scenes/what_sprite_scene.tscn"),
-		["Screech", "Vortex", "Encroaching Void"],
 		{"idle": "default", "expand": "expand", "alt_default": "expanded_idle"},
 		{"standard": [1, 1], "expanded": [1, 3]}
 	],
-	"ghost":
-	[preload("res://scenes/sprite_scenes/ghost_sprite_scene.tscn"), ["Feint", "Encroaching Void"]],
+	"ghost": [preload("res://scenes/sprite_scenes/ghost_sprite_scene.tscn")],
 	"base_zombie":
 	[
 		preload("res://scenes/sprite_scenes/base_zombie_sprite_scene.tscn"),
-		["Screech", "Rabies"],
 		{"idle": "default", "teleport_start": "dig_down", "teleport_end": "dig_up"}
 	],
 	"goblin": [preload("res://scenes/sprite_scenes/goblin_sprite_scene.tscn"), ["Bonk", "War Cry"]],
@@ -155,7 +150,6 @@ func super_ready(sprite_type: String, entity_type: Array):
 	add_child(sprite)
 	sprite.play("default")
 	if not "pc" in entity_type:
-		abilities_this_has = sprite_scene[1]
 		for ability in abilities_this_has:
 			add_skill(ability)
 	if len(sprite_scene) > 2:
