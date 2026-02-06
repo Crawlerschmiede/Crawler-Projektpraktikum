@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3 uid="uid://8uqfh3k1qom1"]
+[gd_scene format=3 uid="uid://8uqfh3k1qom1"]
 
 [ext_resource type="Texture2D" uid="uid://kq6pulusj4sf" path="res://assets/enemies/VampireBat.png" id="1_qjxsa"]
 
@@ -38,5 +38,5 @@ animations = [{
 "speed": 5.0
 }]
 
-[node name="AnimatedSprite2D" type="AnimatedSprite2D"]
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" unique_id=985875584]
 sprite_frames = SubResource("SpriteFrames_2nbx3")

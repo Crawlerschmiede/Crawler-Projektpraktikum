@@ -1,21 +1,21 @@
-[gd_scene load_steps=4 format=4 uid="uid://beyedypvswnxs"]
+[gd_scene format=4 uid="uid://beyedypvswnxs"]
 
 [ext_resource type="Script" uid="uid://bt7qirgdptbwu" path="res://scenes/rooms/Scripts/RoomTemplate.gd" id="1_7vs3j"]
 [ext_resource type="TileSet" uid="uid://rc7plds60u7s" path="res://scenes/rooms/Rooms/roomtiles.tres" id="1_sxlka"]
 [ext_resource type="Script" uid="uid://ceq1h6lr3m33w" path="res://scenes/rooms/Scripts/north.gd" id="2_7vs3j"]
 
-[node name="Closed" type="Node2D"]
+[node name="Closed" type="Node2D" unique_id=1712845227]
 position = Vector2(8, 0)
 script = ExtResource("1_7vs3j")
 
-[node name="TileMapLayer" type="TileMapLayer" parent="."]
+[node name="TileMapLayer" type="TileMapLayer" parent="." unique_id=599987576]
 tile_map_data = PackedByteArray("AAD/////AgACAAIAAAAAAP//AgACAAIAAAABAP//AgACAAIAAAACAP//AgACAAIAAAD+////AgACAAIAAAD9////AgACAAIAAAADAP//AgACAAIAAAA=")
 tile_set = ExtResource("1_sxlka")
 
-[node name="Doors" type="Node2D" parent="."]
+[node name="Doors" type="Node2D" parent="." unique_id=831093263]
 position = Vector2(-17, -8)
 
-[node name="Door" type="Marker2D" parent="Doors"]
+[node name="Door" type="Marker2D" parent="Doors" unique_id=1327092548]
 position = Vector2(24, 8)
 script = ExtResource("2_7vs3j")
 direction = "south"

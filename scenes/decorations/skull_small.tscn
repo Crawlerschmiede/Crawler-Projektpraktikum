@@ -1,4 +1,4 @@
-[gd_scene load_steps=4 format=3 uid="uid://br74ymdtob7ko"]
+[gd_scene format=3 uid="uid://br74ymdtob7ko"]
 
 [ext_resource type="Texture2D" uid="uid://b2vbe2ckune71" path="res://assets/decorations/skulls.png" id="1_q0p17"]
 
@@ -17,7 +17,7 @@ animations = [{
 "speed": 5.0
 }]
 
-[node name="SkullSmall" type="Node2D"]
+[node name="SkullSmall" type="Node2D" unique_id=509086998]
 
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=42671579]
 sprite_frames = SubResource("SpriteFrames_3mv5w")

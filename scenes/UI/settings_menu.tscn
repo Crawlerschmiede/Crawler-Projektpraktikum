@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://b501jydmsa1mc"]
 
-[ext_resource type="Script" uid="uid://o7g6bgj16kg0" path="res://scripts/UI/settings_menu.gd" id="1_2c0l1"]
+[ext_resource type="Script" uid="uid://jtasgobqx4fo" path="res://scripts/UI/settings_menu.gd" id="1_2c0l1"]
 [ext_resource type="Texture2D" uid="uid://rhw6r8lf8r0n" path="res://assets/menu/UI_TravelBook_BookCover01a.png" id="2_bgjg7"]
 [ext_resource type="FontFile" uid="uid://d4fqcjicieold" path="res://assets/font/PixelPurl.ttf" id="3_48ojb"]
 [ext_resource type="Texture2D" uid="uid://c8xisywukarms" path="res://assets/menu/close icon hovered.png" id="4_fb6cq"]
@@ -291,4 +291,3 @@ icon_alignment = 1
 
 [connection signal="pressed" from="PanelContainer/VBoxContainer/Header/Close" to="." method="_on_close_pressed"]
 [connection signal="pressed" from="PanelContainer/VBoxContainer/Footer/Back" to="." method="_on_back_pressed"]
-

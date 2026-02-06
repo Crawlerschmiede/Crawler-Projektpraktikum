@@ -1,4 +1,4 @@
-[gd_scene load_steps=6 format=3 uid="uid://c8hqtjx4qes1b"]
+[gd_scene format=3 uid="uid://c8hqtjx4qes1b"]
 
 [ext_resource type="Texture2D" uid="uid://dwormdpek74jn" path="res://assets/enemies/placeholder/skellington.png" id="2_j0er2"]
 
@@ -31,5 +31,5 @@ animations = [{
 "speed": 3.0
 }]
 
-[node name="AnimatedSprite2D" type="AnimatedSprite2D"]
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" unique_id=374376046]
 sprite_frames = SubResource("SpriteFrames_2nbx3")

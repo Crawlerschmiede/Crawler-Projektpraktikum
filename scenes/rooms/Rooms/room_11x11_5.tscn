@@ -1,4 +1,4 @@
-[gd_scene load_steps=5 format=4 uid="uid://crnjy5pr5kj68"]
+[gd_scene format=4 uid="uid://crnjy5pr5kj68"]
 
 [ext_resource type="Script" uid="uid://bt7qirgdptbwu" path="res://scenes/rooms/Scripts/RoomTemplate.gd" id="1_eema4"]
 [ext_resource type="TileSet" uid="uid://rc7plds60u7s" path="res://scenes/rooms/Rooms/roomtiles.tres" id="2_0ccm2"]
@@ -7,38 +7,38 @@
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_p3feo"]
 size = Vector2(176, 176)
 
-[node name="Room 11x11" type="Node2D"]
+[node name="Room 11x11" type="Node2D" unique_id=33527732]
 position = Vector2(0, 32)
 script = ExtResource("1_eema4")
 is_corridor = false
 
-[node name="TileMapLayer" type="TileMapLayer" parent="."]
+[node name="TileMapLayer" type="TileMapLayer" parent="." unique_id=1780127423]
 tile_map_data = PackedByteArray("AAAAAAAAAgADAAYAAAAAAAEAAgADAAcAAAAAAAIAAgAAAAgAAAAAAAMAAgAAAAgAAAAAAAQAAgAAAAgAAAAAAAUAAgADAAIAAAABAAAAAgAAAAgAAAABAAEAAgABAAgAAAABAAIAAgAAAAgAAAABAAMAAgAAAAgAAAABAAQAAgAAAAgAAAABAAUAAgAAAAkAAAACAAAAAgAAAAgAAAACAAEAAgAAAAgAAAACAAIAAgADAAgAAAACAAMAAgAAAAgAAAACAAQAAgAAAAgAAAACAAUAAgAAAAgAAAADAAAAAgACAAgAAAADAAEAAgAAAAgAAAADAAIAAgAAAAgAAAADAAMAAgADAAkAAAADAAQAAgAAAAgAAAADAAUAAgACAAgAAAAEAAAAAgAAAAgAAAAEAAEAAgABAAkAAAAEAAIAAgAAAAgAAAAEAAMAAgABAAkAAAAEAAQAAgAAAAgAAAAEAAUAAgAAAAgAAAAFAAAAAQACAAAAAAAFAAEAAgABAAgAAAAFAAIAAgAAAAgAAAAFAAMAAQABAAEAAAAFAAQAAgABAAgAAAAFAAUAAgAAAAgAAAAGAAAAAgAAAAgAAAAGAAEAAgADAAkAAAAGAAIAAgAAAAkAAAAGAAMAAgAAAAgAAAAGAAQAAgAAAAgAAAAGAAUAAgAAAAgAAAAHAAAAAgAAAAgAAAAHAAEAAgAAAAgAAAAHAAIAAgACAAgAAAAHAAMAAgAAAAkAAAAHAAQAAgABAAkAAAAHAAUAAgAAAAgAAAAIAAAAAgAAAAgAAAAIAAEAAgAAAAgAAAAIAAIAAgAAAAgAAAAIAAMAAgABAAkAAAAIAAQAAgAAAAgAAAAIAAUAAgADAAgAAAAJAAAAAgACAAkAAAAJAAEAAgAAAAgAAAAJAAIAAgAAAAgAAAAJAAMAAgAAAAgAAAAJAAQAAgAAAAgAAAAJAAUAAgAAAAgAAAAKAAAAAgABAAYAAAAKAAEAAAAAAAEAAAAKAAIAAgAAAAgAAAAKAAMAAgAAAAkAAAAKAAQAAgAAAAgAAAAKAAUAAgABAAIAAAAAAP7/AgAGAAIAAAAAAP//AgALAAEAAAABAP7/AgACAAYAAAABAP//AgACAAcAAAACAP7/AgACAAYAAAACAP//AgAKAAgAAAADAP7/AgACAAYAAAADAP//AgAFAAcAAAAEAP7/AgACAAYAAAAEAP//AgAGAAcAAAAFAP7/AgACAAYAAAAFAP//AAACAAAAAAAGAP7/AgACAAYAAAAGAP//AgAIAAcAAAAHAP7/AgACAAYAAAAHAP//AgAJAAcAAAAIAP//AgAKAAgAAAAJAP7/AgACAAYAAAAJAP//AAAAAAAAAAAKAP7/AgAIAAIAAAAKAP//AgANAAEAAAAAAAYAAgADAAMAAAAAAAcAAgADAAMAAAABAAgAAgAHAAAAAAACAAgAAgACAAIAAAADAAgAAgADAAIAAAAEAAgAAgAAAAgAAAAFAAgAAQACAAAAAAAGAAgAAgAAAAgAAAAHAAgAAgABAAIAAAAIAAgAAgACAAIAAAAJAAgAAgACAAIAAAAKAAgAAgAOAAIAAAAAAAgAAgALAAIAAAAEAAcAAgACAAgAAAAFAAcAAgADAAgAAAABAAcAAgABAAgAAAABAAYAAgAAAAgAAAACAAYAAgAAAAgAAAADAAYAAgAAAAgAAAADAAcAAgAAAAgAAAACAAcAAgAAAAgAAAAEAAYAAgAAAAgAAAAFAAYAAgAAAAgAAAAGAAYAAgAAAAgAAAAHAAYAAgAAAAgAAAAGAAcAAgABAAgAAAAHAAcAAgAAAAgAAAAIAAcAAgAAAAgAAAAJAAcAAgACAAgAAAAKAAcAAgABAAQAAAAKAAYAAgABAAQAAAAJAAYAAgAAAAgAAAAIAAYAAgAAAAgAAAAIAP7/AgACAAYAAAA=")
 tile_set = ExtResource("2_0ccm2")
 
-[node name="TopLayer" type="TileMapLayer" parent="."]
+[node name="TopLayer" type="TileMapLayer" parent="." unique_id=1130666372]
 tile_map_data = PackedByteArray("AAAIAAQAAQABAAUAAAACAAEAAQABAAUAAAACAAAAAgAKAAkAAAAIAAAAAgAKAAkAAAA=")
 tile_set = ExtResource("2_0ccm2")
 
-[node name="Area2D" type="Area2D" parent="."]
+[node name="Area2D" type="Area2D" parent="." unique_id=674625870]
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D" unique_id=732390875]
 position = Vector2(88, 56)
 shape = SubResource("RectangleShape2D_p3feo")
 
-[node name="Doors" type="Node2D" parent="."]
+[node name="Doors" type="Node2D" parent="." unique_id=854594055]
 
-[node name="East" type="Marker2D" parent="Doors"]
+[node name="East" type="Marker2D" parent="Doors" unique_id=1624391604]
 position = Vector2(176, 56)
 script = ExtResource("3_olafe")
 direction = "east"
 
-[node name="West" type="Marker2D" parent="Doors"]
+[node name="West" type="Marker2D" parent="Doors" unique_id=1126498722]
 position = Vector2(0, 56)
 script = ExtResource("3_olafe")
 direction = "west"
 
-[node name="South" type="Marker2D" parent="Doors"]
+[node name="South" type="Marker2D" parent="Doors" unique_id=1050704697]
 position = Vector2(88, 144)
 script = ExtResource("3_olafe")
 direction = "south"

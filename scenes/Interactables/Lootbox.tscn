@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://b7ipllkuce5ui"]
 
-[ext_resource type="Script" uid="uid://d1d1nniopokva" path="res://scripts/Interactables/Lootbox.gd" id="1_f4uf5"]
+[ext_resource type="Script" uid="uid://cgkh3laf368r4" path="res://scripts/Interactables/Lootbox.gd" id="1_f4uf5"]
 [ext_resource type="Texture2D" uid="uid://cyt6v2ro0ketk" path="res://assets/menu/UI_TravelBook_IconStar01a.png" id="2_f4uf5"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_mhsm6"]
@@ -44,19 +44,16 @@ _data = {
 &"RESET": SubResource("Animation_l23bc")
 }
 
-[node name="Lootbox" type="CharacterBody2D" groups=["item"]]
+[node name="Lootbox" type="CharacterBody2D" unique_id=1855558291 groups=["item"]]
 script = ExtResource("1_f4uf5")
 
-[node name="Sprite2D" type="Sprite2D" parent="."]
+[node name="Sprite2D" type="Sprite2D" parent="." unique_id=1421867475]
 position = Vector2(2.3841858e-07, 2.3841858e-07)
 scale = Vector2(0.9247312, 0.98533726)
 texture = ExtResource("2_f4uf5")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=828204495]
 shape = SubResource("RectangleShape2D_mhsm6")
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
-libraries = {
-&"": SubResource("AnimationLibrary_ecfyl")
-}
-
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=1835361762]
+libraries/ = SubResource("AnimationLibrary_ecfyl")

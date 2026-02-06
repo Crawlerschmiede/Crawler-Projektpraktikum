@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3 uid="uid://ge2ea3y4rrek"]
+[gd_scene format=3 uid="uid://ge2ea3y4rrek"]
 
 [ext_resource type="Texture2D" uid="uid://cf4bns5mu02mp" path="res://assets/enemies/base_zombie.png" id="1_gk6ds"]
 [ext_resource type="Texture2D" uid="uid://dfbmcchyt1doi" path="res://assets/enemies/zombie_burrow_burst.png" id="2_1ecye"]
@@ -105,6 +105,6 @@ animations = [{
 "speed": 5.0
 }]
 
-[node name="AnimatedSprite2D" type="AnimatedSprite2D"]
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" unique_id=542798563]
 sprite_frames = SubResource("SpriteFrames_xtrj1")
 animation = &"dig_down"

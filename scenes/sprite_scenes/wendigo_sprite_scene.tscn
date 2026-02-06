@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3 uid="uid://j400j731mcyn"]
+[gd_scene format=3 uid="uid://j400j731mcyn"]
 
 [ext_resource type="Texture2D" uid="uid://b8l5eim32p4cm" path="res://assets/enemies/wendigo_boss.png" id="1_bc2lt"]
 
@@ -38,7 +38,7 @@ animations = [{
 "speed": 2.0
 }]
 
-[node name="AnimatedSprite2D" type="AnimatedSprite2D"]
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" unique_id=366324882]
 position = Vector2(2, 7)
 sprite_frames = SubResource("SpriteFrames_xtrj1")
 animation = &"idle"

@@ -1,7 +1,7 @@
 [gd_scene format=4 uid="uid://vn680b4hvj3x"]
 
-[ext_resource type="Script" uid="uid://ccci32tj3j1fq" path="res://scripts/battle_script.gd" id="1_fu7w4"]
-[ext_resource type="Script" uid="uid://dy5stdv0mwwiu" path="res://scripts/skill_list.gd" id="2_okw7b"]
+[ext_resource type="Script" uid="uid://ccci32tj3j1fq" path="res://scripts/UI/battle_script.gd" id="1_fu7w4"]
+[ext_resource type="Script" uid="uid://dy5stdv0mwwiu" path="res://scripts/UI/skill_list.gd" id="2_okw7b"]
 [ext_resource type="Texture2D" uid="uid://rhw6r8lf8r0n" path="res://assets/menu/UI_TravelBook_BookCover01a.png" id="3_i8jxl"]
 [ext_resource type="FontFile" uid="uid://d4fqcjicieold" path="res://assets/font/PixelPurl.ttf" id="4_jvqxm"]
 [ext_resource type="Texture2D" uid="uid://cpyoj2ajuoijt" path="res://assets/menu/UI_TravelBook_Marker01a.png" id="5_dxtsq"]
@@ -15,7 +15,7 @@
 [ext_resource type="Texture2D" uid="uid://i7gvsnx5i4bw" path="res://assets/fight_animations/Fight-Animation-3Hit.png" id="13_5dqi7"]
 [ext_resource type="Theme" uid="uid://v7upv04bd66u" path="res://assets/theme/HealthBar.tres" id="14_ubutp"]
 [ext_resource type="Texture2D" uid="uid://drnogsosojksh" path="res://assets/menu/UI_TravelBook_Slot01b.png" id="15_prx66"]
-[ext_resource type="Script" uid="uid://l7vprtnmuht3" path="res://scripts/UI/message_container.gd" id="16_d23n6"]
+[ext_resource type="Script" uid="uid://cq62k1y4hep8s" path="res://scripts/UI/message_container.gd" id="16_d23n6"]
 [ext_resource type="Texture2D" uid="uid://ebhbokd4jrcf" path="res://assets/menu/c9a4d2bf1afc262.png" id="17_oxy7j"]
 [ext_resource type="Texture2D" uid="uid://usclqp0io56r" path="res://assets/menu/UI_TravelBook_Line01a.png" id="18_5vkhy"]
 [ext_resource type="Texture2D" uid="uid://cen3xmvl56h11" path="res://assets/menu/pixil-frame-0(1).png" id="19_nlk32"]
@@ -620,4 +620,3 @@ offset_right = 640.0
 offset_bottom = 480.0
 mouse_behavior_recursive = 1
 texture = ExtResource("19_nlk32")
-

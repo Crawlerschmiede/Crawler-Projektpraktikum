@@ -1,4 +1,4 @@
-[gd_scene load_steps=30 format=3 uid="uid://baj7jh2io882q"]
+[gd_scene format=3 uid="uid://baj7jh2io882q"]
 
 [ext_resource type="Texture2D" uid="uid://b7ihn0ii1vs5x" path="res://assets/player-character/player-character-idle-dressed.png" id="1_o68nd"]
 [ext_resource type="Texture2D" uid="uid://cihc18ddsvlm1" path="res://assets/player-character/player-character-walking-dressed.png" id="2_o68nd"]
@@ -223,7 +223,7 @@ animations = [{
 "speed": 5.0
 }]
 
-[node name="AnimatedSprite2D" type="AnimatedSprite2D"]
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" unique_id=782547247]
 sprite_frames = SubResource("SpriteFrames_5c7wf")
 animation = &"walk_down"
 autoplay = "walk_down"

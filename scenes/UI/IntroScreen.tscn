@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://buwc6nchgbgf3"]
 
 [ext_resource type="Shader" uid="uid://do682u7jbuev1" path="res://shaders/IntroScreen.gdshader" id="1_hy7k6"]
-[ext_resource type="Script" uid="uid://blinqwuxdm5f8" path="res://scripts/intro_screen.gd" id="1_idkc3"]
+[ext_resource type="Script" uid="uid://blinqwuxdm5f8" path="res://scripts/UI/intro_screen.gd" id="1_idkc3"]
 [ext_resource type="Shader" uid="uid://d0lahbhlou0jq" path="res://shaders/Invert.gdshader" id="1_l8b2p"]
 [ext_resource type="FontFile" uid="uid://d4fqcjicieold" path="res://assets/font/PixelPurl.ttf" id="1_n8ope"]
 [ext_resource type="Shader" uid="uid://dv3ct0r5iuce2" path="res://shaders/tvNoiseAndFlicker.gdshader" id="2_2cghm"]

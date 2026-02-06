@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3 uid="uid://d07crhqskffkd"]
+[gd_scene format=3 uid="uid://d07crhqskffkd"]
 
 [ext_resource type="Texture2D" uid="uid://ch7lrsgw4yqw3" path="res://assets/enemies/Carnivorous-Plant-Boss.png" id="1_jgwhm"]
 
@@ -38,6 +38,6 @@ animations = [{
 "speed": 5.0
 }]
 
-[node name="AnimatedSprite2D" type="AnimatedSprite2D"]
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" unique_id=964713543]
 sprite_frames = SubResource("SpriteFrames_xtrj1")
 frame_progress = 0.8454106

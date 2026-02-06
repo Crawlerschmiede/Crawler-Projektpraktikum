@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://d4a5xsw1uiiop"]
 
-[ext_resource type="Script" uid="uid://dc0rckfwwgja4" path="res://scripts/Item/item.gd" id="1_b6le1"]
+[ext_resource type="Script" uid="uid://dkt8m2v2oanpi" path="res://scripts/Item/item.gd" id="1_b6le1"]
 [ext_resource type="Texture2D" uid="uid://lumkwdapp0ll" path="res://assets/menu/Box3.png" id="2_yds6n"]
 
 [node name="Item" type="Control" unique_id=153844475]
@@ -25,4 +25,3 @@ scale = Vector2(0.6799991, 0.5199998)
 text = "22"
 horizontal_alignment = 2
 vertical_alignment = 2
-
