@@ -1,0 +1,595 @@
+[gd_scene format=3 uid="uid://ckuwaifqjkiwv"]
+
+[ext_resource type="Script" uid="uid://7bogatxmpx0w" path="res://scripts/entity/player_character.gd" id="1_no27k"]
+[ext_resource type="Script" uid="uid://cnto6kvd27me0" path="res://scripts/entity/player_camera.gd" id="4_0cvhd"]
+[ext_resource type="Script" uid="uid://b6h67fqu48631" path="res://scripts/UI/minicam_canvaslayer.gd" id="4_x2d4g"]
+[ext_resource type="Script" uid="uid://0svglffharts" path="res://scripts/UI/player_inventory_ui.gd" id="5_jmui6"]
+[ext_resource type="Script" uid="uid://c46g0i67damgr" path="res://scripts/UI/Slot.gd" id="6_5c7wf"]
+[ext_resource type="Script" uid="uid://c4jy8dhc1hfq5" path="res://scripts/UI/inventory.gd" id="6_7x6uh"]
+[ext_resource type="Texture2D" uid="uid://b1tw3icp8tm6x" path="res://assets/menu/InventoryLabel.png" id="7_x2d4g"]
+[ext_resource type="Script" uid="uid://cw2q837r7w1po" path="res://scripts/entity/pickup_zone.gd" id="8_jjy7y"]
+[ext_resource type="Texture2D" uid="uid://do8wsaes8sy12" path="res://assets/menu/UI_TravelBook_BookPageRight01a.png" id="8_lsi2u"]
+[ext_resource type="FontFile" uid="uid://d4fqcjicieold" path="res://assets/font/PixelPurl.ttf" id="9_6k8oa"]
+[ext_resource type="Texture2D" uid="uid://sppwtd1lbmbe" path="res://assets/menu/UI_TravelBook_BookPageLeft01a.png" id="9_mbyut"]
+[ext_resource type="Texture2D" uid="uid://cyt6v2ro0ketk" path="res://assets/menu/UI_TravelBook_IconStar01a.png" id="9_x2d4g"]
+[ext_resource type="Texture2D" uid="uid://bxp7sedmunhcs" path="res://assets/menu/inventar_slot.png" id="10_j4pnj"]
+[ext_resource type="Texture2D" uid="uid://brlrimrh6sdx2" path="res://assets/menu/UI_TravelBook_FrameSelect01b.png" id="13_6k8oa"]
+[ext_resource type="Texture2D" uid="uid://drnogsosojksh" path="res://assets/menu/UI_TravelBook_Slot01b.png" id="15_nq0iv"]
+[ext_resource type="Script" uid="uid://da5gfq7ci7243" path="res://scripts/rooms/merchant/merchant_org.gd" id="16_72a5a"]
+[ext_resource type="Texture2D" uid="uid://4gngll2b6t8d" path="res://assets/menu/Mülltonne_closed.png" id="16_nq0iv"]
+[ext_resource type="Script" uid="uid://6d52dv2f4umv" path="res://scripts/UI/drop_popup_player.gd" id="16_odrip"]
+[ext_resource type="Script" uid="uid://d4hyvrayuhs65" path="res://scripts/UI/sellslot.gd" id="19_fxkes"]
+[ext_resource type="Texture2D" uid="uid://cplcai6qfr0ae" path="res://assets/menu/UI_TravelBook_IconCross01a.png" id="20_72a5a"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_r5wgn"]
+radius = 8.0
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_hfhf8"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_jmui6"]
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_xn7nh"]
+texture = ExtResource("10_j4pnj")
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_pa76a"]
+texture = ExtResource("10_j4pnj")
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_creb6"]
+texture = ExtResource("15_nq0iv")
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_vqds4"]
+texture = ExtResource("10_j4pnj")
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_xqkyc"]
+texture = ExtResource("10_j4pnj")
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_qoi8r"]
+texture = ExtResource("10_j4pnj")
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_x2d4g"]
+texture = ExtResource("10_j4pnj")
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_odrip"]
+texture = ExtResource("10_j4pnj")
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_6k8oa"]
+texture = ExtResource("10_j4pnj")
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_nq0iv"]
+texture = ExtResource("10_j4pnj")
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_fxkes"]
+texture = ExtResource("10_j4pnj")
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_72a5a"]
+texture = ExtResource("10_j4pnj")
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_gdkvl"]
+texture = ExtResource("10_j4pnj")
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_3710g"]
+texture = ExtResource("10_j4pnj")
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_oag0m"]
+texture = ExtResource("10_j4pnj")
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_cjry2"]
+texture = ExtResource("10_j4pnj")
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_3r868"]
+texture = ExtResource("10_j4pnj")
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_hh3gd"]
+texture = ExtResource("16_nq0iv")
+
+[node name="Player" type="CharacterBody2D" unique_id=1873150600]
+script = ExtResource("1_no27k")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1001145197]
+shape = SubResource("CircleShape2D_r5wgn")
+
+[node name="CollisionArea" type="Area2D" parent="." unique_id=558857654]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CollisionArea" unique_id=483880091]
+shape = SubResource("RectangleShape2D_hfhf8")
+
+[node name="PickupZone" type="Area2D" parent="." unique_id=37948540]
+script = ExtResource("8_jjy7y")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="PickupZone" unique_id=285748090]
+shape = SubResource("RectangleShape2D_jmui6")
+
+[node name="Camera2D" type="Camera2D" parent="." unique_id=2060390153]
+zoom = Vector2(2, 2)
+script = ExtResource("4_0cvhd")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1118100542]
+script = ExtResource("4_x2d4g")
+
+[node name="SubViewportContainer" type="SubViewportContainer" parent="CanvasLayer" unique_id=824208195]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="SubViewport" type="SubViewport" parent="CanvasLayer/SubViewportContainer" unique_id=2111413366]
+handle_input_locally = false
+size = Vector2i(100, 100)
+render_target_update_mode = 4
+
+[node name="MiniCam" type="Camera2D" parent="CanvasLayer/SubViewportContainer/SubViewport" unique_id=1169452073]
+zoom = Vector2(0.2, 0.2)
+
+[node name="CanvasLayer2" type="CanvasLayer" parent="." unique_id=1572429555]
+script = ExtResource("16_odrip")
+
+[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer2" unique_id=549845142]
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -231.0
+offset_top = -204.0
+offset_bottom = -4.0
+grow_horizontal = 0
+grow_vertical = 0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer2/MarginContainer" unique_id=4827109]
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 8
+
+[node name="UserInterface" type="CanvasLayer" parent="." unique_id=1659986096]
+script = ExtResource("5_jmui6")
+
+[node name="Inventory" type="Control" parent="UserInterface" unique_id=142138536]
+z_index = 100
+layout_mode = 3
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(3, 3)
+script = ExtResource("6_7x6uh")
+
+[node name="Inner" type="Control" parent="UserInterface/Inventory" unique_id=222887779]
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="InventoryLabel" type="TextureRect" parent="UserInterface/Inventory/Inner" unique_id=365943893]
+layout_mode = 0
+offset_left = -64.0
+offset_top = -53.0
+offset_right = 65.0
+offset_bottom = -41.0
+texture = ExtResource("7_x2d4g")
+expand_mode = 1
+
+[node name="Label" type="Label" parent="UserInterface/Inventory/Inner/InventoryLabel" unique_id=1249294582]
+layout_mode = 0
+offset_left = 38.0
+offset_right = 106.0
+offset_bottom = 23.0
+scale = Vector2(0.75, 0.75)
+theme_override_colors/font_color = Color(0.270341, 0.051998645, 0, 1)
+theme_override_fonts/font = ExtResource("9_6k8oa")
+text = "Inventory"
+horizontal_alignment = 1
+
+[node name="StarLeft" type="TextureRect" parent="UserInterface/Inventory/Inner/InventoryLabel" unique_id=583669575]
+layout_mode = 0
+offset_left = -11.666668
+offset_top = 0.6666672
+offset_right = 0.6666641
+offset_bottom = 12.333335
+scale = Vector2(0.9, 0.9)
+texture = ExtResource("9_x2d4g")
+flip_h = true
+
+[node name="StarLeft2" type="TextureRect" parent="UserInterface/Inventory/Inner/InventoryLabel" unique_id=102083736]
+layout_mode = 0
+offset_left = 130.333
+offset_top = 0.667
+offset_right = 142.66632
+offset_bottom = 12.333668
+scale = Vector2(0.9, 0.9)
+texture = ExtResource("9_x2d4g")
+
+[node name="TextureRect" type="TextureRect" parent="UserInterface/Inventory/Inner" unique_id=1589120140]
+layout_direction = 1
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -96.0
+offset_top = -60.0
+offset_right = 56.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+expand_mode = 1
+metadata/_edit_use_anchors_ = true
+
+[node name="TextureRect2" type="TextureRect" parent="UserInterface/Inventory/Inner/TextureRect" unique_id=426910863]
+layout_mode = 0
+offset_left = 76.0
+offset_top = 2.0
+offset_right = 148.0
+offset_bottom = 78.0
+texture = ExtResource("8_lsi2u")
+expand_mode = 1
+
+[node name="TextureRect3" type="TextureRect" parent="UserInterface/Inventory/Inner/TextureRect" unique_id=1573406156]
+layout_mode = 0
+offset_left = 4.0
+offset_top = 2.0
+offset_right = 76.0
+offset_bottom = 78.0
+texture = ExtResource("9_mbyut")
+expand_mode = 1
+
+[node name="EquiptmentLabel" type="TextureRect" parent="UserInterface/Inventory/Inner" unique_id=1625949382]
+layout_mode = 0
+offset_left = 11.0
+offset_top = -35.0
+offset_right = 62.0
+offset_bottom = -25.0
+texture = ExtResource("13_6k8oa")
+expand_mode = 1
+
+[node name="Label" type="Label" parent="UserInterface/Inventory/Inner/EquiptmentLabel" unique_id=2076669901]
+layout_mode = 0
+offset_left = 9.0
+offset_top = -0.2
+offset_right = 65.0
+offset_bottom = 13.8
+scale = Vector2(0.6, 0.6)
+theme_override_fonts/font = ExtResource("9_6k8oa")
+text = "Equiptment"
+
+[node name="Equiptment" type="GridContainer" parent="UserInterface/Inventory/Inner" unique_id=1786437739]
+visible = false
+layout_mode = 0
+offset_left = 2.6666641
+offset_top = -21.333332
+offset_right = 77.33333
+offset_bottom = 31.666668
+columns = 3
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UserInterface/Inventory/Inner/Equiptment" unique_id=67465791]
+custom_minimum_size = Vector2(12, 0)
+layout_mode = 2
+
+[node name="Slot13" type="Panel" parent="UserInterface/Inventory/Inner/Equiptment/VBoxContainer" unique_id=202371879 groups=["Weapon", "scale_0.60"]]
+custom_minimum_size = Vector2(12, 12)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme_override_styles/panel = SubResource("StyleBoxTexture_xn7nh")
+script = ExtResource("6_5c7wf")
+
+[node name="Slot14" type="Panel" parent="UserInterface/Inventory/Inner/Equiptment/VBoxContainer" unique_id=1212242624 groups=["Schield", "scale_0.60"]]
+custom_minimum_size = Vector2(12, 12)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxTexture_pa76a")
+script = ExtResource("6_5c7wf")
+
+[node name="VBoxContainer2" type="VBoxContainer" parent="UserInterface/Inventory/Inner/Equiptment" unique_id=473649178]
+custom_minimum_size = Vector2(30, 0)
+layout_mode = 2
+
+[node name="Panel" type="Panel" parent="UserInterface/Inventory/Inner/Equiptment/VBoxContainer2" unique_id=16116281]
+custom_minimum_size = Vector2(25, 37)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxTexture_creb6")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="UserInterface/Inventory/Inner/Equiptment/VBoxContainer2" unique_id=1514221283]
+layout_mode = 2
+alignment = 1
+
+[node name="Slot15" type="Panel" parent="UserInterface/Inventory/Inner/Equiptment/VBoxContainer2/HBoxContainer" unique_id=1120616019 groups=["Shoes", "scale_0.60"]]
+custom_minimum_size = Vector2(12, 12)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxTexture_vqds4")
+script = ExtResource("6_5c7wf")
+
+[node name="Slot16" type="Panel" parent="UserInterface/Inventory/Inner/Equiptment/VBoxContainer2/HBoxContainer" unique_id=2140414361 groups=["Arms", "scale_0.60"]]
+custom_minimum_size = Vector2(12, 12)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxTexture_xqkyc")
+script = ExtResource("6_5c7wf")
+
+[node name="VBoxContainer3" type="VBoxContainer" parent="UserInterface/Inventory/Inner/Equiptment" unique_id=460598766]
+custom_minimum_size = Vector2(12, 0)
+layout_mode = 2
+
+[node name="Slot17" type="Panel" parent="UserInterface/Inventory/Inner/Equiptment/VBoxContainer3" unique_id=551798419 groups=["Herd", "scale_0.60"]]
+custom_minimum_size = Vector2(12, 12)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxTexture_qoi8r")
+script = ExtResource("6_5c7wf")
+
+[node name="Slot18" type="Panel" parent="UserInterface/Inventory/Inner/Equiptment/VBoxContainer3" unique_id=2105082883 groups=["Chest", "scale_0.60"]]
+custom_minimum_size = Vector2(12, 12)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme_override_styles/panel = SubResource("StyleBoxTexture_qoi8r")
+script = ExtResource("6_5c7wf")
+
+[node name="GridContainer" type="GridContainer" parent="UserInterface/Inventory/Inner" unique_id=411237662]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -80.0
+offset_top = -53.5
+offset_right = -12.000004
+offset_bottom = 38.5
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(0.7, 0.7)
+columns = 3
+metadata/_edit_use_anchors_ = true
+
+[node name="Slot1" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" unique_id=1940500605 groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon"]]
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 4
+theme_override_styles/panel = SubResource("StyleBoxTexture_x2d4g")
+script = ExtResource("6_5c7wf")
+empty_tex = ExtResource("10_j4pnj")
+
+[node name="Slot2" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" unique_id=610732229 groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "item", "merchant_room"]]
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 4
+theme_override_styles/panel = SubResource("StyleBoxTexture_odrip")
+script = ExtResource("6_5c7wf")
+empty_tex = ExtResource("10_j4pnj")
+
+[node name="Slot3" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" unique_id=1715521609 groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "item", "merchant_room"]]
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 4
+theme_override_styles/panel = SubResource("StyleBoxTexture_6k8oa")
+script = ExtResource("6_5c7wf")
+empty_tex = ExtResource("10_j4pnj")
+
+[node name="Slot4" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" unique_id=229738727 groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "item", "merchant_room"]]
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 4
+theme_override_styles/panel = SubResource("StyleBoxTexture_nq0iv")
+script = ExtResource("6_5c7wf")
+empty_tex = ExtResource("10_j4pnj")
+
+[node name="Slot5" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" unique_id=1325080464 groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "item", "merchant_room"]]
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 4
+theme_override_styles/panel = SubResource("StyleBoxTexture_fxkes")
+script = ExtResource("6_5c7wf")
+empty_tex = ExtResource("10_j4pnj")
+
+[node name="Slot6" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" unique_id=414013209 groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "boss_room", "item", "merchant_room"]]
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 4
+theme_override_styles/panel = SubResource("StyleBoxTexture_72a5a")
+script = ExtResource("6_5c7wf")
+empty_tex = ExtResource("10_j4pnj")
+
+[node name="Slot7" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" unique_id=153293947 groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "boss_room", "item", "merchant_room"]]
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 4
+theme_override_styles/panel = SubResource("StyleBoxTexture_gdkvl")
+script = ExtResource("6_5c7wf")
+empty_tex = ExtResource("10_j4pnj")
+
+[node name="Slot8" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" unique_id=1229988314 groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "boss_room", "item", "merchant_room"]]
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 4
+theme_override_styles/panel = SubResource("StyleBoxTexture_3710g")
+script = ExtResource("6_5c7wf")
+empty_tex = ExtResource("10_j4pnj")
+
+[node name="Slot9" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" unique_id=1396692844 groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "boss_room", "item", "merchant_room"]]
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 4
+theme_override_styles/panel = SubResource("StyleBoxTexture_oag0m")
+script = ExtResource("6_5c7wf")
+empty_tex = ExtResource("10_j4pnj")
+
+[node name="Slot10" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" unique_id=815407239 groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "boss_room", "item", "merchant_room"]]
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 4
+theme_override_styles/panel = SubResource("StyleBoxTexture_cjry2")
+script = ExtResource("6_5c7wf")
+empty_tex = ExtResource("10_j4pnj")
+
+[node name="Slot11" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" unique_id=1944814225 groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "boss_room", "item", "merchant_room"]]
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 4
+theme_override_styles/panel = SubResource("StyleBoxTexture_3r868")
+script = ExtResource("6_5c7wf")
+empty_tex = ExtResource("10_j4pnj")
+
+[node name="Slot12" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" unique_id=1372351242 groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "boss_room", "item", "merchant_room"]]
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 4
+theme_override_styles/panel = SubResource("StyleBoxTexture_hh3gd")
+script = ExtResource("6_5c7wf")
+default_tex = ExtResource("16_nq0iv")
+empty_tex = ExtResource("16_nq0iv")
+selected_tex = ExtResource("16_nq0iv")
+
+[node name="MerchantContainer" type="GridContainer" parent="UserInterface/Inventory/Inner" unique_id=1063456233]
+clip_contents = true
+layout_mode = 0
+offset_left = 7.0
+offset_top = -20.666666
+offset_right = 117.0
+offset_bottom = 74.333336
+scale = Vector2(0.5, 0.5)
+columns = 3
+
+[node name="HBoxContainer2" type="VBoxContainer" parent="UserInterface/Inventory/Inner/MerchantContainer" unique_id=1408514080]
+layout_mode = 2
+
+[node name="HBoxContainer" type="VBoxContainer" parent="UserInterface/Inventory/Inner/MerchantContainer/HBoxContainer2" unique_id=1727163551]
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UserInterface/Inventory/Inner/MerchantContainer/HBoxContainer2/HBoxContainer" unique_id=978623190]
+layout_mode = 2
+script = ExtResource("16_72a5a")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UserInterface/Inventory/Inner/MerchantContainer/HBoxContainer2" unique_id=1788184973]
+layout_mode = 2
+
+[node name="InventoryLabel" type="TextureRect" parent="UserInterface/Inventory/Inner/MerchantContainer/HBoxContainer2/VBoxContainer" unique_id=2071755420]
+custom_minimum_size = Vector2(92, 15)
+layout_mode = 2
+size_flags_horizontal = 4
+texture = ExtResource("7_x2d4g")
+expand_mode = 1
+
+[node name="Label" type="Label" parent="UserInterface/Inventory/Inner/MerchantContainer/HBoxContainer2/VBoxContainer/InventoryLabel" unique_id=1450567441]
+layout_mode = 0
+offset_left = 1.3333359
+offset_top = 1.6666666
+offset_right = 120.44445
+offset_bottom = 24.666666
+scale = Vector2(0.75, 0.75)
+theme_override_colors/font_color = Color(0.270341, 0.051998645, 0, 1)
+theme_override_fonts/font = ExtResource("9_6k8oa")
+text = "Sell"
+horizontal_alignment = 1
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="UserInterface/Inventory/Inner/MerchantContainer/HBoxContainer2/VBoxContainer" unique_id=1716004274]
+layout_mode = 2
+script = ExtResource("19_fxkes")
+
+[node name="Sell Slot" type="Panel" parent="UserInterface/Inventory/Inner/MerchantContainer/HBoxContainer2/VBoxContainer/HBoxContainer2" unique_id=1904480817 groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "boss_room", "item", "merchant_room"]]
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 4
+script = ExtResource("6_5c7wf")
+hover_tex = ExtResource("15_nq0iv")
+
+[node name="TextureRect" type="TextureRect" parent="UserInterface/Inventory/Inner/MerchantContainer/HBoxContainer2/VBoxContainer/HBoxContainer2" unique_id=1767038454]
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 2
+texture = ExtResource("20_72a5a")
+
+[node name="Price" type="Panel" parent="UserInterface/Inventory/Inner/MerchantContainer/HBoxContainer2/VBoxContainer/HBoxContainer2" unique_id=164698446 groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "boss_room", "item", "merchant_room"]]
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 4
+script = ExtResource("6_5c7wf")
+hover_tex = ExtResource("15_nq0iv")
+
+[node name="Hammer" type="TextureRect" parent="UserInterface/Inventory/Inner/MerchantContainer/HBoxContainer2/VBoxContainer/HBoxContainer2" unique_id=2147176339]
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 2
+
+[node name="Hotbar" type="Control" parent="UserInterface/Inventory" unique_id=987133183]
+anchors_preset = 0
+offset_left = 21.333334
+offset_top = 49.333336
+offset_right = 29.999998
+offset_bottom = 54.000008
+
+[node name="HotContainer" type="GridContainer" parent="UserInterface/Inventory/Hotbar" unique_id=1323109768]
+layout_mode = 0
+offset_left = -90.66664
+offset_top = 7.333332
+offset_right = 25.333359
+offset_bottom = 27.333332
+columns = 5
+
+[node name="Slot19" type="Panel" parent="UserInterface/Inventory/Hotbar/HotContainer" unique_id=28282230 groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "boss_room", "item", "merchant_room"]]
+custom_minimum_size = Vector2(17, 17)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 4
+theme_override_styles/panel = SubResource("StyleBoxTexture_x2d4g")
+script = ExtResource("6_5c7wf")
+
+[node name="Slot20" type="Panel" parent="UserInterface/Inventory/Hotbar/HotContainer" unique_id=1193724016 groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "boss_room", "item", "merchant_room"]]
+custom_minimum_size = Vector2(17, 17)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 4
+theme_override_styles/panel = SubResource("StyleBoxTexture_x2d4g")
+script = ExtResource("6_5c7wf")
+
+[node name="Slot21" type="Panel" parent="UserInterface/Inventory/Hotbar/HotContainer" unique_id=813523237 groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "boss_room", "item", "merchant_room"]]
+custom_minimum_size = Vector2(17, 17)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 4
+theme_override_styles/panel = SubResource("StyleBoxTexture_x2d4g")
+script = ExtResource("6_5c7wf")
+
+[node name="Slot22" type="Panel" parent="UserInterface/Inventory/Hotbar/HotContainer" unique_id=1491225884 groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "boss_room", "item", "merchant_room"]]
+custom_minimum_size = Vector2(17, 17)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 4
+theme_override_styles/panel = SubResource("StyleBoxTexture_x2d4g")
+script = ExtResource("6_5c7wf")
+
+[node name="Slot23" type="Panel" parent="UserInterface/Inventory/Hotbar/HotContainer" unique_id=561426232 groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "boss_room", "item", "merchant_room"]]
+custom_minimum_size = Vector2(17, 17)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 4
+theme_override_styles/panel = SubResource("StyleBoxTexture_x2d4g")
+script = ExtResource("6_5c7wf")
+
+[node name="coin_sum" type="Panel" parent="UserInterface/Inventory" unique_id=490591349 groups=["Equipment", "Inventory"]]
+custom_minimum_size = Vector2(12, 12)
+layout_mode = 0
+offset_left = 65.66667
+offset_top = 56.333332
+offset_right = 77.66667
+offset_bottom = 68.33333
+size_flags_horizontal = 0
+size_flags_vertical = 4
+script = ExtResource("6_5c7wf")
+has_background = false
+
+[connection signal="area_entered" from="PickupZone" to="PickupZone" method="_on_area_entered"]
+[connection signal="area_exited" from="PickupZone" to="PickupZone" method="_on_area_exited"]

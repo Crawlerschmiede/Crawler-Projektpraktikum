@@ -1,4 +1,4 @@
-[gd_scene load_steps=6 format=3 uid="uid://cxig63dd2i0nk"]
+[gd_scene format=3 uid="uid://cxig63dd2i0nk"]
 
 [ext_resource type="Texture2D" uid="uid://bsu4kw76lmmfe" path="res://assets/decorations/banner.png" id="1_q5rwn"]
 
@@ -34,8 +34,8 @@ animations = [{
 "speed": 2.0
 }]
 
-[node name="Banner" type="Node2D"]
+[node name="Banner" type="Node2D" unique_id=592543600]
 
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1760304583]
 sprite_frames = SubResource("SpriteFrames_238lc")
 frame_progress = 0.36389306

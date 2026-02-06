@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://bgrigascse7lr"]
+[gd_scene format=3 uid="uid://bgrigascse7lr"]
 
 [ext_resource type="Texture2D" uid="uid://jqqx4i4l2fve" path="res://assets/decorations/brazier.png" id="1_4xa0q"]
 
@@ -45,9 +45,9 @@ animations = [{
 "speed": 5.0
 }]
 
-[node name="Brazier" type="Node2D"]
+[node name="Brazier" type="Node2D" unique_id=366670763]
 
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1027277524]
 sprite_frames = SubResource("SpriteFrames_qtrwi")
 autoplay = "default"
 frame_progress = 0.27669135

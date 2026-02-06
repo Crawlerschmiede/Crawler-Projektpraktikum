@@ -1,0 +1,61 @@
+[gd_scene format=3 uid="uid://bd6vlhxgnk0rf"]
+
+[ext_resource type="Texture2D" uid="uid://cjnocgyx6ttpn" path="res://assets/enemies/Necromancer-Standing.png" id="1_kd07q"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_02vta"]
+atlas = ExtResource("1_kd07q")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_s1m7n"]
+atlas = ExtResource("1_kd07q")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_xos62"]
+atlas = ExtResource("1_kd07q")
+region = Rect2(64, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_nr25q"]
+atlas = ExtResource("1_kd07q")
+region = Rect2(96, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4vod1"]
+atlas = ExtResource("1_kd07q")
+region = Rect2(128, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_n2r78"]
+atlas = ExtResource("1_kd07q")
+region = Rect2(160, 0, 32, 32)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_7ojl6"]
+resource_local_to_scene = true
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_02vta")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_s1m7n")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_xos62")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_nr25q")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_4vod1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_n2r78")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 2.0
+}]
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" unique_id=358690754]
+sprite_frames = SubResource("SpriteFrames_7ojl6")
+animation = &"idle"
+frame = 4
+frame_progress = 0.14863999
+centered = false

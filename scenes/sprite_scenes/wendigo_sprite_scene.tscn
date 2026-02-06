@@ -1,0 +1,45 @@
+[gd_scene format=3 uid="uid://j400j731mcyn"]
+
+[ext_resource type="Texture2D" uid="uid://b8l5eim32p4cm" path="res://assets/enemies/wendigo_boss.png" id="1_bc2lt"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_y6c0h"]
+atlas = ExtResource("1_bc2lt")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hvr8w"]
+atlas = ExtResource("1_bc2lt")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_rkwd2"]
+atlas = ExtResource("1_bc2lt")
+region = Rect2(64, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qam1j"]
+atlas = ExtResource("1_bc2lt")
+region = Rect2(96, 0, 32, 32)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_xtrj1"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_y6c0h")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_hvr8w")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_rkwd2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qam1j")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 2.0
+}]
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" unique_id=366324882]
+position = Vector2(2, 7)
+sprite_frames = SubResource("SpriteFrames_xtrj1")
+animation = &"idle"
+frame_progress = 0.39585075

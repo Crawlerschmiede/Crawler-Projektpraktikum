@@ -1,0 +1,40 @@
+[gd_scene format=3 uid="uid://bb3m3b6dqx28h"]
+
+[ext_resource type="Script" uid="uid://bu3mn4ujhd03h" path="res://scenes/toast/pickup_notification.tscn.gd" id="1_f4yok"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_f4yok"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_t871p"]
+
+[node name="PickupNotification" type="MarginContainer" unique_id=927291010]
+custom_minimum_size = Vector2(0, 30)
+anchors_preset = 6
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = -50.0
+offset_top = -15.0
+offset_bottom = 15.0
+grow_horizontal = 0
+grow_vertical = 2
+size_flags_horizontal = 8
+script = ExtResource("1_f4yok")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="." unique_id=1878316461]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="HBoxContainer" unique_id=1332467508]
+layout_mode = 2
+
+[node name="Panel" type="Panel" parent="HBoxContainer" unique_id=2058785308]
+custom_minimum_size = Vector2(30, 30)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme_override_styles/panel = SubResource("StyleBoxEmpty_f4yok")
+
+[node name="Panel2" type="Panel" parent="HBoxContainer" unique_id=1094859408]
+custom_minimum_size = Vector2(20, 20)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_t871p")

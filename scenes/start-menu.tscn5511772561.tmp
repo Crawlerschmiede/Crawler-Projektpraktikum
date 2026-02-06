@@ -1,0 +1,211 @@
+[gd_scene load_steps=17 format=3 uid="uid://b5v87f3uddnt5"]
+
+[ext_resource type="Texture2D" uid="uid://lumkwdapp0ll" path="res://assets/menu/Box3.png" id="1_3xs3o"]
+[ext_resource type="Script" uid="uid://n6k1jvf6nmyu" path="res://scripts/mouse_clicked.gd" id="1_o50yc"]
+[ext_resource type="Texture2D" uid="uid://bb54nue8qv54r" path="res://assets/menu/menu background.jpg" id="1_q21ov"]
+[ext_resource type="Script" uid="uid://du4qe5nkrtjpn" path="res://scripts/floating_character.gd" id="2_q21ov"]
+[ext_resource type="FontFile" uid="uid://d4fqcjicieold" path="res://assets/font/PixelPurl.ttf" id="3_o1opb"]
+[ext_resource type="Shader" uid="uid://cot202ickvsd0" path="res://shaders/start-menu.gdshader" id="4_o1opb"]
+[ext_resource type="Script" uid="uid://bthnaemvycse0" path="res://scripts/label.gd" id="6_ui70f"]
+[ext_resource type="Script" uid="uid://bry2bdes3f12p" path="res://scripts/button_effect.gd" id="8_oy7i1"]
+[ext_resource type="AudioStream" uid="uid://boedoftq5v5in" path="res://assets/sfx/Secret of Tiki Island.mp3" id="9_w3k7h"]
+
+[sub_resource type="Animation" id="Animation_o50yc"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("BoxContainer:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Color(1, 1, 1, 0)]
+}
+
+[sub_resource type="Animation" id="Animation_ui70f"]
+resource_name = "fade_in"
+length = 2.0
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("BoxContainer:modulate")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 2),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Color(1, 1, 1, 0), Color(1, 1, 1, 1)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_oy7i1"]
+_data = {
+&"RESET": SubResource("Animation_o50yc"),
+&"fade_in": SubResource("Animation_ui70f")
+}
+
+[sub_resource type="Curve" id="Curve_o1opb"]
+_data = [Vector2(0.0075757504, 0.022471905), 0.0, 0.0, 0, 0, Vector2(0.49242425, 0.49438208), 0.0, 0.0, 0, 0, Vector2(1, 0.022471905), 0.0, 0.0, 0, 0]
+point_count = 3
+
+[sub_resource type="CurveTexture" id="CurveTexture_ui70f"]
+curve = SubResource("Curve_o1opb")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_o50yc"]
+particle_flag_disable_z = true
+emission_shape = 3
+emission_box_extents = Vector3(100, 100, 1)
+initial_velocity_min = 5.0
+initial_velocity_max = 15.0
+gravity = Vector3(0, 5, 0)
+scale_max = 3.0
+scale_over_velocity_min = 0.5
+scale_over_velocity_max = 1.5
+alpha_curve = SubResource("CurveTexture_ui70f")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ui70f"]
+shader = ExtResource("4_o1opb")
+
+[node name="StartMenu" type="CanvasLayer"]
+scale = Vector2(3.2, 2.8)
+transform = Transform2D(3.2, 0, 0, 2.8, 0, 0)
+script = ExtResource("1_o50yc")
+
+[node name="TextureRect" type="TextureRect" parent="."]
+offset_right = 200.0
+offset_bottom = 171.0
+texture = ExtResource("1_q21ov")
+expand_mode = 1
+
+[node name="FloatingCharacter" type="Sprite2D" parent="."]
+texture = ExtResource("1_3xs3o")
+script = ExtResource("2_q21ov")
+
+[node name="FloatingCharacter2" type="Sprite2D" parent="."]
+texture = ExtResource("1_3xs3o")
+script = ExtResource("2_q21ov")
+min_speed = 70.0
+rotation_speed = 0.3
+float_amplitude = 12.0
+
+[node name="FloatingCharacter3" type="Sprite2D" parent="."]
+texture = ExtResource("1_3xs3o")
+script = ExtResource("2_q21ov")
+min_speed = 80.0
+rotation_speed = 0.7
+float_amplitude = 18.0
+
+[node name="FloatingCharacter4" type="Sprite2D" parent="."]
+texture = ExtResource("1_3xs3o")
+script = ExtResource("2_q21ov")
+horizontal = false
+min_speed = 80.0
+max_speed = 90.0
+
+[node name="FloatingCharacter5" type="Sprite2D" parent="."]
+texture = ExtResource("1_3xs3o")
+script = ExtResource("2_q21ov")
+horizontal = false
+min_speed = 80.0
+max_speed = 85.0
+rotation_speed = 0.3
+
+[node name="FloatingCharacter6" type="Sprite2D" parent="."]
+texture = ExtResource("1_3xs3o")
+script = ExtResource("2_q21ov")
+horizontal = false
+min_speed = 80.0
+max_speed = 85.0
+rotation_speed = 0.3
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+&"": SubResource("AnimationLibrary_oy7i1")
+}
+autoplay = "fade_in"
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+modulate = Color(1, 1, 1, 0.827451)
+offset_right = 200.0
+offset_bottom = 171.0
+
+[node name="GPUParticles2D" type="GPUParticles2D" parent="PanelContainer"]
+position = Vector2(100, 100)
+amount = 100
+lifetime = 4.0
+preprocess = 5.0
+visibility_rect = Rect2(-320, -240, 640, 480)
+process_material = SubResource("ParticleProcessMaterial_o50yc")
+
+[node name="ColorRect" type="ColorRect" parent="PanelContainer"]
+material = SubResource("ShaderMaterial_ui70f")
+layout_mode = 2
+
+[node name="BoxContainer" type="BoxContainer" parent="."]
+modulate = Color(1, 1, 1, 0)
+custom_minimum_size = Vector2(200, 0)
+offset_right = 200.0
+offset_bottom = 131.0
+vertical = true
+
+[node name="Space" type="VBoxContainer" parent="BoxContainer"]
+custom_minimum_size = Vector2(0, 20)
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="BoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="BoxContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 1
+theme_override_fonts/font = ExtResource("3_o1opb")
+theme_override_font_sizes/font_size = 31
+text = "GameName"
+horizontal_alignment = 1
+vertical_alignment = 1
+script = ExtResource("6_ui70f")
+
+[node name="VBoxContainer2" type="VBoxContainer" parent="BoxContainer"]
+layout_mode = 2
+
+[node name="Continue" type="Button" parent="BoxContainer/VBoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 4
+focus_mode = 0
+theme_override_fonts/font = ExtResource("3_o1opb")
+text = "Continue"
+flat = true
+script = ExtResource("8_oy7i1")
+
+[node name="Start New" type="Button" parent="BoxContainer/VBoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 4
+focus_mode = 0
+theme_override_fonts/font = ExtResource("3_o1opb")
+text = "Start New"
+flat = true
+script = ExtResource("8_oy7i1")
+
+[node name="Settings" type="Button" parent="BoxContainer/VBoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 4
+focus_mode = 0
+theme_override_fonts/font = ExtResource("3_o1opb")
+text = "Settings"
+flat = true
+script = ExtResource("8_oy7i1")
+
+[node name="Exit" type="Button" parent="BoxContainer/VBoxContainer2"]
+layout_mode = 2
+size_flags_horizontal = 4
+focus_mode = 0
+theme_override_fonts/font = ExtResource("3_o1opb")
+text = "Exit"
+flat = true
+script = ExtResource("8_oy7i1")
+
+[node name="bg_music" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("9_w3k7h")

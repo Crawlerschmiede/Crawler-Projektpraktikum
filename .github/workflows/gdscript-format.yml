@@ -2,9 +2,11 @@ name: GDScript Format
 
 on:
   push:
-    branches: [dev]
+    branches: 
+      - 'dev'
   pull_request:
-    branches: [dev]
+    branches: 
+      - 'dev'
   workflow_dispatch:
 
 jobs:
@@ -28,10 +30,9 @@ jobs:
         run: uv tool install "gdtoolkit==4.*"
 
       - name: Run gdformat
-        run: gdformat scripts/
+        run: gdformat ./
 
       - name: Commit changes
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "style: auto-format GDScript files"
-          file_pattern: "*.gd"

@@ -1,0 +1,42 @@
+[gd_scene format=3 uid="uid://cindamhjb3uxf"]
+
+[ext_resource type="Texture2D" uid="uid://b1td5db4m781m" path="res://assets/enemies/Orc-Boss-Fixed.png" id="1_5ll2b"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_46df8"]
+atlas = ExtResource("1_5ll2b")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_t0ut8"]
+atlas = ExtResource("1_5ll2b")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_v8ldc"]
+atlas = ExtResource("1_5ll2b")
+region = Rect2(64, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2bl7k"]
+atlas = ExtResource("1_5ll2b")
+region = Rect2(96, 0, 32, 32)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_o00ec"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_46df8")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_t0ut8")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_v8ldc")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2bl7k")
+}],
+"loop": true,
+"name": &"default",
+"speed": 2.0
+}]
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" unique_id=2102374829]
+sprite_frames = SubResource("SpriteFrames_o00ec")

@@ -1,0 +1,47 @@
+[gd_scene format=3 uid="uid://dimpg00hfok7n"]
+
+[ext_resource type="Script" uid="uid://gq5egt2c3dni" path="res://scripts/Interactables/trap.gd" id="1_g0wxk"]
+[ext_resource type="Texture2D" uid="uid://b5h154to842sa" path="res://assets/item_icons/Hund.png" id="2_g0wxk"]
+
+[sub_resource type="Animation" id="Animation_cu0on"]
+resource_name = "Float"
+length = 2.0
+loop_mode = 1
+
+[sub_resource type="Animation" id="Animation_l23bc"]
+length = 0.001
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_ecfyl"]
+_data = {
+&"Float": SubResource("Animation_cu0on"),
+&"RESET": SubResource("Animation_l23bc")
+}
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_mhsm6"]
+size = Vector2(9, 5)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_ngp3t"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_g0wxk")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}]
+
+[node name="Trap" type="CharacterBody2D" unique_id=1400154853 groups=["item"]]
+platform_on_leave = 2
+script = ExtResource("1_g0wxk")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=577601087]
+libraries/ = SubResource("AnimationLibrary_ecfyl")
+
+[node name="Area2D" type="Area2D" parent="." unique_id=883024827]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D" unique_id=1325437707]
+shape = SubResource("RectangleShape2D_mhsm6")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=551056047]
+sprite_frames = SubResource("SpriteFrames_ngp3t")

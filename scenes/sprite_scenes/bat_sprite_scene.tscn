@@ -1,0 +1,42 @@
+[gd_scene format=3 uid="uid://8uqfh3k1qom1"]
+
+[ext_resource type="Texture2D" uid="uid://kq6pulusj4sf" path="res://assets/enemies/VampireBat.png" id="1_qjxsa"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_yi3cn"]
+atlas = ExtResource("1_qjxsa")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_24mks"]
+atlas = ExtResource("1_qjxsa")
+region = Rect2(16, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_sxk2v"]
+atlas = ExtResource("1_qjxsa")
+region = Rect2(32, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_2nbx3"]
+atlas = ExtResource("1_qjxsa")
+region = Rect2(48, 0, 16, 16)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_2nbx3"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_yi3cn")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_24mks")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_sxk2v")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_2nbx3")
+}],
+"loop": true,
+"name": &"default",
+"speed": 5.0
+}]
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" unique_id=985875584]
+sprite_frames = SubResource("SpriteFrames_2nbx3")

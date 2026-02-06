@@ -1,0 +1,23 @@
+[gd_scene format=3 uid="uid://c08iipnerkqs"]
+
+[ext_resource type="Texture2D" uid="uid://lumkwdapp0ll" path="res://assets/menu/Box3.png" id="2_l06eo"]
+
+[node name="Item" type="Panel" unique_id=870615674]
+
+[node name="TextureRect" type="TextureRect" parent="." unique_id=1008060198]
+layout_mode = 0
+offset_right = 16.0
+offset_bottom = 16.0
+texture = ExtResource("2_l06eo")
+expand_mode = 2
+
+[node name="Label" type="Label" parent="." unique_id=1400425594]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 27.0
+offset_bottom = 31.0
+scale = Vector2(0.6799991, 0.5199998)
+text = "22"
+horizontal_alignment = 2
+vertical_alignment = 2
