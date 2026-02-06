@@ -127,6 +127,15 @@ var existing_skills = {
 		"effects": [["damage", 1, false, "No"], ["danger_dmg_mult", 2, false, "y=0"]],
 		"cooldown": 0
 	},
+	#wendigo
+	# Possible Skills: Mimicry(confusion), Evil that devours (big attack), Claw Slash (normal Attack), Insatiable Hunger (Buff)
+	"Claw Slash":
+	{
+		"tree": "wendigo things",
+		"description": "Its huge claws try to slash into your flesh",
+		"effects": [["Damage", 3, false, "No"]],
+		"cooldown": 0
+	},
 	#unarmed player stuff
 	"Punch":
 	{

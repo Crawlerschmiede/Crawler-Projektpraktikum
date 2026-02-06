@@ -56,7 +56,7 @@
 	
 	"orc": {
 		"entityCategory": "enemy",
-		"scene": "res://scenes/sprite_scenes/orc_sprite_scene.tscn",
+		"skills" : [],
 		"sprite_type": "orc",
 		"behaviour": ["boss"],
 		"spawnrate": { "min": 1, "max": 1 },
@@ -66,7 +66,7 @@
 	
 		"plant": {
 		"entityCategory": "enemy",
-		"scene": "res://scenes/sprite_scenes/big_plant_sprite_scene.tscn",
+		"skills" : ["Vine Slash", "Entwine", "Poision Ivy", "Herbicide", "Mandrake's Screech"],
 		"sprite_type": "plant",
 		"behaviour": ["boss"],
 		"spawnrate": { "min": 1, "max": 1 },
@@ -76,7 +76,7 @@
 	
 		"wendigo": {
 		"entityCategory": "enemy",
-		"scene": "res://scenes/sprite_scenes/wendigo_sprite_scene.tscn",
+		"skills" : [],
 		"sprite_type": "wendigo",
 		"behaviour": ["boss"],
 		"spawnrate": { "min": 1, "max": 1 },
@@ -86,7 +86,7 @@
 	
 		"necromancer": {
 		"entityCategory": "enemy",
-		"scene": "res://scenes/sprite_scenes/necromancer_scene.tscn",
+		"skills" : [],
 		"sprite_type": "necromancer",
 		"behaviour": ["boss"],
 		"spawnrate": { "min": 1, "max": 1 },
