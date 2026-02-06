@@ -108,7 +108,7 @@ var existing_skills = {
 	"Poison Ivy":
 	{
 		"tree": "plant things",
-		"description": "Vines lash out, a thron scratches your skin. You don't feel so well..",
+		"description": "Vines lash out, a thorn scratches your skin. You don't feel so well..",
 		"effects": [["poison", 2, false, "No"]],
 		"cooldown": 0
 	},
@@ -123,7 +123,7 @@ var existing_skills = {
 	{
 		"tree": "plant things",
 		"desciption":
-		"The ground rumbles as your enemy lets out a deafening screech. Its getting angry..",
+		"The ground rumbles as your enemy lets out a deafening screech. Its getting angry ...",
 		"effects": [["damage", 1, false, "No"], ["danger_dmg_mult", 2, false, "y=0"]],
 		"cooldown": 0
 	},
