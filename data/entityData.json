@@ -52,5 +52,46 @@
 		"spawnrate": { "min": 0.0, "max": 0.1 },
 		"spawncount": { "min": 4, "max": 6 },
 		"weight": 6
-	}
+	},
+	
+	"orc": {
+		"entityCategory": "enemy",
+		"scene": "res://scenes/sprite_scenes/orc_sprite_scene.tscn",
+		"sprite_type": "orc",
+		"behaviour": ["boss"],
+		"spawnrate": { "min": 1, "max": 1 },
+		"spawncount": { "min": 1, "max": 1 },
+		"weight": 0
+	},
+	
+		"plant": {
+		"entityCategory": "enemy",
+		"scene": "res://scenes/sprite_scenes/big_plant_sprite_scene.tscn",
+		"sprite_type": "plant",
+		"behaviour": ["boss"],
+		"spawnrate": { "min": 1, "max": 1 },
+		"spawncount": { "min": 1, "max": 1 },
+		"weight": 0
+	},
+	
+		"wendigo": {
+		"entityCategory": "enemy",
+		"scene": "res://scenes/sprite_scenes/wendigo_sprite_scene.tscn",
+		"sprite_type": "wendigo",
+		"behaviour": ["boss"],
+		"spawnrate": { "min": 1, "max": 1 },
+		"spawncount": { "min": 1, "max": 1 },
+		"weight": 0
+	},
+	
+		"necromancer": {
+		"entityCategory": "enemy",
+		"scene": "res://scenes/sprite_scenes/necromancer_scene.tscn",
+		"sprite_type": "necromancer",
+		"behaviour": ["boss"],
+		"spawnrate": { "min": 1, "max": 1 },
+		"spawncount": { "min": 1, "max": 1 },
+		"weight": 0
+	},
+	
 }
