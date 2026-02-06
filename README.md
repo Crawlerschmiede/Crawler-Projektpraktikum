@@ -63,6 +63,7 @@ gdlint scripts/
 Linting Docs: https://github.com/Scony/godot-gdscript-toolkit/wiki/3.-Linter
 
 ### Pre Commit Hook
+
 - Install pre-commit via uv or pip directly
   - uv: `uv tool install pre-commit`
   - pip: `pip install pre-commit`
@@ -79,10 +80,10 @@ These workflows live in `.github/workflows/`:
   - If formatting changes files, it commits them back to the same branch (uses `GITHUB_TOKEN`)
   - Safety: only runs with write permissions for branches in this repo (skips PRs from forks)
 - `gdscript-lint.yml`
-  - Runs on pushes to `dev` and on PRs targeting `dev` or `main`
+  - Runs on pushes to `dev` and on PRs targeting `dev` or `release`
   - Runs `gdlint scripts/`
 - `test-build.yml`
-  - Runs on pushes to `dev` and on PRs targeting `dev` or `main`
+  - Runs on pushes to `dev` and on PRs targeting `dev` or `release`
   - Exports Windows and Linux builds (build validation)
 - `release.yml`
   - Runs when you push a tag matching `v*` (example: `v0.1.0`)
@@ -92,22 +93,22 @@ These workflows live in `.github/workflows/`:
 
 ## Branching Strategy
 
-- Main branch is `main`
+- Release branch is `release`
 - Develop branch is `dev`
 - Feature and other branches should be created from `dev` and merged back into `dev`
-- Releases are merged from `dev` into `main`
-- Hotfixes are created from `main` and merged back into both `main` and `dev`
+- Releases are merged from `dev` into `release`
+- Hotfixes are created from `release` and merged back into both `release` and `dev`
 
-## Release Process (dev → main → versioned release)
+## Release Process (dev → release → versioned release)
 
 This is the current workflow:
 
-1. Create a PR in GitHub to merge `dev` → `main`.
+1. Create a PR in GitHub to merge `dev` → `release`.
 2. Merge the PR in GitHub after CI passes.
-3. Create a versioned release by tagging `main`:
+3. Create a versioned release by tagging `release`:
 
    ```bash
-   git checkout main
+   git checkout release
    git pull
    git tag -a v0.1.0 -m "Release v0.1.0"
    git push origin v0.1.0
@@ -115,60 +116,60 @@ This is the current workflow:
 
    This triggers the release workflow which builds and publishes a GitHub Release with downloadable artifacts.
 
-4. Sync `dev` back with `main`:
+4. Sync `dev` back with `release`:
 
    ```bash
    git checkout dev
-   git pull origin main
+   git pull origin release
    git push origin dev
+   ```
 
 **Items hinzufügen**
-  - **Ort der Daten:** Die Item-Definitionen werden in `res://data/itemData.json` gepflegt. Jede Eigenschaft ist ein JSON-Objekt, dessen Schlüssel der interne Item-Name (ID) ist.
-  - **Icon:** Lege für jedes Item ein Icon unter `res://assets/item_icons/` ab. Der Dateiname sollte genau dem Item-Key entsprechen (z. B. `placeholder_sword.png` für das Item `placeholder_sword`).
-  - **Minimalbeispiel (JSON):**
 
-  ```json
-  "placeholder_sword": {
-    "ItemCategory": "Weapon",
-    "StackSize": 1,
-    "Description": "Ein einfaches Schwert.",
-    "group": "Weapon",
-    "weight": 3,
-    "merchant": {
-      "min_count": 1,
-      "max_count": 2,
-      "min_price": 6,
-      "max_price": 9,
-      "buy_amount": 2,
-      "chance": 1.0,
-      "weight": 1
-    },
-    "bound_skills": ["Slash"]
-  }
-  ```
+- **Ort der Daten:** Die Item-Definitionen werden in `res://data/itemData.json` gepflegt. Jede Eigenschaft ist ein JSON-Objekt, dessen Schlüssel der interne Item-Name (ID) ist.
+- **Icon:** Lege für jedes Item ein Icon unter `res://assets/item_icons/` ab. Der Dateiname sollte genau dem Item-Key entsprechen (z. B. `placeholder_sword.png` für das Item `placeholder_sword`).
+- **Minimalbeispiel (JSON):**
 
-  - **Wichtige Felder (Erklärung):**
-    - `ItemCategory`: Kategorie (z. B. `Weapon`, `Consumable`).
-    - `StackSize`: Maximale Stapelgröße im Inventar.
-    - `Description`: Tooltip / Beschreibungstext.
-    - `group`: Gruppierung/Typ, wird teilweise für UI/Logik verwendet.
-    - `weight`: (optional) Wird von Loot-/Pool-Generatoren benutzt.
-    - `loot_stats`: (optional) Alternativstruktur mit `weight`, `chance`, `max_stack`.
-    - `merchant`: (optional) Objekt mit Verkaufs-/Vorrats-Parametern (`min_count`, `max_count`, `min_price`, `max_price`, `buy_amount`, `chance`, `weight`). Händler-Logik liest diese Felder, um Shops zu füllen.
-    - `bound_skills`: (optional) Liste an Skill-Namen, die beim Equippen gebunden werden (wird von `item.gd` gelesen).
-    - `use_effects`: (optional) Für Verbrauchsgegenstände: Liste der Effekte, die beim Benutzen ausgelöst werden (z. B. `Heal`).
+```json
+"placeholder_sword": {
+  "ItemCategory": "Weapon",
+  "StackSize": 1,
+  "Description": "Ein einfaches Schwert.",
+  "group": "Weapon",
+  "weight": 3,
+  "merchant": {
+    "min_count": 1,
+    "max_count": 2,
+    "min_price": 6,
+    "max_price": 9,
+    "buy_amount": 2,
+    "chance": 1.0,
+    "weight": 1
+  },
+  "bound_skills": ["Slash"]
+}
+```
 
-  - **Icon laden:** Die UI-Komponente `item.gd` erwartet die Icon-Datei unter `res://assets/item_icons/<item_key>.png`. Falls kein Icon gefunden wird, wird eine Warnung geloggt.
+- **Wichtige Felder (Erklärung):**
+  - `ItemCategory`: Kategorie (z. B. `Weapon`, `Consumable`).
+  - `StackSize`: Maximale Stapelgröße im Inventar.
+  - `Description`: Tooltip / Beschreibungstext.
+  - `group`: Gruppierung/Typ, wird teilweise für UI/Logik verwendet.
+  - `weight`: (optional) Wird von Loot-/Pool-Generatoren benutzt.
+  - `loot_stats`: (optional) Alternativstruktur mit `weight`, `chance`, `max_stack`.
+  - `merchant`: (optional) Objekt mit Verkaufs-/Vorrats-Parametern (`min_count`, `max_count`, `min_price`, `max_price`, `buy_amount`, `chance`, `weight`). Händler-Logik liest diese Felder, um Shops zu füllen.
+  - `bound_skills`: (optional) Liste an Skill-Namen, die beim Equippen gebunden werden (wird von `item.gd` gelesen).
+  - `use_effects`: (optional) Für Verbrauchsgegenstände: Liste der Effekte, die beim Benutzen ausgelöst werden (z. B. `Heal`).
 
-  - **Daten neu laden:** Die JSON-Datei wird beim Start über `JSONData.gd` geladen. Nach Änderungen an `itemData.json` die Szene/Editor neu laden oder das Spiel neu starten, damit die Änderungen wirksam werden.
+- **Icon laden:** Die UI-Komponente `item.gd` erwartet die Icon-Datei unter `res://assets/item_icons/<item_key>.png`. Falls kein Icon gefunden wird, wird eine Warnung geloggt.
 
-  - **Händler / Registry:** Zur Laufzeit verwaltet `scripts/merchant_registry.gd` Items für Händler. Standardmäßig werden Händlerdaten aus dem `merchant`-Block in `itemData.json` genutzt, aber du kannst Items zur Laufzeit mit `MerchantRegistry.set_items(reg_key, items_array)` setzen.
+- **Daten neu laden:** Die JSON-Datei wird beim Start über `JSONData.gd` geladen. Nach Änderungen an `itemData.json` die Szene/Editor neu laden oder das Spiel neu starten, damit die Änderungen wirksam werden.
 
-  - **Tipps:**
-    - Verwende als Schlüssel (Item-ID) keine Leerzeichen oder Sonderzeichen, damit Dateinamen und Referenzen sauber funktionieren.
-    - Falls du größere Assets hinzufügst, denke an Git LFS (`git lfs install` / `git lfs track`) für Binärdateien.
+- **Händler / Registry:** Zur Laufzeit verwaltet `scripts/merchant_registry.gd` Items für Händler. Standardmäßig werden Händlerdaten aus dem `merchant`-Block in `itemData.json` genutzt, aber du kannst Items zur Laufzeit mit `MerchantRegistry.set_items(reg_key, items_array)` setzen.
 
-Wenn du möchtest, kann ich ein kleines Script ergänzen, das neue Items per Template in `data/itemData.json` einträgt und ein Icon-Placeholder erzeugt — möchtest du das? 
+- **Tipps:**
+  - Verwende als Schlüssel (Item-ID) keine Leerzeichen oder Sonderzeichen, damit Dateinamen und Referenzen sauber funktionieren.
+  - Falls du größere Assets hinzufügst, denke an Git LFS (`git lfs install` / `git lfs track`) für Binärdateien.
 
 **Räume hinzufügen**
 
@@ -224,6 +225,3 @@ func _ready():
   - Stelle sicher, dass `TileMapLayer` und optional `TopLayer` existieren und korrekt TileSets verwenden.
   - Türen müssen korrekt positioniert und mit `direction` versehen sein — sonst kann der Generator sie nicht verbinden oder passende Closed-Door-Szenen finden.
   - Wenn dein Raum nach dem Backen nicht sichtbar ist, prüfe `placed_rooms` und ob `visible` auf `false` gesetzt wurde (Generator blendet Räume manchmal aus, nachdem die TileMap gebacken wurde).
-
-Wenn du möchtest, kann ich für dich ein kleines Beispiel-Raum-Template (`res://scenes/rooms/Rooms/example_room.tscn`) erzeugen (inkl. `TileMapLayer`, `TopLayer` und zwei Türen). Soll ich das anlegen? 
-   ```
