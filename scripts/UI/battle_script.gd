@@ -250,27 +250,46 @@ func cell_exists(cell: Vector2i) -> bool:
 
 func move_player(direction: String, distance: int):
 	var dir = ""
+	var basics = ["U", "D", "L", "R"]
+	var new_cell := player_gridpos
 	if player_sprite == null:
 		return "One cannot move what doesn't exist. Remember this."
+	if direction in basics:
+		var delta := Vector2i.ZERO
+		match direction:
+			"L":
+				delta = Vector2i(-distance, 0)
+				dir = "left"
+			"R":
+				delta = Vector2i(distance, 0)
+				dir = "right"
+			"U":
+				delta = Vector2i(0, -distance)
+				dir = "up"
+			"D":
+				delta = Vector2i(0, distance)
+				dir = "down"
+			_:
+				return []
 
-	var delta := Vector2i.ZERO
-	match direction:
-		"L":
-			delta = Vector2i(-distance, 0)
-			dir = "left"
-		"R":
-			delta = Vector2i(distance, 0)
-			dir = "right"
-		"U":
-			delta = Vector2i(0, -distance)
-			dir = "up"
-		"D":
-			delta = Vector2i(0, distance)
-			dir = "down"
-		_:
-			return []
-
-	var new_cell := player_gridpos + delta
+		new_cell = player_gridpos + delta
+	elif "rnd" in direction:
+		var parts = direction.split("_")
+		var area = parts[1]
+		var from_to = []
+		var min_y = get_min_y()
+		var possible_tiles = []
+		match area:
+			"short":
+				from_to = player.ranges[0]
+			"medium":
+				from_to = player.ranges[1]
+			"long":
+				from_to = player.ranges[2]
+		for tile in used_cells:
+			if tile.y >= (min_y+from_to[0]) and tile.y <= (min_y+from_to[1]):
+				possible_tiles.append(tile)
+		new_cell = possible_tiles[rng.randi_range(0, len(possible_tiles)-1)]
 
 	if !cell_exists(new_cell):
 		return "Attempting to move " + dir + ", the player only pushed against the wall"

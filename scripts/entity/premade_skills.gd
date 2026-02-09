@@ -189,6 +189,13 @@ var existing_skills = {
 		"on_acquisition":[["range_buff", 1, true, "short"]],
 		"conditions": ["outside_short_range"]
 	},
+	"Blade Dance":
+	{
+		"tree": "hitting and punching and biting and kicking people",
+		"description": "If you can imagine how scary someone running at you with a knife is, imagine how much scarier it'd be if they teleported!",
+		"effects": [["movement", 1, true, "rnd_short"], ["damage", 2, false, "No"]],
+		"cooldown": 3
+	},
 	#standard actions
 	"Move Up":
 	{

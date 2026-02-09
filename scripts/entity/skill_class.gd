@@ -247,7 +247,7 @@ class Effect:
 			"movement":
 				print("Activating movement")
 				var basic_directions = ["U", "D", "L", "R"]
-				if details in basic_directions:
+				if details in basic_directions or "rnd" in details:
 					ret = [battle.move_player(details, value)]
 			"danger_dmg_mult":
 				print("Activating danger")
