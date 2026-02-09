@@ -75,6 +75,7 @@ func _ready():
 	player_sprite.position = combat_tilemap.map_to_local(player_gridpos)
 	skill_ui.setup(player, enemy, self, log_container, hit_anim_player)
 	hit_anim_enemy.visible = false
+	hit_anim_player.visible = false
 	# confirm setup returned
 	# skill_ui.setup already called above; if skill_list prints don't appear, check these messages
 	if skill_ui.has_signal("player_turn_done"):
@@ -207,9 +208,10 @@ func update_passives(depth = 0):
 
 
 func trigger_passives(abilities, user, target, battle, depth):
+	print("Triggering passives at depth ", depth)
 	for ability in abilities:
 		if ability.is_passive:
-			if ability.is_activateable(self):
+			if ability.is_activateable(user, target, self):
 				print("Activated the passive effect ", ability.name)
 				ability.activate_skill(user, target, battle, depth)
 				print("Active passive effects: ", user.get_alterations())

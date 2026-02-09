@@ -10,6 +10,7 @@ extends Resource
 @export var conditions: Array
 var turns_until_reuse: int = 0
 var effects: Array[Effect] = []
+var immediate_effects: Array[Effect] = []
 var second_turn_effects: Array[Effect] = []
 var pre_prepared_effects = ["danger_dmg_mult", "safety_dmg_reduc", "death_zone", "heal_zone"]
 # TODO: could do with a more sophisticated sorting system later.
@@ -69,7 +70,6 @@ func activate_skill(user, target, battle, depth = 0):
 
 
 func activate_followup():
-	print("Activating followup to " + name)
 	var depth = 0
 	var things_that_happened = []
 	things_that_happened.append("The preparations pay off!")
@@ -85,6 +85,14 @@ func activate_followup():
 			for thing in stuff:
 				things_that_happened.append(thing)
 	return things_that_happened
+	
+func activate_immediate(user):
+	print("immediate activation")
+	if len(immediate_effects)>0:
+		for effect in immediate_effects:
+			effect.apply(user, null, null, name)
+	return []
+	
 
 
 func add_effect(
@@ -95,15 +103,21 @@ func add_effect(
 		effects.append(eff)
 	else:
 		second_turn_effects.append(eff)
+		
+func add_immediate_effect(
+	type: String, value: float, targets_self: bool, details: String
+):
+	var eff := Effect.new(type, value, targets_self, details)	
+	immediate_effects.append(eff)
 
 
-func is_activateable(battle = null) -> bool:
+func is_activateable(user=null, target=null, battle = null) -> bool:
 	var activateable = true
 	if not turns_until_reuse == 0:
 		activateable = false
 	if not battle == null:
 		for condition in conditions:
-			if not condition_met(condition, battle):
+			if not condition_met(condition, user, target, battle):
 				activateable = false
 	return activateable
 
@@ -113,17 +127,26 @@ func tick_down():
 		turns_until_reuse = turns_until_reuse - 1
 
 
-func condition_met(condition_name, battle) -> bool:
+func condition_met(condition_name, user, target, battle) -> bool:
 	var is_met = true
+	if "range" in condition_name and user == null:
+		return false
 	match condition_name:
 		"short_range":
 			# TODO: the whole [0,1] thing should come from a variable to become
 			# variable.
-			is_met = battle.is_player_in_range([0, 1])
+			is_met = battle.is_player_in_range(user.ranges[0])
 		"medium_range":
-			is_met = battle.is_player_in_range([2, 2])
+			is_met = battle.is_player_in_range(user.ranges[1])
 		"long_range":
-			is_met = battle.is_player_in_range([3, 4])
+			is_met = battle.is_player_in_range(user.ranges[2])
+#--- there's definitely a better way of doing this, sure do hope I find it someday ---
+		"outside_short_range":
+			is_met = not battle.is_player_in_range(user.ranges[0])
+		"outside_medium_range":
+			is_met = not battle.is_player_in_range(user.ranges[1])
+		"outside_long_range":
+			is_met = not battle.is_player_in_range(user.ranges[2])
 	if "every_x_turns" in condition_name:
 		var splits = condition_name.split("=")
 		is_met = battle.turn_counter % int(splits[1]) == 0
@@ -166,6 +189,20 @@ class Effect:
 	func apply(user, target, battle, skill_name, depth = 0):
 		var messages = []
 		var ret = []
+		#out-of-battle-stuff happens here
+		if battle == null:
+			match type:
+				"range_buff":
+					match details:
+						"short":
+							user.ranges[0]=[0, (0+value)]
+						"medium":
+							user.ranges[1]=[2, (2+value)]
+						"long":
+							user.ranges[2]=[(4-value), 4]
+					ret = []
+			return ret
+			
 		var active_placement_effects = battle.tile_modifiers.get(battle.player_gridpos, {})
 		print("All mods", battle.tile_modifiers)
 		print("Active mods: ", active_placement_effects)
@@ -193,6 +230,8 @@ class Effect:
 				for alteration in user.alterations:
 					if user.alterations[alteration].has("dmg_buff"):
 						active_dmg *= user.alterations[alteration].dmg_buff
+					if user.alterations[alteration].has("dmg_null"):
+						active_dmg = 0 
 
 				var recipient = user if targets_self else target
 				messages = _safe_invoke(recipient, "take_damage", [active_dmg])
@@ -257,6 +296,15 @@ class Effect:
 				var recipient = user if targets_self else target
 				ret = _safe_invoke(
 					recipient, "add_alteration", ["dmg_buff", value, skill_name, dur]
+				)
+			"damage_nullification":
+				var dur = null
+				if "duration" in details:
+					var parts = details.split("=")
+					dur = int(parts[1])
+				var recipient = user if targets_self else target
+				ret = _safe_invoke(
+					recipient, "add_alteration", ["dmg_null", value, skill_name, dur]
 				)
 			"action_bonus":
 				var dur = null
