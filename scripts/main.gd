@@ -89,7 +89,7 @@ func _load_tutorial_world() -> void:
 	# Falls es mehrere gibt, nimm die mit "floor" im Namen oder die zweite als top
 	if tilemaps.size() > 1:
 		for tm in tilemaps:
-			if tm.name.to_lower().contains("floor"):
+			if tm.name.to_lower().contains("tile"):
 				dungeon_floor = tm as TileMapLayer
 			elif tm.name.to_lower().contains("top"):
 				dungeon_top = tm as TileMapLayer
@@ -707,6 +707,10 @@ func spawn_player() -> void:
 
 	# Spawn Position
 	var start_pos := Vector2i(2, 2)
+	
+	# Tutorial world: spawn at different position
+	if minimap == null:
+		start_pos = Vector2i(-18, 15)
 
 	# erst tilemap, dann gridpos, dann position
 	player.setup(dungeon_floor, dungeon_top, 10, 3, 0)
