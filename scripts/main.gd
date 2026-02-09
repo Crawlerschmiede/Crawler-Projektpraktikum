@@ -8,6 +8,7 @@ const TRAP := preload("res://scenes/Interactables/Trap.tscn")
 const MERCHANT := preload("res://scenes/entity/merchant.tscn")
 const LOADING_SCENE := preload("res://scenes/UI/loading_screen.tscn")
 const START_SCENE := "res://scenes/UI/start-menu.tscn"
+const Tutorial_Room := "res://scenes/rooms/Tutorial Rooms/tutorial_room.tscn"
 @export var menu_scene := preload("res://scenes/UI/popup-menu.tscn")
 @export var fog_tile_id: int = 0  # set this in the inspector to the fog-tile id in your tileset
 @export var fog_dynamic: bool = true  # if true, areas that are no longer visible get fogged again
@@ -41,9 +42,80 @@ var switching_world := false
 @onready var fog_war_layer := $FogWar
 
 
+
 func _ready() -> void:
 	generators = [generator1, generator2, generator3]
+
+	# Tutorial prüfen (JSON: res://data/tutorialData.json)
+	if not _has_completed_tutorial():
+		await _load_tutorial_world()
+		return
+
+	# Normales Spiel starten (Welt 0)
 	await _load_world(world_index)
+
+
+
+func _load_tutorial_world() -> void:
+	get_tree().paused = true
+	await _show_loading()
+
+	_clear_world()
+
+	# Lade Tutorial Room Szene
+	var tutorial_scene = preload(Tutorial_Room).instantiate() as Node2D
+	if tutorial_scene == null:
+		push_error("Failed to load tutorial scene!")
+		_hide_loading()
+		get_tree().paused = false
+		return
+
+	world_root = Node2D.new()
+	world_root.name = "WorldRoot"
+	add_child(world_root)
+	world_root.add_child(tutorial_scene)
+
+	# Extrahiere Tilemaps aus der Tutorial Room
+	# Suche nach Tilemaps in der Szene
+	var tilemaps = tutorial_scene.find_children("*", "TileMapLayer")
+	
+	if tilemaps.is_empty():
+		push_error("Tutorial scene has no TileMapLayer!")
+		_hide_loading()
+		get_tree().paused = false
+		return
+
+	# Nutze die erste Tilemap als floor
+	dungeon_floor = tilemaps[0] as TileMapLayer
+	
+	# Falls es mehrere gibt, nimm die mit "floor" im Namen oder die zweite
+	if tilemaps.size() > 1:
+		for tm in tilemaps:
+			if tm.name.to_lower().contains("floor"):
+				dungeon_floor = tm as TileMapLayer
+				break
+	
+	dungeon_top = null  # Optional
+
+	# Initialize fog layer
+	if fog_war_layer != null and dungeon_floor != null:
+		init_fog_layer()
+
+	dungeon_floor.visibility_layer = 1
+	update_color_filter()
+
+	# Spawne alle Entities wie in normalen Welten
+	spawn_player()
+	spawn_enemies()
+	spawn_lootbox()
+	spawn_traps()
+
+	var merchants = find_merchants()
+	for i in merchants:
+		spawn_merchant_entity(i)
+
+	_hide_loading()
+	get_tree().paused = false
 
 
 func _load_world(idx: int) -> void:
@@ -392,16 +464,26 @@ func _clear_world() -> void:
 	dungeon_floor = null
 	dungeon_top = null
 
-
 func _on_player_exit_reached() -> void:
 	if switching_world:
 		return
+
 	switching_world = true
 
+	# Prüfen: Sind wir im Tutorial?
+	if get_tree().current_scene.scene_file_path == Tutorial_Room:
+		_set_tutorial_completed()
+
+		world_index = 0
+		get_tree().change_scene_to_file("res://scenes/main/main.tscn")
+		return
+
+	# Normale Welten
 	world_index += 1
 	await _load_world(world_index)
 
 	switching_world = false
+
 
 
 # ---------------------------------------
@@ -773,3 +855,40 @@ func _on_battle_player_victory(enemy) -> void:
 func game_over():
 	get_tree().paused = false
 	get_tree().change_scene_to_file(START_SCENE)
+	
+
+
+# -----------------------------------------------------
+# JSON: Tutorial abgeschlossen?
+# -----------------------------------------------------
+func _has_completed_tutorial() -> bool:
+	var path := "res://data/tutorialData.json"
+
+	if not FileAccess.file_exists(path):
+		return false
+
+	var file := FileAccess.open(path, FileAccess.READ)
+	if file:
+		var json_text: String = file.get_as_text()
+		file.close()
+
+		var parsed: Variant = JSON.parse_string(json_text)
+
+		if typeof(parsed) == TYPE_DICTIONARY:
+			var data: Dictionary = parsed
+			return bool(data.get("tutorial_completed", false))
+
+	return false
+
+
+# -----------------------------------------------------
+# JSON: Tutorial als abgeschlossen speichern
+# -----------------------------------------------------
+func _set_tutorial_completed() -> void:
+	var path := "res://data/tutorialData.json"
+	var data: Dictionary = { "tutorial_completed": true }
+
+	var file := FileAccess.open(path, FileAccess.WRITE)
+	if file:
+		file.store_string(JSON.stringify(data, "\t"))
+		file.close()
