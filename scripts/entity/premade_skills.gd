@@ -183,10 +183,11 @@ var existing_skills = {
 	"Extend the Dancefloor":
 	{
 		"tree": "hitting and punching and biting and kicking people",
-		"description": "It's kinda like a worm on a string, except the worm is a knife and you stab people with it",
+		"description":
+		"It's kinda like a worm on a string, except the worm is a knife and you stab people with it",
 		"effects": [["damage_nullification", 1, true, "No"]],
 		"passive": true,
-		"on_acquisition":[["range_buff", 1, true, "short"]],
+		"on_acquisition": [["range_buff", 1, true, "short"]],
 		"conditions": ["outside_short_range"]
 	},
 	"Blade Dance":

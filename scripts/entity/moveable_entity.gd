@@ -15,7 +15,7 @@ var dimensions: Vector2i = Vector2i(1, 1)
 # If I built this at all right, you will never need to touch this.
 # It should just work with the resize function.
 var my_tiles = [Vector2i(0, 0)]
-var ranges =[[0,0], [2,2], [4,4]]
+var ranges = [[0, 0], [2, 2], [4, 4]]
 
 var sprites = {
 	"bat": [preload("res://scenes/sprite_scenes/bat_sprite_scene.tscn")],
@@ -60,7 +60,7 @@ var hp: int = 1
 var str_stat: int = 1
 var def_stat: int = 0
 var abilities: Array[Skill] = []
-var acquired_abilities: Array[String] =[]
+var acquired_abilities: Array[String] = []
 var base_action_points: int = 1
 var action_points: int
 

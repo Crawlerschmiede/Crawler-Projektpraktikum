@@ -85,14 +85,14 @@ func activate_followup():
 			for thing in stuff:
 				things_that_happened.append(thing)
 	return things_that_happened
-	
+
+
 func activate_immediate(user):
 	print("immediate activation")
-	if len(immediate_effects)>0:
+	if len(immediate_effects) > 0:
 		for effect in immediate_effects:
 			effect.apply(user, null, null, name)
 	return []
-	
 
 
 func add_effect(
@@ -103,15 +103,14 @@ func add_effect(
 		effects.append(eff)
 	else:
 		second_turn_effects.append(eff)
-		
-func add_immediate_effect(
-	type: String, value: float, targets_self: bool, details: String
-):
-	var eff := Effect.new(type, value, targets_self, details)	
+
+
+func add_immediate_effect(type: String, value: float, targets_self: bool, details: String):
+	var eff := Effect.new(type, value, targets_self, details)
 	immediate_effects.append(eff)
 
 
-func is_activateable(user=null, target=null, battle = null) -> bool:
+func is_activateable(user = null, target = null, battle = null) -> bool:
 	var activateable = true
 	if not turns_until_reuse == 0:
 		activateable = false
@@ -195,14 +194,14 @@ class Effect:
 				"range_buff":
 					match details:
 						"short":
-							user.ranges[0]=[0, (0+value)]
+							user.ranges[0] = [0, 0 + value]
 						"medium":
-							user.ranges[1]=[2, (2+value)]
+							user.ranges[1] = [2, 2 + value]
 						"long":
-							user.ranges[2]=[(4-value), 4]
+							user.ranges[2] = [4 - value, 4]
 					ret = []
 			return ret
-			
+
 		var active_placement_effects = battle.tile_modifiers.get(battle.player_gridpos, {})
 		print("All mods", battle.tile_modifiers)
 		print("Active mods: ", active_placement_effects)
@@ -231,7 +230,7 @@ class Effect:
 					if user.alterations[alteration].has("dmg_buff"):
 						active_dmg *= user.alterations[alteration].dmg_buff
 					if user.alterations[alteration].has("dmg_null"):
-						active_dmg = 0 
+						active_dmg = 0
 
 				var recipient = user if targets_self else target
 				messages = _safe_invoke(recipient, "take_damage", [active_dmg])
