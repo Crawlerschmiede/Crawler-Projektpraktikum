@@ -193,7 +193,8 @@ var existing_skills = {
 	"Blade Dance":
 	{
 		"tree": "hitting and punching and biting and kicking people",
-		"description": "If you can imagine how scary someone running at you with a knife is, imagine how much scarier it'd be if they teleported!",
+		"description":
+		"If you can imagine how scary someone running at you with a knife is, imagine how much scarier it'd be if they teleported!",
 		"effects": [["movement", 1, true, "rnd_short"], ["damage", 2, false, "No"]],
 		"cooldown": 3
 	},

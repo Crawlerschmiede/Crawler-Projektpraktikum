@@ -287,9 +287,9 @@ func move_player(direction: String, distance: int):
 			"long":
 				from_to = player.ranges[2]
 		for tile in used_cells:
-			if tile.y >= (min_y+from_to[0]) and tile.y <= (min_y+from_to[1]):
+			if tile.y >= (min_y + from_to[0]) and tile.y <= (min_y + from_to[1]):
 				possible_tiles.append(tile)
-		new_cell = possible_tiles[rng.randi_range(0, len(possible_tiles)-1)]
+		new_cell = possible_tiles[rng.randi_range(0, len(possible_tiles) - 1)]
 
 	if !cell_exists(new_cell):
 		return "Attempting to move " + dir + ", the player only pushed against the wall"
