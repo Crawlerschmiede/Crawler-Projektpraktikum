@@ -73,10 +73,8 @@ func _load_tutorial_world() -> void:
 	world_root = Node2D.new()
 	world_root.name = "WorldRoot"
 	add_child(world_root)
-	world_root.add_child(tutorial_scene)
 
 	# Extrahiere Tilemaps aus der Tutorial Room
-	# Suche nach Tilemaps in der Szene
 	var tilemaps = tutorial_scene.find_children("*", "TileMapLayer")
 	
 	if tilemaps.is_empty():
@@ -88,14 +86,44 @@ func _load_tutorial_world() -> void:
 	# Nutze die erste Tilemap als floor
 	dungeon_floor = tilemaps[0] as TileMapLayer
 	
-	# Falls es mehrere gibt, nimm die mit "floor" im Namen oder die zweite
+	# Falls es mehrere gibt, nimm die mit "floor" im Namen oder die zweite als top
 	if tilemaps.size() > 1:
 		for tm in tilemaps:
-			if tm.name.to_lower().contains("floor"):
+			if tm.name.to_lower().contains("tile"):
 				dungeon_floor = tm as TileMapLayer
-				break
-	
-	dungeon_top = null  # Optional
+			elif tm.name.to_lower().contains("top"):
+				dungeon_top = tm as TileMapLayer
+		
+		# Falls kein "top" gefunden, nutze die zweite Tilemap
+		if dungeon_top == null and tilemaps.size() > 1:
+			dungeon_top = tilemaps[1] as TileMapLayer
+	else:
+		# Wenn nur eine Tilemap, nutze sie auch als top
+		dungeon_top = dungeon_floor
+
+	# Tilemaps aus der Szene entfernen und zum world_root hinzufügen
+	if dungeon_floor.get_parent() != null:
+		dungeon_floor.get_parent().remove_child(dungeon_floor)
+	world_root.add_child(dungeon_floor)
+	# Reset position so sie bei (0,0) sind wie bei normalen Welten
+	dungeon_floor.position = Vector2.ZERO
+
+	if dungeon_top != null and dungeon_top != dungeon_floor:
+		if dungeon_top.get_parent() != null:
+			dungeon_top.get_parent().remove_child(dungeon_top)
+		world_root.add_child(dungeon_top)
+		dungeon_top.position = Vector2.ZERO
+
+	# Alle anderen Nodes (Area2D, Spawner, etc.) mit ihren Positionen hinzufügen
+	for child in tutorial_scene.get_children():
+		# Tilemaps bereits bearbeitet
+		if child is TileMapLayer:
+			continue
+		
+		# Entferne aus ursprünglichem Parent und füge zu world_root hinzu
+		if child.get_parent() != null:
+			child.get_parent().remove_child(child)
+		world_root.add_child(child)
 
 	# Initialize fog layer
 	if fog_war_layer != null and dungeon_floor != null:
@@ -674,7 +702,10 @@ func spawn_player() -> void:
 	player.set_minimap(minimap)
 
 	# Spawn Position
+	# Im Tutorial: Position (-18, 15), sonst (2, 2)
 	var start_pos := Vector2i(2, 2)
+	if get_tree().current_scene.scene_file_path == Tutorial_Room:
+		start_pos = Vector2i(-18, 15)
 
 	# erst tilemap, dann gridpos, dann position
 	player.setup(dungeon_floor, dungeon_top, 10, 3, 0)
