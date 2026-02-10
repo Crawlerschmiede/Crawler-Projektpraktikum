@@ -92,7 +92,7 @@ var existing_skills = {
 	{
 		"tree": "goblin things",
 		"description": "More scream, more damage",
-		"next_turn_effects":[["damage_buff", 2, true, "duration=2"]],
+		"next_turn_effects": [["damage_buff", 2, true, "duration=2"]],
 		"effects": [["prepare", 0, true, "No"]],
 		"cooldown": 3  # jorin pls implement enemy cooldown thanks #this one too btw
 	},

@@ -25,11 +25,7 @@ const MARKER_FLAVOURS = {
 	{
 		"visual": "danger",
 		"info": "Standing here will make you take <PUTVALUEHERE> Damage!",
-		"log":
-		[
-			"That's a very precise strike!",
-			"As in, there's a lot of places it isn't!"
-		]
+		"log": ["That's a very precise strike!", "As in, there's a lot of places it isn't!"]
 	},
 	"death_":
 	{

@@ -124,7 +124,7 @@ func super_ready(sprite_type: String, entity_type: Array):
 		var spawnpoint = possible_spawns[rng.randi_range(0, len(possible_spawns) - 1)]
 		position = tilemap.map_to_local(spawnpoint)
 		grid_pos = spawnpoint
-		
+
 	# spawn logic for bosses
 	elif "tutorial" in entity_type:
 		var possible_spawns = []
@@ -136,7 +136,7 @@ func super_ready(sprite_type: String, entity_type: Array):
 				if is_boss_tile:
 					print("found tutorial tile! ", cell)
 					possible_spawns.append(cell)
-		if len(possible_spawns)>0:
+		if len(possible_spawns) > 0:
 			var spawnpoint = possible_spawns[rng.randi_range(0, len(possible_spawns) - 1)]
 			position = tilemap.map_to_local(spawnpoint)
 			grid_pos = spawnpoint

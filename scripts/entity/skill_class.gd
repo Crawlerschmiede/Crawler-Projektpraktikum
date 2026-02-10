@@ -12,7 +12,9 @@ var turns_until_reuse: int = 0
 var effects: Array[Effect] = []
 var immediate_effects: Array[Effect] = []
 var second_turn_effects: Array[Effect] = []
-var pre_prepared_effects = ["danger_dmg_mult", "safety_dmg_reduc", "death_zone", "heal_zone", "damage_zone"]
+var pre_prepared_effects = [
+	"danger_dmg_mult", "safety_dmg_reduc", "death_zone", "heal_zone", "damage_zone"
+]
 # TODO: could do with a more sophisticated sorting system later.
 var high_prio_effects = ["movement"]
 
