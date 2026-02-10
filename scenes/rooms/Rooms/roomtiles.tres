@@ -604,6 +604,14 @@ texture = ExtResource("11_iabps")
 1:1/0/custom_data_4 = true
 1:1/0/custom_data_5 = true
 
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_iabps"]
+resource_name = "special-tile2"
+texture = ExtResource("1_2vdqu")
+0:0/0 = 0
+0:0/0/custom_data_10 = true
+1:0/0 = 0
+1:0/0/custom_data_11 = true
+
 [resource]
 occlusion_layer_0/light_mask = 3
 physics_layer_0/collision_layer = 1
@@ -627,6 +635,10 @@ custom_data_layer_8/name = "pillar_base"
 custom_data_layer_8/type = 1
 custom_data_layer_9/name = "trap_spawnable"
 custom_data_layer_9/type = 1
+custom_data_layer_10/name = "tutorial_enemy"
+custom_data_layer_10/type = 1
+custom_data_layer_11/name = "final_boss"
+custom_data_layer_11/type = 1
 sources/1 = SubResource("TileSetAtlasSource_lvkwe")
 sources/0 = SubResource("TileSetAtlasSource_r1gh6")
 sources/4 = SubResource("TileSetAtlasSource_ildef")
@@ -639,3 +651,4 @@ sources/16 = SubResource("TileSetAtlasSource_4byue")
 sources/17 = SubResource("TileSetAtlasSource_wx2ue")
 sources/7 = SubResource("TileSetAtlasSource_owagk")
 sources/8 = SubResource("TileSetAtlasSource_j2myn")
+sources/9 = SubResource("TileSetAtlasSource_iabps")
