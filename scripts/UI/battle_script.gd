@@ -21,6 +21,16 @@ const MARKER_FLAVOURS = {
 			"Pay attention to your positioning!"
 		]
 	},
+	"damage_":
+	{
+		"visual": "danger",
+		"info": "Standing here will make you take <PUTVALUEHERE> Damage!",
+		"log":
+		[
+			"That's a very precise strike!",
+			"As in, there's a lot of places it isn't!"
+		]
+	},
 	"death_":
 	{
 		"visual": "death",
@@ -317,6 +327,10 @@ func check_curr_tile_mods():
 				player.hp = 0
 			"death_good":
 				enemy.hp = 0
+			"dmg_bad":
+				player.take_damage(modifier_value)
+			"dmg_good":
+				enemy.hp.take_damage(modifier_value)
 			"heal_good":
 				player.heal(modifier_value)
 			"heal_bad":
@@ -426,6 +440,7 @@ func apply_zones(zone_type, mult, pos, _dur, direction):
 		var marker = MARKER_PREFAB.instantiate()
 
 		marker.marker_type = marker_visual
+		print("Visual is ", marker_visual)
 		marker.tooltip_container = log_container
 		var text_val = mult
 		if zone_type == "dmg_reduc_":

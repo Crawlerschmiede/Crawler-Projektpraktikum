@@ -12,7 +12,7 @@ var turns_until_reuse: int = 0
 var effects: Array[Effect] = []
 var immediate_effects: Array[Effect] = []
 var second_turn_effects: Array[Effect] = []
-var pre_prepared_effects = ["danger_dmg_mult", "safety_dmg_reduc", "death_zone", "heal_zone"]
+var pre_prepared_effects = ["danger_dmg_mult", "safety_dmg_reduc", "death_zone", "heal_zone", "damage_zone"]
 # TODO: could do with a more sophisticated sorting system later.
 var high_prio_effects = ["movement"]
 
@@ -275,6 +275,20 @@ class Effect:
 				else:
 					direction = "good"
 				ret = battle.apply_zones("death_", value, details, duration, direction)
+			"damage_zone":
+				var duration = 1
+				var direction
+				var active_dmg = value
+				if (targets_self and user.is_player) or (!targets_self and !user.is_player):
+					direction = "bad"
+				else:
+					direction = "good"
+				for alteration in user.alterations:
+					if user.alterations[alteration].has("dmg_buff"):
+						active_dmg *= user.alterations[alteration].dmg_buff
+					if user.alterations[alteration].has("dmg_null"):
+						active_dmg = 0
+				ret = battle.apply_zones("damage_", active_dmg, details, duration, direction)
 			"heal_zone":
 				print("Activating death")
 				var duration = 1

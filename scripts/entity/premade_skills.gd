@@ -37,7 +37,7 @@ var existing_skills = {
 		"tree": "bat things",
 		"description":
 		"You'd think a bat headbutting you wouldn't hurt that much... " + "you'd be wrong",
-		"effects": [["damage", 1, false, "No"], ["danger_dmg_mult", 2, false, "player_x"]],
+		"effects": [["damage_zone", 2, false, "player_x"]],
 	},
 	"Rabies":
 	{
@@ -67,6 +67,12 @@ var existing_skills = {
 		"description": "This strike looks easy to dodge... weirdly so",
 		"effects": [["damage", 2, false, "No"], ["safety_dmg_reduc", 0, false, "player_pos"]],
 	},
+	"Precise Hit":
+	{
+		"tree": "skeleton things",
+		"description": "This strike looks easy to dodge... like seriously, is it even trying?",
+		"effects": [["damage_zone", 1, false, "player_pos"]],
+	},
 	"Eye-Flash-Slash":
 	{
 		"tree": "skeleton things",
@@ -82,12 +88,13 @@ var existing_skills = {
 		"effects": [["damage", 2, false, "No"], ["danger_dmg_mult", 2, false, "player_pos"]],
 		"cooldown": 0
 	},
-	"War Cry":  #buff dmg for next turn, jorin pls implement
+	"War Cry":  #buff dmg for next turn, jorin pls implement #it is done
 	{
 		"tree": "goblin things",
 		"description": "More scream, more damage",
-		"effects": [["buff", 2, true, "No"]],
-		"cooldown": 0  # jorin pls implement enemy cooldown thanks
+		"next_turn_effects":[["damage_buff", 2, true, "duration=2"]],
+		"effects": [["prepare", 0, true, "No"]],
+		"cooldown": 3  # jorin pls implement enemy cooldown thanks #this one too btw
 	},
 	#Carnivorous Plant skills
 	"Vine Slash":
@@ -195,7 +202,7 @@ var existing_skills = {
 		"tree": "hitting and punching and biting and kicking people",
 		"description":
 		"If you can imagine how scary someone running at you with a knife is, imagine how much scarier it'd be if they teleported!",
-		"effects": [["movement", 1, true, "rnd_short"], ["damage", 2, false, "No"]],
+		"effects": [["movement", 1, true, "rnd_short"], ["damage", 1, false, "No"]],
 		"cooldown": 3
 	},
 	#standard actions
