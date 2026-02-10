@@ -581,7 +581,7 @@ func spawn_enemies() -> void:
 	
 	# Tutorial override: immer 3
 	if minimap == null:
-		max_weight = 3
+		max_weight = 2
 
 	# --- Enemy Definitions sammeln ---
 	var defs: Array[Dictionary] = []
