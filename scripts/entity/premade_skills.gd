@@ -180,6 +180,14 @@ var existing_skills = {
 		"passive": true,
 		"conditions": ["every_x_turns=2"]
 	},
+	"Unfair when you think about it":
+	{
+		"tree": "hitting and punching and biting and kicking people",
+		"description": "He's got hitbox hacks!!1! Report him1!!1!",
+		"effects": [["dodge_chance", 1, true, "No"]],
+		"passive": true,
+		"conditions": ["every_x_turns=1"]
+	},
 	"Extend the Dancefloor":
 	{
 		"tree": "hitting and punching and biting and kicking people",

@@ -351,8 +351,29 @@ func initiate_battle(player: Node, enemy: Node) -> bool:
 func take_damage(damage):
 	#print(self, " takes ", damage, " damage!")
 	var taken_damage = damage  #useless right now but just put here for later damage calculations
+	print(self.name, " should take damage")
+	print(alterations)
+	for alteration in alterations:
+		if alterations[alteration].has("dodge_chance"):
+			var dodge_chance =alterations[alteration].dodge_chance*100
+			var dodged = rng.randi_range(0, 100)
+			if dodged<dodge_chance:
+				var closeness = ""
+				if dodge_chance-dodged<=1:
+					closeness=" by a hairs breadth"
+				elif dodge_chance-dodged<5:
+					closeness=" barely"
+				elif dodge_chance-dodged<10:
+					closeness=""
+				elif dodge_chance-dodged<30:
+					closeness="easily"
+				elif dodge_chance-dodged<50:
+					closeness=" by a disrespectfully large margin"
+				print("but dodges! with a chance of", dodge_chance, " against ", dodged)
+				return [" avoided " + str(taken_damage) + " Damage by dodging"+closeness, " now has " + str(hp) + " HP"]
 	hp = hp - taken_damage
 	#print("Now has ", hp, "HP")
+	print("And in fact does...")
 	return [" took " + str(taken_damage) + " Damage", " now has " + str(hp) + " HP"]
 
 

@@ -296,6 +296,15 @@ class Effect:
 				ret = _safe_invoke(
 					recipient, "add_alteration", ["dmg_buff", value, skill_name, dur]
 				)
+			"dodge_chance":
+				var dur = null
+				if "duration" in details:
+					var parts = details.split("=")
+					dur = int(parts[1])
+				var recipient = user if targets_self else target
+				ret = _safe_invoke(
+					recipient, "add_alteration", ["dodge_chance", value, skill_name, dur]
+				)
 			"damage_nullification":
 				var dur = null
 				if "duration" in details:

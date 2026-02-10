@@ -14,6 +14,7 @@ var skilltrees = {
 			["Punch", 1],
 			["Back and Forth", 1],
 			["Extend the Dancefloor", 1],
+			["Unfair when you think about it", 1],
 			["Blade Dance", 1],
 			["Right Pivot", 2],
 			["Left Pivot", 2],
