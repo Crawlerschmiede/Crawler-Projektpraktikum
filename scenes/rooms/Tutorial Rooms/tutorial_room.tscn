@@ -1,30 +1,15 @@
 [gd_scene format=4 uid="uid://bmeahwj3s0bds"]
 
 [ext_resource type="TileSet" uid="uid://rc7plds60u7s" path="res://scenes/rooms/Rooms/roomtiles.tres" id="1_0hkj1"]
-[ext_resource type="Script" uid="uid://c6uji18uxm162" path="res://scenes/rooms/Tutorial Rooms/spawn_label.gd" id="2_3jxmb"]
-[ext_resource type="Script" uid="uid://fl85x75xb6ny" path="res://scenes/rooms/Tutorial Rooms/loot_box_label.gd" id="3_j75i0"]
-[ext_resource type="Script" uid="uid://djqj0sx2rfgwt" path="res://scenes/rooms/Tutorial Rooms/enemy_label.gd" id="4_jb4ie"]
-[ext_resource type="Script" uid="uid://c7fig8x24wppu" path="res://scenes/rooms/Tutorial Rooms/exit_label.gd" id="5_aiiep"]
-[ext_resource type="Script" uid="uid://bknny8vmax4ct" path="res://scenes/rooms/Tutorial Rooms/merchant_label.gd" id="6_si0yu"]
+[ext_resource type="Script" path="res://scenes/rooms/Rooms/spawn_label.gd" id="2_3jxmb"]
+[ext_resource type="FontFile" uid="uid://d4fqcjicieold" path="res://assets/font/PixelPurl.ttf" id="3_3jxmb"]
+[ext_resource type="Script" path="res://scenes/rooms/Rooms/loot_box_label.gd" id="3_j75i0"]
+[ext_resource type="Script" path="res://scenes/rooms/Rooms/enemy_label.gd" id="4_jb4ie"]
+[ext_resource type="Script" path="res://scenes/rooms/Rooms/exit_label.gd" id="5_aiiep"]
+[ext_resource type="Script" path="res://scenes/rooms/Rooms/merchant_label.gd" id="6_si0yu"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_fj5xk"]
 size = Vector2(176, 176)
-
-[sub_resource type="FontFile" id="FontFile_1s05d"]
-cache/0/variation_coordinates = {}
-cache/0/face_index = 0
-cache/0/embolden = 0.0
-cache/0/transform = Transform2D(1, 0, 0, 1, 0, 0)
-cache/0/spacing_top = 0
-cache/0/spacing_bottom = 0
-cache/0/spacing_space = 0
-cache/0/spacing_glyph = 0
-cache/0/baseline_offset = 0.0
-cache/0/16/0/ascent = 0.0
-cache/0/16/0/descent = 0.0
-cache/0/16/0/underline_position = 0.0
-cache/0/16/0/underline_thickness = 0.0
-cache/0/16/0/scale = 1.0
 
 [sub_resource type="LabelSettings" id="LabelSettings_fj5xk"]
 
@@ -70,7 +55,7 @@ offset_right = -184.0
 offset_bottom = 253.0
 scale = Vector2(0.75, 0.75)
 size_flags_horizontal = 4
-theme_override_fonts/font = SubResource("FontFile_1s05d")
+theme_override_fonts/font = ExtResource("3_3jxmb")
 text = "Use the arrow keys for moving"
 label_settings = SubResource("LabelSettings_fj5xk")
 horizontal_alignment = 1
@@ -93,7 +78,7 @@ offset_right = -16.0
 offset_bottom = 85.0
 scale = Vector2(0.75, 0.75)
 size_flags_horizontal = 4
-theme_override_fonts/font = SubResource("FontFile_1s05d")
+theme_override_fonts/font = ExtResource("3_3jxmb")
 text = "Collect loot box by move on it. Press e to see the inventory"
 label_settings = SubResource("LabelSettings_fj5xk")
 horizontal_alignment = 1
@@ -116,7 +101,7 @@ offset_right = -8.0
 offset_bottom = 261.0
 scale = Vector2(0.75, 0.75)
 size_flags_horizontal = 4
-theme_override_fonts/font = SubResource("FontFile_1s05d")
+theme_override_fonts/font = ExtResource("3_3jxmb")
 text = "Collide with the emnemy to fight it."
 label_settings = SubResource("LabelSettings_fj5xk")
 horizontal_alignment = 1
@@ -139,7 +124,7 @@ offset_right = 168.0
 offset_bottom = 253.0
 scale = Vector2(0.75, 0.75)
 size_flags_horizontal = 4
-theme_override_fonts/font = SubResource("FontFile_1s05d")
+theme_override_fonts/font = ExtResource("3_3jxmb")
 text = "Go to the stairs for the next floor"
 label_settings = SubResource("LabelSettings_fj5xk")
 horizontal_alignment = 1
@@ -162,7 +147,7 @@ offset_right = 176.0
 offset_bottom = 93.0
 scale = Vector2(0.75, 0.75)
 size_flags_horizontal = 4
-theme_override_fonts/font = SubResource("FontFile_1s05d")
+theme_override_fonts/font = ExtResource("3_3jxmb")
 text = "Open the Inventory to trade with the merchant"
 label_settings = SubResource("LabelSettings_fj5xk")
 horizontal_alignment = 1
