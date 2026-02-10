@@ -502,12 +502,13 @@ func _on_player_exit_reached() -> void:
 
 	switching_world = true
 
-	# Prüfen: Sind wir im Tutorial?
-	if get_tree().current_scene.scene_file_path == Tutorial_Room:
+	# Prüfen: Sind wir im Tutorial? (Tutorial hat keine Minimap)
+	if minimap == null:
 		_set_tutorial_completed()
 
 		world_index = 0
-		get_tree().change_scene_to_file("res://scenes/main/main.tscn")
+		await _load_world(world_index)
+		switching_world = false
 		return
 
 	# Normale Welten
@@ -577,6 +578,10 @@ func spawn_enemies() -> void:
 
 	if world_index < max_weights.size():
 		max_weight = max_weights[world_index]
+	
+	# Tutorial override: immer 3
+	if minimap == null:
+		max_weight = 3
 
 	# --- Enemy Definitions sammeln ---
 	var defs: Array[Dictionary] = []
