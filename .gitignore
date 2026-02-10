@@ -4,3 +4,4 @@
 *.translation
 build/
 ~*.dll
+.vscode/settings.json
