@@ -180,6 +180,24 @@ var existing_skills = {
 		"passive": true,
 		"conditions": ["every_x_turns=2"]
 	},
+	"Extend the Dancefloor":
+	{
+		"tree": "hitting and punching and biting and kicking people",
+		"description":
+		"It's kinda like a worm on a string, except the worm is a knife and you stab people with it",
+		"effects": [["damage_nullification", 1, true, "No"]],
+		"passive": true,
+		"on_acquisition": [["range_buff", 1, true, "short"]],
+		"conditions": ["outside_short_range"]
+	},
+	"Blade Dance":
+	{
+		"tree": "hitting and punching and biting and kicking people",
+		"description":
+		"If you can imagine how scary someone running at you with a knife is, imagine how much scarier it'd be if they teleported!",
+		"effects": [["movement", 1, true, "rnd_short"], ["damage", 2, false, "No"]],
+		"cooldown": 3
+	},
 	#standard actions
 	"Move Up":
 	{
@@ -253,4 +271,7 @@ func get_skill(skill_name):
 	if values.has("next_turn_effects"):
 		for effect in values.next_turn_effects:
 			new_skill.add_effect(effect[0], effect[1], effect[2], effect[3], false)
+	if values.has("on_acquisition"):
+		for effect in values.on_acquisition:
+			new_skill.add_immediate_effect(effect[0], effect[1], effect[2], effect[3])
 	return new_skill
