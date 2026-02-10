@@ -8,7 +8,7 @@ const TRAP := preload("res://scenes/Interactables/Trap.tscn")
 const MERCHANT := preload("res://scenes/entity/merchant.tscn")
 const LOADING_SCENE := preload("res://scenes/UI/loading_screen.tscn")
 const START_SCENE := "res://scenes/UI/start-menu.tscn"
-const Tutorial_Room := "res://scenes/rooms/Tutorial Rooms/tutorial_room.tscn"
+const TUTORIAL_ROOM := "res://scenes/rooms/Tutorial Rooms/tutorial_room.tscn"
 @export var menu_scene := preload("res://scenes/UI/popup-menu.tscn")
 @export var fog_tile_id: int = 0  # set this in the inspector to the fog-tile id in your tileset
 @export var fog_dynamic: bool = true  # if true, areas that are no longer visible get fogged again
@@ -63,7 +63,7 @@ func _load_tutorial_world() -> void:
 	_clear_world()
 
 	# Lade Tutorial Room Szene
-	var tutorial_scene = preload(Tutorial_Room).instantiate() as Node2D
+	var tutorial_scene = preload(TUTORIAL_ROOM).instantiate() as Node2D
 	if tutorial_scene == null:
 		push_error("Failed to load tutorial scene!")
 		_hide_loading()
