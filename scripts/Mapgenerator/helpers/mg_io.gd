@@ -2,27 +2,76 @@
 
 class_name MGIOModule
 
+const ROOM_MANIFEST_PATH := "res://scenes/rooms/room_manifest.json"
+const ManifestUtils = preload("res://scripts/Mapgenerator/helpers/room_manifest_utils.gd")
+
 
 func load_room_scenes_from_folder(path: String) -> Array:
 	var result: Array = []
 	var dir := DirAccess.open(path)
 	if dir == null:
 		push_error("Folder not found: " + path)
-		return result
-	dir.list_dir_begin()
-	var file := dir.get_next()
-	while file != "":
-		if not dir.current_is_dir():
-			if file.ends_with(".tscn"):
-				var full_path := path + file
-				var ps := load(full_path)
-				if ps is PackedScene:
-					result.append(ps)
-				else:
-					push_warning("Not a PackedScene: " + full_path)
-		file = dir.get_next()
-	dir.list_dir_end()
+		result = _load_room_scenes_from_manifest(path)
+	else:
+		dir.list_dir_begin()
+		var file := dir.get_next()
+		while file != "":
+			if not dir.current_is_dir():
+				if file.ends_with(".tscn"):
+					var full_path := path + file
+					var ps := load(full_path)
+					if ps is PackedScene:
+						result.append(ps)
+					else:
+						push_warning("Not a PackedScene: " + full_path)
+			file = dir.get_next()
+		dir.list_dir_end()
+		if result.is_empty():
+			if Engine.is_editor_hint():
+				push_warning("No room scenes found in folder: " + path)
+			else:
+				result = _load_room_scenes_from_manifest(path)
 	return result
+
+
+func _load_room_scenes_from_manifest(path: String) -> Array:
+	var result: Array = []
+	var f := FileAccess.open(ROOM_MANIFEST_PATH, FileAccess.READ)
+	if f == null:
+		return result
+	var parsed = JSON.parse_string(f.get_as_text())
+	f.close()
+	if typeof(parsed) != TYPE_DICTIONARY:
+		push_warning("Room manifest has invalid format: " + ROOM_MANIFEST_PATH)
+		return result
+	var manifest: Dictionary = parsed
+	var key := _get_manifest_key_for_path(path)
+	if key == "":
+		push_warning("No manifest key matches path: " + path)
+		return result
+	var items = manifest.get(key)
+	if typeof(items) != TYPE_ARRAY:
+		return result
+	for p in items:
+		if typeof(p) != TYPE_STRING:
+			continue
+		var pstr: String = p
+		if not pstr.begins_with(path):
+			continue
+		var ps := load(pstr)
+		if ps is PackedScene:
+			result.append(ps)
+		else:
+			push_warning("Not a PackedScene: " + pstr)
+	return result
+
+
+func _get_manifest_key_for_path(path: String) -> String:
+	for k in ManifestUtils.ROOM_PATHS.keys():
+		var base_path = str(ManifestUtils.ROOM_PATHS[k])
+		if path.begins_with(base_path):
+			return str(k)
+	return ""
 
 
 func _get_closed_door_direction(scene: PackedScene) -> String:

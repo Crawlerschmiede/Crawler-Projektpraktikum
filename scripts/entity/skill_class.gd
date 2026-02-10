@@ -126,7 +126,7 @@ func tick_down():
 		turns_until_reuse = turns_until_reuse - 1
 
 
-func condition_met(condition_name, user, target, battle) -> bool:
+func condition_met(condition_name, user, _target, battle) -> bool:
 	var is_met = true
 	if "range" in condition_name and user == null:
 		return false
