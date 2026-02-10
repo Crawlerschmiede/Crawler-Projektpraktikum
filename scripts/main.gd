@@ -42,7 +42,6 @@ var switching_world := false
 @onready var fog_war_layer := $FogWar
 
 
-
 func _ready() -> void:
 	generators = [generator1, generator2, generator3]
 
@@ -53,7 +52,6 @@ func _ready() -> void:
 
 	# Normales Spiel starten (Welt 0)
 	await _load_world(world_index)
-
 
 
 func _load_tutorial_world() -> void:
@@ -496,6 +494,7 @@ func _clear_world() -> void:
 	dungeon_floor = null
 	dungeon_top = null
 
+
 func _on_player_exit_reached() -> void:
 	if switching_world:
 		return
@@ -516,7 +515,6 @@ func _on_player_exit_reached() -> void:
 	await _load_world(world_index)
 
 	switching_world = false
-
 
 
 # ---------------------------------------
@@ -898,7 +896,6 @@ func game_over():
 	get_tree().change_scene_to_file(START_SCENE)
 
 
-
 # -----------------------------------------------------
 # JSON: Tutorial abgeschlossen?
 # -----------------------------------------------------
@@ -927,7 +924,7 @@ func _has_completed_tutorial() -> bool:
 # -----------------------------------------------------
 func _set_tutorial_completed() -> void:
 	var path := "res://data/tutorialData.json"
-	var data: Dictionary = { "tutorial_completed": true }
+	var data: Dictionary = {"tutorial_completed": true}
 
 	var file := FileAccess.open(path, FileAccess.WRITE)
 	if file:
