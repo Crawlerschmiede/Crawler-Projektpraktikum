@@ -1,12 +1,12 @@
 [gd_scene format=4 uid="uid://bmeahwj3s0bds"]
 
 [ext_resource type="TileSet" uid="uid://rc7plds60u7s" path="res://scenes/rooms/Rooms/roomtiles.tres" id="1_0hkj1"]
-[ext_resource type="Script" path="res://scenes/rooms/Rooms/spawn_label.gd" id="2_3jxmb"]
+[ext_resource type="Script" uid="uid://c6uji18uxm162" path="res://scenes/rooms/Tutorial Rooms/spawn_label.gd" id="2_c1ea7"]
 [ext_resource type="FontFile" uid="uid://d4fqcjicieold" path="res://assets/font/PixelPurl.ttf" id="3_3jxmb"]
-[ext_resource type="Script" path="res://scenes/rooms/Rooms/loot_box_label.gd" id="3_j75i0"]
-[ext_resource type="Script" path="res://scenes/rooms/Rooms/enemy_label.gd" id="4_jb4ie"]
-[ext_resource type="Script" path="res://scenes/rooms/Rooms/exit_label.gd" id="5_aiiep"]
-[ext_resource type="Script" path="res://scenes/rooms/Rooms/merchant_label.gd" id="6_si0yu"]
+[ext_resource type="Script" uid="uid://fl85x75xb6ny" path="res://scenes/rooms/Tutorial Rooms/loot_box_label.gd" id="4_3jxmb"]
+[ext_resource type="Script" uid="uid://djqj0sx2rfgwt" path="res://scenes/rooms/Tutorial Rooms/enemy_label.gd" id="5_j75i0"]
+[ext_resource type="Script" uid="uid://c7fig8x24wppu" path="res://scenes/rooms/Tutorial Rooms/exit_label.gd" id="6_jb4ie"]
+[ext_resource type="Script" uid="uid://bknny8vmax4ct" path="res://scenes/rooms/Tutorial Rooms/merchant_label.gd" id="7_aiiep"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_fj5xk"]
 size = Vector2(176, 176)
@@ -42,7 +42,7 @@ position = Vector2(352, -320)
 
 [node name="Area2D_spawn" type="Area2D" parent="." unique_id=1923432624]
 position = Vector2(352, -320)
-script = ExtResource("2_3jxmb")
+script = ExtResource("2_c1ea7")
 
 [node name="CollisionShape2D_spawn" type="CollisionShape2D" parent="Area2D_spawn" unique_id=1857258852]
 position = Vector2(-264, 232)
@@ -65,7 +65,7 @@ metadata/_edit_use_anchors_ = true
 
 [node name="Area2D_loot_box" type="Area2D" parent="." unique_id=2008976311]
 position = Vector2(352, -320)
-script = ExtResource("3_j75i0")
+script = ExtResource("4_3jxmb")
 
 [node name="CollisionShape2D_loot_box" type="CollisionShape2D" parent="Area2D_loot_box" unique_id=516918144]
 position = Vector2(-88, 56)
@@ -88,7 +88,7 @@ metadata/_edit_use_anchors_ = true
 
 [node name="Area2D_enemy" type="Area2D" parent="." unique_id=915188310]
 position = Vector2(352, -320)
-script = ExtResource("4_jb4ie")
+script = ExtResource("5_j75i0")
 
 [node name="CollisionShape2D_enemy" type="CollisionShape2D" parent="Area2D_enemy" unique_id=1932989167]
 position = Vector2(-88, 232)
@@ -111,7 +111,7 @@ metadata/_edit_use_anchors_ = true
 
 [node name="Area2D_exit" type="Area2D" parent="." unique_id=1499637453]
 position = Vector2(352, -320)
-script = ExtResource("5_aiiep")
+script = ExtResource("6_jb4ie")
 
 [node name="CollisionShape2D_exit" type="CollisionShape2D" parent="Area2D_exit" unique_id=994274169]
 position = Vector2(88, 232)
@@ -134,7 +134,7 @@ metadata/_edit_use_anchors_ = true
 
 [node name="Area2D_merchant" type="Area2D" parent="." unique_id=491293381]
 position = Vector2(352, -320)
-script = ExtResource("6_si0yu")
+script = ExtResource("7_aiiep")
 
 [node name="CollisionShape2D_merchant" type="CollisionShape2D" parent="Area2D_merchant" unique_id=1683229459]
 position = Vector2(88, 56)
