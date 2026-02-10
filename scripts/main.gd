@@ -76,7 +76,7 @@ func _load_tutorial_world() -> void:
 
 	# Extrahiere Tilemaps aus der Tutorial Room
 	var tilemaps = tutorial_scene.find_children("*", "TileMapLayer")
-	
+
 	if tilemaps.is_empty():
 		push_error("Tutorial scene has no TileMapLayer!")
 		_hide_loading()
@@ -85,7 +85,7 @@ func _load_tutorial_world() -> void:
 
 	# Nutze die erste Tilemap als floor
 	dungeon_floor = tilemaps[0] as TileMapLayer
-	
+
 	# Falls es mehrere gibt, nimm die mit "floor" im Namen oder die zweite als top
 	if tilemaps.size() > 1:
 		for tm in tilemaps:
@@ -93,7 +93,7 @@ func _load_tutorial_world() -> void:
 				dungeon_floor = tm as TileMapLayer
 			elif tm.name.to_lower().contains("top"):
 				dungeon_top = tm as TileMapLayer
-		
+
 		# Falls kein "top" gefunden, nutze die zweite Tilemap
 		if dungeon_top == null and tilemaps.size() > 1:
 			dungeon_top = tilemaps[1] as TileMapLayer
@@ -578,7 +578,7 @@ func spawn_enemies() -> void:
 
 	if world_index < max_weights.size():
 		max_weight = max_weights[world_index]
-	
+
 	# Tutorial override: immer 3
 	if minimap == null:
 		max_weight = 2
@@ -712,7 +712,7 @@ func spawn_player() -> void:
 
 	# Spawn Position
 	var start_pos := Vector2i(2, 2)
-	
+
 	# Tutorial world: spawn at different position
 	if minimap == null:
 		start_pos = Vector2i(-18, 15)
@@ -896,7 +896,7 @@ func _on_battle_player_victory(enemy) -> void:
 func game_over():
 	get_tree().paused = false
 	get_tree().change_scene_to_file(START_SCENE)
-	
+
 
 
 # -----------------------------------------------------
