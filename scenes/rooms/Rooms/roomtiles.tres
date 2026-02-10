@@ -609,6 +609,8 @@ resource_name = "special-tile2"
 texture = ExtResource("1_2vdqu")
 0:0/0 = 0
 0:0/0/custom_data_10 = true
+1:0/0 = 0
+1:0/0/custom_data_11 = true
 
 [resource]
 occlusion_layer_0/light_mask = 3
@@ -635,6 +637,8 @@ custom_data_layer_9/name = "trap_spawnable"
 custom_data_layer_9/type = 1
 custom_data_layer_10/name = "tutorial_enemy"
 custom_data_layer_10/type = 1
+custom_data_layer_11/name = "final_boss"
+custom_data_layer_11/type = 1
 sources/1 = SubResource("TileSetAtlasSource_lvkwe")
 sources/0 = SubResource("TileSetAtlasSource_r1gh6")
 sources/4 = SubResource("TileSetAtlasSource_ildef")
