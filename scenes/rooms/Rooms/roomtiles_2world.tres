@@ -1,6 +1,5 @@
 [gd_resource type="TileSet" format=3 uid="uid://c8rpakcc8gds7"]
 
-[ext_resource type="Texture2D" uid="uid://d0oog2dnt3maf" path="res://assets/map-tiles/atlas_floor-16x16.png" id="2_y3k2m"]
 [ext_resource type="Texture2D" uid="uid://lh4trprslngw" path="res://assets/map-tiles/map_tiles_sewer/walls_skull-sewer.png" id="3_0w03x"]
 [ext_resource type="Texture2D" uid="uid://b7ht4tm8chim" path="res://assets/map-tiles/map_tiles_sewer/walls_banner-sewer.png" id="3_881q6"]
 [ext_resource type="Texture2D" uid="uid://dmehqjh23vjtb" path="res://assets/map-tiles/map_tiles_sewer/walls_brazier-sewer.png" id="3_anj1p"]
@@ -30,39 +29,6 @@ texture = ExtResource("3_0w03x")
 1:2/0/custom_data_0 = true
 2:2/0 = 0
 2:2/0/custom_data_0 = true
-
-[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_lvkwe"]
-resource_name = "special_tils"
-texture = ExtResource("2_y3k2m")
-2:5/0 = 0
-3:5/0 = 0
-0:3/animation_frame_0/duration = 1.0
-0:3/animation_frame_1/duration = 1.0
-0:3/animation_frame_2/duration = 1.0
-0:3/animation_frame_3/duration = 1.0
-0:3/0 = 0
-0:3/0/custom_data_1 = true
-1:5/0 = 0
-0:0/0 = 0
-0:0/0/custom_data_4 = true
-0:0/0/custom_data_5 = true
-1:0/0 = 0
-1:0/0/custom_data_3 = true
-1:0/0/custom_data_5 = true
-1:1/next_alternative_id = 2
-1:1/0 = 0
-1:1/0/custom_data_6 = true
-2:0/next_alternative_id = 2
-2:0/0 = 0
-2:0/0/custom_data_9 = true
-0:1/0 = 0
-0:1/0/custom_data_9 = true
-0:2/0 = 0
-0:2/0/custom_data_9 = true
-1:2/0 = 0
-1:2/0/custom_data_9 = true
-2:1/0 = 0
-2:1/0/custom_data_9 = true
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_881q6"]
 resource_name = "special_tiles"
@@ -555,7 +521,6 @@ custom_data_layer_10/name = "tutorial_enemy"
 custom_data_layer_10/type = 1
 custom_data_layer_11/name = "final_boss"
 custom_data_layer_11/type = 1
-sources/1 = SubResource("TileSetAtlasSource_lvkwe")
 sources/0 = SubResource("TileSetAtlasSource_anj1p")
 sources/8 = SubResource("TileSetAtlasSource_i25sw")
 sources/4 = SubResource("TileSetAtlasSource_l0mxh")
@@ -565,4 +530,4 @@ sources/3 = SubResource("TileSetAtlasSource_tfij6")
 sources/2 = SubResource("TileSetAtlasSource_scojw")
 sources/9 = SubResource("TileSetAtlasSource_8pifa")
 sources/7 = SubResource("TileSetAtlasSource_0w03x")
-sources/19 = SubResource("TileSetAtlasSource_881q6")
+sources/1 = SubResource("TileSetAtlasSource_881q6")
