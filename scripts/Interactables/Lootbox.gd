@@ -14,7 +14,8 @@ var player: Node2D = null
 var being_picked_up = false
 var data: Dictionary = {}
 
-var collected := false # <- neu: verhindert mehrfaches Einsammeln
+var collected := false  # <- neu: verhindert mehrfaches Einsammeln
+
 
 @onready var animation_sprite = $AnimatedSprite2D
 

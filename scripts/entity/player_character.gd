@@ -49,6 +49,7 @@ func _ready() -> void:
 	update_unlocked_skills()
 	add_to_group("player")
 
+
 func set_minimap(mm: TileMapLayer) -> void:
 	minimap = mm
 
@@ -231,7 +232,9 @@ func update_visibility():
 				erased_count += 1
 				visible_cells[_cell_key(cell)] = cell
 
-	print("[DEBUG] update_visibility: erased=", erased_count, "visible_cells=", visible_cells.size())
+	print(
+		"[DEBUG] update_visibility: erased=", erased_count, "visible_cells=", visible_cells.size()
+	)
 
 	if dynamic_fog:
 		# Re-fog cells that were visible previously but are not visible now
