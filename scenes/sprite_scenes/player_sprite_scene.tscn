@@ -224,6 +224,7 @@ animations = [{
 }]
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" unique_id=782547247]
+z_index = 1
 sprite_frames = SubResource("SpriteFrames_5c7wf")
 animation = &"walk_down"
 autoplay = "walk_down"
