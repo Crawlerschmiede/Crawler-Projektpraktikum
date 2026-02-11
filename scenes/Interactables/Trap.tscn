@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://dimpg00hfok7n"]
 
 [ext_resource type="Script" uid="uid://gq5egt2c3dni" path="res://scripts/Interactables/trap.gd" id="1_g0wxk"]
-[ext_resource type="Texture2D" uid="uid://b5h154to842sa" path="res://assets/item_icons/Hund.png" id="2_g0wxk"]
+[ext_resource type="Texture2D" uid="uid://d0oog2dnt3maf" path="res://assets/map-tiles/atlas_floor-16x16.png" id="2_t28d2"]
 
 [sub_resource type="Animation" id="Animation_cu0on"]
 resource_name = "Float"
@@ -20,11 +20,45 @@ _data = {
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_mhsm6"]
 size = Vector2(9, 5)
 
-[sub_resource type="SpriteFrames" id="SpriteFrames_ngp3t"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_0374q"]
+atlas = ExtResource("2_t28d2")
+region = Rect2(0, 48, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_f11r3"]
+atlas = ExtResource("2_t28d2")
+region = Rect2(16, 48, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_fcg82"]
+atlas = ExtResource("2_t28d2")
+region = Rect2(32, 48, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_i83fp"]
+atlas = ExtResource("2_t28d2")
+region = Rect2(48, 48, 16, 16)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_q1unc"]
 animations = [{
 "frames": [{
 "duration": 1.0,
-"texture": ExtResource("2_g0wxk")
+"texture": SubResource("AtlasTexture_0374q")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_f11r3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_fcg82")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_i83fp")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_fcg82")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_f11r3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_0374q")
 }],
 "loop": true,
 "name": &"default",
@@ -44,4 +78,4 @@ libraries/ = SubResource("AnimationLibrary_ecfyl")
 shape = SubResource("RectangleShape2D_mhsm6")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=551056047]
-sprite_frames = SubResource("SpriteFrames_ngp3t")
+sprite_frames = SubResource("SpriteFrames_q1unc")
