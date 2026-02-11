@@ -70,9 +70,6 @@ func _populate_list(tab_idx: int) -> void:
 			for ability in player.actions:
 				_add_button(ability)
 	if list_vbox.get_child_count() > 0:
-		# wait one frame to ensure buttons are in scene tree
-		await get_tree().process_frame
-	if list_vbox.get_child_count() > 0:
 		selected_index = 0
 		_highlight_selected()
 
