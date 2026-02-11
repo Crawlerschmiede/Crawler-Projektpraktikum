@@ -513,13 +513,8 @@ func _on_player_exit_reached() -> void:
 	switching_world = true
 
 	# Prüfen: Sind wir im Tutorial? (Tutorial hat keine Minimap)
-	if minimap == null:
+	if world_index == -1:
 		_set_tutorial_completed()
-
-		world_index = 0
-		await _load_world(world_index)
-		switching_world = false
-		return
 
 	# Normale Welten
 	world_index += 1
@@ -589,8 +584,8 @@ func spawn_enemies() -> void:
 		max_weight = max_weights[world_index]
 
 	# Tutorial override: immer 3
-	if minimap == null:
-		max_weight = 2
+	#if world_index == -1:
+	#max_weight = 2
 
 	# --- Enemy Definitions sammeln ---
 	var defs: Array[Dictionary] = []
@@ -602,7 +597,15 @@ func spawn_enemies() -> void:
 		var d: Dictionary = data[k]
 		if d.get("entityCategory") != "enemy":
 			continue
-		elif "tutorial" in d.get("behaviour") and world_index != -1:
+		
+		# Tutorial-Welt: nur tutorial-Gegner spawnen
+		# Normale Welten: keine tutorial-Gegner spawnen
+		var is_tutorial_enemy = "tutorial" in d.get("behaviour", [])
+		var is_tutorial_world = world_index == -1
+		
+		if is_tutorial_world and not is_tutorial_enemy:
+			continue
+		elif not is_tutorial_world and is_tutorial_enemy:
 			continue
 
 		# Alias auflösen

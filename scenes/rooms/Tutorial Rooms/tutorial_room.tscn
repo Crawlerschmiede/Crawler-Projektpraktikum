@@ -11,6 +11,14 @@
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_fj5xk"]
 size = Vector2(176, 176)
 
+[sub_resource type="LabelSettings" id="LabelSettings_fj5xk"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_20axg"]
+size = Vector2(176, 176)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_alnr1"]
+size = Vector2(176, 176)
+
 [sub_resource type="FontFile" id="FontFile_1s05d"]
 subpixel_positioning = 0
 msdf_pixel_range = 14
@@ -29,14 +37,6 @@ cache/0/16/0/descent = 0.0
 cache/0/16/0/underline_position = 0.0
 cache/0/16/0/underline_thickness = 0.0
 cache/0/16/0/scale = 1.0
-
-[sub_resource type="LabelSettings" id="LabelSettings_fj5xk"]
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_20axg"]
-size = Vector2(176, 176)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_alnr1"]
-size = Vector2(176, 176)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_xlm3k"]
 size = Vector2(176, 176)
