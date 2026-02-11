@@ -75,6 +75,7 @@ func _populate_list(tab_idx: int) -> void:
 		await get_tree().process_frame
 		_highlight_selected()
 
+
 func _highlight_selected():
 	for i in range(list_vbox.get_child_count()):
 		var btn = list_vbox.get_child(i)

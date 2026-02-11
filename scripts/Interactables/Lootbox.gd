@@ -16,8 +16,8 @@ var data: Dictionary = {}
 
 var collected := false  # <- neu: verhindert mehrfaches Einsammeln
 
-
 @onready var animation_sprite = $AnimatedSprite2D
+
 
 func _ready() -> void:
 	if JsonData == null or not ("item_data" in JsonData):
