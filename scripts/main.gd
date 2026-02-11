@@ -14,7 +14,7 @@ const TUTORIAL_ROOM := "res://scenes/rooms/Tutorial Rooms/tutorial_room.tscn"
 @export var fog_dynamic: bool = true  # if true, areas that are no longer visible get fogged again
 
 # --- World state ---
-var world_index: int = 0
+var world_index: int = -1
 var generators: Array[Node2D] = []
 
 var world_root: Node2D = null
@@ -49,7 +49,8 @@ func _ready() -> void:
 	if not _has_completed_tutorial():
 		await _load_tutorial_world()
 		return
-
+	else:
+		world_index =0
 	# Normales Spiel starten (Welt 0)
 	await _load_world(world_index)
 
@@ -590,6 +591,8 @@ func spawn_enemies() -> void:
 
 		var d: Dictionary = data[k]
 		if d.get("entityCategory") != "enemy":
+			continue
+		elif "tutorial" in d.get("behaviour") and world_index!=-1:
 			continue
 
 		# Alias auflösen
