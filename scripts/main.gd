@@ -50,7 +50,7 @@ func _ready() -> void:
 		await _load_tutorial_world()
 		return
 	else:
-		world_index =0
+		world_index = 0
 	# Normales Spiel starten (Welt 0)
 	await _load_world(world_index)
 
@@ -592,7 +592,7 @@ func spawn_enemies() -> void:
 		var d: Dictionary = data[k]
 		if d.get("entityCategory") != "enemy":
 			continue
-		elif "tutorial" in d.get("behaviour") and world_index!=-1:
+		elif "tutorial" in d.get("behaviour") and world_index != -1:
 			continue
 
 		# Alias auflösen
