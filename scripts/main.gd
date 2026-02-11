@@ -907,7 +907,6 @@ func _on_battle_player_victory(enemy) -> void:
 
 
 func game_over():
-	get_tree().paused = false
 	get_tree().change_scene_to_file(START_SCENE)
 
 
