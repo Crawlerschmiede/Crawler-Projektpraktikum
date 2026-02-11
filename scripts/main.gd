@@ -1,5 +1,7 @@
 extends Node2D
 
+signal player_spawned
+
 const ENEMY_SCENE := preload("res://scenes/entity/enemy.tscn")
 const BATTLE_SCENE := preload("res://scenes/UI/battle.tscn")
 const PLAYER_SCENE := preload("res://scenes/entity/player-character-scene.tscn")
@@ -144,7 +146,7 @@ func _load_tutorial_world() -> void:
 		elif dungeon_floor != null:
 			base_z = dungeon_floor.z_index
 		fog_war_layer.z_index = base_z + 10
-		init_fog_layer()
+		await init_fog_layer()
 
 	dungeon_floor.visibility_layer = 1
 	# Spawne alle Entities wie in normalen Welten
@@ -152,6 +154,9 @@ func _load_tutorial_world() -> void:
 	spawn_enemies()
 	spawn_lootbox()
 	spawn_traps()
+	await get_tree().process_frame
+	await get_tree().process_frame
+	_on_player_moved()
 
 	var merchants = find_merchants()
 	for i in merchants:
@@ -251,7 +256,7 @@ func _load_world(idx: int) -> void:
 		elif dungeon_floor != null:
 			base_z = dungeon_floor.z_index
 		fog_war_layer.z_index = base_z + 10
-		init_fog_layer()
+		await init_fog_layer()
 
 	# -------------------------------------------------
 	# Minimap Background
@@ -797,7 +802,9 @@ func spawn_player() -> void:
 	# WICHTIG: einmal initial Fog aufdecken
 	if player.has_method("update_visibility"):
 		player.update_visibility()
-
+		# ensure reveal runs after any reparenting/initialization in this frame
+		player.call_deferred("_reveal_on_spawn")
+		emit_signal("player_spawned", player)
 
 func _on_player_moved() -> void:
 	if minimap == null or dungeon_floor == null or player == null:
