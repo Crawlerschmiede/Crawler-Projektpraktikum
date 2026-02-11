@@ -11,6 +11,25 @@
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_fj5xk"]
 size = Vector2(176, 176)
 
+[sub_resource type="FontFile" id="FontFile_1s05d"]
+subpixel_positioning = 0
+msdf_pixel_range = 14
+msdf_size = 128
+cache/0/variation_coordinates = {}
+cache/0/face_index = 0
+cache/0/embolden = 0.0
+cache/0/transform = Transform2D(1, 0, 0, 1, 0, 0)
+cache/0/spacing_top = 0
+cache/0/spacing_bottom = 0
+cache/0/spacing_space = 0
+cache/0/spacing_glyph = 0
+cache/0/baseline_offset = 0.0
+cache/0/16/0/ascent = 0.0
+cache/0/16/0/descent = 0.0
+cache/0/16/0/underline_position = 0.0
+cache/0/16/0/underline_thickness = 0.0
+cache/0/16/0/scale = 1.0
+
 [sub_resource type="LabelSettings" id="LabelSettings_fj5xk"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_20axg"]
@@ -101,7 +120,7 @@ offset_right = -16.0
 offset_bottom = 252.99998
 scale = Vector2(0.9, 0.9)
 size_flags_horizontal = 4
-theme_override_fonts/font = ExtResource("3_3jxmb")
+theme_override_fonts/font = SubResource("FontFile_1s05d")
 text = "Collide with the enemy to fight it."
 label_settings = SubResource("LabelSettings_fj5xk")
 horizontal_alignment = 1

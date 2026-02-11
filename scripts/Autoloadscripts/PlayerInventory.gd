@@ -39,7 +39,6 @@ func get_item_from_selected_slot():
 
 func register_slot_index(idx: int, groups: Array[StringName]) -> void:
 	slot_group_by_index[idx] = groups
-	print(slot_group_by_index, idx, groups)
 
 
 func _get_item_group(item_name: String) -> String:
