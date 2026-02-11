@@ -234,7 +234,7 @@ func update_visibility():
 			if not visible_cells.has(key):
 				var c: Vector2i = _prev_visible[key]
 				if tm.get_cell_source_id(c) != -1:
-					fog.set_cell(c, 2, Vector2(2, 4), 0)
+					fog.set_cell(c, 2, Vector2(12, 11), 0)
 
 	# store current visible set for next update
 	_prev_visible.clear()

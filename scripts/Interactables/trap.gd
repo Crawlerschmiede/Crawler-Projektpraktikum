@@ -19,17 +19,15 @@ func _ready() -> void:
 		return
 
 	area.body_entered.connect(_on_body_entered)
-
-	# Default Idle
 	if anim.sprite_frames != null and anim.sprite_frames.has_animation("idle"):
 		anim.play("idle")
 
-	#print("✅ TrapTile ready | dmg:", damage, "| cooldown:", cooldown)
+	print("✅ TrapTile ready | dmg:", damage, "| cooldown:", cooldown)
 
 
 func _on_body_entered(body: Node) -> void:
 	if not _ready_to_trigger:
-		#print("⏳ Trap trigger blocked (cooldown)")
+		print("⏳ Trap trigger blocked (cooldown)")
 		return
 
 	if body == null:
@@ -37,10 +35,10 @@ func _on_body_entered(body: Node) -> void:
 
 	# Nur Player triggern
 	if not body.is_in_group("player"):
-		#print("ℹ️ Trap ignored:", body.name)
+		print("ℹ️ Trap ignored:", body.name)
 		return
 
-	#print("🔥 TRAP TRIGGERED by:", body.name)
+	print("🔥 TRAP TRIGGERED by:", body.name)
 
 	_ready_to_trigger = false
 
