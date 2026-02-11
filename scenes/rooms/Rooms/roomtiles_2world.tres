@@ -4,6 +4,7 @@
 [ext_resource type="Texture2D" uid="uid://lh4trprslngw" path="res://assets/map-tiles/map_tiles_sewer/walls_skull-sewer.png" id="3_0w03x"]
 [ext_resource type="Texture2D" uid="uid://b7ht4tm8chim" path="res://assets/map-tiles/map_tiles_sewer/walls_banner-sewer.png" id="3_881q6"]
 [ext_resource type="Texture2D" uid="uid://dmehqjh23vjtb" path="res://assets/map-tiles/map_tiles_sewer/walls_brazier-sewer.png" id="3_anj1p"]
+[ext_resource type="Texture2D" uid="uid://bpxox8jo465f8" path="res://assets/map-tiles/map_tiles_sewer/atlas_floor-16x16-sewer.png" id="3_l0mxh"]
 [ext_resource type="Texture2D" uid="uid://senbinev1bxv" path="res://assets/map-tiles/map_tiles_sewer/sewer.png" id="3_wlno6"]
 [ext_resource type="Texture2D" uid="uid://cyo7ytlwrhtrn" path="res://assets/map-tiles/map_tiles_sewer/walls_fountains_fixed-sewer.png" id="3_y3k2m"]
 [ext_resource type="Texture2D" uid="uid://yha34pruwp6p" path="res://assets/map-tiles/map_tiles_sewer/walls_ivy-sewer.png" id="6_881q6"]
@@ -62,6 +63,35 @@ texture = ExtResource("2_y3k2m")
 1:2/0/custom_data_9 = true
 2:1/0 = 0
 2:1/0/custom_data_9 = true
+
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_881q6"]
+resource_name = "special_tiles"
+texture = ExtResource("3_l0mxh")
+0:0/0 = 0
+0:0/0/custom_data_4 = true
+0:0/0/custom_data_5 = true
+1:0/0 = 0
+1:0/0/custom_data_3 = true
+1:0/0/custom_data_5 = true
+2:0/0 = 0
+2:0/0/custom_data_9 = true
+0:1/0 = 0
+0:1/0/custom_data_9 = true
+1:1/0 = 0
+1:1/0/custom_data_6 = true
+2:1/0 = 0
+2:1/0/custom_data_9 = true
+0:2/0 = 0
+0:2/0/custom_data_9 = true
+1:2/0 = 0
+1:2/0/custom_data_9 = true
+0:3/animation_frame_0/duration = 1.0
+0:3/animation_frame_1/duration = 1.0
+0:3/animation_frame_2/duration = 1.0
+0:3/animation_frame_3/duration = 1.0
+0:3/0 = 0
+0:3/0/custom_data_1 = true
+1:5/0 = 0
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_scojw"]
 texture = ExtResource("3_wlno6")
@@ -454,9 +484,9 @@ texture = ExtResource("3_881q6")
 0:2/0 = 0
 0:2/0/custom_data_0 = true
 
-[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_owagk"]
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_0w03x"]
 resource_name = "non_enemy_tiles"
-texture = ExtResource("2_y3k2m")
+texture = ExtResource("3_l0mxh")
 0:0/0 = 0
 0:0/0/custom_data_5 = true
 1:0/0 = 0
@@ -490,9 +520,9 @@ texture = ExtResource("9_y3k2m")
 1:1/0/custom_data_4 = true
 1:1/0/custom_data_5 = true
 
-[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_iabps"]
-resource_name = "special-tile2"
-texture = ExtResource("2_y3k2m")
+[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_8pifa"]
+resource_name = "special_tiles_2"
+texture = ExtResource("3_l0mxh")
 0:0/0 = 0
 0:0/0/custom_data_10 = true
 1:0/0 = 0
@@ -526,8 +556,6 @@ custom_data_layer_10/type = 1
 custom_data_layer_11/name = "final_boss"
 custom_data_layer_11/type = 1
 sources/1 = SubResource("TileSetAtlasSource_lvkwe")
-sources/7 = SubResource("TileSetAtlasSource_owagk")
-sources/9 = SubResource("TileSetAtlasSource_iabps")
 sources/0 = SubResource("TileSetAtlasSource_anj1p")
 sources/8 = SubResource("TileSetAtlasSource_i25sw")
 sources/4 = SubResource("TileSetAtlasSource_l0mxh")
@@ -535,3 +563,6 @@ sources/5 = SubResource("TileSetAtlasSource_wlno6")
 sources/6 = SubResource("TileSetAtlasSource_y3k2m")
 sources/3 = SubResource("TileSetAtlasSource_tfij6")
 sources/2 = SubResource("TileSetAtlasSource_scojw")
+sources/9 = SubResource("TileSetAtlasSource_8pifa")
+sources/7 = SubResource("TileSetAtlasSource_0w03x")
+sources/19 = SubResource("TileSetAtlasSource_881q6")
