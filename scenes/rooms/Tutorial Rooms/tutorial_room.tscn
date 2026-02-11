@@ -11,6 +11,9 @@
 size = Vector2(176, 176)
 
 [sub_resource type="FontFile" id="FontFile_1s05d"]
+subpixel_positioning = 0
+msdf_pixel_range = 14
+msdf_size = 128
 cache/0/variation_coordinates = {}
 cache/0/face_index = 0
 cache/0/embolden = 0.0
@@ -117,7 +120,7 @@ offset_bottom = 261.0
 scale = Vector2(0.75, 0.75)
 size_flags_horizontal = 4
 theme_override_fonts/font = SubResource("FontFile_1s05d")
-text = "Collide with the emnemy to fight it."
+text = "Collide with the enemy to fight it."
 label_settings = SubResource("LabelSettings_fj5xk")
 horizontal_alignment = 1
 vertical_alignment = 1
