@@ -50,8 +50,8 @@ func _ready() -> void:
 	if not _has_completed_tutorial():
 		await _load_tutorial_world()
 		return
-	else:
-		world_index = 0
+
+	world_index = 0
 	# Normales Spiel starten (Welt 0)
 	await _load_world(world_index)
 
@@ -513,8 +513,6 @@ func init_fog_layer() -> void:
 	fog_war_layer.z_index = base_z + 10
 
 	# Debug info: print parent and z indices so we can observe ordering at runtime
-	print("[DEBUG] init_fog_layer: fog parent=", fog_war_layer.get_parent(), "fog z=", fog_war_layer.z_index, "dungeon_top z=", (dungeon_top.z_index if dungeon_top != null else "null"))
-
 	var counter := 0
 	var used_rect := dungeon_floor.get_used_rect()
 	var yield_every := 300

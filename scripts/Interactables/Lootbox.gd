@@ -10,13 +10,13 @@ const MAX_SPEED = 225.0
 @export var random_min_weight = 10
 @export var random_max_weight = 15
 
-@onready var animation_sprite = $AnimatedSprite2D
-
 var player: Node2D = null
 var being_picked_up = false
 var data: Dictionary = {}
 
 var collected := false # <- neu: verhindert mehrfaches Einsammeln
+
+@onready var animation_sprite = $AnimatedSprite2D
 
 func _ready() -> void:
 	if JsonData == null or not ("item_data" in JsonData):
