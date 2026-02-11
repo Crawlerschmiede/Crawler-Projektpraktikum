@@ -289,8 +289,6 @@ func _load_world(idx: int) -> void:
 	get_tree().paused = false
 
 
-
-
 func spawn_merchant_entity(cords: Vector2) -> void:
 	var e = MERCHANT.instantiate()
 	e.add_to_group("merchant_entity")
@@ -493,6 +491,7 @@ func _has_custom_data_layer(tile_set: TileSet, layer_name: String) -> bool:
 
 	return false
 
+
 func init_fog_layer() -> void:
 	# Fill the FogWar TileMapLayer with a fog tile so Player.update_visibility can erase cells.
 	if fog_war_layer == null or dungeon_floor == null:
@@ -513,7 +512,14 @@ func init_fog_layer() -> void:
 	fog_war_layer.z_index = base_z + 10
 
 	# Debug info: print parent and z indices so we can observe ordering at runtime
-	print("[DEBUG] init_fog_layer: fog parent=", fog_war_layer.get_parent(), "fog z=", fog_war_layer.z_index, "dungeon_top z=", (dungeon_top.z_index if dungeon_top != null else "null"))
+	print(
+		"[DEBUG] init_fog_layer: fog parent=",
+		fog_war_layer.get_parent(),
+		"fog z=",
+		fog_war_layer.z_index,
+		"dungeon_top z=",
+		dungeon_top.z_index if dungeon_top != null else "null"
+	)
 
 	var counter := 0
 	var used_rect := dungeon_floor.get_used_rect()
@@ -734,7 +740,7 @@ func spawn_enemy(sprite_type: String, behaviour: Array, skills: Array) -> void:
 	var e = ENEMY_SCENE.instantiate()
 	e.add_to_group("enemy")
 	e.add_to_group("vision_objects")
-	
+
 	e.types = behaviour
 	e.sprite_type = sprite_type
 	e.abilities_this_has = skills
@@ -805,6 +811,7 @@ func spawn_player() -> void:
 		# ensure reveal runs after any reparenting/initialization in this frame
 		player.call_deferred("_reveal_on_spawn")
 		emit_signal("player_spawned", player)
+
 
 func _on_player_moved() -> void:
 	if minimap == null or dungeon_floor == null or player == null:

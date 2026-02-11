@@ -16,7 +16,8 @@ var player: Node2D = null
 var being_picked_up = false
 var data: Dictionary = {}
 
-var collected := false # <- neu: verhindert mehrfaches Einsammeln
+var collected := false  # <- neu: verhindert mehrfaches Einsammeln
+
 
 func _ready() -> void:
 	if JsonData == null or not ("item_data" in JsonData):
