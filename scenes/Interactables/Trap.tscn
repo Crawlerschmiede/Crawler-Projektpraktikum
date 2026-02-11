@@ -42,10 +42,10 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_0374q")
 }, {
-"duration": 1.0,
+"duration": 0.1,
 "texture": SubResource("AtlasTexture_f11r3")
 }, {
-"duration": 1.0,
+"duration": 0.01,
 "texture": SubResource("AtlasTexture_fcg82")
 }, {
 "duration": 1.0,
@@ -61,7 +61,7 @@ animations = [{
 "texture": SubResource("AtlasTexture_0374q")
 }],
 "loop": true,
-"name": &"default",
+"name": &"trigger",
 "speed": 5.0
 }]
 
@@ -79,3 +79,4 @@ shape = SubResource("RectangleShape2D_mhsm6")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=551056047]
 sprite_frames = SubResource("SpriteFrames_q1unc")
+animation = &"trigger"

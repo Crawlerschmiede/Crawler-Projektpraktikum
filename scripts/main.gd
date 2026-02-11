@@ -673,6 +673,7 @@ func spawn_enemy(sprite_type: String, behaviour: Array, skills: Array) -> void:
 	var e = ENEMY_SCENE.instantiate()
 	e.add_to_group("enemy")
 	e.add_to_group("vision_objects")
+	
 	e.types = behaviour
 	e.sprite_type = sprite_type
 	e.abilities_this_has = skills

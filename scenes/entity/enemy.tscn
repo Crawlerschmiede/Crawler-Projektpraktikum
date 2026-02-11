@@ -11,6 +11,7 @@ radius = 8.0
 [sub_resource type="CircleShape2D" id="CircleShape2D_erdrp"]
 
 [node name="enemy-vampire-bat" type="CharacterBody2D" unique_id=453071058]
+z_index = 1
 script = ExtResource("1_eqs6b")
 
 [node name="CollisionArea" type="Area2D" parent="." unique_id=1708440191]
