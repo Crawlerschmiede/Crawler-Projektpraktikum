@@ -56,7 +56,6 @@ func _ready() -> void:
 	await _load_world(world_index)
 
 
-
 func _load_tutorial_world() -> void:
 	get_tree().paused = true
 	await _show_loading()
