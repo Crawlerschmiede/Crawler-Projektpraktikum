@@ -50,6 +50,7 @@ func _ready() -> void:
 	add_to_group("player")
 
 
+
 func set_minimap(mm: TileMapLayer) -> void:
 	minimap = mm
 
