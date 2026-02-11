@@ -432,7 +432,7 @@ func _has_custom_data_layer(tile_set: TileSet, layer_name: String) -> bool:
 
 
 func update_color_filter() -> void:
-	if world_index == 0:
+	if world_index <= 0:  # Tutorial (-1) und erste Welt (0): kein Filter
 		colorfilter.visible = false
 		return
 
