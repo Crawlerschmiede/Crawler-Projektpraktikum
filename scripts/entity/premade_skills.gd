@@ -191,6 +191,7 @@ var existing_skills = {
 	{
 		"tree": "hitting and punching and biting and kicking people",
 		"description":
+		# gdlint:ignore = max-line-length
 		"It's kinda like a worm on a string, except the worm is a knife and you stab people with it",
 		"effects": [["damage_nullification", 1, true, "No"]],
 		"passive": true,
@@ -201,6 +202,7 @@ var existing_skills = {
 	{
 		"tree": "hitting and punching and biting and kicking people",
 		"description":
+		# gdlint:ignore = max-line-length
 		"If you can imagine how scary someone running at you with a knife is, imagine how much scarier it'd be if they teleported!",
 		"effects": [["movement", 1, true, "rnd_short"], ["damage", 1, false, "No"]],
 		"cooldown": 3
