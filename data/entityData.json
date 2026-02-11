@@ -23,6 +23,16 @@
 		"spawncount": { "min": 4, "max": 20 },
 		"weight": 3
 	},
+	
+	"tutorial_skeleton": {
+		"entityCategory": "enemy",
+		"skills": ["Precise Hit", "Feint"],
+		"sprite_type": "skeleton",
+		"behaviour": ["tutorial", "immobile"],
+		"spawnrate": { "min": 0.0, "max": 0.17857143 },
+		"spawncount": { "min": 4, "max": 20 },
+		"weight": 3
+	},
 
 	"base_zombie": {
 		"entityCategory": "enemy",
