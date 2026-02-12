@@ -403,6 +403,9 @@ func spawn_traps() -> void:
 
 		var loot := TRAP.instantiate() as Node2D
 		loot.name = "Trap_%s" % i
+		# assign current world index so the trap knows which world it belongs to
+		if loot.has_method("set"):
+			loot.set("world_index", world_index)
 		world_root.add_child(loot)
 		loot.global_position = world_pos
 
@@ -544,6 +547,12 @@ func _clear_world() -> void:
 		player = null
 
 	if world_root != null and is_instance_valid(world_root):
+		# Preserve fog_war_layer if it was reparented into world_root so it is not freed
+		if fog_war_layer != null and is_instance_valid(fog_war_layer):
+			if fog_war_layer.get_parent() == world_root:
+				world_root.remove_child(fog_war_layer)
+				add_child(fog_war_layer)
+
 		world_root.queue_free()
 		world_root = null
 

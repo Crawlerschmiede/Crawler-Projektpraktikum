@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://gq5egt2c3dni" path="res://scripts/Interactables/trap.gd" id="1_g0wxk"]
 [ext_resource type="Texture2D" uid="uid://d0oog2dnt3maf" path="res://assets/map-tiles/atlas_floor-16x16.png" id="2_t28d2"]
+[ext_resource type="Texture2D" uid="uid://bpxox8jo465f8" path="res://assets/map-tiles/map_tiles_sewer/atlas_floor-16x16-sewer.png" id="3_0374q"]
 
 [sub_resource type="Animation" id="Animation_cu0on"]
 resource_name = "Float"
@@ -36,6 +37,22 @@ region = Rect2(32, 48, 16, 16)
 atlas = ExtResource("2_t28d2")
 region = Rect2(48, 48, 16, 16)
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_q1unc"]
+atlas = ExtResource("3_0374q")
+region = Rect2(0, 48, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_gn1w7"]
+atlas = ExtResource("3_0374q")
+region = Rect2(16, 48, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_kvuje"]
+atlas = ExtResource("3_0374q")
+region = Rect2(32, 48, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ppand"]
+atlas = ExtResource("3_0374q")
+region = Rect2(48, 48, 16, 16)
+
 [sub_resource type="SpriteFrames" id="SpriteFrames_q1unc"]
 animations = [{
 "frames": [{
@@ -61,7 +78,59 @@ animations = [{
 "texture": SubResource("AtlasTexture_0374q")
 }],
 "loop": false,
-"name": &"trigger",
+"name": &"trigger_world1",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_q1unc")
+}, {
+"duration": 0.1,
+"texture": SubResource("AtlasTexture_gn1w7")
+}, {
+"duration": 0.1,
+"texture": SubResource("AtlasTexture_kvuje")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ppand")
+}, {
+"duration": 0.1,
+"texture": SubResource("AtlasTexture_kvuje")
+}, {
+"duration": 0.1,
+"texture": SubResource("AtlasTexture_gn1w7")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_q1unc")
+}],
+"loop": true,
+"name": &"trigger_world2",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_0374q")
+}, {
+"duration": 0.1,
+"texture": SubResource("AtlasTexture_f11r3")
+}, {
+"duration": 0.01,
+"texture": SubResource("AtlasTexture_fcg82")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_i83fp")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_fcg82")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_f11r3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_0374q")
+}],
+"loop": false,
+"name": &"trigger_world3",
 "speed": 5.0
 }]
 
@@ -78,5 +147,6 @@ libraries/ = SubResource("AnimationLibrary_ecfyl")
 shape = SubResource("RectangleShape2D_mhsm6")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=551056047]
+visible = false
 sprite_frames = SubResource("SpriteFrames_q1unc")
-animation = &"trigger"
+animation = &"trigger_world1"
