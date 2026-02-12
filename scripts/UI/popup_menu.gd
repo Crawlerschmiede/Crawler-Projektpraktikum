@@ -38,6 +38,14 @@ func _on_continue_pressed():
 	menu_closed.emit()
 
 
+func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed and not event.echo:
+		var key_event := event as InputEventKey
+		if key_event.keycode == KEY_ESCAPE:
+			menu_closed.emit()
+			get_viewport().set_input_as_handled()
+
+
 func _on_settings_pressed() -> void:
 	if _settings_instance != null:
 		return

@@ -599,7 +599,18 @@ func _on_player_exit_reached() -> void:
 # ---------------------------------------
 func _process(_delta) -> void:
 	if Input.is_action_just_pressed("ui_menu"):
+		if _is_binds_overlay_active():
+			return
 		toggle_menu()
+
+
+func _is_binds_overlay_active() -> bool:
+	var root := get_tree().root
+	if root == null:
+		return false
+
+	var overlay := root.find_child("BindsAndMenusOverlay", true, false)
+	return overlay != null
 
 
 func update_minimap_player_marker() -> void:
