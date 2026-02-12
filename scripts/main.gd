@@ -50,8 +50,7 @@ func _ready() -> void:
 	if not _has_completed_tutorial():
 		await _load_tutorial_world()
 		return
-	else:
-		world_index = 0
+	world_index = 0
 	# Normales Spiel starten (Welt 0)
 	await _load_world(world_index)
 
