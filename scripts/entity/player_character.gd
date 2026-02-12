@@ -13,7 +13,6 @@ const BINDS_AND_MENUS := preload("res://scenes/UI/binds-and-menus.tscn")
 var step_timer: float = 0.01
 var base_actions = ["Move Up", "Move Down", "Move Left", "Move Right"]
 var actions = []
-var existing_skilltrees = SKILLTREES.new()
 var minimap
 
 var fog_layer: TileMapLayer = null
@@ -215,7 +214,7 @@ func _on_area_2d_area_entered(area: Area2D):
 func level_up():
 	self.max_hp = self.max_hp + 1
 	self.hp = self.max_hp
-	existing_skilltrees.increase_tree_level("unarmed")
+	existing_skilltrees.increase_tree_level("Short Ranged Weaponry")
 	update_unlocked_skills()
 
 
