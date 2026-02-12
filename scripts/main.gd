@@ -8,13 +8,14 @@ const TRAP := preload("res://scenes/Interactables/Trap.tscn")
 const MERCHANT := preload("res://scenes/entity/merchant.tscn")
 const LOADING_SCENE := preload("res://scenes/UI/loading_screen.tscn")
 const START_SCENE := "res://scenes/UI/start-menu.tscn"
+const SEWER_TILESET := "res://scenes/rooms/Rooms/roomtiles_2world.tres"
 const TUTORIAL_ROOM := "res://scenes/rooms/Tutorial Rooms/tutorial_room.tscn"
 @export var menu_scene := preload("res://scenes/UI/popup-menu.tscn")
 @export var fog_tile_id: int = 0  # set this in the inspector to the fog-tile id in your tileset
 @export var fog_dynamic: bool = true  # if true, areas that are no longer visible get fogged again
 
 # --- World state ---
-var world_index: int = 0
+var world_index: int = -1
 var generators: Array[Node2D] = []
 
 var world_root: Node2D = null
@@ -49,7 +50,8 @@ func _ready() -> void:
 	if not _has_completed_tutorial():
 		await _load_tutorial_world()
 		return
-
+	else:
+		world_index = 0
 	# Normales Spiel starten (Welt 0)
 	await _load_world(world_index)
 
@@ -185,6 +187,14 @@ func _load_world(idx: int) -> void:
 	dungeon_floor = maps.get("floor", null)
 	dungeon_top = maps.get("top", null)
 	minimap = maps.get("minimap", null)
+
+	# Für World2 (idx == 1) das Sewer-Tileset verwenden
+	if idx == 1 and dungeon_floor != null:
+		var sewer_tileset = load(SEWER_TILESET) as TileSet
+		if sewer_tileset != null:
+			dungeon_floor.tile_set = sewer_tileset
+			if dungeon_top != null:
+				dungeon_top.tile_set = sewer_tileset
 
 	# initialize fog layer tiles so Player.update_visibility can erase them later
 	if fog_war_layer != null and dungeon_floor != null:
@@ -431,14 +441,15 @@ func _has_custom_data_layer(tile_set: TileSet, layer_name: String) -> bool:
 
 
 func update_color_filter() -> void:
-	if world_index == 0:
+	if world_index <= 0:  # Tutorial (-1) und erste Welt (0): kein Filter
 		colorfilter.visible = false
 		return
 
 	colorfilter.visible = true
 
 	if world_index == 1:
-		colorfilter.color = Color(1.0, 0.9, 0.3, 0.20)
+		#colorfilter.color = Color(1.0, 0.9, 0.3, 0.20)
+		colorfilter.visible = false
 	elif world_index == 2:
 		colorfilter.color = Color(1.0, 0.2, 0.2, 0.25)
 
@@ -590,6 +601,8 @@ func spawn_enemies() -> void:
 
 		var d: Dictionary = data[k]
 		if d.get("entityCategory") != "enemy":
+			continue
+		elif "tutorial" in d.get("behaviour") and world_index != -1:
 			continue
 
 		# Alias auflösen

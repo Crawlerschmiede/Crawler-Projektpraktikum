@@ -275,9 +275,11 @@ func is_cell_walkable(cell: Vector2i, direction: Vector2i = Vector2i.ZERO) -> bo
 
 	# Check for your custom property "non_walkable"
 	if tile_data.get_custom_data("non_walkable") == true:
+		print("That tile ain't walkable pal!")
 		return false
 
 	if is_cell_blocked(cell, direction):
+		print("That tile's blocked pal!")
 		return false
 
 	# Prevent stepping onto tiles already occupied by another enemy (no stacking)
@@ -287,23 +289,24 @@ func is_cell_walkable(cell: Vector2i, direction: Vector2i = Vector2i.ZERO) -> bo
 		target_tiles.append(cell + t)
 
 	var enemies := get_tree().get_nodes_in_group("enemy")
-	for e in enemies:
-		if e == null:
-			continue
-		if e == self:
-			continue
-		if not is_instance_valid(e):
-			continue
-		# some nodes in the group might not have the expected fields
-		if not ("grid_pos" in e and "my_tiles" in e):
-			continue
-		for other_t in e.my_tiles:
-			var other_cell = e.grid_pos + other_t
-			for my_t in target_tiles:
-				if e.grid_pos == grid_pos:
-					return false
-				if my_t == other_cell:
-					return false
+	if not self.is_player:
+		for e in enemies:
+			if e == null:
+				continue
+			if e == self:
+				continue
+			if not is_instance_valid(e):
+				continue
+			# some nodes in the group might not have the expected fields
+			if not ("grid_pos" in e and "my_tiles" in e):
+				continue
+			for other_t in e.my_tiles:
+				var other_cell = e.grid_pos + other_t
+				for my_t in target_tiles:
+					if e.grid_pos == grid_pos:
+						return false
+					if my_t == other_cell:
+						return false
 	return true
 
 
