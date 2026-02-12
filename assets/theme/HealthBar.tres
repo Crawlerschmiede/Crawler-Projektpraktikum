@@ -3,12 +3,64 @@
 [ext_resource type="Texture2D" uid="uid://bc7y6dlnrp5bm" path="res://assets/menu/under.png" id="1_c650s"]
 [ext_resource type="Texture2D" uid="uid://dts38v105xt8" path="res://assets/menu/progress.png" id="1_r2476"]
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_c650s"]
+bg_color = Color(0.8980392, 0.7137255, 0.49803922, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_vdmtr"]
+bg_color = Color(0.95686275, 0.827451, 0.6666667, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_o5ncy"]
+bg_color = Color(0.95686275, 0.827451, 0.6666667, 1)
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_6rpb2"]
+content_margin_left = 3.0
+content_margin_top = 0.0
+content_margin_right = 3.0
+content_margin_bottom = 0.0
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_uajxx"]
+content_margin_left = 3.0
+content_margin_top = 0.0
+content_margin_right = 3.0
+content_margin_bottom = 0.0
+
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_o5ncy"]
 texture = ExtResource("1_c650s")
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_vdmtr"]
 texture = ExtResource("1_r2476")
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_kj1o4"]
+bg_color = Color(0.8980392, 0.7137255, 0.49803922, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_slepm"]
+bg_color = Color(0.95686275, 0.827451, 0.6666667, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dkd2e"]
+bg_color = Color(0.95686275, 0.827451, 0.6666667, 1)
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_te3sl"]
+content_margin_left = 3.0
+content_margin_top = 0.0
+content_margin_right = 3.0
+content_margin_bottom = 0.0
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_vihw4"]
+content_margin_left = 3.0
+content_margin_top = 0.0
+content_margin_right = 3.0
+content_margin_bottom = 0.0
+
 [resource]
+HScrollBar/styles/grabber = SubResource("StyleBoxFlat_c650s")
+HScrollBar/styles/grabber_highlight = SubResource("StyleBoxFlat_vdmtr")
+HScrollBar/styles/grabber_pressed = SubResource("StyleBoxFlat_o5ncy")
+HScrollBar/styles/scroll = SubResource("StyleBoxEmpty_6rpb2")
+HScrollBar/styles/scroll_focus = SubResource("StyleBoxEmpty_uajxx")
 ProgressBar/styles/background = SubResource("StyleBoxTexture_o5ncy")
 ProgressBar/styles/fill = SubResource("StyleBoxTexture_vdmtr")
+VScrollBar/styles/grabber = SubResource("StyleBoxFlat_kj1o4")
+VScrollBar/styles/grabber_highlight = SubResource("StyleBoxFlat_slepm")
+VScrollBar/styles/grabber_pressed = SubResource("StyleBoxFlat_dkd2e")
+VScrollBar/styles/scroll = SubResource("StyleBoxEmpty_te3sl")
+VScrollBar/styles/scroll_focus = SubResource("StyleBoxEmpty_vihw4")

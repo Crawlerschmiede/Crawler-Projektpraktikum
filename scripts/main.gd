@@ -1,5 +1,7 @@
 extends Node2D
 
+# gdlint: disable=max-file-lines
+
 signal player_spawned
 
 const ENEMY_SCENE := preload("res://scenes/entity/enemy.tscn")
@@ -59,9 +61,9 @@ func _ready() -> void:
 
 
 func _set_tree_paused(value: bool) -> void:
-	var _t = get_tree()
-	if _t != null:
-		_t.paused = value
+	var scene_tree = get_tree()
+	if scene_tree != null:
+		scene_tree.paused = value
 	else:
 		push_warning("_set_tree_paused: SceneTree is null; ignored")
 
@@ -597,7 +599,18 @@ func _on_player_exit_reached() -> void:
 # ---------------------------------------
 func _process(_delta) -> void:
 	if Input.is_action_just_pressed("ui_menu"):
+		if _is_binds_overlay_active():
+			return
 		toggle_menu()
+
+
+func _is_binds_overlay_active() -> bool:
+	var root := get_tree().root
+	if root == null:
+		return false
+
+	var overlay := root.find_child("BindsAndMenusOverlay", true, false)
+	return overlay != null
 
 
 func update_minimap_player_marker() -> void:
@@ -949,8 +962,8 @@ func find_merchants() -> Array[Vector2]:
 func enemy_defeated(enemy):
 	print("enemy_defeated: The battle is won - handler called")
 	# Make sure game is unpaused first so UI can update
-	var _t := get_tree()
-	if _t != null and _t.paused:
+	var scene_tree := get_tree()
+	if scene_tree != null and scene_tree.paused:
 		print("enemy_defeated: unpausing tree")
 		_set_tree_paused(false)
 
@@ -980,13 +993,13 @@ func _on_battle_player_victory(enemy) -> void:
 
 func game_over():
 	_set_tree_paused(false)
-	var _t = get_tree()
-	if _t != null:
+	var scene_tree = get_tree()
+	if scene_tree != null:
 		# Switch to preloaded death scene if available
 		if typeof(DEATH_SCENE_PACKED) != TYPE_NIL:
-			_t.change_scene_to_packed(DEATH_SCENE_PACKED)
+			scene_tree.change_scene_to_packed(DEATH_SCENE_PACKED)
 		else:
-			_t.change_scene_to_file(DEATH_SCENE)
+			scene_tree.change_scene_to_file(DEATH_SCENE)
 	else:
 		push_error("game_over: SceneTree is null; cannot change scene")
 

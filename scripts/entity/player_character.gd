@@ -8,6 +8,7 @@ signal player_moved
 const STEP_COOLDOWN: float = 0.01
 const SKILLTREES := preload("res://scripts/entity/premade_skilltrees.gd")
 const ACTIVE_SKILLTREES: Array[String] = ["unarmed"]
+const BINDS_AND_MENUS := preload("res://scenes/UI/binds-and-menus.tscn")
 
 var step_timer: float = 0.01
 var base_actions = ["Move Up", "Move Down", "Move Left", "Move Right"]
@@ -19,15 +20,58 @@ var fog_layer: TileMapLayer = null
 var dynamic_fog: bool = true
 var fog_tile_id: int = 0
 var _prev_visible := {}  # Dictionary storing previously visible cells as key -> Vector2i
+var _binds_and_menus_instance: Control = null
+var _binds_and_menus_layer: CanvasLayer = null
 
 @onready var camera: Camera2D = $Camera2D
 @onready var minimap_viewport: SubViewport = $CanvasLayer/SubViewportContainer/SubViewport
 @onready var pickup_ui = $CanvasLayer2
 @onready var inventory = $UserInterface/Inventory
+#@export var binds_and_menus: PackedScene
 
 
 func _cell_key(cell: Vector2i) -> String:
 	return "%d,%d" % [cell.x, cell.y]
+
+
+func _input(_event):
+	# Check if the 'toggle_menu' action (H) was just pressed
+	if Input.is_action_just_pressed("binds_and_menus"):
+		if _binds_and_menus_instance == null:
+			_open_menu()
+		else:
+			_close_menu()
+
+
+func _open_menu() -> void:
+	if _binds_and_menus_instance != null:
+		return
+
+	_binds_and_menus_layer = CanvasLayer.new()
+	_binds_and_menus_layer.name = "BindsAndMenusOverlay"
+	_binds_and_menus_layer.layer = 100
+
+	get_tree().root.add_child(_binds_and_menus_layer)
+
+	_binds_and_menus_instance = BINDS_AND_MENUS.instantiate()
+	_binds_and_menus_layer.add_child(_binds_and_menus_instance)
+
+	_binds_and_menus_instance.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_binds_and_menus_instance.offset_left = 0
+	_binds_and_menus_instance.offset_top = 0
+	_binds_and_menus_instance.offset_right = 0
+	_binds_and_menus_instance.offset_bottom = 0
+
+	if _binds_and_menus_instance.has_signal("closed"):
+		_binds_and_menus_instance.closed.connect(_close_menu)
+
+
+func _close_menu() -> void:
+	if _binds_and_menus_layer:
+		_binds_and_menus_layer.queue_free()
+
+	_binds_and_menus_layer = null
+	_binds_and_menus_instance = null
 
 
 func _ready() -> void:
