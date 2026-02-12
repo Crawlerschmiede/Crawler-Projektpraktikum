@@ -248,7 +248,15 @@ class Effect:
 			"movement":
 				print("Activating movement")
 				var basic_directions = ["U", "D", "L", "R"]
-				if details in basic_directions or "rnd" in details:
+				var can_move = true
+				
+				if user.is_player:
+					if user.frozen>0:
+						can_move=false
+				else:
+					if target.frozen>0:
+						can_move=false
+				if (details in basic_directions or "rnd" in details) and can_move:
 					ret = [battle.move_player(details, value)]
 			"danger_dmg_mult":
 				print("Activating danger")
@@ -263,6 +271,11 @@ class Effect:
 				print("Stunning!")
 				var recipient = user if targets_self else target
 				messages = _safe_invoke(recipient, "increase_stun", [value])
+				ret = ["Targets " + (messages[0] if messages.size() > 0 else "")]
+			"freeze":
+				print("Freezing!")
+				var recipient = user if targets_self else target
+				messages = _safe_invoke(recipient, "increase_freeze", [value])
 				ret = ["Targets " + (messages[0] if messages.size() > 0 else "")]
 			"safety_dmg_reduc":
 				print("Activating safety")
@@ -344,7 +357,7 @@ class Effect:
 				var prep_hint := "Hard to tell really"
 				ret = [prep_msg, prep_hint]
 		if depth < 3 and not battle.battle_over():
-			battle.update_passives(depth + 1)
+			battle.update_passives(depth + 1, false)
 		return ret
 
 	# gdlint: enable=max-returns

@@ -78,6 +78,9 @@ var stun_recovery = 1
 var poisoned = 0
 var poison_recovery = 1
 
+var frozen = 0
+var freeze_recovery = 1
+
 #--- buffs/debuffs... status effects someday
 #should be in the format "<Source_Name>:{"<type>":<value>}"
 # something like that...
@@ -429,6 +432,10 @@ func increase_poison(amount):
 func increase_stun(amount):
 	stunned += amount
 	return ["Stun increases to " + str(stunned) + "!"]
+	
+func increase_freeze(amount):
+	frozen += amount
+	return ["Freeze increases to " + str(frozen) + "!"]
 
 
 func full_status_heal():
@@ -451,6 +458,11 @@ func deal_with_status_effects() -> Array:
 		if poisoned < 0:
 			poisoned = 0
 		things_that_happened.append("Target" + message[0] + " from poison! Target" + message[1])
+	if frozen > 0:
+		frozen -=freeze_recovery
+		if frozen < 0:
+			frozen = 0
+		things_that_happened.append("Target was frozen and can't move!")
 	return [gets_a_turn, things_that_happened]
 
 

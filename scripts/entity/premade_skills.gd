@@ -229,6 +229,23 @@ var existing_skills = {
 		"passive": true,
 		"conditions": ["medium_range"]
 	},
+	"Two Handed Parry":
+	{
+		"tree": "Medium Ranged Weaponry",
+		"tier":2,
+		"description": "Turns out, holding your weapon in two hands actually gives you more strength than with one!",
+		"effects": [["safety_dmg_reduc", 0, false, "area||rand||rand||1"]],
+		"passive": true,
+		"conditions": ["every_x_turns=2"]
+	},
+	"Overhau":
+	{
+		"tree": "Medium Ranged Weaponry",
+		"tier":3,
+		"description": "Dodging only matters if your opponent has limbs to hit you with",
+		"effects": [["damage", 3, false, "No"], ["freeze", 2, true, "No"]],
+		"cooldown": 5
+	},
 	"Plant your Spear":
 	{
 		"tree": "Mediumg Ranged Weaponry",
