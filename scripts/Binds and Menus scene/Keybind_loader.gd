@@ -6,6 +6,17 @@ const MENU_FONT := preload("res://assets/font/PixelPurl.ttf")
 @onready var grid = %GridContainer
 
 
+func _make_menu_label(
+	text: String, text_alignment: HorizontalAlignment = HORIZONTAL_ALIGNMENT_LEFT
+) -> Label:
+	var label = Label.new()
+	label.text = text
+	label.add_theme_color_override("font_color", Color("#42242c"))
+	label.add_theme_font_override("font", MENU_FONT)
+	label.horizontal_alignment = text_alignment
+	return label
+
+
 func _ready():
 	# Optional: Hide the horizontal scrollbar for a cleaner look
 	if scroll_container:
@@ -31,25 +42,16 @@ func display_all_custom_binds():
 
 		print("Adding action to UI: ", action)  # DEBUG 2
 
-		var name_label = Label.new()
-		name_label.text = action.capitalize()
-		name_label.add_theme_color_override("font_color", Color("#42242c"))
-		name_label.add_theme_font_override("font", MENU_FONT)
+		var name_label = _make_menu_label(action.capitalize())
 		grid.add_child(name_label)
 
-		var key_label = Label.new()
 		var events = InputMap.action_get_events(action)
-		key_label.text = events[0].as_text() if events.size() > 0 else "---"
-		key_label.add_theme_color_override("font_color", Color("#42242c"))
-		key_label.add_theme_font_override("font", MENU_FONT)
-		grid.add_child(key_label)
+		var key_text = events[0].as_text() if events.size() > 0 else "---"
+		var key_label = _make_menu_label(key_text, HORIZONTAL_ALIGNMENT_RIGHT)
 
 		#if events.size() > 0:
 		#	key_label.text = events[0].as_text().replace("- Physical", "")
 		#else:
 		#	key_label.text = "---"
 
-		key_label.add_theme_color_override("font_color", Color("#42242c"))
-		# Align keys to the right for a "menu" feel
-		key_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 		grid.add_child(key_label)
