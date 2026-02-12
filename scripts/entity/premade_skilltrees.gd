@@ -2,43 +2,37 @@ class_name Skilltree
 
 extends Resource
 
+
+const SKILLS := preload("res://scripts/entity/premade_skills.gd")
+var existing_skills = SKILLS.new()
 # format here is name:{tier, skills}
 # tier is the level of the tree, 0 being unselected
 #skills should be in the format [name, required tier]
 var skilltrees = {
-	"unarmed":
-	{
-		"tier": 0,
-		"skills":
-		[
-			["Punch", 1],
-			["Back and Forth", 1],
-			["Extend the Dancefloor", 1],
-			["Unfair when you think about it", 1],
-			["Blade Dance", 1],
-			["Right Pivot", 2],
-			["Left Pivot", 2],
-			["Strong as frick", 1],
-			["Fast as frick", 3],
-			["Full Power Punch", 4]
-		]
-	}
+	"unarmed": 0,
+	"Short Ranged Weaponry":0,
+	"Medium Ranged Weaponry":0,
+	"Long Ranged Weaponry":0,
 }
 
 
 func get_active_skills():
 	var active_skills = []
+	var active_trees =[]
 	for wanted_tree in skilltrees:
-		print(wanted_tree)
-		if skilltrees[wanted_tree]["tier"] == 0:
+		if skilltrees[wanted_tree] == 0:
 			continue
 		else:
-			for skill in skilltrees[wanted_tree]["skills"]:
-				if skill[1] <= skilltrees[wanted_tree]["tier"]:
-					active_skills.append(skill[0])
+			active_trees.append(wanted_tree)
+	for active_tree in active_trees:
+		var skills_in_tree = existing_skills.get_skills_by_tree(active_tree)
+		print(skills_in_tree)
+		for skill_in_tree in skills_in_tree:
+			if skill_in_tree.has("tier"):
+				if skill_in_tree.tier<=skilltrees[active_tree]:
+					active_skills.append(skill_in_tree.skill_in_tree)
 	return active_skills
 
 
 func increase_tree_level(tree_name: String):
-	var wanted_tree = skilltrees[tree_name]
-	wanted_tree["tier"] = wanted_tree["tier"] + 1
+	skilltrees[tree_name] = skilltrees[tree_name] + 1
