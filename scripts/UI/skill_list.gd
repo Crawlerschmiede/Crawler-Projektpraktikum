@@ -70,7 +70,14 @@ func _populate_list(tab_idx: int) -> void:
 			for ability in player.actions:
 				_add_button(ability)
 	if list_vbox.get_child_count() > 0:
+		var _t = get_tree()
+		if _t != null:
+			await _t.process_frame
+		else:
+			push_warning("_populate_list: SceneTree is null; skipping yield")
 		selected_index = 0
+		if _t != null:
+			await _t.process_frame
 		_highlight_selected()
 
 
@@ -142,7 +149,11 @@ func _scroll_to_button(btn: Button) -> void:
 	if not is_instance_valid(btn):
 		return
 
-	await get_tree().process_frame
+	var _t = get_tree()
+	if _t != null:
+		await _t.process_frame
+	else:
+		push_warning("_scroll_to_button: SceneTree is null; skipping yield")
 
 	if not is_instance_valid(btn):
 		return

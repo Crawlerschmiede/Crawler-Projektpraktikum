@@ -1,5 +1,7 @@
 extends Node2D
 
+signal player_spawned
+
 const ENEMY_SCENE := preload("res://scenes/entity/enemy.tscn")
 const BATTLE_SCENE := preload("res://scenes/UI/battle.tscn")
 const PLAYER_SCENE := preload("res://scenes/entity/player-character-scene.tscn")
@@ -40,8 +42,6 @@ var switching_world := false
 @onready var generator2: Node2D = $World2
 @onready var generator3: Node2D = $World3
 
-@onready var colorfilter: ColorRect = $ColorFilter
-
 @onready var fog_war_layer := $FogWar
 
 
@@ -52,8 +52,8 @@ func _ready() -> void:
 	if not _has_completed_tutorial():
 		await _load_tutorial_world()
 		return
-	else:
-		world_index = 0
+
+	world_index = 0
 	# Normales Spiel starten (Welt 0)
 	await _load_world(world_index)
 	
@@ -140,16 +140,32 @@ func _load_tutorial_world() -> void:
 
 	# Initialize fog layer
 	if fog_war_layer != null and dungeon_floor != null:
-		init_fog_layer()
+		# Reparent fog layer into world_root so z_index ordering works across the same parent
+		if fog_war_layer.get_parent() != world_root:
+			var old_parent := fog_war_layer.get_parent()
+			if old_parent != null:
+				old_parent.remove_child(fog_war_layer)
+			world_root.add_child(fog_war_layer)
+			# align position after reparenting
+			fog_war_layer.position = dungeon_floor.position
+		# Set fog z to be above dungeon_top (or dungeon_floor)
+		var base_z := 0
+		if dungeon_top != null:
+			base_z = dungeon_top.z_index
+		elif dungeon_floor != null:
+			base_z = dungeon_floor.z_index
+		fog_war_layer.z_index = base_z + 10
+		await init_fog_layer()
 
 	dungeon_floor.visibility_layer = 1
-	update_color_filter()
-
 	# Spawne alle Entities wie in normalen Welten
 	spawn_player()
 	spawn_enemies()
 	spawn_lootbox()
 	spawn_traps()
+	await get_tree().process_frame
+	await get_tree().process_frame
+	_on_player_moved()
 
 	var merchants = find_merchants()
 	for i in merchants:
@@ -163,9 +179,6 @@ func _load_world(idx: int) -> void:
 	_set_tree_paused(true)
 	await _show_loading()
 
-	# sorgt dafür, dass Loading immer weggeht
-	var success := false
-
 	_clear_world()
 
 	if idx < 0 or idx >= generators.size():
@@ -176,15 +189,26 @@ func _load_world(idx: int) -> void:
 
 	var gen := generators[idx]
 
-	# Ensure loading screen binds to this generator so progress updates show immediately
+	# Loading screen mit Generator verbinden
 	if loading_screen != null and is_instance_valid(loading_screen) and gen != null:
 		if loading_screen.has_method("bind_to_generator"):
 			loading_screen.call("bind_to_generator", gen)
 
+	# -------------------------------------------------
+	# WorldRoot + Entity Container erstellen
+	# -------------------------------------------------
 	world_root = Node2D.new()
 	world_root.name = "WorldRoot"
 	add_child(world_root)
 
+	var entity_container := Node2D.new()
+	entity_container.name = "Entities"
+	world_root.add_child(entity_container)
+	entity_container.z_index = 3
+
+	# -------------------------------------------------
+	# Maps vom Generator holen
+	# -------------------------------------------------
 	var maps: Dictionary = await gen.get_random_tilemap()
 
 	if maps.is_empty():
@@ -197,25 +221,55 @@ func _load_world(idx: int) -> void:
 	dungeon_top = maps.get("top", null)
 	minimap = maps.get("minimap", null)
 
-	# Für World2 (idx == 1) das Sewer-Tileset verwenden
-	if idx == 1 and dungeon_floor != null:
-		var sewer_tileset = load(SEWER_TILESET) as TileSet
-		if sewer_tileset != null:
-			dungeon_floor.tile_set = sewer_tileset
-			if dungeon_top != null:
-				dungeon_top.tile_set = sewer_tileset
-
-	# initialize fog layer tiles so Player.update_visibility can erase them later
-	if fog_war_layer != null and dungeon_floor != null:
-		init_fog_layer()
-
 	if dungeon_floor == null:
 		push_error("Generator returned null floor tilemap!")
 		_hide_loading()
 		_set_tree_paused(false)
 		return
 
-	# minimap background
+	# -------------------------------------------------
+	# Tileset Override für Welt 2
+	# -------------------------------------------------
+	if idx == 1:
+		var sewer_tileset = load(SEWER_TILESET) as TileSet
+		if sewer_tileset != null:
+			dungeon_floor.tile_set = sewer_tileset
+			if dungeon_top != null:
+				dungeon_top.tile_set = sewer_tileset
+
+	# -------------------------------------------------
+	# Tilemaps hinzufügen + Layering
+	# -------------------------------------------------
+	if dungeon_floor.get_parent() == null:
+		world_root.add_child(dungeon_floor)
+	dungeon_floor.z_index = 0
+
+	if dungeon_top != null:
+		if dungeon_top.get_parent() == null:
+			world_root.add_child(dungeon_top)
+		dungeon_top.z_index = 5  # über Entities, unter Fog
+
+	# Fog über alles (sicherstellen, dass Fog über dungeon_top liegt)
+	if fog_war_layer != null:
+		# Reparent fog layer into world_root so its z_index compares with dungeon_top (same parent)
+		if fog_war_layer.get_parent() != world_root:
+			var old_parent := fog_war_layer.get_parent()
+			if old_parent != null:
+				old_parent.remove_child(fog_war_layer)
+			world_root.add_child(fog_war_layer)
+			fog_war_layer.position = dungeon_floor.position
+		# compute base z from dungeon_top if available
+		var base_z := 0
+		if dungeon_top != null:
+			base_z = dungeon_top.z_index
+		elif dungeon_floor != null:
+			base_z = dungeon_floor.z_index
+		fog_war_layer.z_index = base_z + 10
+		await init_fog_layer()
+
+	# -------------------------------------------------
+	# Minimap Background
+	# -------------------------------------------------
 	if minimap != null and backgroundtile != null:
 		var bg := backgroundtile.duplicate() as TileMapLayer
 		bg.name = "MinimapBackground"
@@ -224,24 +278,22 @@ func _load_world(idx: int) -> void:
 		minimap.add_child(bg)
 		minimap.move_child(bg, -1)
 
-	if dungeon_floor.get_parent() == null:
-		world_root.add_child(dungeon_floor)
-	if dungeon_top != null and dungeon_top.get_parent() == null:
-		world_root.add_child(dungeon_top)
-
 	dungeon_floor.visibility_layer = 1
-	update_color_filter()
-
+	# -------------------------------------------------
+	# Spawns
+	# -------------------------------------------------
 	spawn_player()
 	spawn_enemies()
 	spawn_lootbox()
 	spawn_traps()
 
 	var merchants = find_merchants()
-
 	for i in merchants:
 		spawn_merchant_entity(i)
 
+	# -------------------------------------------------
+	# Fertig
+	# -------------------------------------------------
 	_hide_loading()
 	_set_tree_paused(false)
 
@@ -360,6 +412,9 @@ func spawn_traps() -> void:
 
 		var loot := TRAP.instantiate() as Node2D
 		loot.name = "Trap_%s" % i
+		# assign current world index so the trap knows which world it belongs to
+		if loot.has_method("set"):
+			loot.set("world_index", world_index)
 		world_root.add_child(loot)
 		loot.global_position = world_pos
 
@@ -449,20 +504,6 @@ func _has_custom_data_layer(tile_set: TileSet, layer_name: String) -> bool:
 	return false
 
 
-func update_color_filter() -> void:
-	if world_index <= 0:  # Tutorial (-1) und erste Welt (0): kein Filter
-		colorfilter.visible = false
-		return
-
-	colorfilter.visible = true
-
-	if world_index == 1:
-		#colorfilter.color = Color(1.0, 0.9, 0.3, 0.20)
-		colorfilter.visible = false
-	elif world_index == 2:
-		colorfilter.color = Color(1.0, 0.2, 0.2, 0.25)
-
-
 func init_fog_layer() -> void:
 	# Fill the FogWar TileMapLayer with a fog tile so Player.update_visibility can erase cells.
 	if fog_war_layer == null or dungeon_floor == null:
@@ -474,8 +515,15 @@ func init_fog_layer() -> void:
 	# align position/visibility/z so it overlays the floor
 	fog_war_layer.position = dungeon_floor.position
 	fog_war_layer.visibility_layer = dungeon_floor.visibility_layer
-	fog_war_layer.z_index = (dungeon_floor.z_index if dungeon_floor != null else 0) + 10
+	# Ensure fog layer is above the dungeon_top layer (if present) or above the floor otherwise
+	var base_z := 0
+	if dungeon_top != null:
+		base_z = dungeon_top.z_index
+	elif dungeon_floor != null:
+		base_z = dungeon_floor.z_index
+	fog_war_layer.z_index = base_z + 10
 
+	# Debug info: print parent and z indices so we can observe ordering at runtime
 	var counter := 0
 	var used_rect := dungeon_floor.get_used_rect()
 	var yield_every := 300
@@ -508,6 +556,12 @@ func _clear_world() -> void:
 		player = null
 
 	if world_root != null and is_instance_valid(world_root):
+		# Preserve fog_war_layer if it was reparented into world_root so it is not freed
+		if fog_war_layer != null and is_instance_valid(fog_war_layer):
+			if fog_war_layer.get_parent() == world_root:
+				world_root.remove_child(fog_war_layer)
+				add_child(fog_war_layer)
+
 		world_root.queue_free()
 		world_root = null
 
@@ -695,7 +749,7 @@ func spawn_enemy(sprite_type: String, behaviour: Array, skills: Array) -> void:
 	var e = ENEMY_SCENE.instantiate()
 	e.add_to_group("enemy")
 	e.add_to_group("vision_objects")
-	
+
 	e.types = behaviour
 	e.sprite_type = sprite_type
 	e.abilities_this_has = skills
@@ -729,6 +783,10 @@ func spawn_player() -> void:
 	world_root.add_child(e)
 	player = e
 
+	# Ensure player is drawn above fog layer so player is visible
+	if fog_war_layer != null:
+		player.z_index = fog_war_layer.z_index + 10000000
+
 	# minimap rein
 	player.set_minimap(minimap)
 
@@ -759,6 +817,9 @@ func spawn_player() -> void:
 	# WICHTIG: einmal initial Fog aufdecken
 	if player.has_method("update_visibility"):
 		player.update_visibility()
+		# ensure reveal runs after any reparenting/initialization in this frame
+		player.call_deferred("_reveal_on_spawn")
+		emit_signal("player_spawned", player)
 
 
 func _on_player_moved() -> void:
@@ -919,10 +980,13 @@ func game_over():
 	_set_tree_paused(false)
 	var _t = get_tree()
 	if _t != null:
-		# Use preloaded PackedScene for a safer, faster scene change
-		_t.change_scene_to_packed(DEATH_SCENE_PACKED)
+		# Switch to preloaded death scene if available
+		if typeof(DEATH_SCENE_PACKED) != TYPE_NIL:
+			_t.change_scene_to_packed(DEATH_SCENE_PACKED)
+		else:
+			_t.change_scene_to_file(DEATH_SCENE)
 	else:
-		push_error("game_over: SceneTree is null; cannot change scene to death screen")
+		push_error("game_over: SceneTree is null; cannot change scene")
 
 
 # -----------------------------------------------------

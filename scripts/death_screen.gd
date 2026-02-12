@@ -1,6 +1,7 @@
 extends Control
 
 const START_SCENE := "res://scenes/UI/start-menu.tscn"
+const START_SCENE_PACKED := preload("res://scenes/UI/start-menu.tscn")
 
 @onready var continue_button: Button = $PanelContainer/MarginContainer/VBoxContainer/Button
 
@@ -17,4 +18,16 @@ func _unhandled_input(event: InputEvent) -> void:
 			_go_to_start()
 
 func _go_to_start() -> void:
-	get_tree().change_scene_to_file(START_SCENE)
+	var _t = get_tree()
+	if _t == null:
+		push_error("death_screen: SceneTree is null; cannot change to start menu")
+		return
+
+	# Prefer file-based change for robustness; fallback to PackedScene only if clearly valid
+	if START_SCENE_PACKED == null:
+		_t.change_scene_to_file(START_SCENE)
+		return
+
+	# Some PackedScene resources in this project are sometimes invalid (empty) after merges.
+	# Use file-based change to avoid 'node count is 0' instantiate errors.
+	_t.change_scene_to_file(START_SCENE)

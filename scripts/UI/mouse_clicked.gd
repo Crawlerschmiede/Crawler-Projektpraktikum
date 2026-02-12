@@ -62,7 +62,9 @@ func _on_start_pressed() -> void:
 	var _t = get_tree()
 	if _t != null:
 		_t.paused = false
-	get_tree().change_scene_to_packed(MAP_GENERATOR_SCENE)
+		_t.change_scene_to_packed(MAP_GENERATOR_SCENE)
+	else:
+		push_error("mouse_clicked: SceneTree is null; cannot change to map generator scene")
 
 
 # ==========================

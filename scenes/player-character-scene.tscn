@@ -1,13 +1,13 @@
-[gd_scene format=3 uid="uid://dyn3vq0ltxlyi"]
+[gd_scene format=3 uid="uid://1il5h6lbj3sk"]
 
 [ext_resource type="Texture2D" uid="uid://b1tw3icp8tm6x" path="res://assets/menu/InventoryLabel.png" id="7_x2d4g"]
 [ext_resource type="Texture2D" uid="uid://do8wsaes8sy12" path="res://assets/menu/UI_TravelBook_BookPageRight01a.png" id="8_lsi2u"]
 [ext_resource type="FontFile" uid="uid://d4fqcjicieold" path="res://assets/font/PixelPurl.ttf" id="9_6k8oa"]
 [ext_resource type="Texture2D" uid="uid://sppwtd1lbmbe" path="res://assets/menu/UI_TravelBook_BookPageLeft01a.png" id="9_mbyut"]
 [ext_resource type="Texture2D" uid="uid://cyt6v2ro0ketk" path="res://assets/menu/UI_TravelBook_IconStar01a.png" id="9_x2d4g"]
-[ext_resource type="Texture2D" uid="uid://bxp7sedmunhcs" path="res://assets/menu/inventar_slot.png" id="10_j4pnj"]
+[ext_resource type="Texture2D" uid="uid://bxp7sedmunhcs" path="res://assets/menu/inventar_slot1.png" id="10_j4pnj"]
 [ext_resource type="Texture2D" uid="uid://brlrimrh6sdx2" path="res://assets/menu/UI_TravelBook_FrameSelect01b.png" id="13_6k8oa"]
-[ext_resource type="Texture2D" uid="uid://drnogsosojksh" path="res://assets/menu/UI_TravelBook_Slot01b.png" id="15_nq0iv"]
+[ext_resource type="Texture2D" uid="uid://drnogsosojksh" path="res://assets/menu/inventar_slot.png" id="15_nq0iv"]
 [ext_resource type="Texture2D" uid="uid://4gngll2b6t8d" path="res://assets/menu/Mülltonne_closed.png" id="16_nq0iv"]
 [ext_resource type="Texture2D" uid="uid://cplcai6qfr0ae" path="res://assets/menu/UI_TravelBook_IconCross01a.png" id="20_72a5a"]
 

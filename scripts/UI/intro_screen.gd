@@ -2,6 +2,7 @@ extends Control
 
 # --- Scene Configuration ---
 @export var start_menu_path: String = "res://scenes/start-menu.tscn"
+const START_MENU_PACKED := preload("res://scenes/start-menu.tscn")
 
 # --- Node References (Ensure these names match your Scene Tree) ---
 @onready var logo = $CenterContainer/Label
@@ -81,7 +82,15 @@ func play_intro_sequence():
 	# --- STAGE 6: EXIT TO MENU ---
 	tween.tween_interval(2.5)  # Hold the logo on screen
 	tween.tween_property(self, "modulate:a", 0.0, 2)  # Fade whole screen to black
-	tween.tween_callback(func(): get_tree().change_scene_to_file(start_menu_path))
+	tween.tween_callback(func(): _go_to_start_menu())
+
+
+func _go_to_start_menu() -> void:
+	var _t = get_tree()
+	if _t != null:
+		_t.change_scene_to_packed(START_MENU_PACKED)
+	else:
+		push_error("intro_screen: SceneTree is null; cannot change to start menu")
 
 
 # --- Procedural Effects ---

@@ -11,6 +11,14 @@
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_fj5xk"]
 size = Vector2(176, 176)
 
+[sub_resource type="LabelSettings" id="LabelSettings_fj5xk"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_20axg"]
+size = Vector2(176, 176)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_alnr1"]
+size = Vector2(176, 176)
+
 [sub_resource type="FontFile" id="FontFile_1s05d"]
 subpixel_positioning = 0
 msdf_pixel_range = 14
@@ -29,14 +37,6 @@ cache/0/16/0/descent = 0.0
 cache/0/16/0/underline_position = 0.0
 cache/0/16/0/underline_thickness = 0.0
 cache/0/16/0/scale = 1.0
-
-[sub_resource type="LabelSettings" id="LabelSettings_fj5xk"]
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_20axg"]
-size = Vector2(176, 176)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_alnr1"]
-size = Vector2(176, 176)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_xlm3k"]
 size = Vector2(176, 176)
@@ -167,7 +167,7 @@ offset_bottom = 77.0
 scale = Vector2(0.9, 0.9)
 size_flags_horizontal = 4
 theme_override_fonts/font = ExtResource("3_3jxmb")
-text = "Open the Inventory to trade with the merchant"
+text = "Press r to trade with the merchant"
 label_settings = SubResource("LabelSettings_fj5xk")
 horizontal_alignment = 1
 vertical_alignment = 1

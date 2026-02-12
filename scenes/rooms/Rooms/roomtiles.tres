@@ -197,6 +197,7 @@ texture = ExtResource("1_m7st2")
 2:3/0 = 0
 2:3/0/custom_data_0 = true
 2:4/0 = 0
+2:4/0/z_index = 101
 2:4/0/custom_data_0 = true
 2:5/0 = 0
 2:5/0/custom_data_0 = true
@@ -479,6 +480,7 @@ texture = ExtResource("1_m7st2")
 15:6/0 = 0
 15:7/0 = 0
 12:11/0 = 0
+12:11/0/z_index = 101
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_knrmn"]
 texture = ExtResource("4_hdxfv")

@@ -12,9 +12,9 @@
 [ext_resource type="FontFile" uid="uid://d4fqcjicieold" path="res://assets/font/PixelPurl.ttf" id="9_6k8oa"]
 [ext_resource type="Texture2D" uid="uid://sppwtd1lbmbe" path="res://assets/menu/UI_TravelBook_BookPageLeft01a.png" id="9_mbyut"]
 [ext_resource type="Texture2D" uid="uid://cyt6v2ro0ketk" path="res://assets/menu/UI_TravelBook_IconStar01a.png" id="9_x2d4g"]
-[ext_resource type="Texture2D" uid="uid://bxp7sedmunhcs" path="res://assets/menu/inventar_slot.png" id="10_j4pnj"]
+[ext_resource type="Texture2D" uid="uid://bxp7sedmunhcs" path="res://assets/menu/inventar_slot1.png" id="10_j4pnj"]
 [ext_resource type="Texture2D" uid="uid://brlrimrh6sdx2" path="res://assets/menu/UI_TravelBook_FrameSelect01b.png" id="13_6k8oa"]
-[ext_resource type="Texture2D" uid="uid://drnogsosojksh" path="res://assets/menu/UI_TravelBook_Slot01b.png" id="15_nq0iv"]
+[ext_resource type="Texture2D" uid="uid://drnogsosojksh" path="res://assets/menu/inventar_slot.png" id="15_nq0iv"]
 [ext_resource type="Script" uid="uid://da5gfq7ci7243" path="res://scripts/rooms/merchant/merchant_org.gd" id="16_72a5a"]
 [ext_resource type="Texture2D" uid="uid://4gngll2b6t8d" path="res://assets/menu/Mülltonne_closed.png" id="16_nq0iv"]
 [ext_resource type="Script" uid="uid://6d52dv2f4umv" path="res://scripts/UI/drop_popup_player.gd" id="16_odrip"]
@@ -349,7 +349,6 @@ size_flags_horizontal = 0
 size_flags_vertical = 4
 theme_override_styles/panel = SubResource("StyleBoxTexture_x2d4g")
 script = ExtResource("6_5c7wf")
-empty_tex = ExtResource("10_j4pnj")
 
 [node name="Slot2" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" unique_id=610732229 groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "item", "merchant_room"]]
 custom_minimum_size = Vector2(20, 20)
@@ -358,7 +357,6 @@ size_flags_horizontal = 0
 size_flags_vertical = 4
 theme_override_styles/panel = SubResource("StyleBoxTexture_odrip")
 script = ExtResource("6_5c7wf")
-empty_tex = ExtResource("10_j4pnj")
 
 [node name="Slot3" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" unique_id=1715521609 groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "item", "merchant_room"]]
 custom_minimum_size = Vector2(20, 20)
@@ -367,7 +365,6 @@ size_flags_horizontal = 0
 size_flags_vertical = 4
 theme_override_styles/panel = SubResource("StyleBoxTexture_6k8oa")
 script = ExtResource("6_5c7wf")
-empty_tex = ExtResource("10_j4pnj")
 
 [node name="Slot4" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" unique_id=229738727 groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "item", "merchant_room"]]
 custom_minimum_size = Vector2(20, 20)
@@ -376,7 +373,6 @@ size_flags_horizontal = 0
 size_flags_vertical = 4
 theme_override_styles/panel = SubResource("StyleBoxTexture_nq0iv")
 script = ExtResource("6_5c7wf")
-empty_tex = ExtResource("10_j4pnj")
 
 [node name="Slot5" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" unique_id=1325080464 groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "item", "merchant_room"]]
 custom_minimum_size = Vector2(20, 20)
@@ -385,7 +381,6 @@ size_flags_horizontal = 0
 size_flags_vertical = 4
 theme_override_styles/panel = SubResource("StyleBoxTexture_fxkes")
 script = ExtResource("6_5c7wf")
-empty_tex = ExtResource("10_j4pnj")
 
 [node name="Slot6" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" unique_id=414013209 groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "boss_room", "item", "merchant_room"]]
 custom_minimum_size = Vector2(20, 20)
@@ -394,7 +389,6 @@ size_flags_horizontal = 0
 size_flags_vertical = 4
 theme_override_styles/panel = SubResource("StyleBoxTexture_72a5a")
 script = ExtResource("6_5c7wf")
-empty_tex = ExtResource("10_j4pnj")
 
 [node name="Slot7" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" unique_id=153293947 groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "boss_room", "item", "merchant_room"]]
 custom_minimum_size = Vector2(20, 20)
@@ -403,7 +397,6 @@ size_flags_horizontal = 0
 size_flags_vertical = 4
 theme_override_styles/panel = SubResource("StyleBoxTexture_gdkvl")
 script = ExtResource("6_5c7wf")
-empty_tex = ExtResource("10_j4pnj")
 
 [node name="Slot8" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" unique_id=1229988314 groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "boss_room", "item", "merchant_room"]]
 custom_minimum_size = Vector2(20, 20)
@@ -412,7 +405,6 @@ size_flags_horizontal = 0
 size_flags_vertical = 4
 theme_override_styles/panel = SubResource("StyleBoxTexture_3710g")
 script = ExtResource("6_5c7wf")
-empty_tex = ExtResource("10_j4pnj")
 
 [node name="Slot9" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" unique_id=1396692844 groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "boss_room", "item", "merchant_room"]]
 custom_minimum_size = Vector2(20, 20)
@@ -421,7 +413,6 @@ size_flags_horizontal = 0
 size_flags_vertical = 4
 theme_override_styles/panel = SubResource("StyleBoxTexture_oag0m")
 script = ExtResource("6_5c7wf")
-empty_tex = ExtResource("10_j4pnj")
 
 [node name="Slot10" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" unique_id=815407239 groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "boss_room", "item", "merchant_room"]]
 custom_minimum_size = Vector2(20, 20)
@@ -430,7 +421,6 @@ size_flags_horizontal = 0
 size_flags_vertical = 4
 theme_override_styles/panel = SubResource("StyleBoxTexture_cjry2")
 script = ExtResource("6_5c7wf")
-empty_tex = ExtResource("10_j4pnj")
 
 [node name="Slot11" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" unique_id=1944814225 groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "boss_room", "item", "merchant_room"]]
 custom_minimum_size = Vector2(20, 20)
@@ -439,7 +429,6 @@ size_flags_horizontal = 0
 size_flags_vertical = 4
 theme_override_styles/panel = SubResource("StyleBoxTexture_3r868")
 script = ExtResource("6_5c7wf")
-empty_tex = ExtResource("10_j4pnj")
 
 [node name="Slot12" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" unique_id=1372351242 groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "boss_room", "item", "merchant_room"]]
 custom_minimum_size = Vector2(20, 20)
