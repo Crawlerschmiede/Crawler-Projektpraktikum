@@ -29,9 +29,15 @@ func _disable_merchant_ui():
 	equipment.visible = true
 	equipmentlabel.visible = true
 
+#func force_toggle_inventory():
+	## This is exactly the logic inside your _input
+	#_disable_merchant_ui()
+	#$Inventory/Inner.visible = !$Inventory/Inner.visible
+	#if $Inventory/Inner.visible:
+		#$Inventory/Inner/InventoryLabel/Label.text = "Inventory"
 
-func _input(_event):
-	if Input.is_action_just_pressed("open_inventory"):
+func _input(event):
+	if event.is_action_pressed("open_inventory"):
 		# If merchant UI is currently shown, close it and ensure the
 		# normal inventory remains visible (swap behaviour).
 		if merchantgui_merchant_container.visible:

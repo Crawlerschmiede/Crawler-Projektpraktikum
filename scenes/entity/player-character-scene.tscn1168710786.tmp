@@ -146,17 +146,7 @@ size_flags_vertical = 8
 [node name="UserInterface" type="CanvasLayer" parent="." unique_id=1243130226]
 script = ExtResource("5_jmui6")
 
-[node name="Label" type="Label" parent="UserInterface" unique_id=638768392]
-z_index = -2
-offset_top = 135.0
-offset_right = 123.0
-offset_bottom = 166.0
-theme_override_fonts/font = ExtResource("9_6k8oa")
-text = "Press [H] to see 
-the list of commands."
-
 [node name="Inventory" type="Control" parent="UserInterface" unique_id=2126485661]
-process_mode = 3
 z_index = 100
 layout_mode = 3
 anchors_preset = 8
@@ -265,7 +255,7 @@ offset_right = 65.0
 offset_bottom = 13.8
 scale = Vector2(0.6, 0.6)
 theme_override_fonts/font = ExtResource("9_6k8oa")
-text = "Equipment"
+text = "Equiptment"
 
 [node name="Equiptment" type="GridContainer" parent="UserInterface/Inventory/Inner" unique_id=101818976]
 visible = false
