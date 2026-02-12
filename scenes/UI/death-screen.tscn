@@ -142,7 +142,6 @@ script = ExtResource("7_aq73d")
 [node name="Label2" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer" unique_id=2083732364]
 layout_mode = 2
 text = "Press enter to continue"
-script = ExtResource("7_aq73d")
 
 [node name="bg_music" type="AudioStreamPlayer" parent="." unique_id=1133867695]
 stream = ExtResource("9_8qsoh")
