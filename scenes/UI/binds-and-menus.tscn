@@ -18,7 +18,7 @@
 [ext_resource type="Script" uid="uid://c02qwb424gffj" path="res://scripts/Binds and Menus scene/Keybind_loader.gd" id="15_axhvj"]
 [ext_resource type="Texture2D" uid="uid://iuomcgerss86" path="res://assets/menu/book animation.png" id="15_d6hhy"]
 [ext_resource type="Texture2D" uid="uid://d0akut7feci20" path="res://assets/menu/book idle animation.png" id="16_ju1yg"]
-[ext_resource type="Theme" uid="uid://v7upv04bd66u" path="res://assets/theme/HealthBar.tres" id="16_lfygd"]
+[ext_resource type="Theme" uid="uid://do40vcwiibb8g" path="res://assets/theme/HealthBar.tres" id="16_lfygd"]
 [ext_resource type="Texture2D" uid="uid://dcqbysdw3x31t" path="res://assets/menu/Gear 8 - Silver_spritesheet.png" id="17_mrqja"]
 [ext_resource type="Texture2D" uid="uid://c83x8kdaypyo" path="res://assets/menu/Gear 8 - Bronze_spritesheet.png" id="18_qp01h"]
 [ext_resource type="Script" uid="uid://ch2pgbv5tu636" path="res://scripts/Binds and Menus scene/keybind_and_menus_icon.gd" id="19_7ey31"]

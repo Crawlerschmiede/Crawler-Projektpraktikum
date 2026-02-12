@@ -1,6 +1,6 @@
 extends VBoxContainer
 
-const MENU_FONT := load("uid://d4fqcjicieold")
+const MENU_FONT := preload("res://assets/font/PixelPurl.ttf")
 
 @onready var scroll_container = %ScrollContainer
 @onready var grid = %GridContainer

@@ -12,7 +12,7 @@
 [ext_resource type="FontFile" uid="uid://d4fqcjicieold" path="res://assets/font/PixelPurl.ttf" id="9_6k8oa"]
 [ext_resource type="Texture2D" uid="uid://sppwtd1lbmbe" path="res://assets/menu/UI_TravelBook_BookPageLeft01a.png" id="9_mbyut"]
 [ext_resource type="Texture2D" uid="uid://cyt6v2ro0ketk" path="res://assets/menu/UI_TravelBook_IconStar01a.png" id="9_x2d4g"]
-[ext_resource type="Texture2D" uid="uid://bxp7sedmunhcs" path="res://assets/menu/inventar_slot1.png" id="10_j4pnj"]
+[ext_resource type="Texture2D" uid="uid://ck0c0slja7ox1" path="res://assets/menu/inventar_slot1.png" id="10_j4pnj"]
 [ext_resource type="Texture2D" uid="uid://brlrimrh6sdx2" path="res://assets/menu/UI_TravelBook_FrameSelect01b.png" id="13_6k8oa"]
 [ext_resource type="Texture2D" uid="uid://drnogsosojksh" path="res://assets/menu/inventar_slot.png" id="15_nq0iv"]
 [ext_resource type="Script" uid="uid://da5gfq7ci7243" path="res://scripts/rooms/merchant/merchant_org.gd" id="16_72a5a"]
