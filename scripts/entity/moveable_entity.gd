@@ -15,6 +15,7 @@ var dimensions: Vector2i = Vector2i(1, 1)
 # If I built this at all right, you will never need to touch this.
 # It should just work with the resize function.
 var my_tiles = [Vector2i(0, 0)]
+var ranges = [[0, 0], [2, 2], [4, 4]]
 
 var sprites = {
 	"bat": [preload("res://scenes/sprite_scenes/bat_sprite_scene.tscn")],
@@ -59,6 +60,7 @@ var hp: int = 1
 var str_stat: int = 1
 var def_stat: int = 0
 var abilities: Array[Skill] = []
+var acquired_abilities: Array[String] = []
 var base_action_points: int = 1
 var action_points: int
 
@@ -122,6 +124,24 @@ func super_ready(sprite_type: String, entity_type: Array):
 		var spawnpoint = possible_spawns[rng.randi_range(0, len(possible_spawns) - 1)]
 		position = tilemap.map_to_local(spawnpoint)
 		grid_pos = spawnpoint
+
+	# spawn logic for bosses
+	elif "tutorial" in entity_type:
+		var possible_spawns = []
+
+		for cell in tilemap.get_used_cells():
+			var tile_data = tilemap.get_cell_tile_data(cell)
+			if tile_data:
+				var is_boss_tile = tile_data.get_custom_data("tutorial_enemy")
+				if is_boss_tile:
+					print("found tutorial tile! ", cell)
+					possible_spawns.append(cell)
+		if len(possible_spawns) > 0:
+			var spawnpoint = possible_spawns[rng.randi_range(0, len(possible_spawns) - 1)]
+			position = tilemap.map_to_local(spawnpoint)
+			grid_pos = spawnpoint
+		else:
+			self.queue_free()
 
 	# Spawn logic for enemies
 	else:
@@ -250,9 +270,11 @@ func is_cell_walkable(cell: Vector2i, direction: Vector2i = Vector2i.ZERO) -> bo
 
 	# Check for your custom property "non_walkable"
 	if tile_data.get_custom_data("non_walkable") == true:
+		print("That tile ain't walkable pal!")
 		return false
 
 	if is_cell_blocked(cell, direction):
+		print("That tile's blocked pal!")
 		return false
 
 	# Prevent stepping onto tiles already occupied by another enemy (no stacking)
@@ -262,23 +284,24 @@ func is_cell_walkable(cell: Vector2i, direction: Vector2i = Vector2i.ZERO) -> bo
 		target_tiles.append(cell + t)
 
 	var enemies := get_tree().get_nodes_in_group("enemy")
-	for e in enemies:
-		if e == null:
-			continue
-		if e == self:
-			continue
-		if not is_instance_valid(e):
-			continue
-		# some nodes in the group might not have the expected fields
-		if not ("grid_pos" in e and "my_tiles" in e):
-			continue
-		for other_t in e.my_tiles:
-			var other_cell = e.grid_pos + other_t
-			for my_t in target_tiles:
-				if e.grid_pos == grid_pos:
-					return false
-				if my_t == other_cell:
-					return false
+	if not self.is_player:
+		for e in enemies:
+			if e == null:
+				continue
+			if e == self:
+				continue
+			if not is_instance_valid(e):
+				continue
+			# some nodes in the group might not have the expected fields
+			if not ("grid_pos" in e and "my_tiles" in e):
+				continue
+			for other_t in e.my_tiles:
+				var other_cell = e.grid_pos + other_t
+				for my_t in target_tiles:
+					if e.grid_pos == grid_pos:
+						return false
+					if my_t == other_cell:
+						return false
 	return true
 
 
@@ -306,6 +329,9 @@ func add_skill(skill_name):
 	var skill = existing_skills.get_skill(skill_name)
 	if skill != null:
 		abilities.append(skill)
+		if skill_name not in acquired_abilities:
+			skill.activate_immediate(self)
+		acquired_abilities.append(skill_name)
 
 
 func activate_passives(user, target, battle):

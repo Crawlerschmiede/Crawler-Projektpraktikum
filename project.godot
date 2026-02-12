@@ -8,10 +8,6 @@
 
 config_version=5
 
-[animation]
-
-compatibility/default_parent_skeleton_in_mesh_instance_3d=true
-
 [application]
 
 config/name="Crawler-Projektpraktikum"
@@ -47,6 +43,10 @@ project/assembly_name="Crawler-Projektpraktikum"
 
 version_control/plugin_name="GitPlugin"
 version_control/autoload_on_startup=true
+
+[editor_plugins]
+
+enabled=PackedStringArray("room_manifest_generator")
 
 [global_group]
 

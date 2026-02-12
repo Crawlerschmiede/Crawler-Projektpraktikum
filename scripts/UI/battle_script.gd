@@ -21,6 +21,12 @@ const MARKER_FLAVOURS = {
 			"Pay attention to your positioning!"
 		]
 	},
+	"damage_":
+	{
+		"visual": "danger",
+		"info": "Standing here will make you take <PUTVALUEHERE> Damage!",
+		"log": ["That's a very precise strike!", "As in, there's a lot of places it isn't!"]
+	},
 	"death_":
 	{
 		"visual": "death",
@@ -75,6 +81,7 @@ func _ready():
 	player_sprite.position = combat_tilemap.map_to_local(player_gridpos)
 	skill_ui.setup(player, enemy, self, log_container, hit_anim_player)
 	hit_anim_enemy.visible = false
+	hit_anim_player.visible = false
 	# confirm setup returned
 	# skill_ui.setup already called above; if skill_list prints don't appear, check these messages
 	if skill_ui.has_signal("player_turn_done"):
@@ -207,9 +214,10 @@ func update_passives(depth = 0):
 
 
 func trigger_passives(abilities, user, target, battle, depth):
+	print("Triggering passives at depth ", depth)
 	for ability in abilities:
 		if ability.is_passive:
-			if ability.is_activateable(self):
+			if ability.is_activateable(user, target, self):
 				print("Activated the passive effect ", ability.name)
 				ability.activate_skill(user, target, battle, depth)
 				print("Active passive effects: ", user.get_alterations())
@@ -248,27 +256,46 @@ func cell_exists(cell: Vector2i) -> bool:
 
 func move_player(direction: String, distance: int):
 	var dir = ""
+	var basics = ["U", "D", "L", "R"]
+	var new_cell := player_gridpos
 	if player_sprite == null:
 		return "One cannot move what doesn't exist. Remember this."
+	if direction in basics:
+		var delta := Vector2i.ZERO
+		match direction:
+			"L":
+				delta = Vector2i(-distance, 0)
+				dir = "left"
+			"R":
+				delta = Vector2i(distance, 0)
+				dir = "right"
+			"U":
+				delta = Vector2i(0, -distance)
+				dir = "up"
+			"D":
+				delta = Vector2i(0, distance)
+				dir = "down"
+			_:
+				return []
 
-	var delta := Vector2i.ZERO
-	match direction:
-		"L":
-			delta = Vector2i(-distance, 0)
-			dir = "left"
-		"R":
-			delta = Vector2i(distance, 0)
-			dir = "right"
-		"U":
-			delta = Vector2i(0, -distance)
-			dir = "up"
-		"D":
-			delta = Vector2i(0, distance)
-			dir = "down"
-		_:
-			return []
-
-	var new_cell := player_gridpos + delta
+		new_cell = player_gridpos + delta
+	elif "rnd" in direction:
+		var parts = direction.split("_")
+		var area = parts[1]
+		var from_to = []
+		var min_y = get_min_y()
+		var possible_tiles = []
+		match area:
+			"short":
+				from_to = player.ranges[0]
+			"medium":
+				from_to = player.ranges[1]
+			"long":
+				from_to = player.ranges[2]
+		for tile in used_cells:
+			if tile.y >= (min_y + from_to[0]) and tile.y <= (min_y + from_to[1]):
+				possible_tiles.append(tile)
+		new_cell = possible_tiles[rng.randi_range(0, len(possible_tiles) - 1)]
 
 	if !cell_exists(new_cell):
 		return "Attempting to move " + dir + ", the player only pushed against the wall"
@@ -296,6 +323,10 @@ func check_curr_tile_mods():
 				player.hp = 0
 			"death_good":
 				enemy.hp = 0
+			"dmg_bad":
+				player.take_damage(modifier_value)
+			"dmg_good":
+				enemy.hp.take_damage(modifier_value)
 			"heal_good":
 				player.heal(modifier_value)
 			"heal_bad":
@@ -405,6 +436,7 @@ func apply_zones(zone_type, mult, pos, _dur, direction):
 		var marker = MARKER_PREFAB.instantiate()
 
 		marker.marker_type = marker_visual
+		print("Visual is ", marker_visual)
 		marker.tooltip_container = log_container
 		var text_val = mult
 		if zone_type == "dmg_reduc_":
