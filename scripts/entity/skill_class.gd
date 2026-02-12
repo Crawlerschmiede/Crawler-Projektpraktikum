@@ -247,24 +247,24 @@ class Effect:
 					),
 					"Target " + (messages[1] if messages.size() > 1 else "")
 				]
-				if recipient==target and active_dmg>0:
+				if recipient == target and active_dmg > 0:
 					for alteration in target.alterations:
 						if target.alterations[alteration].has("counter"):
-							var counter_dmg =target.alterations[alteration].counter
+							var counter_dmg = target.alterations[alteration].counter
 							if critted:
-								counter_dmg*=2
+								counter_dmg *= 2
 							_safe_invoke(user, "take_damage", [counter_dmg])
 			"movement":
 				print("Activating movement")
 				var basic_directions = ["U", "D", "L", "R"]
 				var can_move = true
-				
+
 				if user.is_player:
-					if user.frozen>0:
-						can_move=false
+					if user.frozen > 0:
+						can_move = false
 				else:
-					if target.frozen>0:
-						can_move=false
+					if target.frozen > 0:
+						can_move = false
 				if (details in basic_directions or "rnd" in details) and can_move:
 					ret = [battle.move_player(details, value)]
 			"danger_dmg_mult":
@@ -349,9 +349,7 @@ class Effect:
 					var parts = details.split("=")
 					dur = int(parts[1])
 				var recipient = user if targets_self else target
-				ret = _safe_invoke(
-					recipient, "add_alteration", ["counter", value, skill_name, dur]
-				)
+				ret = _safe_invoke(recipient, "add_alteration", ["counter", value, skill_name, dur])
 			"damage_nullification":
 				var dur = null
 				if "duration" in details:
