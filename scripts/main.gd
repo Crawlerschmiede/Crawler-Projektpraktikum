@@ -56,7 +56,8 @@ func _ready() -> void:
 	world_index = 0
 	# Normales Spiel starten (Welt 0)
 	await _load_world(world_index)
-	
+
+
 func _set_tree_paused(value: bool) -> void:
 	var _t = get_tree()
 	if _t != null:
@@ -970,6 +971,7 @@ func enemy_defeated(enemy):
 func _on_battle_player_loss() -> void:
 	# Now forward to existing game_over handler
 	game_over()
+
 
 func _on_battle_player_victory(enemy) -> void:
 	print("_on_battle_player_victory: handler invoked — calling enemy_defeated")
