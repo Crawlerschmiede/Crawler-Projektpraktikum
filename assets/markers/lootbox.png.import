@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://drnogsosojksh"
-path="res://.godot/imported/UI_TravelBook_Slot01b.png-26202954a2ae89ad382b034d66fe7ff0.ctex"
+uid="uid://cvvms8qtfvxlp"
+path="res://.godot/imported/lootbox.png-0d9dd1c4a35c49be7fff44d3991586c1.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/menu/UI_TravelBook_Slot01b.png"
-dest_files=["res://.godot/imported/UI_TravelBook_Slot01b.png-26202954a2ae89ad382b034d66fe7ff0.ctex"]
+source_file="res://assets/markers/lootbox.png"
+dest_files=["res://.godot/imported/lootbox.png-0d9dd1c4a35c49be7fff44d3991586c1.ctex"]
 
 [params]
 

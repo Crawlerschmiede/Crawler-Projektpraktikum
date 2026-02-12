@@ -6,7 +6,7 @@ enum SlotType {
 	INVENTORY = 1,
 }
 
-const SLOT_TEXTURE: Texture2D = preload("res://assets/menu/UI_TravelBook_Slot01b.png")
+const SLOT_TEXTURE: Texture2D = preload("res://assets/menu/inventar_slot.png")
 const ITEM_SCENE: PackedScene = preload("res://scenes/Item/item.tscn")
 
 @export var slot_index: int = -1

@@ -209,6 +209,7 @@ func update_unlocked_skills():
 
 func update_visibility():
 	if tilemap == null or fog_layer == null:
+		print("[DEBUG] update_visibility: tilemap=", tilemap, " fog_layer=", fog_layer)
 		return
 
 	var tm := tilemap
@@ -218,6 +219,8 @@ func update_visibility():
 
 	var visible_cells := {}
 
+	var erased_count := 0
+
 	for x in range(-radius, radius + 1):
 		for y in range(-radius, radius + 1):
 			var cell = player_cell + Vector2i(x, y)
@@ -226,7 +229,12 @@ func update_visibility():
 				continue
 			if not is_path_blocked(player_cell, cell):
 				fog.erase_cell(cell)
+				erased_count += 1
 				visible_cells[_cell_key(cell)] = cell
+
+	print(
+		"[DEBUG] update_visibility: erased=", erased_count, "visible_cells=", visible_cells.size()
+	)
 
 	if dynamic_fog:
 		# Re-fog cells that were visible previously but are not visible now
@@ -234,7 +242,7 @@ func update_visibility():
 			if not visible_cells.has(key):
 				var c: Vector2i = _prev_visible[key]
 				if tm.get_cell_source_id(c) != -1:
-					fog.set_cell(c, 2, Vector2(2, 4), 0)
+					fog.set_cell(c, 2, Vector2(12, 11), 0)
 
 	# store current visible set for next update
 	_prev_visible.clear()
@@ -289,3 +297,41 @@ func get_line_cells(start: Vector2i, end: Vector2i) -> Array:
 			y0 += sy
 
 	return points
+
+
+func reveal_on_spawn() -> void:
+	# Try to reveal the initial visible area and update minimap position.
+	# If tilemap or fog_layer are not yet assigned, try again deferred.
+	# If fog_layer wasn't injected (e.g. running the player scene directly),
+	# try to find a fog node in the scene tree (look for 'FogWar' or name containing 'fog').
+	if fog_layer == null:
+		var candidate = get_tree().get_root().find_node("FogWar", true, false)
+		if candidate != null and candidate is TileMapLayer:
+			fog_layer = candidate
+		else:
+			var found := _find_fog_node(get_tree().get_root())
+			if found != null:
+				fog_layer = found
+
+	print("[DEBUG] _reveal_on_spawn: tilemap=", tilemap, " fog_layer=", fog_layer)
+	if tilemap == null or fog_layer == null:
+		call_deferred("_reveal_on_spawn")
+		return
+
+	update_visibility()
+	if minimap != null:
+		minimap.global_position = -1 * global_position
+
+
+func _find_fog_node(node: Node) -> TileMapLayer:
+	for child in node.get_children():
+		if child is TileMapLayer:
+			var nm := str(child.name).to_lower()
+			if nm.find("fog") != -1:
+				return child
+		# recursive
+		var res := _find_fog_node(child)
+		if res != null:
+			return res
+	# nothing found
+	return null
