@@ -47,7 +47,7 @@ func _ready() -> void:
 	generators = [generator1, generator2, generator3]
 
 	# Tutorial prüfen (JSON: res://data/tutorialData.json)
-	if not _has_completed_tutorial():
+	if _has_completed_tutorial():
 		await _load_tutorial_world()
 		return
 	else:
@@ -62,17 +62,61 @@ func _load_tutorial_world() -> void:
 
 	_clear_world()
 
-	# Lade Tutorial Room Szene
-	var tutorial_scene = preload(TUTORIAL_ROOM).instantiate() as Node2D
+	world_root = Node2D.new()
+	world_root.name = "WorldRoot"
+	add_child(world_root)
+
+	# Versuche zuerst, die Tutorial-Szene als Generator zu behandeln
+	var tutorial_packed := preload(TUTORIAL_ROOM)
+	var tutorial_inst := tutorial_packed.instantiate()
+
+	if tutorial_inst != null and tutorial_inst.has_method("get_random_tilemap"):
+		# Generator-API vorhanden -> wie bei _load_world verwenden
+		var maps: Dictionary = await tutorial_inst.get_random_tilemap()
+
+		if maps.is_empty():
+			push_warning("Tutorial generator returned empty maps, falling back to scene extraction")
+		else:
+			dungeon_floor = maps.get("floor", null)
+			dungeon_top = maps.get("top", null)
+			minimap = maps.get("minimap", null)
+
+			# attach maps to world_root if not parented
+			if dungeon_floor != null and dungeon_floor.get_parent() == null:
+				world_root.add_child(dungeon_floor)
+			if dungeon_top != null and dungeon_top.get_parent() == null:
+				world_root.add_child(dungeon_top)
+
+			if fog_war_layer != null and dungeon_floor != null:
+				init_fog_layer()
+
+			if dungeon_floor != null:
+				dungeon_floor.visibility_layer = 1
+
+			update_color_filter()
+
+			spawn_player()
+			spawn_enemies()
+			spawn_lootbox()
+			spawn_traps()
+
+			var merchants = find_merchants()
+			for i in merchants:
+				spawn_merchant_entity(i)
+
+			_hide_loading()
+			get_tree().paused = false
+			if is_instance_valid(tutorial_inst):
+				tutorial_inst.queue_free()
+			return
+
+	# Fallback: Tutorial-Szene wie bisher parsen (TileMapLayer / Area2D etc.)
+	var tutorial_scene = tutorial_inst as Node2D
 	if tutorial_scene == null:
 		push_error("Failed to load tutorial scene!")
 		_hide_loading()
 		get_tree().paused = false
 		return
-
-	world_root = Node2D.new()
-	world_root.name = "WorldRoot"
-	add_child(world_root)
 
 	# Extrahiere Tilemaps aus der Tutorial Room
 	var tilemaps = tutorial_scene.find_children("*", "TileMapLayer")
@@ -114,8 +158,6 @@ func _load_tutorial_world() -> void:
 		if area.get_parent() != null:
 			area.get_parent().remove_child(area)
 		world_root.add_child(area)
-		# Position beibehalten oder auf 0,0 setzen je nach Anforderung
-		# Hier setzen wir sie auf Vector2.ZERO um sie zu alignen wie die Tilemaps
 		area.position = Vector2.ZERO
 
 	# Extrahiere und verschiebe auch alle StaticBody2D und andere Physics-Bodies für Obstacles
