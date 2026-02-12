@@ -10,11 +10,13 @@ const TRAP := preload("res://scenes/Interactables/Trap.tscn")
 const MERCHANT := preload("res://scenes/entity/merchant.tscn")
 const LOADING_SCENE := preload("res://scenes/UI/loading_screen.tscn")
 const START_SCENE := "res://scenes/UI/start-menu.tscn"
+const DEATH_SCENE := "res://scenes/UI/death-screen.tscn"
 const SEWER_TILESET := "res://scenes/rooms/Rooms/roomtiles_2world.tres"
 const TUTORIAL_ROOM := "res://scenes/rooms/Tutorial Rooms/tutorial_room.tscn"
 @export var menu_scene := preload("res://scenes/UI/popup-menu.tscn")
 @export var fog_tile_id: int = 0  # set this in the inspector to the fog-tile id in your tileset
 @export var fog_dynamic: bool = true  # if true, areas that are no longer visible get fogged again
+@export var free_main_on_death: bool = true # wenn true, versucht `main` nach Wechsel zu entfernen
 
 # --- World state ---
 var world_index: int = -1
@@ -968,7 +970,45 @@ func _on_battle_player_victory(enemy) -> void:
 
 
 func game_over():
-	get_tree().change_scene_to_file(START_SCENE)
+	# Resolve SceneTree (get_tree() can be null if this node is not in tree)
+	var tree = get_tree()
+	if tree == null:
+		var ml = Engine.get_main_loop()
+		if ml != null and ml is SceneTree:
+			tree = ml
+
+	# Make sure the SceneTree is not paused so the Death scene receives input
+	if tree != null and tree.paused:
+		tree.paused = false
+
+	# If a battle UI is present as a child of this autoload/main node, remove it
+	if battle != null and is_instance_valid(battle):
+		battle.queue_free()
+		battle = null
+
+	# Remove menu and world children to free memory before scene switch
+	if menu_instance != null and is_instance_valid(menu_instance):
+		menu_instance.queue_free()
+		menu_instance = null
+
+	if world_root != null and is_instance_valid(world_root):
+		world_root.queue_free()
+		world_root = null
+
+	# Wechsel zuerst vollständig in die Death-Szene; die Death-Szene wechselt
+	# nach `wait_time` Sekunden zurück ins Start-Menü oder per Button.
+	if tree != null:
+		tree.change_scene_to_file(DEATH_SCENE)
+	else:
+		push_error("game_over: cannot resolve SceneTree to change scene")
+
+	# Optional: free this main node after switching (user requested removing main)
+	if free_main_on_death:
+		# schedule deferred free to avoid modifying tree during change_scene
+		if is_inside_tree():
+			call_deferred("queue_free")
+		else:
+			queue_free()
 
 
 # -----------------------------------------------------

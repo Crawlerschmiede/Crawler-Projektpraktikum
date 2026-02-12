@@ -70,9 +70,12 @@ func _populate_list(tab_idx: int) -> void:
 			for ability in player.actions:
 				_add_button(ability)
 	if list_vbox.get_child_count() > 0:
-		await get_tree().process_frame
+		var _tree = get_tree()
+		if _tree != null:
+			await _tree.process_frame
 		selected_index = 0
-		await get_tree().process_frame
+		if _tree != null:
+			await _tree.process_frame
 		_highlight_selected()
 
 
@@ -144,7 +147,9 @@ func _scroll_to_button(btn: Button) -> void:
 	if not is_instance_valid(btn):
 		return
 
-	await get_tree().process_frame
+	var _tree = get_tree()
+	if _tree != null:
+		await _tree.process_frame
 
 	if not is_instance_valid(btn):
 		return

@@ -5,7 +5,7 @@
 [ext_resource type="Texture2D" uid="uid://bb54nue8qv54r" path="res://assets/menu/menu background.jpg" id="1_q21ov"]
 [ext_resource type="Script" uid="uid://dx5c40fygk35o" path="res://scripts/entity/floating_character.gd" id="2_q21ov"]
 [ext_resource type="FontFile" uid="uid://d4fqcjicieold" path="res://assets/font/PixelPurl.ttf" id="3_o1opb"]
-[ext_resource type="Shader" uid="uid://cot202ickvsd0" path="res://shaders/start-menu.gdshader" id="4_o1opb"]
+[ext_resource type="Shader" path="res://shaders/start-menu.gdshader" id="4_o1opb"]
 [ext_resource type="Script" uid="uid://bthnaemvycse0" path="res://scripts/UI/label.gd" id="6_ui70f"]
 [ext_resource type="Script" uid="uid://bry2bdes3f12p" path="res://scripts/UI/button_effect.gd" id="8_oy7i1"]
 [ext_resource type="AudioStream" uid="uid://boedoftq5v5in" path="res://assets/sfx/Secret of Tiki Island.mp3" id="9_w3k7h"]
