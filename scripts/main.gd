@@ -547,6 +547,10 @@ func _clear_world() -> void:
 	dungeon_floor = null
 	dungeon_top = null
 
+	# Reset entity spawn reservations so next world can reuse positions
+	if EntityAutoload != null and EntityAutoload.has_method("reset"):
+		EntityAutoload.reset()
+
 
 func _on_player_exit_reached() -> void:
 	if switching_world:
