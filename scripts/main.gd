@@ -8,6 +8,8 @@ const TRAP := preload("res://scenes/Interactables/Trap.tscn")
 const MERCHANT := preload("res://scenes/entity/merchant.tscn")
 const LOADING_SCENE := preload("res://scenes/UI/loading_screen.tscn")
 const START_SCENE := "res://scenes/UI/start-menu.tscn"
+const DEATH_SCENE := "res://scenes/UI/death-screen.tscn"
+const DEATH_SCENE_PACKED := preload("res://scenes/UI/death-screen.tscn")
 const SEWER_TILESET := "res://scenes/rooms/Rooms/roomtiles_2world.tres"
 const TUTORIAL_ROOM := "res://scenes/rooms/Tutorial Rooms/tutorial_room.tscn"
 @export var menu_scene := preload("res://scenes/UI/popup-menu.tscn")
@@ -54,10 +56,17 @@ func _ready() -> void:
 		world_index = 0
 	# Normales Spiel starten (Welt 0)
 	await _load_world(world_index)
+	
+func _set_tree_paused(value: bool) -> void:
+	var _t = get_tree()
+	if _t != null:
+		_t.paused = value
+	else:
+		push_warning("_set_tree_paused: SceneTree is null; ignored")
 
 
 func _load_tutorial_world() -> void:
-	get_tree().paused = true
+	_set_tree_paused(true)
 	await _show_loading()
 
 	_clear_world()
@@ -67,7 +76,7 @@ func _load_tutorial_world() -> void:
 	if tutorial_scene == null:
 		push_error("Failed to load tutorial scene!")
 		_hide_loading()
-		get_tree().paused = false
+		_set_tree_paused(false)
 		return
 
 	world_root = Node2D.new()
@@ -80,7 +89,7 @@ func _load_tutorial_world() -> void:
 	if tilemaps.is_empty():
 		push_error("Tutorial scene has no TileMapLayer!")
 		_hide_loading()
-		get_tree().paused = false
+		_set_tree_paused(false)
 		return
 
 	# Nutze die erste Tilemap als floor
@@ -147,11 +156,11 @@ func _load_tutorial_world() -> void:
 		spawn_merchant_entity(i)
 
 	_hide_loading()
-	get_tree().paused = false
+	_set_tree_paused(false)
 
 
 func _load_world(idx: int) -> void:
-	get_tree().paused = true
+	_set_tree_paused(true)
 	await _show_loading()
 
 	# sorgt dafür, dass Loading immer weggeht
@@ -162,7 +171,7 @@ func _load_world(idx: int) -> void:
 	if idx < 0 or idx >= generators.size():
 		push_error("No more worlds left!")
 		_hide_loading()
-		get_tree().paused = false
+		_set_tree_paused(false)
 		return
 
 	var gen := generators[idx]
@@ -181,7 +190,7 @@ func _load_world(idx: int) -> void:
 	if maps.is_empty():
 		push_error("Generator returned empty dictionary!")
 		_hide_loading()
-		get_tree().paused = false
+		_set_tree_paused(false)
 		return
 
 	dungeon_floor = maps.get("floor", null)
@@ -203,7 +212,7 @@ func _load_world(idx: int) -> void:
 	if dungeon_floor == null:
 		push_error("Generator returned null floor tilemap!")
 		_hide_loading()
-		get_tree().paused = false
+		_set_tree_paused(false)
 		return
 
 	# minimap background
@@ -234,7 +243,7 @@ func _load_world(idx: int) -> void:
 		spawn_merchant_entity(i)
 
 	_hide_loading()
-	get_tree().paused = false
+	_set_tree_paused(false)
 
 
 func spawn_merchant_entity(cords: Vector2) -> void:
@@ -563,7 +572,7 @@ func toggle_menu():
 		menu_instance = menu_scene.instantiate()
 		add_child(menu_instance)
 
-		get_tree().paused = true
+		_set_tree_paused(true)
 
 		if menu_instance.has_signal("menu_closed"):
 			menu_instance.menu_closed.connect(on_menu_closed)
@@ -575,7 +584,7 @@ func on_menu_closed():
 	if menu_instance != null and is_instance_valid(menu_instance):
 		menu_instance.queue_free()
 		menu_instance = null
-	get_tree().paused = false
+	_set_tree_paused(false)
 
 
 func spawn_enemies() -> void:
@@ -846,7 +855,7 @@ func instantiate_battle(player_node: Node, enemy: Node):
 			print("instantiate_battle: battle has no signal player_loss")
 
 		print("instantiate_battle: pausing tree to run battle")
-		get_tree().paused = true
+		_set_tree_paused(true)
 
 
 func find_merchants() -> Array[Vector2]:
@@ -878,9 +887,10 @@ func find_merchants() -> Array[Vector2]:
 func enemy_defeated(enemy):
 	print("enemy_defeated: The battle is won - handler called")
 	# Make sure game is unpaused first so UI can update
-	if get_tree().paused:
+	var _t := get_tree()
+	if _t != null and _t.paused:
 		print("enemy_defeated: unpausing tree")
-		get_tree().paused = false
+		_set_tree_paused(false)
 
 	if battle != null and is_instance_valid(battle):
 		print("enemy_defeated: freeing battle UI")
@@ -900,15 +910,19 @@ func _on_battle_player_loss() -> void:
 	# Now forward to existing game_over handler
 	game_over()
 
-
 func _on_battle_player_victory(enemy) -> void:
 	print("_on_battle_player_victory: handler invoked — calling enemy_defeated")
 	enemy_defeated(enemy)
 
 
 func game_over():
-	get_tree().paused = false
-	get_tree().change_scene_to_file(START_SCENE)
+	_set_tree_paused(false)
+	var _t = get_tree()
+	if _t != null:
+		# Use preloaded PackedScene for a safer, faster scene change
+		_t.change_scene_to_packed(DEATH_SCENE_PACKED)
+	else:
+		push_error("game_over: SceneTree is null; cannot change scene to death screen")
 
 
 # -----------------------------------------------------
