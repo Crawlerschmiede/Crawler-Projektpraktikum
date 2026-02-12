@@ -9,7 +9,7 @@ const DIRECTIONS := [Vector2i.RIGHT, Vector2i.LEFT, Vector2i.UP, Vector2i.DOWN]
 const SKILLS := preload("res://scripts/entity/premade_skills.gd")
 var existing_skills = SKILLS.new()
 const SKILLTREES := preload("res://scripts/entity/premade_skilltrees.gd")
-const ACTIVE_SKILLTREES: Array[String] = ["unarmed"]
+const ACTIVE_SKILLTREES: Array[String] = ["Short Ranged Weaponry", "basic"]
 
 
 var existing_skilltrees = SKILLTREES.new()

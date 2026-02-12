@@ -168,7 +168,7 @@ func _on_area_2d_area_entered(area: Area2D):
 func level_up():
 	self.max_hp = self.max_hp + 1
 	self.hp = self.max_hp
-	existing_skilltrees.increase_tree_level("unarmed")
+	existing_skilltrees.increase_tree_level("Short Ranged Weaponry")
 	update_unlocked_skills()
 
 

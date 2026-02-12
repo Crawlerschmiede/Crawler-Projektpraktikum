@@ -137,7 +137,7 @@ var existing_skills = {
 	#unarmed player stuff
 	"Punch":
 	{
-		"tree": "hitting and punching and biting and kicking people",
+		"tree": "basic",
 		"tier":1,
 		"description": "It's a punch... you don't need an explanation",
 		"effects": [["damage", 2, false, "No"]],
@@ -145,7 +145,7 @@ var existing_skills = {
 	},
 	"Right Pivot":
 	{
-		"tree": "hitting and punching and biting and kicking people",
+		"tree": "basic",
 		"tier":2,
 		"description": "It's a punch BUT you also take a step to the right, how novel!",
 		"effects": [["damage", 1, false, "No"], ["movement", 1, true, "R"]],
@@ -153,7 +153,7 @@ var existing_skills = {
 	},
 	"Left Pivot":
 	{
-		"tree": "hitting and punching and biting and kicking people",
+		"tree": "basic",
 		"tier":2,
 		"description": "It's a punch BUT you also take a step to the left, how exciting!",
 		"effects": [["damage", 1, false, "No"], ["movement", 1, true, "L"]],
@@ -161,7 +161,7 @@ var existing_skills = {
 	},
 	"Full Power Punch":
 	{
-		"tree": "hitting and punching and biting and kicking people",
+		"tree": "basic",
 		"tier":4,
 		"description": "Have you ever punched someone with your life on the line?",
 		"effects": [["damage", 3, false, "No"], ["damage", 1, true, "No"], ["stun", 1, true, "No"]],

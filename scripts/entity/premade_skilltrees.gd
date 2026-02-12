@@ -9,7 +9,7 @@ var existing_skills = SKILLS.new()
 # tier is the level of the tree, 0 being unselected
 #skills should be in the format [name, required tier]
 var skilltrees = {
-	"unarmed": 0,
+	"basic": 0,
 	"Short Ranged Weaponry":0,
 	"Medium Ranged Weaponry":0,
 	"Long Ranged Weaponry":0,
@@ -26,11 +26,11 @@ func get_active_skills():
 			active_trees.append(wanted_tree)
 	for active_tree in active_trees:
 		var skills_in_tree = existing_skills.get_skills_by_tree(active_tree)
-		print(skills_in_tree)
+		print("skills in tree: ",skills_in_tree)
 		for skill_in_tree in skills_in_tree:
-			if skill_in_tree.has("tier"):
-				if skill_in_tree.tier<=skilltrees[active_tree]:
-					active_skills.append(skill_in_tree.skill_in_tree)
+			if skill_in_tree[1].has("tier"):
+				if skill_in_tree[1].tier<=skilltrees[active_tree]:
+					active_skills.append(skill_in_tree[0])
 	return active_skills
 
 
