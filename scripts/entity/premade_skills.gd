@@ -258,6 +258,14 @@ var existing_skills = {
 		"on_acquisition": [["range_buff", 1, true, "medium"]],
 		"conditions": ["outside_medium_range"]
 	},
+	"Riposte":
+	{
+		"tree": "Medium Ranged Weaponry",
+		"tier":5,
+		"description": "You know who looks extra punchable? People that punch you",
+		"effects": [["counter", 1, true, "No"]],
+		"passive": true
+	},
 	
 	#long ranged weaponry
 	"Sniper Position":

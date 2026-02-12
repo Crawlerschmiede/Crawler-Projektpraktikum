@@ -211,12 +211,14 @@ class Effect:
 			"damage":
 				print("Activating damage!")
 				var active_dmg = value
+				var critted = false
 				for modifier_name in active_placement_effects:
 					var modifier_value = active_placement_effects[modifier_name]
 
 					match modifier_name:
 						"dmg_mult_bad":
 							if !user.is_player:
+								critted = true
 								active_dmg *= modifier_value
 						"dmg_mult_good":
 							if user.is_player:
@@ -245,6 +247,13 @@ class Effect:
 					),
 					"Target " + (messages[1] if messages.size() > 1 else "")
 				]
+				if recipient==target and active_dmg>0:
+					for alteration in target.alterations:
+						if target.alterations[alteration].has("counter"):
+							var counter_dmg =target.alterations[alteration].counter
+							if critted:
+								counter_dmg*=2
+							_safe_invoke(user, "take_damage", [counter_dmg])
 			"movement":
 				print("Activating movement")
 				var basic_directions = ["U", "D", "L", "R"]
@@ -333,6 +342,15 @@ class Effect:
 				var recipient = user if targets_self else target
 				ret = _safe_invoke(
 					recipient, "add_alteration", ["dodge_chance", value, skill_name, dur]
+				)
+			"counter":
+				var dur = null
+				if "duration" in details:
+					var parts = details.split("=")
+					dur = int(parts[1])
+				var recipient = user if targets_self else target
+				ret = _safe_invoke(
+					recipient, "add_alteration", ["counter", value, skill_name, dur]
 				)
 			"damage_nullification":
 				var dur = null
