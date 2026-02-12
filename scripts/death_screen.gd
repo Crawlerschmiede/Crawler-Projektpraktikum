@@ -25,16 +25,16 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _go_to_start() -> void:
-	var _t = get_tree()
-	if _t == null:
+	var scene_tree = get_tree()
+	if scene_tree == null:
 		push_error("death_screen: SceneTree is null; cannot change to start menu")
 		return
 
 	# Prefer file-based change for robustness; fallback to PackedScene only if clearly valid
 	if START_SCENE_PACKED == null:
-		_t.change_scene_to_file(START_SCENE)
+		scene_tree.change_scene_to_file(START_SCENE)
 		return
 
 	# Some PackedScene resources in this project are sometimes invalid (empty) after merges.
 	# Use file-based change to avoid 'node count is 0' instantiate errors.
-	_t.change_scene_to_file(START_SCENE)
+	scene_tree.change_scene_to_file(START_SCENE)

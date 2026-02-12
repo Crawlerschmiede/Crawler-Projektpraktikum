@@ -29,16 +29,19 @@ var _binds_and_menus_layer: CanvasLayer = null
 @onready var inventory = $UserInterface/Inventory
 #@export var binds_and_menus: PackedScene
 
+
 func _cell_key(cell: Vector2i) -> String:
 	return "%d,%d" % [cell.x, cell.y]
 
-func _input(event):
+
+func _input(_event):
 	# Check if the 'toggle_menu' action (H) was just pressed
 	if Input.is_action_just_pressed("binds_and_menus"):
 		if _binds_and_menus_instance == null:
 			_open_menu()
 		else:
 			_close_menu()
+
 
 func _open_menu() -> void:
 	if _binds_and_menus_instance != null:
@@ -69,7 +72,8 @@ func _close_menu() -> void:
 
 	_binds_and_menus_layer = null
 	_binds_and_menus_instance = null
-	
+
+
 func _ready() -> void:
 	if camera == null:
 		#print("Children:", get_children())

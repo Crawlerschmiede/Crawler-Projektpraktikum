@@ -1,7 +1,8 @@
-extends Control 
+extends Control
 
 signal closed
 var Inventory = load("res://scenes/entity/player-character-scene.tscn")
+
 
 func _ready():
 	# Loop through all children to find Buttons and Sprites
@@ -11,14 +12,16 @@ func _ready():
 		# Check if the sprite has our custom signal before connecting
 		if sprite.has_signal("clicked"):
 			sprite.clicked.connect(_on_element_clicked)
-			
+
+
 #func _input(event):
 #	if event is InputEventKey and event.pressed and event.keycode == KEY_H:
 #		get_tree().change_scene_to_file("res://scenes/entity/player-character-scene.tscn")
-		
+
+
 func _on_element_clicked(element_name: String):
 	print("Clicked: ", element_name)
-	
+
 	match element_name:
 		"InventoryLabel", "InventoryIcon":
 			#idea1
@@ -29,8 +32,6 @@ func _on_element_clicked(element_name: String):
 			#closed.emit()
 			return
 
-						
-						
 		"SettingsLabel", "SettingsIcon":
 			get_tree().change_scene_to_file("res://scenes/UI/settings_menu.tscn")
 		"MenuLabel", "MenuIcon":
