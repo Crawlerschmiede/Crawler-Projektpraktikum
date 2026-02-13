@@ -7,7 +7,11 @@ extends CharacterBody2D
 const TILE_SIZE: int = 16
 const DIRECTIONS := [Vector2i.RIGHT, Vector2i.LEFT, Vector2i.UP, Vector2i.DOWN]
 const SKILLS := preload("res://scripts/entity/premade_skills.gd")
+const SKILLTREES := preload("res://scripts/entity/premade_skilltrees.gd")
+const ACTIVE_SKILLTREES: Array[String] = ["Short Ranged Weaponry", "basic"]
+
 var existing_skills = SKILLS.new()
+var existing_skilltrees = SKILLTREES.new()
 var abilities_this_has: Array = []
 var multi_turn_action = null
 var types
@@ -72,6 +76,9 @@ var stun_recovery = 1
 
 var poisoned = 0
 var poison_recovery = 1
+
+var frozen = 0
+var freeze_recovery = 1
 
 #--- buffs/debuffs... status effects someday
 #should be in the format "<Source_Name>:{"<type>":<value>}"
@@ -445,8 +452,32 @@ func initiate_battle(player: Node, enemy: Node) -> bool:
 func take_damage(damage):
 	#print(self, " takes ", damage, " damage!")
 	var taken_damage = damage  #useless right now but just put here for later damage calculations
+	print(self.name, " should take damage")
+	print(alterations)
+	for alteration in alterations:
+		if alterations[alteration].has("dodge_chance"):
+			var dodge_chance = alterations[alteration].dodge_chance * 100
+			var dodged = rng.randi_range(0, 100)
+			if dodged < dodge_chance:
+				var closeness = ""
+				if dodge_chance - dodged <= 1:
+					closeness = " by a hairs breadth"
+				elif dodge_chance - dodged < 5:
+					closeness = " barely"
+				elif dodge_chance - dodged < 10:
+					closeness = ""
+				elif dodge_chance - dodged < 30:
+					closeness = "easily"
+				elif dodge_chance - dodged < 50:
+					closeness = " by a disrespectfully large margin"
+				print("but dodges! with a chance of", dodge_chance, " against ", dodged)
+				return [
+					" avoided " + str(taken_damage) + " Damage by dodging" + closeness,
+					" now has " + str(hp) + " HP"
+				]
 	hp = hp - taken_damage
 	#print("Now has ", hp, "HP")
+	print("And in fact does...")
 	return [" took " + str(taken_damage) + " Damage", " now has " + str(hp) + " HP"]
 
 
@@ -478,6 +509,11 @@ func increase_stun(amount):
 	return ["Stun increases to " + str(stunned) + "!"]
 
 
+func increase_freeze(amount):
+	frozen += amount
+	return ["Freeze increases to " + str(frozen) + "!"]
+
+
 func full_status_heal():
 	stunned = 0
 	poisoned = 0
@@ -498,6 +534,11 @@ func deal_with_status_effects() -> Array:
 		if poisoned < 0:
 			poisoned = 0
 		things_that_happened.append("Target" + message[0] + " from poison! Target" + message[1])
+	if frozen > 0:
+		frozen -= freeze_recovery
+		if frozen < 0:
+			frozen = 0
+		things_that_happened.append("Target was frozen and can't move!")
 	return [gets_a_turn, things_that_happened]
 
 

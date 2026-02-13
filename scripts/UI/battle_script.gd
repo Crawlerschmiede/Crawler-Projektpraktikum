@@ -55,6 +55,9 @@ var next_turn: Array[Skill] = []
 var turn_counter = 0
 var active: bool = true
 
+var enemy_action_log = []
+var player_action_log = []
+
 @onready var hit_anim_enemy: AnimatedSprite2D = $Battle_root/PlayerPosition/enemy_attack_anim
 @onready var hit_anim_player: AnimatedSprite2D = $Battle_root/EnemyPosition/player_attack_anim
 @onready var enemy_marker = $Battle_root/EnemyPosition
@@ -128,6 +131,7 @@ func enemy_prepare_turn():
 	log_container.add_log_event("The enemy prepares its Skill " + enemy.chosen.name + "!")
 	#print(enemy, " prepares its Skill ", enemy.chosen.name, "!")
 	var preps = enemy.chosen.prep_skill(enemy, player, self)
+	update_passives(0, true)
 	for prep in preps:
 		log_container.add_log_event(prep)
 	player.refill_actions()
@@ -154,6 +158,8 @@ func enemy_turn():
 		if extra_stuff[0]:
 			#print(enemy, " activates its Skill ", enemy.chosen.name, "!")
 			happened = enemy.chosen.activate_skill(enemy, player, self)
+			enemy_action_log.append(enemy.chosen.name)
+			print(enemy_action_log)
 			if hit_anim_enemy != null:
 				hit_anim_enemy.visible = true
 				hit_anim_enemy.play("triple_strike")
@@ -174,6 +180,7 @@ func enemy_turn():
 		next_turn = []
 		if extra_stuff[0]:
 			player_turn()
+			print(player_action_log)
 		else:
 			enemy_turn()
 		check_victory()
@@ -207,19 +214,22 @@ func force_stop() -> void:
 		hit_anim_player.visible = false
 
 
-func update_passives(depth = 0):
-	trigger_passives(player.abilities, player, enemy, self, depth)
+func update_passives(depth = 0, prep = false):
+	trigger_passives(player.abilities, player, enemy, self, depth, prep)
 	#trigger_passives(player.items, player, enemy, self)	#will items have passives?
-	trigger_passives(enemy.abilities, enemy, player, self, depth)
+	trigger_passives(enemy.abilities, enemy, player, self, depth, prep)
 
 
-func trigger_passives(abilities, user, target, battle, depth):
+func trigger_passives(abilities, user, target, battle, depth, prep):
 	print("Triggering passives at depth ", depth)
 	for ability in abilities:
 		if ability.is_passive:
 			if ability.is_activateable(user, target, self):
 				print("Activated the passive effect ", ability.name)
-				ability.activate_skill(user, target, battle, depth)
+				if prep:
+					ability.prep_skill(user, target, battle)
+				else:
+					ability.activate_skill(user, target, battle, depth)
 				print("Active passive effects: ", user.get_alterations())
 			else:
 				ability.deactivate(user)
@@ -351,6 +361,7 @@ func get_min_y():
 
 
 func apply_zones(zone_type, mult, pos, _dur, direction):
+	print("Applying ", zone_type, " zones at ", pos)
 	# NOTE: duration currently unused (effects are 1-turn only).
 	var mult_type = zone_type + direction
 	var marker_info = MARKER_FLAVOURS[zone_type]
@@ -433,10 +444,18 @@ func apply_zones(zone_type, mult, pos, _dur, direction):
 				tile_modifiers[tile] = {mult_type: mult}
 
 	for cell: Vector2i in tile_modifiers.keys():
+		print("Tile modifiers", tile_modifiers)
 		var marker = MARKER_PREFAB.instantiate()
+		var correct = false
+		for key in tile_modifiers[cell].keys():
+			if zone_type in key:
+				correct = true
+		if not correct:
+			continue
 
 		marker.marker_type = marker_visual
 		print("Visual is ", marker_visual)
+		print("Adding ", marker.marker_type, " marker!")
 		marker.tooltip_container = log_container
 		var text_val = mult
 		if zone_type == "dmg_reduc_":

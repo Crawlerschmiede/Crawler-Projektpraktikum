@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://drnogsosojksh"
-path="res://.godot/imported/UI_TravelBook_Slot01b.png-26202954a2ae89ad382b034d66fe7ff0.ctex"
+uid="uid://c83x8kdaypyo"
+path="res://.godot/imported/Gear 8 - Bronze_spritesheet.png-092b22074135df429fd0da5bbba8a756.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/menu/UI_TravelBook_Slot01b.png"
-dest_files=["res://.godot/imported/UI_TravelBook_Slot01b.png-26202954a2ae89ad382b034d66fe7ff0.ctex"]
+source_file="res://assets/menu/Gear 8 - Bronze_spritesheet.png"
+dest_files=["res://.godot/imported/Gear 8 - Bronze_spritesheet.png-092b22074135df429fd0da5bbba8a756.ctex"]
 
 [params]
 
