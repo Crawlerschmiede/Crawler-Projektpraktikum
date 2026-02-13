@@ -34,4 +34,7 @@ func get_active_skills():
 
 
 func increase_tree_level(tree_name: String):
-	skilltrees[tree_name] = skilltrees[tree_name] + 1
+	if not skilltrees.has(tree_name):
+		push_warning("Unknown skilltree: %s" % tree_name)
+		return
+	skilltrees[tree_name] = int(skilltrees[tree_name]) + 1
