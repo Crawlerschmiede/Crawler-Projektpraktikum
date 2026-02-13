@@ -20,3 +20,4 @@ func reset_all() -> void:
 	PlayerInventory.reset()
 	JsonData.reset()
 	SettingsManager.reset()
+	EntityAutoload.reset()

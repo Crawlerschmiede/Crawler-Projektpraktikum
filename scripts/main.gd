@@ -51,7 +51,7 @@ func _ready() -> void:
 	generators = [generator1, generator2, generator3]
 
 	# Tutorial prüfen (JSON: res://data/tutorialData.json)
-	if not _has_completed_tutorial():
+	if _has_completed_tutorial():
 		await _load_tutorial_world()
 		return
 
@@ -74,17 +74,59 @@ func _load_tutorial_world() -> void:
 
 	_clear_world()
 
-	# Lade Tutorial Room Szene
-	var tutorial_scene = preload(TUTORIAL_ROOM).instantiate() as Node2D
+	world_root = Node2D.new()
+	world_root.name = "WorldRoot"
+	add_child(world_root)
+
+	# Versuche zuerst, die Tutorial-Szene als Generator zu behandeln
+	var tutorial_packed := preload(TUTORIAL_ROOM)
+	var tutorial_inst := tutorial_packed.instantiate()
+
+	if tutorial_inst != null and tutorial_inst.has_method("get_random_tilemap"):
+		# Generator-API vorhanden -> wie bei _load_world verwenden
+		var maps: Dictionary = await tutorial_inst.get_random_tilemap()
+
+		if maps.is_empty():
+			push_warning("Tutorial generator returned empty maps, falling back to scene extraction")
+		else:
+			dungeon_floor = maps.get("floor", null)
+			dungeon_top = maps.get("top", null)
+			minimap = maps.get("minimap", null)
+
+			# attach maps to world_root if not parented
+			if dungeon_floor != null and dungeon_floor.get_parent() == null:
+				world_root.add_child(dungeon_floor)
+			if dungeon_top != null and dungeon_top.get_parent() == null:
+				world_root.add_child(dungeon_top)
+
+			if fog_war_layer != null and dungeon_floor != null:
+				init_fog_layer()
+
+			if dungeon_floor != null:
+				dungeon_floor.visibility_layer = 1
+
+			spawn_player()
+			spawn_enemies()
+			spawn_lootbox()
+			spawn_traps()
+
+			var merchants = find_merchants()
+			for i in merchants:
+				spawn_merchant_entity(i)
+
+			_hide_loading()
+			get_tree().paused = false
+			if is_instance_valid(tutorial_inst):
+				tutorial_inst.queue_free()
+			return
+
+	# Fallback: Tutorial-Szene wie bisher parsen (TileMapLayer / Area2D etc.)
+	var tutorial_scene = tutorial_inst as Node2D
 	if tutorial_scene == null:
 		push_error("Failed to load tutorial scene!")
 		_hide_loading()
 		_set_tree_paused(false)
 		return
-
-	world_root = Node2D.new()
-	world_root.name = "WorldRoot"
-	add_child(world_root)
 
 	# Extrahiere Tilemaps aus der Tutorial Room
 	var tilemaps = tutorial_scene.find_children("*", "TileMapLayer")
@@ -126,8 +168,6 @@ func _load_tutorial_world() -> void:
 		if area.get_parent() != null:
 			area.get_parent().remove_child(area)
 		world_root.add_child(area)
-		# Position beibehalten oder auf 0,0 setzen je nach Anforderung
-		# Hier setzen wir sie auf Vector2.ZERO um sie zu alignen wie die Tilemaps
 		area.position = Vector2.ZERO
 
 	# Extrahiere und verschiebe auch alle StaticBody2D und andere Physics-Bodies für Obstacles
@@ -571,6 +611,10 @@ func _clear_world() -> void:
 	dungeon_floor = null
 	dungeon_top = null
 
+	# Reset entity spawn reservations so next world can reuse positions
+	if EntityAutoload != null and EntityAutoload.has_method("reset"):
+		EntityAutoload.reset()
+
 
 func _on_player_exit_reached() -> void:
 	if switching_world:
@@ -579,13 +623,8 @@ func _on_player_exit_reached() -> void:
 	switching_world = true
 
 	# Prüfen: Sind wir im Tutorial? (Tutorial hat keine Minimap)
-	if minimap == null:
+	if world_index == -1:
 		_set_tutorial_completed()
-
-		world_index = 0
-		await _load_world(world_index)
-		switching_world = false
-		return
 
 	# Normale Welten
 	world_index += 1
@@ -666,8 +705,8 @@ func spawn_enemies() -> void:
 		max_weight = max_weights[world_index]
 
 	# Tutorial override: immer 3
-	if minimap == null:
-		max_weight = 2
+	#if world_index == -1:
+	#max_weight = 2
 
 	# --- Enemy Definitions sammeln ---
 	var defs: Array[Dictionary] = []
@@ -679,7 +718,15 @@ func spawn_enemies() -> void:
 		var d: Dictionary = data[k]
 		if d.get("entityCategory") != "enemy":
 			continue
-		elif "tutorial" in d.get("behaviour") and world_index != -1:
+
+		# Tutorial-Welt: nur tutorial-Gegner spawnen
+		# Normale Welten: keine tutorial-Gegner spawnen
+		var is_tutorial_enemy = "tutorial" in d.get("behaviour", [])
+		var is_tutorial_world = world_index == -1
+
+		if is_tutorial_world and not is_tutorial_enemy:
+			continue
+		elif not is_tutorial_world and is_tutorial_enemy:
 			continue
 
 		# Alias auflösen
