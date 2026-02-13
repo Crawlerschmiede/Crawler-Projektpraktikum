@@ -6,8 +6,6 @@ signal player_moved
 
 # Time (in seconds) the character pauses on a tile before taking the next step
 const STEP_COOLDOWN: float = 0.01
-const SKILLTREES := preload("res://scripts/entity/premade_skilltrees.gd")
-const ACTIVE_SKILLTREES: Array[String] = ["unarmed"]
 const BINDS_AND_MENUS := preload("res://scenes/UI/binds-and-menus.tscn")
 
 var step_timer: float = 0.01

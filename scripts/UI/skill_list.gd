@@ -184,6 +184,7 @@ func _on_skill_pressed(ability) -> void:
 			await hit_anim_player.animation_finished
 			hit_anim_player.visible = false
 		var stuff = ability.activate_skill(player, enemy, battle_scene)
+		battle_scene.player_action_log.append(ability.name)
 		for thing in stuff:
 			battle_scene.log_container.add_log_event(thing)
 		player.action_points -= 1

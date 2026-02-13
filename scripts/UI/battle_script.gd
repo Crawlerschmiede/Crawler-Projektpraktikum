@@ -55,6 +55,9 @@ var next_turn: Array[Skill] = []
 var turn_counter = 0
 var active: bool = true
 
+var enemy_action_log = []
+var player_action_log = []
+
 @onready var hit_anim_enemy: AnimatedSprite2D = $Battle_root/PlayerPosition/enemy_attack_anim
 @onready var hit_anim_player: AnimatedSprite2D = $Battle_root/EnemyPosition/player_attack_anim
 @onready var enemy_marker = $Battle_root/EnemyPosition
@@ -155,6 +158,8 @@ func enemy_turn():
 		if extra_stuff[0]:
 			#print(enemy, " activates its Skill ", enemy.chosen.name, "!")
 			happened = enemy.chosen.activate_skill(enemy, player, self)
+			enemy_action_log.append(enemy.chosen.name)
+			print(enemy_action_log)
 			if hit_anim_enemy != null:
 				hit_anim_enemy.visible = true
 				hit_anim_enemy.play("triple_strike")
@@ -175,6 +180,7 @@ func enemy_turn():
 		next_turn = []
 		if extra_stuff[0]:
 			player_turn()
+			print(player_action_log)
 		else:
 			enemy_turn()
 		check_victory()
