@@ -105,7 +105,6 @@ func _load_tutorial_world() -> void:
 			if dungeon_floor != null:
 				dungeon_floor.visibility_layer = 1
 
-
 			spawn_player()
 			spawn_enemies()
 			spawn_lootbox()
