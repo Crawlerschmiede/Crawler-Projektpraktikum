@@ -1,7 +1,8 @@
 extends Node
 
 var item_data: Dictionary
-var posData : Array = []
+var posData: Array = []
+
 
 func _ready():
 	item_data = load_data("res://data/entityData.json")
@@ -51,7 +52,8 @@ func reservePos(pos: Vector2i) -> void:
 		posData = []
 	if not (pos in posData):
 		posData.append(pos)
-	
+
+
 func reset() -> void:
 	# Reload entity data from disk
 	item_data = load_data("res://data/entityData.json")

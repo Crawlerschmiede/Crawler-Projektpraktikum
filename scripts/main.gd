@@ -643,12 +643,12 @@ func spawn_enemies() -> void:
 		var d: Dictionary = data[k]
 		if d.get("entityCategory") != "enemy":
 			continue
-		
+
 		# Tutorial-Welt: nur tutorial-Gegner spawnen
 		# Normale Welten: keine tutorial-Gegner spawnen
 		var is_tutorial_enemy = "tutorial" in d.get("behaviour", [])
 		var is_tutorial_world = world_index == -1
-		
+
 		if is_tutorial_world and not is_tutorial_enemy:
 			continue
 		elif not is_tutorial_world and is_tutorial_enemy:

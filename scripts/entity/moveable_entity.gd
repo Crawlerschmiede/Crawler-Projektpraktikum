@@ -127,7 +127,10 @@ func super_ready(sprite_type: String, entity_type: Array):
 						# fallback: check tile existence and walkability directly (don't reserve)
 						if tilemap.get_cell_source_id(cell) != -1:
 							var td_fallback := tilemap.get_cell_tile_data(cell)
-							if td_fallback == null or not td_fallback.get_custom_data("non_walkable"):
+							if (
+								td_fallback == null
+								or not td_fallback.get_custom_data("non_walkable")
+							):
 								possible_spawns.append(cell)
 					else:
 						possible_spawns.append(cell)
@@ -161,7 +164,10 @@ func super_ready(sprite_type: String, entity_type: Array):
 					elif EntityAutoload.has_method("isValidPos"):
 						if tilemap.get_cell_source_id(cell) != -1:
 							var td_fallback2 := tilemap.get_cell_tile_data(cell)
-							if td_fallback2 == null or not td_fallback2.get_custom_data("non_walkable"):
+							if (
+								td_fallback2 == null
+								or not td_fallback2.get_custom_data("non_walkable")
+							):
 								possible_spawns.append(cell)
 					else:
 						possible_spawns.append(cell)
@@ -196,7 +202,10 @@ func super_ready(sprite_type: String, entity_type: Array):
 								elif EntityAutoload.has_method("isValidPos"):
 									if tilemap.get_cell_source_id(cell) != -1:
 										var td_fallback3 := tilemap.get_cell_tile_data(cell)
-										if td_fallback3 == null or not td_fallback3.get_custom_data("non_walkable"):
+										if (
+											td_fallback3 == null
+											or not td_fallback3.get_custom_data("non_walkable")
+										):
 											possible_spawns.append(cell)
 							else:
 								possible_spawns.append(cell)
@@ -207,7 +216,10 @@ func super_ready(sprite_type: String, entity_type: Array):
 						elif EntityAutoload.has_method("isValidPos"):
 							if tilemap.get_cell_source_id(cell) != -1:
 								var td_fallback4 := tilemap.get_cell_tile_data(cell)
-								if td_fallback4 == null or not td_fallback4.get_custom_data("non_walkable"):
+								if (
+									td_fallback4 == null
+									or not td_fallback4.get_custom_data("non_walkable")
+								):
 									possible_spawns.append(cell)
 						else:
 							possible_spawns.append(cell)
