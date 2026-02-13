@@ -212,6 +212,19 @@ class Effect:
 				print("Activating damage!")
 				var active_dmg = value
 				var critted = false
+				if "ramp" in details:
+					var parts = details.split("||")
+					if len(parts) > 1:
+						var ramp_type = parts[1]
+						match ramp_type:
+							"consecutive":
+								if user.is_player:
+									if len(battle.player_action_log) > 0:
+										for i in range(battle.player_action_log.size() - 1, -1, -1):
+											if battle.player_action_log[i] == skill_name:
+												active_dmg += 1
+											else:
+												break
 				for modifier_name in active_placement_effects:
 					var modifier_value = active_placement_effects[modifier_name]
 

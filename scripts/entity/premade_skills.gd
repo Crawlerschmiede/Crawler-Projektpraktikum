@@ -297,6 +297,15 @@ var existing_skills = {
 		"on_acquisition": [["range_buff", 1, true, "long"]],
 		"conditions": ["outside_long_range"]
 	},
+	"Fill the Sky":
+	{
+		"tree": "Long Ranged Weaponry",
+		"tier": 5,
+		"description":
+		"Did you know that shooting our enemy a lot is actually more effective than just once?",
+		"effects": [["damage", 1, false, "ramp||consecutive"]],
+		"cooldown": 0
+	},
 	#standard actions
 	"Move Up":
 	{
