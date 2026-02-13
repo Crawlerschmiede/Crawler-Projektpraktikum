@@ -138,7 +138,7 @@ var existing_skills = {
 	"Punch":
 	{
 		"tree": "basic",
-		"tier":1,
+		"tier": 1,
 		"description": "It's a punch... you don't need an explanation",
 		"effects": [["damage", 2, false, "No"]],
 		"cooldown": 2
@@ -146,7 +146,7 @@ var existing_skills = {
 	"Right Pivot":
 	{
 		"tree": "basic",
-		"tier":2,
+		"tier": 2,
 		"description": "It's a punch BUT you also take a step to the right, how novel!",
 		"effects": [["damage", 1, false, "No"], ["movement", 1, true, "R"]],
 		"cooldown": 2
@@ -154,7 +154,7 @@ var existing_skills = {
 	"Left Pivot":
 	{
 		"tree": "basic",
-		"tier":2,
+		"tier": 2,
 		"description": "It's a punch BUT you also take a step to the left, how exciting!",
 		"effects": [["damage", 1, false, "No"], ["movement", 1, true, "L"]],
 		"cooldown": 2
@@ -162,17 +162,16 @@ var existing_skills = {
 	"Full Power Punch":
 	{
 		"tree": "basic",
-		"tier":4,
+		"tier": 4,
 		"description": "Have you ever punched someone with your life on the line?",
 		"effects": [["damage", 3, false, "No"], ["damage", 1, true, "No"], ["stun", 1, true, "No"]],
 		"cooldown": 5
 	},
-	
 	#short ranged weaponry
 	"Close and Personal":
 	{
 		"tree": "Short Ranged Weaponry",
-		"tier":1,
+		"tier": 1,
 		"description": "Oh damn...",
 		"effects": [["damage_buff", 1.5, true, "No"]],
 		"passive": true,
@@ -181,7 +180,7 @@ var existing_skills = {
 	"Sly Dodge":
 	{
 		"tree": "Short Ranged Weaponry",
-		"tier":2,
+		"tier": 2,
 		"description": "For when you like where you are, but like, not for a few seconds",
 		"effects": [["movement", 1, true, "D"]],
 		"next_turn_effects": [["movement", 1, true, "U"]],
@@ -190,7 +189,7 @@ var existing_skills = {
 	"Stabby Stabby":
 	{
 		"tree": "Short Ranged Weaponry",
-		"tier":3,
+		"tier": 3,
 		"description": "Oh shoot...",
 		"effects": [["action_bonus", 1, true, "No"]],
 		"passive": true,
@@ -199,7 +198,7 @@ var existing_skills = {
 	"Extend the Dancefloor":
 	{
 		"tree": "Short Ranged Weaponry",
-		"tier":4,
+		"tier": 4,
 		"description":
 		# gdlint:ignore = max-line-length
 		"It's kinda like a worm on a string, except the worm is a knife and you stab people with it",
@@ -211,19 +210,18 @@ var existing_skills = {
 	"Blade Dance":
 	{
 		"tree": "Short Ranged Weaponry",
-		"tier":5,
+		"tier": 5,
 		"description":
 		# gdlint:ignore = max-line-length
 		"If you can imagine how scary someone running at you with a knife is, imagine how much scarier it'd be if they teleported!",
 		"effects": [["movement", 1, true, "rnd_short"], ["damage", 1, false, "No"]],
 		"cooldown": 3
 	},
-	
 	#medium ranged weaponry
 	"Middle of the Road":
 	{
 		"tree": "Medium Ranged Weaponry",
-		"tier":1,
+		"tier": 1,
 		"description": "Oh damn...",
 		"effects": [["damage_buff", 1.5, true, "No"]],
 		"passive": true,
@@ -232,8 +230,9 @@ var existing_skills = {
 	"Two Handed Parry":
 	{
 		"tree": "Medium Ranged Weaponry",
-		"tier":2,
-		"description": "Turns out, holding your weapon in two hands actually gives you more strength than with one!",
+		"tier": 2,
+		"description":
+		"Turns out, holding your weapon in two hands actually gives you more strength than with one!",
 		"effects": [["safety_dmg_reduc", 0, false, "area||rand||rand||1"]],
 		"passive": true,
 		"conditions": ["every_x_turns=2"]
@@ -241,7 +240,7 @@ var existing_skills = {
 	"Overhau":
 	{
 		"tree": "Medium Ranged Weaponry",
-		"tier":3,
+		"tier": 3,
 		"description": "Dodging only matters if your opponent has limbs to hit you with",
 		"effects": [["damage", 3, false, "No"], ["freeze", 2, true, "No"]],
 		"cooldown": 5
@@ -249,7 +248,7 @@ var existing_skills = {
 	"Plant your Spear":
 	{
 		"tree": "Mediumg Ranged Weaponry",
-		"tier":4,
+		"tier": 4,
 		"description":
 		# gdlint:ignore = max-line-length
 		"Everything in balance, far and close. You can maintain that equilibrium for longer, but have become dependant on it",
@@ -261,17 +260,16 @@ var existing_skills = {
 	"Riposte":
 	{
 		"tree": "Medium Ranged Weaponry",
-		"tier":5,
+		"tier": 5,
 		"description": "You know who looks extra punchable? People that punch you",
 		"effects": [["counter", 1, true, "No"]],
 		"passive": true
 	},
-	
 	#long ranged weaponry
 	"Sniper Position":
 	{
 		"tree": "Long Ranged Weaponry",
-		"tier":1,
+		"tier": 1,
 		"description": "Oh damn...",
 		"effects": [["damage_buff", 1.5, true, "No"]],
 		"passive": true,
@@ -281,7 +279,8 @@ var existing_skills = {
 	{
 		"tree": "Long Ranged Weaponry",
 		"tier": 2,
-		"description": "Dodging is actually way easier when you can describe the enemy as 'all the way over there'",
+		"description":
+		"Dodging is actually way easier when you can describe the enemy as 'all the way over there'",
 		"effects": [["dodge_chance", 1, true, "No"]],
 		"passive": true,
 		"conditions": ["every_x_turns=8"]
@@ -289,7 +288,7 @@ var existing_skills = {
 	"Open Fields":
 	{
 		"tree": "Long Ranged Weaponry",
-		"tier":4,
+		"tier": 4,
 		"description":
 		# gdlint:ignore = max-line-length
 		"You are one with the bow and have mastered ranged combat. Close quarters though? Too scary",
@@ -384,14 +383,14 @@ func get_skill(skill_name):
 		for effect in values.on_acquisition:
 			new_skill.add_immediate_effect(effect[0], effect[1], effect[2], effect[3])
 	return new_skill
-	
-func get_skills_by_tree(tree_name:String):
+
+
+func get_skills_by_tree(tree_name: String):
 	var skills_in_tree = []
 	for skill in existing_skills:
 		if existing_skills[skill].has("tree"):
-			if existing_skills[skill]["tree"]==tree_name:
+			if existing_skills[skill]["tree"] == tree_name:
 				skills_in_tree.append([skill, existing_skills[skill]])
 		else:
 			continue
 	return skills_in_tree
-	

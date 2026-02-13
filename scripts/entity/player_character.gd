@@ -6,6 +6,7 @@ signal player_moved
 
 # Time (in seconds) the character pauses on a tile before taking the next step
 const STEP_COOLDOWN: float = 0.01
+const PLAYER_ACTIVE_SKILLTREES: Array[String] = ["basic"]
 const BINDS_AND_MENUS := preload("res://scenes/UI/binds-and-menus.tscn")
 
 var step_timer: float = 0.01
@@ -85,7 +86,7 @@ func _ready() -> void:
 	self.is_player = true
 	for action in base_actions:
 		add_action(action)
-	for active_tree in ACTIVE_SKILLTREES:
+	for active_tree in PLAYER_ACTIVE_SKILLTREES:
 		existing_skilltrees.increase_tree_level(active_tree)
 	update_unlocked_skills()
 	add_to_group("player")

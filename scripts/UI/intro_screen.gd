@@ -1,8 +1,8 @@
 extends Control
 
 # --- Scene Configuration ---
-const START_MENU_PACKED := preload("res://scenes/start-menu.tscn")
-@export var start_menu_path: String = "res://scenes/start-menu.tscn"
+const START_MENU_PACKED := preload("res://scenes/UI/start-menu.tscn")
+@export var start_menu_path: String = "res://scenes/UI/start-menu.tscn"
 
 # --- Node References (Ensure these names match your Scene Tree) ---
 @onready var logo = $CenterContainer/Label

@@ -214,15 +214,13 @@ func force_stop() -> void:
 		hit_anim_player.visible = false
 
 
-func update_passives(depth = 0, prep=false):
+func update_passives(depth = 0, prep = false):
 	trigger_passives(player.abilities, player, enemy, self, depth, prep)
 	#trigger_passives(player.items, player, enemy, self)	#will items have passives?
 	trigger_passives(enemy.abilities, enemy, player, self, depth, prep)
-	
-	
 
 
-func trigger_passives(abilities, user, target, battle, depth,prep):
+func trigger_passives(abilities, user, target, battle, depth, prep):
 	print("Triggering passives at depth ", depth)
 	for ability in abilities:
 		if ability.is_passive:
@@ -451,7 +449,7 @@ func apply_zones(zone_type, mult, pos, _dur, direction):
 		var correct = false
 		for key in tile_modifiers[cell].keys():
 			if zone_type in key:
-				correct=true
+				correct = true
 		if not correct:
 			continue
 
