@@ -245,6 +245,7 @@ func _load_world(idx: int) -> void:
 	add_child(world_root)
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 	var entity_container := Node2D.new()
 	entity_container.name = "Entities"
 	world_root.add_child(entity_container)
@@ -255,6 +256,8 @@ func _load_world(idx: int) -> void:
 	# -------------------------------------------------
 	var maps: Dictionary = await gen.get_random_tilemap()
 =======
+=======
+>>>>>>> Stashed changes
 	var maps: Dictionary
 
 	if Engine.has_singleton("SaveManager") and SaveManager.pending_continue and SaveManager.has_save():
@@ -267,6 +270,9 @@ func _load_world(idx: int) -> void:
 	else:
 		maps = await gen.get_random_tilemap()
 
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 
 	if maps.is_empty():
