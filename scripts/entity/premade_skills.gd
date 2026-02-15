@@ -37,7 +37,7 @@ var existing_skills = {
 		"tree": "bat things",
 		"description":
 		"You'd think a bat headbutting you wouldn't hurt that much... " + "you'd be wrong",
-		"effects": [["damage", 1, false, "No"], ["danger_dmg_mult", 2, false, "player_x"]],
+		"effects": [["damage_zone", 2, false, "player_x"]],
 	},
 	"Rabies":
 	{
@@ -67,6 +67,12 @@ var existing_skills = {
 		"description": "This strike looks easy to dodge... weirdly so",
 		"effects": [["damage", 2, false, "No"], ["safety_dmg_reduc", 0, false, "player_pos"]],
 	},
+	"Precise Hit":
+	{
+		"tree": "skeleton things",
+		"description": "This strike looks easy to dodge... like seriously, is it even trying?",
+		"effects": [["damage_zone", 1, false, "player_pos"]],
+	},
 	"Eye-Flash-Slash":
 	{
 		"tree": "skeleton things",
@@ -82,12 +88,13 @@ var existing_skills = {
 		"effects": [["damage", 2, false, "No"], ["danger_dmg_mult", 2, false, "player_pos"]],
 		"cooldown": 0
 	},
-	"War Cry":  #buff dmg for next turn, jorin pls implement
+	"War Cry":  #buff dmg for next turn, jorin pls implement #it is done
 	{
 		"tree": "goblin things",
 		"description": "More scream, more damage",
-		"effects": [["buff", 2, true, "No"]],
-		"cooldown": 0  # jorin pls implement enemy cooldown thanks
+		"next_turn_effects": [["damage_buff", 2, true, "duration=2"]],
+		"effects": [["prepare", 0, true, "No"]],
+		"cooldown": 3  # jorin pls implement enemy cooldown thanks #this one too btw
 	},
 	#Carnivorous Plant skills
 	"Vine Slash":
@@ -130,55 +137,174 @@ var existing_skills = {
 	#unarmed player stuff
 	"Punch":
 	{
-		"tree": "hitting and punching and biting and kicking people",
+		"tree": "basic",
+		"tier": 1,
 		"description": "It's a punch... you don't need an explanation",
 		"effects": [["damage", 2, false, "No"]],
 		"cooldown": 2
 	},
-	"Back and Forth":
-	{
-		"tree": "hitting and punching and biting and kicking people",
-		"description": "It's a punch... you don't need an explanation",
-		"effects": [["movement", 1, true, "D"]],
-		"next_turn_effects": [["movement", 1, true, "U"]],
-		"cooldown": 0
-	},
 	"Right Pivot":
 	{
-		"tree": "hitting and punching and biting and kicking people",
+		"tree": "basic",
+		"tier": 2,
 		"description": "It's a punch BUT you also take a step to the right, how novel!",
 		"effects": [["damage", 1, false, "No"], ["movement", 1, true, "R"]],
 		"cooldown": 2
 	},
 	"Left Pivot":
 	{
-		"tree": "hitting and punching and biting and kicking people",
+		"tree": "basic",
+		"tier": 2,
 		"description": "It's a punch BUT you also take a step to the left, how exciting!",
 		"effects": [["damage", 1, false, "No"], ["movement", 1, true, "L"]],
 		"cooldown": 2
 	},
 	"Full Power Punch":
 	{
-		"tree": "hitting and punching and biting and kicking people",
+		"tree": "basic",
+		"tier": 4,
 		"description": "Have you ever punched someone with your life on the line?",
 		"effects": [["damage", 3, false, "No"], ["damage", 1, true, "No"], ["stun", 1, true, "No"]],
 		"cooldown": 5
 	},
-	"Strong as frick":
+	#short ranged weaponry
+	"Close and Personal":
 	{
-		"tree": "hitting and punching and biting and kicking people",
+		"tree": "Short Ranged Weaponry",
+		"tier": 1,
 		"description": "Oh damn...",
 		"effects": [["damage_buff", 1.5, true, "No"]],
 		"passive": true,
 		"conditions": ["short_range"]
 	},
-	"Fast as frick":
+	"Sly Dodge":
 	{
-		"tree": "hitting and punching and biting and kicking people",
+		"tree": "Short Ranged Weaponry",
+		"tier": 2,
+		"description": "For when you like where you are, but like, not for a few seconds",
+		"effects": [["movement", 1, true, "D"]],
+		"next_turn_effects": [["movement", 1, true, "U"]],
+		"cooldown": 0
+	},
+	"Stabby Stabby":
+	{
+		"tree": "Short Ranged Weaponry",
+		"tier": 3,
 		"description": "Oh shoot...",
 		"effects": [["action_bonus", 1, true, "No"]],
 		"passive": true,
 		"conditions": ["every_x_turns=2"]
+	},
+	"Extend the Dancefloor":
+	{
+		"tree": "Short Ranged Weaponry",
+		"tier": 4,
+		"description":
+		# gdlint:ignore = max-line-length
+		"It's kinda like a worm on a string, except the worm is a knife and you stab people with it",
+		"effects": [["damage_nullification", 1, true, "No"]],
+		"passive": true,
+		"on_acquisition": [["range_buff", 1, true, "short"]],
+		"conditions": ["outside_short_range"]
+	},
+	"Blade Dance":
+	{
+		"tree": "Short Ranged Weaponry",
+		"tier": 5,
+		"description":
+		# gdlint:ignore = max-line-length
+		"If you can imagine how scary someone running at you with a knife is, imagine how much scarier it'd be if they teleported!",
+		"effects": [["movement", 1, true, "rnd_short"], ["damage", 1, false, "No"]],
+		"cooldown": 3
+	},
+	#medium ranged weaponry
+	"Middle of the Road":
+	{
+		"tree": "Medium Ranged Weaponry",
+		"tier": 1,
+		"description": "Oh damn...",
+		"effects": [["damage_buff", 1.5, true, "No"]],
+		"passive": true,
+		"conditions": ["medium_range"]
+	},
+	"Two Handed Parry":
+	{
+		"tree": "Medium Ranged Weaponry",
+		"tier": 2,
+		"description":
+		"Turns out, holding your weapon in two hands actually gives you more strength than with one!",
+		"effects": [["safety_dmg_reduc", 0, false, "area||rand||rand||1"]],
+		"passive": true,
+		"conditions": ["every_x_turns=2"]
+	},
+	"Overhau":
+	{
+		"tree": "Medium Ranged Weaponry",
+		"tier": 3,
+		"description": "Dodging only matters if your opponent has limbs to hit you with",
+		"effects": [["damage", 3, false, "No"], ["freeze", 2, true, "No"]],
+		"cooldown": 5
+	},
+	"Plant your Spear":
+	{
+		"tree": "Mediumg Ranged Weaponry",
+		"tier": 4,
+		"description":
+		# gdlint:ignore = max-line-length
+		"Everything in balance, far and close. You can maintain that equilibrium for longer, but have become dependant on it",
+		"effects": [["damage_nullification", 1, true, "No"]],
+		"passive": true,
+		"on_acquisition": [["range_buff", 1, true, "medium"]],
+		"conditions": ["outside_medium_range"]
+	},
+	"Riposte":
+	{
+		"tree": "Medium Ranged Weaponry",
+		"tier": 5,
+		"description": "You know who looks extra punchable? People that punch you",
+		"effects": [["counter", 1, true, "No"]],
+		"passive": true
+	},
+	#long ranged weaponry
+	"Sniper Position":
+	{
+		"tree": "Long Ranged Weaponry",
+		"tier": 1,
+		"description": "Oh damn...",
+		"effects": [["damage_buff", 1.5, true, "No"]],
+		"passive": true,
+		"conditions": ["long_range"]
+	},
+	"Out of Reach":
+	{
+		"tree": "Long Ranged Weaponry",
+		"tier": 2,
+		"description":
+		"Dodging is actually way easier when you can describe the enemy as 'all the way over there'",
+		"effects": [["dodge_chance", 1, true, "No"]],
+		"passive": true,
+		"conditions": ["every_x_turns=8"]
+	},
+	"Open Fields":
+	{
+		"tree": "Long Ranged Weaponry",
+		"tier": 4,
+		"description":
+		# gdlint:ignore = max-line-length
+		"You are one with the bow and have mastered ranged combat. Close quarters though? Too scary",
+		"effects": [["damage_nullification", 1, true, "No"]],
+		"passive": true,
+		"on_acquisition": [["range_buff", 1, true, "long"]],
+		"conditions": ["outside_long_range"]
+	},
+	"Fill the Sky":
+	{
+		"tree": "Long Ranged Weaponry",
+		"tier": 5,
+		"description":
+		"Did you know that shooting our enemy a lot is actually more effective than just once?",
+		"effects": [["damage", 1, false, "ramp||consecutive"]],
+		"cooldown": 0
 	},
 	#standard actions
 	"Move Up":
@@ -253,4 +379,18 @@ func get_skill(skill_name):
 	if values.has("next_turn_effects"):
 		for effect in values.next_turn_effects:
 			new_skill.add_effect(effect[0], effect[1], effect[2], effect[3], false)
+	if values.has("on_acquisition"):
+		for effect in values.on_acquisition:
+			new_skill.add_immediate_effect(effect[0], effect[1], effect[2], effect[3])
 	return new_skill
+
+
+func get_skills_by_tree(tree_name: String):
+	var skills_in_tree = []
+	for skill in existing_skills:
+		if existing_skills[skill].has("tree"):
+			if existing_skills[skill]["tree"] == tree_name:
+				skills_in_tree.append([skill, existing_skills[skill]])
+		else:
+			continue
+	return skills_in_tree

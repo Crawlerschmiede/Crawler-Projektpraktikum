@@ -12,11 +12,14 @@ const MAX_SPEED = 225.0
 
 var player: Node2D = null
 var being_picked_up = false
-var data: Dictionary = {}  # JsonData.item_data
+var data: Dictionary = {}
+
+var collected := false  # <- neu: verhindert mehrfaches Einsammeln
+
+@onready var animation_sprite = $AnimatedSprite2D
 
 
 func _ready() -> void:
-	# JsonData prüfen
 	if JsonData == null or not ("item_data" in JsonData):
 		push_error("JsonData.item_data fehlt! Lootbox wird entfernt.")
 		queue_free()
@@ -24,11 +27,9 @@ func _ready() -> void:
 
 	data = JsonData.item_data
 
-	#  Wenn loot_table leer ist -> automatisch generieren
 	if loot_table == null or loot_table.is_empty():
 		loot_table = _generate_random_loot(random_min_weight, random_max_weight)
 
-	# Loot validieren / bereinigen
 	loot_table = _clean_loot(loot_table)
 
 	if loot_table.is_empty():
@@ -40,32 +41,55 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
+	if collected:
+		return
+
 	if being_picked_up and player != null and is_instance_valid(player):
 		var dir = global_position.direction_to(player.global_position)
 		velocity = velocity.move_toward(dir * MAX_SPEED, ACCELERATION * delta)
 
 		if global_position.distance_to(player.global_position) < 20.0:
-			_collect_loot()
-			queue_free()
+			_on_reached_player()
+			return
 
 	move_and_slide()
 
 
 func pick_up_item(body: Node2D) -> void:
+	if collected:
+		return
 	player = body
 	being_picked_up = true
+
+
+func _on_reached_player() -> void:
+	if collected:
+		return
+	collected = true
+
+	# Bewegung stoppen + nicht mehr anziehen
+	being_picked_up = false
+	velocity = Vector2.ZERO
+
+	# Loot geben
+	_collect_loot()
+
+	# Öffnen-Animation (Name ggf. anpassen)
+	if is_instance_valid(animation_sprite):
+		if animation_sprite.sprite_frames and animation_sprite.sprite_frames.has_animation("open"):
+			animation_sprite.play("open")
+		else:
+			# fallback falls es keine "open" gibt
+			animation_sprite.play()
+
+	# Erst nach 2 Sekunden löschen
+	await get_tree().create_timer(2.0).timeout
+	queue_free()
 
 
 func _collect_loot() -> void:
 	for item_name in loot_table.keys():
 		PlayerInventory.add_item(item_name, int(loot_table[item_name]))
-
-	#print("Lootbox collected:", loot_table)
-
-
-# ============================================================
-#  OPTIONAL: von außen Loot setzen (Boss Drop etc.)
-# ============================================================
 
 
 func set_loot(new_loot: Dictionary) -> void:
@@ -80,15 +104,9 @@ func add_loot(item_name: String, amount: int = 1) -> void:
 	loot_table[item_name] = int(loot_table.get(item_name, 0)) + amount
 
 
-# ============================================================
-#  RANDOM LOOT GENERATOR (aus JSON loot_stats)
-# ============================================================
-
-
 func _generate_random_loot(min_weight: int, max_weight: int) -> Dictionary:
 	var weight_limit = GlobalRNG.randi_range(min_weight, max_weight)
 
-	# Kandidaten: Items die loot_stats haben
 	var candidates: Array[String] = []
 	for item_name in data.keys():
 		var info = data[item_name]
@@ -100,8 +118,6 @@ func _generate_random_loot(min_weight: int, max_weight: int) -> Dictionary:
 		var ls = info["loot_stats"]
 		if typeof(ls) != TYPE_DICTIONARY:
 			continue
-
-		# Muss mindestens weight haben
 		if not ls.has("weight"):
 			continue
 
@@ -115,7 +131,6 @@ func _generate_random_loot(min_weight: int, max_weight: int) -> Dictionary:
 
 	while weight_limit > 0 and tries < 200:
 		tries += 1
-
 		var item = GlobalRNG.pick_random(candidates)
 		var ls = data[item]["loot_stats"]
 
@@ -139,14 +154,8 @@ func _generate_random_loot(min_weight: int, max_weight: int) -> Dictionary:
 	return loot
 
 
-# ============================================================
-#  Loot Bereinigung
-# ============================================================
-
-
 func _clean_loot(input: Dictionary) -> Dictionary:
 	var cleaned = {}
-
 	if input == null:
 		return cleaned
 

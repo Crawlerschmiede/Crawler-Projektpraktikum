@@ -7,7 +7,11 @@ extends CharacterBody2D
 const TILE_SIZE: int = 16
 const DIRECTIONS := [Vector2i.RIGHT, Vector2i.LEFT, Vector2i.UP, Vector2i.DOWN]
 const SKILLS := preload("res://scripts/entity/premade_skills.gd")
+const SKILLTREES := preload("res://scripts/entity/premade_skilltrees.gd")
+const ACTIVE_SKILLTREES: Array[String] = ["Short Ranged Weaponry", "basic"]
+
 var existing_skills = SKILLS.new()
+var existing_skilltrees = SKILLTREES.new()
 var abilities_this_has: Array = []
 var multi_turn_action = null
 var types
@@ -15,28 +19,24 @@ var dimensions: Vector2i = Vector2i(1, 1)
 # If I built this at all right, you will never need to touch this.
 # It should just work with the resize function.
 var my_tiles = [Vector2i(0, 0)]
+var ranges = [[0, 0], [2, 2], [4, 4]]
 
 var sprites = {
-	"bat":
-	[preload("res://scenes/sprite_scenes/bat_sprite_scene.tscn"), ["Screech", "Swoop", "Rabies"]],
+	"bat": [preload("res://scenes/sprite_scenes/bat_sprite_scene.tscn")],
 	"skeleton":
 	[
 		preload("res://scenes/sprite_scenes/skeleton_sprite_scene.tscn"),
-		["Eye-Flash-Slash", "Swoop", "Feint"]
 	],
 	"what":
 	[
 		preload("res://scenes/sprite_scenes/what_sprite_scene.tscn"),
-		["Screech", "Vortex", "Encroaching Void"],
 		{"idle": "default", "expand": "expand", "alt_default": "expanded_idle"},
 		{"standard": [1, 1], "expanded": [1, 3]}
 	],
-	"ghost":
-	[preload("res://scenes/sprite_scenes/ghost_sprite_scene.tscn"), ["Feint", "Encroaching Void"]],
+	"ghost": [preload("res://scenes/sprite_scenes/ghost_sprite_scene.tscn")],
 	"base_zombie":
 	[
 		preload("res://scenes/sprite_scenes/base_zombie_sprite_scene.tscn"),
-		["Screech", "Rabies"],
 		{"idle": "default", "teleport_start": "dig_down", "teleport_end": "dig_up"}
 	],
 	"goblin": [preload("res://scenes/sprite_scenes/goblin_sprite_scene.tscn"), ["Bonk", "War Cry"]],
@@ -64,6 +64,7 @@ var hp: int = 1
 var str_stat: int = 1
 var def_stat: int = 0
 var abilities: Array[Skill] = []
+var acquired_abilities: Array[String] = []
 var base_action_points: int = 1
 var action_points: int
 
@@ -75,6 +76,9 @@ var stun_recovery = 1
 
 var poisoned = 0
 var poison_recovery = 1
+
+var frozen = 0
+var freeze_recovery = 1
 
 #--- buffs/debuffs... status effects someday
 #should be in the format "<Source_Name>:{"<type>":<value>}"
@@ -122,11 +126,70 @@ func super_ready(sprite_type: String, entity_type: Array):
 				var is_boss_tile = tile_data.get_custom_data("boss_spawn")
 				if is_boss_tile:
 					print("found boss tile! ", cell)
-					possible_spawns.append(cell)
+					# check with EntityAutoload if the position is valid (not occupied)
+					if EntityAutoload.has_method("canReservePos"):
+						if EntityAutoload.canReservePos(cell, tilemap):
+							possible_spawns.append(cell)
+					elif EntityAutoload.has_method("isValidPos"):
+						# fallback: check tile existence and walkability directly (don't reserve)
+						if tilemap.get_cell_source_id(cell) != -1:
+							var td_fallback := tilemap.get_cell_tile_data(cell)
+							if (
+								td_fallback == null
+								or not td_fallback.get_custom_data("non_walkable")
+							):
+								possible_spawns.append(cell)
+					else:
+						possible_spawns.append(cell)
 
-		var spawnpoint = possible_spawns[rng.randi_range(0, len(possible_spawns) - 1)]
+		if possible_spawns.size() == 0:
+			print("super_ready: boss - no possible spawns found")
+			self.queue_free()
+			return
+		var spawnpoint = possible_spawns[rng.randi_range(0, possible_spawns.size() - 1)]
+		# reserve chosen cell so other entities won't take it
+		if EntityAutoload.has_method("reservePos"):
+			EntityAutoload.reservePos(spawnpoint)
+		print("super_ready: boss - chosen spawn:", spawnpoint)
 		position = tilemap.map_to_local(spawnpoint)
 		grid_pos = spawnpoint
+
+	# spawn logic for bosses
+	elif "tutorial" in entity_type:
+		var possible_spawns = []
+
+		for cell in tilemap.get_used_cells():
+			var tile_data = tilemap.get_cell_tile_data(cell)
+			if tile_data:
+				var is_boss_tile = tile_data.get_custom_data("tutorial_enemy")
+				if is_boss_tile:
+					print("found tutorial tile! ", cell)
+					# avoid spawning on occupied tiles
+					if EntityAutoload.has_method("canReservePos"):
+						if EntityAutoload.canReservePos(cell, tilemap):
+							possible_spawns.append(cell)
+					elif EntityAutoload.has_method("isValidPos"):
+						if tilemap.get_cell_source_id(cell) != -1:
+							var td_fallback2 := tilemap.get_cell_tile_data(cell)
+							if (
+								td_fallback2 == null
+								or not td_fallback2.get_custom_data("non_walkable")
+							):
+								possible_spawns.append(cell)
+					else:
+						possible_spawns.append(cell)
+		if len(possible_spawns) > 0:
+			if possible_spawns.size() == 0:
+				self.queue_free()
+				return
+			var spawnpoint = possible_spawns[rng.randi_range(0, possible_spawns.size() - 1)]
+			if EntityAutoload.has_method("reservePos"):
+				EntityAutoload.reservePos(spawnpoint)
+			print("super_ready: tutorial - chosen spawn:", spawnpoint)
+			position = tilemap.map_to_local(spawnpoint)
+			grid_pos = spawnpoint
+		else:
+			self.queue_free()
 
 	# Spawn logic for enemies
 	else:
@@ -139,15 +202,47 @@ func super_ready(sprite_type: String, entity_type: Array):
 				if not is_blocked:
 					if "wallbound" in entity_type:
 						if is_next_to_wall(cell):
-							possible_spawns.append(cell)
+							# only add if EntityAutoload says the pos is free
+							if EntityAutoload.has_method("canReservePos"):
+								if EntityAutoload.canReservePos(cell, tilemap):
+									possible_spawns.append(cell)
+								elif EntityAutoload.has_method("isValidPos"):
+									if tilemap.get_cell_source_id(cell) != -1:
+										var td_fallback3 := tilemap.get_cell_tile_data(cell)
+										if (
+											td_fallback3 == null
+											or not td_fallback3.get_custom_data("non_walkable")
+										):
+											possible_spawns.append(cell)
+							else:
+								possible_spawns.append(cell)
 					else:
-						possible_spawns.append(cell)
+						if EntityAutoload.has_method("canReservePos"):
+							if EntityAutoload.canReservePos(cell, tilemap):
+								possible_spawns.append(cell)
+						elif EntityAutoload.has_method("isValidPos"):
+							if tilemap.get_cell_source_id(cell) != -1:
+								var td_fallback4 := tilemap.get_cell_tile_data(cell)
+								if (
+									td_fallback4 == null
+									or not td_fallback4.get_custom_data("non_walkable")
+								):
+									possible_spawns.append(cell)
+						else:
+							possible_spawns.append(cell)
 			# TODO: add logic for flying enemies, so they can enter certain tiles
 			#if entity_type == "enemy_flying":
 			#	add water/lava/floor trap tiles as possible spawns
 
 		# Initialize grid position based on where the entity starts
-		var spawnpoint = possible_spawns[rng.randi_range(0, len(possible_spawns) - 1)]
+		if possible_spawns.size() == 0:
+			print("super_ready: enemy - no possible spawns found")
+			self.queue_free()
+			return
+		var spawnpoint = possible_spawns[rng.randi_range(0, possible_spawns.size() - 1)]
+		if EntityAutoload.has_method("reservePos"):
+			EntityAutoload.reservePos(spawnpoint)
+		print("super_ready: enemy - chosen spawn:", spawnpoint)
 		position = tilemap.map_to_local(spawnpoint)
 		grid_pos = spawnpoint
 	var sprite_scene = sprites[sprite_type]
@@ -155,7 +250,6 @@ func super_ready(sprite_type: String, entity_type: Array):
 	add_child(sprite)
 	sprite.play("default")
 	if not "pc" in entity_type:
-		abilities_this_has = sprite_scene[1]
 		for ability in abilities_this_has:
 			add_skill(ability)
 	if len(sprite_scene) > 2:
@@ -256,9 +350,11 @@ func is_cell_walkable(cell: Vector2i, direction: Vector2i = Vector2i.ZERO) -> bo
 
 	# Check for your custom property "non_walkable"
 	if tile_data.get_custom_data("non_walkable") == true:
+		print("That tile ain't walkable pal!")
 		return false
 
 	if is_cell_blocked(cell, direction):
+		print("That tile's blocked pal!")
 		return false
 
 	# Prevent stepping onto tiles already occupied by another enemy (no stacking)
@@ -268,23 +364,24 @@ func is_cell_walkable(cell: Vector2i, direction: Vector2i = Vector2i.ZERO) -> bo
 		target_tiles.append(cell + t)
 
 	var enemies := get_tree().get_nodes_in_group("enemy")
-	for e in enemies:
-		if e == null:
-			continue
-		if e == self:
-			continue
-		if not is_instance_valid(e):
-			continue
-		# some nodes in the group might not have the expected fields
-		if not ("grid_pos" in e and "my_tiles" in e):
-			continue
-		for other_t in e.my_tiles:
-			var other_cell = e.grid_pos + other_t
-			for my_t in target_tiles:
-				if e.grid_pos == grid_pos:
-					return false
-				if my_t == other_cell:
-					return false
+	if not self.is_player:
+		for e in enemies:
+			if e == null:
+				continue
+			if e == self:
+				continue
+			if not is_instance_valid(e):
+				continue
+			# some nodes in the group might not have the expected fields
+			if not ("grid_pos" in e and "my_tiles" in e):
+				continue
+			for other_t in e.my_tiles:
+				var other_cell = e.grid_pos + other_t
+				for my_t in target_tiles:
+					if e.grid_pos == grid_pos:
+						return false
+					if my_t == other_cell:
+						return false
 	return true
 
 
@@ -312,6 +409,9 @@ func add_skill(skill_name):
 	var skill = existing_skills.get_skill(skill_name)
 	if skill != null:
 		abilities.append(skill)
+		if skill_name not in acquired_abilities:
+			skill.activate_immediate(self)
+		acquired_abilities.append(skill_name)
 
 
 func activate_passives(user, target, battle):
@@ -352,8 +452,32 @@ func initiate_battle(player: Node, enemy: Node) -> bool:
 func take_damage(damage):
 	#print(self, " takes ", damage, " damage!")
 	var taken_damage = damage  #useless right now but just put here for later damage calculations
+	print(self.name, " should take damage")
+	print(alterations)
+	for alteration in alterations:
+		if alterations[alteration].has("dodge_chance"):
+			var dodge_chance = alterations[alteration].dodge_chance * 100
+			var dodged = rng.randi_range(0, 100)
+			if dodged < dodge_chance:
+				var closeness = ""
+				if dodge_chance - dodged <= 1:
+					closeness = " by a hairs breadth"
+				elif dodge_chance - dodged < 5:
+					closeness = " barely"
+				elif dodge_chance - dodged < 10:
+					closeness = ""
+				elif dodge_chance - dodged < 30:
+					closeness = "easily"
+				elif dodge_chance - dodged < 50:
+					closeness = " by a disrespectfully large margin"
+				print("but dodges! with a chance of", dodge_chance, " against ", dodged)
+				return [
+					" avoided " + str(taken_damage) + " Damage by dodging" + closeness,
+					" now has " + str(hp) + " HP"
+				]
 	hp = hp - taken_damage
 	#print("Now has ", hp, "HP")
+	print("And in fact does...")
 	return [" took " + str(taken_damage) + " Damage", " now has " + str(hp) + " HP"]
 
 
@@ -385,6 +509,11 @@ func increase_stun(amount):
 	return ["Stun increases to " + str(stunned) + "!"]
 
 
+func increase_freeze(amount):
+	frozen += amount
+	return ["Freeze increases to " + str(frozen) + "!"]
+
+
 func full_status_heal():
 	stunned = 0
 	poisoned = 0
@@ -405,6 +534,11 @@ func deal_with_status_effects() -> Array:
 		if poisoned < 0:
 			poisoned = 0
 		things_that_happened.append("Target" + message[0] + " from poison! Target" + message[1])
+	if frozen > 0:
+		frozen -= freeze_recovery
+		if frozen < 0:
+			frozen = 0
+		things_that_happened.append("Target was frozen and can't move!")
 	return [gets_a_turn, things_that_happened]
 
 

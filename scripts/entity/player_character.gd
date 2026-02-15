@@ -6,28 +6,70 @@ signal player_moved
 
 # Time (in seconds) the character pauses on a tile before taking the next step
 const STEP_COOLDOWN: float = 0.01
-const SKILLTREES := preload("res://scripts/entity/premade_skilltrees.gd")
-const ACTIVE_SKILLTREES: Array[String] = ["unarmed"]
+const PLAYER_ACTIVE_SKILLTREES: Array[String] = ["basic"]
+const BINDS_AND_MENUS := preload("res://scenes/UI/binds-and-menus.tscn")
 
 var step_timer: float = 0.01
 var base_actions = ["Move Up", "Move Down", "Move Left", "Move Right"]
 var actions = []
-var existing_skilltrees = SKILLTREES.new()
 var minimap
 
 var fog_layer: TileMapLayer = null
 var dynamic_fog: bool = true
 var fog_tile_id: int = 0
 var _prev_visible := {}  # Dictionary storing previously visible cells as key -> Vector2i
+var _binds_and_menus_instance: Control = null
+var _binds_and_menus_layer: CanvasLayer = null
 
 @onready var camera: Camera2D = $Camera2D
 @onready var minimap_viewport: SubViewport = $CanvasLayer/SubViewportContainer/SubViewport
 @onready var pickup_ui = $CanvasLayer2
 @onready var inventory = $UserInterface/Inventory
+#@export var binds_and_menus: PackedScene
 
 
 func _cell_key(cell: Vector2i) -> String:
 	return "%d,%d" % [cell.x, cell.y]
+
+
+func _input(_event):
+	# Check if the 'toggle_menu' action (H) was just pressed
+	if Input.is_action_just_pressed("binds_and_menus"):
+		if _binds_and_menus_instance == null:
+			_open_menu()
+		else:
+			_close_menu()
+
+
+func _open_menu() -> void:
+	if _binds_and_menus_instance != null:
+		return
+
+	_binds_and_menus_layer = CanvasLayer.new()
+	_binds_and_menus_layer.name = "BindsAndMenusOverlay"
+	_binds_and_menus_layer.layer = 100
+
+	get_tree().root.add_child(_binds_and_menus_layer)
+
+	_binds_and_menus_instance = BINDS_AND_MENUS.instantiate()
+	_binds_and_menus_layer.add_child(_binds_and_menus_instance)
+
+	_binds_and_menus_instance.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_binds_and_menus_instance.offset_left = 0
+	_binds_and_menus_instance.offset_top = 0
+	_binds_and_menus_instance.offset_right = 0
+	_binds_and_menus_instance.offset_bottom = 0
+
+	if _binds_and_menus_instance.has_signal("closed"):
+		_binds_and_menus_instance.closed.connect(_close_menu)
+
+
+func _close_menu() -> void:
+	if _binds_and_menus_layer:
+		_binds_and_menus_layer.queue_free()
+
+	_binds_and_menus_layer = null
+	_binds_and_menus_instance = null
 
 
 func _ready() -> void:
@@ -44,7 +86,7 @@ func _ready() -> void:
 	self.is_player = true
 	for action in base_actions:
 		add_action(action)
-	for active_tree in ACTIVE_SKILLTREES:
+	for active_tree in PLAYER_ACTIVE_SKILLTREES:
 		existing_skilltrees.increase_tree_level(active_tree)
 	update_unlocked_skills()
 	add_to_group("player")
@@ -84,7 +126,8 @@ func _physics_process(delta: float):
 				exit_reached.emit()
 			player_moved.emit()
 			update_visibility()
-			minimap.global_position = -1 * global_position
+			if minimap != null:
+				minimap.global_position = -1 * global_position
 
 
 # Function to get the current input direction vector
@@ -170,7 +213,7 @@ func _on_area_2d_area_entered(area: Area2D):
 func level_up():
 	self.max_hp = self.max_hp + 1
 	self.hp = self.max_hp
-	existing_skilltrees.increase_tree_level("unarmed")
+	existing_skilltrees.increase_tree_level("Short Ranged Weaponry")
 	update_unlocked_skills()
 
 
@@ -208,6 +251,7 @@ func update_unlocked_skills():
 
 func update_visibility():
 	if tilemap == null or fog_layer == null:
+		print("[DEBUG] update_visibility: tilemap=", tilemap, " fog_layer=", fog_layer)
 		return
 
 	var tm := tilemap
@@ -217,6 +261,8 @@ func update_visibility():
 
 	var visible_cells := {}
 
+	var erased_count := 0
+
 	for x in range(-radius, radius + 1):
 		for y in range(-radius, radius + 1):
 			var cell = player_cell + Vector2i(x, y)
@@ -225,7 +271,12 @@ func update_visibility():
 				continue
 			if not is_path_blocked(player_cell, cell):
 				fog.erase_cell(cell)
+				erased_count += 1
 				visible_cells[_cell_key(cell)] = cell
+
+	print(
+		"[DEBUG] update_visibility: erased=", erased_count, "visible_cells=", visible_cells.size()
+	)
 
 	if dynamic_fog:
 		# Re-fog cells that were visible previously but are not visible now
@@ -233,7 +284,7 @@ func update_visibility():
 			if not visible_cells.has(key):
 				var c: Vector2i = _prev_visible[key]
 				if tm.get_cell_source_id(c) != -1:
-					fog.set_cell(c, 2, Vector2(2, 4), 0)
+					fog.set_cell(c, 2, Vector2(12, 11), 0)
 
 	# store current visible set for next update
 	_prev_visible.clear()
@@ -288,3 +339,41 @@ func get_line_cells(start: Vector2i, end: Vector2i) -> Array:
 			y0 += sy
 
 	return points
+
+
+func reveal_on_spawn() -> void:
+	# Try to reveal the initial visible area and update minimap position.
+	# If tilemap or fog_layer are not yet assigned, try again deferred.
+	# If fog_layer wasn't injected (e.g. running the player scene directly),
+	# try to find a fog node in the scene tree (look for 'FogWar' or name containing 'fog').
+	if fog_layer == null:
+		var candidate = get_tree().get_root().find_node("FogWar", true, false)
+		if candidate != null and candidate is TileMapLayer:
+			fog_layer = candidate
+		else:
+			var found := _find_fog_node(get_tree().get_root())
+			if found != null:
+				fog_layer = found
+
+	print("[DEBUG] _reveal_on_spawn: tilemap=", tilemap, " fog_layer=", fog_layer)
+	if tilemap == null or fog_layer == null:
+		call_deferred("_reveal_on_spawn")
+		return
+
+	update_visibility()
+	if minimap != null:
+		minimap.global_position = -1 * global_position
+
+
+func _find_fog_node(node: Node) -> TileMapLayer:
+	for child in node.get_children():
+		if child is TileMapLayer:
+			var nm := str(child.name).to_lower()
+			if nm.find("fog") != -1:
+				return child
+		# recursive
+		var res := _find_fog_node(child)
+		if res != null:
+			return res
+	# nothing found
+	return null

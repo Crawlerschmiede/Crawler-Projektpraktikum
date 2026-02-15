@@ -1,4 +1,4 @@
-[gd_scene format=3 uid="uid://ckuwaifqjkiwv"]
+[gd_scene format=3 uid="uid://bvfdv1snyoxhh"]
 
 [ext_resource type="Script" uid="uid://7bogatxmpx0w" path="res://scripts/entity/player_character.gd" id="1_no27k"]
 [ext_resource type="Script" uid="uid://cnto6kvd27me0" path="res://scripts/entity/player_camera.gd" id="4_0cvhd"]
@@ -20,6 +20,8 @@
 [ext_resource type="Script" uid="uid://6d52dv2f4umv" path="res://scripts/UI/drop_popup_player.gd" id="16_odrip"]
 [ext_resource type="Script" uid="uid://d4hyvrayuhs65" path="res://scripts/UI/sellslot.gd" id="19_fxkes"]
 [ext_resource type="Texture2D" uid="uid://cplcai6qfr0ae" path="res://assets/menu/UI_TravelBook_IconCross01a.png" id="20_72a5a"]
+[ext_resource type="Texture2D" uid="uid://b0t1sll7ljufl" path="res://assets/menu/Hammer-Up.png" id="21_3710g"]
+[ext_resource type="Texture2D" uid="uid://c47nuw1kagjgr" path="res://assets/menu/Hammer-Down.png" id="22_oag0m"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_r5wgn"]
 radius = 8.0
@@ -82,49 +84,49 @@ texture = ExtResource("10_j4pnj")
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_hh3gd"]
 texture = ExtResource("16_nq0iv")
 
-[node name="Player" type="CharacterBody2D" unique_id=1873150600]
+[node name="Player" type="CharacterBody2D" unique_id=501876919]
 script = ExtResource("1_no27k")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1001145197]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1537794999]
 shape = SubResource("CircleShape2D_r5wgn")
 
-[node name="CollisionArea" type="Area2D" parent="." unique_id=558857654]
+[node name="CollisionArea" type="Area2D" parent="." unique_id=922519892]
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="CollisionArea" unique_id=483880091]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CollisionArea" unique_id=1958888243]
 shape = SubResource("RectangleShape2D_hfhf8")
 
-[node name="PickupZone" type="Area2D" parent="." unique_id=37948540]
+[node name="PickupZone" type="Area2D" parent="." unique_id=929892946]
 script = ExtResource("8_jjy7y")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="PickupZone" unique_id=285748090]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="PickupZone" unique_id=309657404]
 shape = SubResource("RectangleShape2D_jmui6")
 
-[node name="Camera2D" type="Camera2D" parent="." unique_id=2060390153]
+[node name="Camera2D" type="Camera2D" parent="." unique_id=1885356867]
 zoom = Vector2(2, 2)
 script = ExtResource("4_0cvhd")
 
-[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1118100542]
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1587571266]
 script = ExtResource("4_x2d4g")
 
-[node name="SubViewportContainer" type="SubViewportContainer" parent="CanvasLayer" unique_id=824208195]
+[node name="SubViewportContainer" type="SubViewportContainer" parent="CanvasLayer" unique_id=2094205835]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="SubViewport" type="SubViewport" parent="CanvasLayer/SubViewportContainer" unique_id=2111413366]
+[node name="SubViewport" type="SubViewport" parent="CanvasLayer/SubViewportContainer" unique_id=982608288]
 handle_input_locally = false
 size = Vector2i(100, 100)
 render_target_update_mode = 4
 
-[node name="MiniCam" type="Camera2D" parent="CanvasLayer/SubViewportContainer/SubViewport" unique_id=1169452073]
+[node name="MiniCam" type="Camera2D" parent="CanvasLayer/SubViewportContainer/SubViewport" unique_id=1332466115]
 zoom = Vector2(0.2, 0.2)
 
-[node name="CanvasLayer2" type="CanvasLayer" parent="." unique_id=1572429555]
+[node name="CanvasLayer2" type="CanvasLayer" parent="." unique_id=833442286]
 script = ExtResource("16_odrip")
 
-[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer2" unique_id=549845142]
+[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer2" unique_id=1309513105]
 anchors_preset = 3
 anchor_left = 1.0
 anchor_top = 1.0
@@ -136,15 +138,15 @@ offset_bottom = -4.0
 grow_horizontal = 0
 grow_vertical = 0
 
-[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer2/MarginContainer" unique_id=4827109]
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer2/MarginContainer" unique_id=401817813]
 layout_mode = 2
 size_flags_horizontal = 8
 size_flags_vertical = 8
 
-[node name="UserInterface" type="CanvasLayer" parent="." unique_id=1659986096]
+[node name="UserInterface" type="CanvasLayer" parent="." unique_id=1243130226]
 script = ExtResource("5_jmui6")
 
-[node name="Inventory" type="Control" parent="UserInterface" unique_id=142138536]
+[node name="Inventory" type="Control" parent="UserInterface" unique_id=2126485661]
 z_index = 100
 layout_mode = 3
 anchors_preset = 8
@@ -157,12 +159,12 @@ grow_vertical = 2
 scale = Vector2(3, 3)
 script = ExtResource("6_7x6uh")
 
-[node name="Inner" type="Control" parent="UserInterface/Inventory" unique_id=222887779]
+[node name="Inner" type="Control" parent="UserInterface/Inventory" unique_id=1048780351]
 anchors_preset = 0
 offset_right = 40.0
 offset_bottom = 40.0
 
-[node name="InventoryLabel" type="TextureRect" parent="UserInterface/Inventory/Inner" unique_id=365943893]
+[node name="InventoryLabel" type="TextureRect" parent="UserInterface/Inventory/Inner" unique_id=507654855]
 layout_mode = 0
 offset_left = -64.0
 offset_top = -53.0
@@ -171,7 +173,7 @@ offset_bottom = -41.0
 texture = ExtResource("7_x2d4g")
 expand_mode = 1
 
-[node name="Label" type="Label" parent="UserInterface/Inventory/Inner/InventoryLabel" unique_id=1249294582]
+[node name="Label" type="Label" parent="UserInterface/Inventory/Inner/InventoryLabel" unique_id=1542766210]
 layout_mode = 0
 offset_left = 38.0
 offset_right = 106.0
@@ -182,7 +184,7 @@ theme_override_fonts/font = ExtResource("9_6k8oa")
 text = "Inventory"
 horizontal_alignment = 1
 
-[node name="StarLeft" type="TextureRect" parent="UserInterface/Inventory/Inner/InventoryLabel" unique_id=583669575]
+[node name="StarLeft" type="TextureRect" parent="UserInterface/Inventory/Inner/InventoryLabel" unique_id=144748471]
 layout_mode = 0
 offset_left = -11.666668
 offset_top = 0.6666672
@@ -192,7 +194,7 @@ scale = Vector2(0.9, 0.9)
 texture = ExtResource("9_x2d4g")
 flip_h = true
 
-[node name="StarLeft2" type="TextureRect" parent="UserInterface/Inventory/Inner/InventoryLabel" unique_id=102083736]
+[node name="StarLeft2" type="TextureRect" parent="UserInterface/Inventory/Inner/InventoryLabel" unique_id=1913293617]
 layout_mode = 0
 offset_left = 130.333
 offset_top = 0.667
@@ -201,7 +203,7 @@ offset_bottom = 12.333668
 scale = Vector2(0.9, 0.9)
 texture = ExtResource("9_x2d4g")
 
-[node name="TextureRect" type="TextureRect" parent="UserInterface/Inventory/Inner" unique_id=1589120140]
+[node name="TextureRect" type="TextureRect" parent="UserInterface/Inventory/Inner" unique_id=144276955]
 layout_direction = 1
 layout_mode = 1
 anchors_preset = 8
@@ -218,7 +220,7 @@ grow_vertical = 2
 expand_mode = 1
 metadata/_edit_use_anchors_ = true
 
-[node name="TextureRect2" type="TextureRect" parent="UserInterface/Inventory/Inner/TextureRect" unique_id=426910863]
+[node name="TextureRect2" type="TextureRect" parent="UserInterface/Inventory/Inner/TextureRect" unique_id=1047027347]
 layout_mode = 0
 offset_left = 76.0
 offset_top = 2.0
@@ -227,7 +229,7 @@ offset_bottom = 78.0
 texture = ExtResource("8_lsi2u")
 expand_mode = 1
 
-[node name="TextureRect3" type="TextureRect" parent="UserInterface/Inventory/Inner/TextureRect" unique_id=1573406156]
+[node name="TextureRect3" type="TextureRect" parent="UserInterface/Inventory/Inner/TextureRect" unique_id=4748484]
 layout_mode = 0
 offset_left = 4.0
 offset_top = 2.0
@@ -236,7 +238,7 @@ offset_bottom = 78.0
 texture = ExtResource("9_mbyut")
 expand_mode = 1
 
-[node name="EquiptmentLabel" type="TextureRect" parent="UserInterface/Inventory/Inner" unique_id=1625949382]
+[node name="EquiptmentLabel" type="TextureRect" parent="UserInterface/Inventory/Inner" unique_id=1576240045]
 layout_mode = 0
 offset_left = 11.0
 offset_top = -35.0
@@ -245,7 +247,7 @@ offset_bottom = -25.0
 texture = ExtResource("13_6k8oa")
 expand_mode = 1
 
-[node name="Label" type="Label" parent="UserInterface/Inventory/Inner/EquiptmentLabel" unique_id=2076669901]
+[node name="Label" type="Label" parent="UserInterface/Inventory/Inner/EquiptmentLabel" unique_id=1845790513]
 layout_mode = 0
 offset_left = 9.0
 offset_top = -0.2
@@ -255,7 +257,7 @@ scale = Vector2(0.6, 0.6)
 theme_override_fonts/font = ExtResource("9_6k8oa")
 text = "Equiptment"
 
-[node name="Equiptment" type="GridContainer" parent="UserInterface/Inventory/Inner" unique_id=1786437739]
+[node name="Equiptment" type="GridContainer" parent="UserInterface/Inventory/Inner" unique_id=101818976]
 visible = false
 layout_mode = 0
 offset_left = 2.6666641
@@ -264,11 +266,11 @@ offset_right = 77.33333
 offset_bottom = 31.666668
 columns = 3
 
-[node name="VBoxContainer" type="VBoxContainer" parent="UserInterface/Inventory/Inner/Equiptment" unique_id=67465791]
+[node name="VBoxContainer" type="VBoxContainer" parent="UserInterface/Inventory/Inner/Equiptment" unique_id=1059145932]
 custom_minimum_size = Vector2(12, 0)
 layout_mode = 2
 
-[node name="Slot13" type="Panel" parent="UserInterface/Inventory/Inner/Equiptment/VBoxContainer" unique_id=202371879 groups=["Weapon", "scale_0.60"]]
+[node name="Slot13" type="Panel" parent="UserInterface/Inventory/Inner/Equiptment/VBoxContainer" unique_id=666650678 groups=["Weapon", "scale_0.60"]]
 custom_minimum_size = Vector2(12, 12)
 layout_mode = 2
 size_flags_horizontal = 4
@@ -276,48 +278,48 @@ size_flags_vertical = 4
 theme_override_styles/panel = SubResource("StyleBoxTexture_xn7nh")
 script = ExtResource("6_5c7wf")
 
-[node name="Slot14" type="Panel" parent="UserInterface/Inventory/Inner/Equiptment/VBoxContainer" unique_id=1212242624 groups=["Schield", "scale_0.60"]]
+[node name="Slot14" type="Panel" parent="UserInterface/Inventory/Inner/Equiptment/VBoxContainer" unique_id=2025927186 groups=["Schield", "scale_0.60"]]
 custom_minimum_size = Vector2(12, 12)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxTexture_pa76a")
 script = ExtResource("6_5c7wf")
 
-[node name="VBoxContainer2" type="VBoxContainer" parent="UserInterface/Inventory/Inner/Equiptment" unique_id=473649178]
+[node name="VBoxContainer2" type="VBoxContainer" parent="UserInterface/Inventory/Inner/Equiptment" unique_id=1813384530]
 custom_minimum_size = Vector2(30, 0)
 layout_mode = 2
 
-[node name="Panel" type="Panel" parent="UserInterface/Inventory/Inner/Equiptment/VBoxContainer2" unique_id=16116281]
+[node name="Panel" type="Panel" parent="UserInterface/Inventory/Inner/Equiptment/VBoxContainer2" unique_id=835385871]
 custom_minimum_size = Vector2(25, 37)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxTexture_creb6")
 
-[node name="HBoxContainer" type="HBoxContainer" parent="UserInterface/Inventory/Inner/Equiptment/VBoxContainer2" unique_id=1514221283]
+[node name="HBoxContainer" type="HBoxContainer" parent="UserInterface/Inventory/Inner/Equiptment/VBoxContainer2" unique_id=1237399104]
 layout_mode = 2
 alignment = 1
 
-[node name="Slot15" type="Panel" parent="UserInterface/Inventory/Inner/Equiptment/VBoxContainer2/HBoxContainer" unique_id=1120616019 groups=["Shoes", "scale_0.60"]]
+[node name="Slot15" type="Panel" parent="UserInterface/Inventory/Inner/Equiptment/VBoxContainer2/HBoxContainer" unique_id=2098042457 groups=["Shoes", "scale_0.60"]]
 custom_minimum_size = Vector2(12, 12)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxTexture_vqds4")
 script = ExtResource("6_5c7wf")
 
-[node name="Slot16" type="Panel" parent="UserInterface/Inventory/Inner/Equiptment/VBoxContainer2/HBoxContainer" unique_id=2140414361 groups=["Arms", "scale_0.60"]]
+[node name="Slot16" type="Panel" parent="UserInterface/Inventory/Inner/Equiptment/VBoxContainer2/HBoxContainer" unique_id=583973300 groups=["Arms", "scale_0.60"]]
 custom_minimum_size = Vector2(12, 12)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxTexture_xqkyc")
 script = ExtResource("6_5c7wf")
 
-[node name="VBoxContainer3" type="VBoxContainer" parent="UserInterface/Inventory/Inner/Equiptment" unique_id=460598766]
+[node name="VBoxContainer3" type="VBoxContainer" parent="UserInterface/Inventory/Inner/Equiptment" unique_id=1141280831]
 custom_minimum_size = Vector2(12, 0)
 layout_mode = 2
 
-[node name="Slot17" type="Panel" parent="UserInterface/Inventory/Inner/Equiptment/VBoxContainer3" unique_id=551798419 groups=["Herd", "scale_0.60"]]
+[node name="Slot17" type="Panel" parent="UserInterface/Inventory/Inner/Equiptment/VBoxContainer3" unique_id=1088237418 groups=["Herd", "scale_0.60"]]
 custom_minimum_size = Vector2(12, 12)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxTexture_qoi8r")
 script = ExtResource("6_5c7wf")
 
-[node name="Slot18" type="Panel" parent="UserInterface/Inventory/Inner/Equiptment/VBoxContainer3" unique_id=2105082883 groups=["Chest", "scale_0.60"]]
+[node name="Slot18" type="Panel" parent="UserInterface/Inventory/Inner/Equiptment/VBoxContainer3" unique_id=1146302164 groups=["Chest", "scale_0.60"]]
 custom_minimum_size = Vector2(12, 12)
 layout_mode = 2
 size_flags_horizontal = 4
@@ -325,7 +327,7 @@ size_flags_vertical = 4
 theme_override_styles/panel = SubResource("StyleBoxTexture_qoi8r")
 script = ExtResource("6_5c7wf")
 
-[node name="GridContainer" type="GridContainer" parent="UserInterface/Inventory/Inner" unique_id=411237662]
+[node name="GridContainer" type="GridContainer" parent="UserInterface/Inventory/Inner" unique_id=1689117625]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -342,7 +344,7 @@ scale = Vector2(0.7, 0.7)
 columns = 3
 metadata/_edit_use_anchors_ = true
 
-[node name="Slot1" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" unique_id=1940500605 groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon"]]
+[node name="Slot1" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" unique_id=1650731524 groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon"]]
 custom_minimum_size = Vector2(20, 20)
 layout_mode = 2
 size_flags_horizontal = 0
@@ -351,7 +353,7 @@ theme_override_styles/panel = SubResource("StyleBoxTexture_x2d4g")
 script = ExtResource("6_5c7wf")
 empty_tex = ExtResource("10_j4pnj")
 
-[node name="Slot2" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" unique_id=610732229 groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "item", "merchant_room"]]
+[node name="Slot2" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" unique_id=1509581535 groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "item", "merchant_room"]]
 custom_minimum_size = Vector2(20, 20)
 layout_mode = 2
 size_flags_horizontal = 0
@@ -360,7 +362,7 @@ theme_override_styles/panel = SubResource("StyleBoxTexture_odrip")
 script = ExtResource("6_5c7wf")
 empty_tex = ExtResource("10_j4pnj")
 
-[node name="Slot3" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" unique_id=1715521609 groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "item", "merchant_room"]]
+[node name="Slot3" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" unique_id=1208427526 groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "item", "merchant_room"]]
 custom_minimum_size = Vector2(20, 20)
 layout_mode = 2
 size_flags_horizontal = 0
@@ -369,7 +371,7 @@ theme_override_styles/panel = SubResource("StyleBoxTexture_6k8oa")
 script = ExtResource("6_5c7wf")
 empty_tex = ExtResource("10_j4pnj")
 
-[node name="Slot4" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" unique_id=229738727 groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "item", "merchant_room"]]
+[node name="Slot4" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" unique_id=816634346 groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "item", "merchant_room"]]
 custom_minimum_size = Vector2(20, 20)
 layout_mode = 2
 size_flags_horizontal = 0
@@ -378,7 +380,7 @@ theme_override_styles/panel = SubResource("StyleBoxTexture_nq0iv")
 script = ExtResource("6_5c7wf")
 empty_tex = ExtResource("10_j4pnj")
 
-[node name="Slot5" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" unique_id=1325080464 groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "item", "merchant_room"]]
+[node name="Slot5" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" unique_id=2074176729 groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "item", "merchant_room"]]
 custom_minimum_size = Vector2(20, 20)
 layout_mode = 2
 size_flags_horizontal = 0
@@ -387,7 +389,7 @@ theme_override_styles/panel = SubResource("StyleBoxTexture_fxkes")
 script = ExtResource("6_5c7wf")
 empty_tex = ExtResource("10_j4pnj")
 
-[node name="Slot6" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" unique_id=414013209 groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "boss_room", "item", "merchant_room"]]
+[node name="Slot6" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" unique_id=660417617 groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "boss_room", "item", "merchant_room"]]
 custom_minimum_size = Vector2(20, 20)
 layout_mode = 2
 size_flags_horizontal = 0
@@ -396,7 +398,7 @@ theme_override_styles/panel = SubResource("StyleBoxTexture_72a5a")
 script = ExtResource("6_5c7wf")
 empty_tex = ExtResource("10_j4pnj")
 
-[node name="Slot7" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" unique_id=153293947 groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "boss_room", "item", "merchant_room"]]
+[node name="Slot7" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" unique_id=224677049 groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "boss_room", "item", "merchant_room"]]
 custom_minimum_size = Vector2(20, 20)
 layout_mode = 2
 size_flags_horizontal = 0
@@ -405,7 +407,7 @@ theme_override_styles/panel = SubResource("StyleBoxTexture_gdkvl")
 script = ExtResource("6_5c7wf")
 empty_tex = ExtResource("10_j4pnj")
 
-[node name="Slot8" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" unique_id=1229988314 groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "boss_room", "item", "merchant_room"]]
+[node name="Slot8" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" unique_id=1081351040 groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "boss_room", "item", "merchant_room"]]
 custom_minimum_size = Vector2(20, 20)
 layout_mode = 2
 size_flags_horizontal = 0
@@ -414,7 +416,7 @@ theme_override_styles/panel = SubResource("StyleBoxTexture_3710g")
 script = ExtResource("6_5c7wf")
 empty_tex = ExtResource("10_j4pnj")
 
-[node name="Slot9" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" unique_id=1396692844 groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "boss_room", "item", "merchant_room"]]
+[node name="Slot9" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" unique_id=999453829 groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "boss_room", "item", "merchant_room"]]
 custom_minimum_size = Vector2(20, 20)
 layout_mode = 2
 size_flags_horizontal = 0
@@ -423,7 +425,7 @@ theme_override_styles/panel = SubResource("StyleBoxTexture_oag0m")
 script = ExtResource("6_5c7wf")
 empty_tex = ExtResource("10_j4pnj")
 
-[node name="Slot10" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" unique_id=815407239 groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "boss_room", "item", "merchant_room"]]
+[node name="Slot10" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" unique_id=1391876148 groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "boss_room", "item", "merchant_room"]]
 custom_minimum_size = Vector2(20, 20)
 layout_mode = 2
 size_flags_horizontal = 0
@@ -432,7 +434,7 @@ theme_override_styles/panel = SubResource("StyleBoxTexture_cjry2")
 script = ExtResource("6_5c7wf")
 empty_tex = ExtResource("10_j4pnj")
 
-[node name="Slot11" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" unique_id=1944814225 groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "boss_room", "item", "merchant_room"]]
+[node name="Slot11" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" unique_id=1740425117 groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "boss_room", "item", "merchant_room"]]
 custom_minimum_size = Vector2(20, 20)
 layout_mode = 2
 size_flags_horizontal = 0
@@ -441,7 +443,7 @@ theme_override_styles/panel = SubResource("StyleBoxTexture_3r868")
 script = ExtResource("6_5c7wf")
 empty_tex = ExtResource("10_j4pnj")
 
-[node name="Slot12" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" unique_id=1372351242 groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "boss_room", "item", "merchant_room"]]
+[node name="Slot12" type="Panel" parent="UserInterface/Inventory/Inner/GridContainer" unique_id=350448825 groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "boss_room", "item", "merchant_room"]]
 custom_minimum_size = Vector2(20, 20)
 layout_mode = 2
 size_flags_horizontal = 0
@@ -452,7 +454,7 @@ default_tex = ExtResource("16_nq0iv")
 empty_tex = ExtResource("16_nq0iv")
 selected_tex = ExtResource("16_nq0iv")
 
-[node name="MerchantContainer" type="GridContainer" parent="UserInterface/Inventory/Inner" unique_id=1063456233]
+[node name="MerchantContainer" type="GridContainer" parent="UserInterface/Inventory/Inner" unique_id=900091362]
 clip_contents = true
 layout_mode = 0
 offset_left = 7.0
@@ -462,28 +464,28 @@ offset_bottom = 74.333336
 scale = Vector2(0.5, 0.5)
 columns = 3
 
-[node name="HBoxContainer2" type="VBoxContainer" parent="UserInterface/Inventory/Inner/MerchantContainer" unique_id=1408514080]
+[node name="HBoxContainer2" type="VBoxContainer" parent="UserInterface/Inventory/Inner/MerchantContainer" unique_id=732008320]
 layout_mode = 2
 
-[node name="HBoxContainer" type="VBoxContainer" parent="UserInterface/Inventory/Inner/MerchantContainer/HBoxContainer2" unique_id=1727163551]
+[node name="HBoxContainer" type="VBoxContainer" parent="UserInterface/Inventory/Inner/MerchantContainer/HBoxContainer2" unique_id=896215284]
 custom_minimum_size = Vector2(0, 60)
 layout_mode = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="UserInterface/Inventory/Inner/MerchantContainer/HBoxContainer2/HBoxContainer" unique_id=978623190]
+[node name="VBoxContainer" type="VBoxContainer" parent="UserInterface/Inventory/Inner/MerchantContainer/HBoxContainer2/HBoxContainer" unique_id=484290305]
 layout_mode = 2
 script = ExtResource("16_72a5a")
 
-[node name="VBoxContainer" type="VBoxContainer" parent="UserInterface/Inventory/Inner/MerchantContainer/HBoxContainer2" unique_id=1788184973]
+[node name="VBoxContainer" type="VBoxContainer" parent="UserInterface/Inventory/Inner/MerchantContainer/HBoxContainer2" unique_id=414942290]
 layout_mode = 2
 
-[node name="InventoryLabel" type="TextureRect" parent="UserInterface/Inventory/Inner/MerchantContainer/HBoxContainer2/VBoxContainer" unique_id=2071755420]
+[node name="InventoryLabel" type="TextureRect" parent="UserInterface/Inventory/Inner/MerchantContainer/HBoxContainer2/VBoxContainer" unique_id=922736475]
 custom_minimum_size = Vector2(92, 15)
 layout_mode = 2
 size_flags_horizontal = 4
 texture = ExtResource("7_x2d4g")
 expand_mode = 1
 
-[node name="Label" type="Label" parent="UserInterface/Inventory/Inner/MerchantContainer/HBoxContainer2/VBoxContainer/InventoryLabel" unique_id=1450567441]
+[node name="Label" type="Label" parent="UserInterface/Inventory/Inner/MerchantContainer/HBoxContainer2/VBoxContainer/InventoryLabel" unique_id=469014285]
 layout_mode = 0
 offset_left = 1.3333359
 offset_top = 1.6666666
@@ -495,11 +497,11 @@ theme_override_fonts/font = ExtResource("9_6k8oa")
 text = "Sell"
 horizontal_alignment = 1
 
-[node name="HBoxContainer2" type="HBoxContainer" parent="UserInterface/Inventory/Inner/MerchantContainer/HBoxContainer2/VBoxContainer" unique_id=1716004274]
+[node name="HBoxContainer2" type="HBoxContainer" parent="UserInterface/Inventory/Inner/MerchantContainer/HBoxContainer2/VBoxContainer" unique_id=486085615]
 layout_mode = 2
 script = ExtResource("19_fxkes")
 
-[node name="Sell Slot" type="Panel" parent="UserInterface/Inventory/Inner/MerchantContainer/HBoxContainer2/VBoxContainer/HBoxContainer2" unique_id=1904480817 groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "boss_room", "item", "merchant_room"]]
+[node name="Sell Slot" type="Panel" parent="UserInterface/Inventory/Inner/MerchantContainer/HBoxContainer2/VBoxContainer/HBoxContainer2" unique_id=338001676 groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "boss_room", "item", "merchant_room"]]
 custom_minimum_size = Vector2(20, 20)
 layout_mode = 2
 size_flags_horizontal = 0
@@ -507,12 +509,12 @@ size_flags_vertical = 4
 script = ExtResource("6_5c7wf")
 hover_tex = ExtResource("15_nq0iv")
 
-[node name="TextureRect" type="TextureRect" parent="UserInterface/Inventory/Inner/MerchantContainer/HBoxContainer2/VBoxContainer/HBoxContainer2" unique_id=1767038454]
+[node name="TextureRect" type="TextureRect" parent="UserInterface/Inventory/Inner/MerchantContainer/HBoxContainer2/VBoxContainer/HBoxContainer2" unique_id=1676209668]
 custom_minimum_size = Vector2(20, 20)
 layout_mode = 2
 texture = ExtResource("20_72a5a")
 
-[node name="Price" type="Panel" parent="UserInterface/Inventory/Inner/MerchantContainer/HBoxContainer2/VBoxContainer/HBoxContainer2" unique_id=164698446 groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "boss_room", "item", "merchant_room"]]
+[node name="Price" type="Panel" parent="UserInterface/Inventory/Inner/MerchantContainer/HBoxContainer2/VBoxContainer/HBoxContainer2" unique_id=929565750 groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "boss_room", "item", "merchant_room"]]
 custom_minimum_size = Vector2(20, 20)
 layout_mode = 2
 size_flags_horizontal = 0
@@ -520,18 +522,24 @@ size_flags_vertical = 4
 script = ExtResource("6_5c7wf")
 hover_tex = ExtResource("15_nq0iv")
 
-[node name="Hammer" type="TextureRect" parent="UserInterface/Inventory/Inner/MerchantContainer/HBoxContainer2/VBoxContainer/HBoxContainer2" unique_id=2147176339]
+[node name="Hammer" type="Panel" parent="UserInterface/Inventory/Inner/MerchantContainer/HBoxContainer2/VBoxContainer/HBoxContainer2" unique_id=1377963595]
 custom_minimum_size = Vector2(20, 20)
 layout_mode = 2
+script = ExtResource("6_5c7wf")
+default_tex = ExtResource("21_3710g")
+empty_tex = ExtResource("21_3710g")
+selected_tex = ExtResource("22_oag0m")
+hover_tex = ExtResource("22_oag0m")
+metadata/_custom_type_script = "uid://c46g0i67damgr"
 
-[node name="Hotbar" type="Control" parent="UserInterface/Inventory" unique_id=987133183]
+[node name="Hotbar" type="Control" parent="UserInterface/Inventory" unique_id=1397753932]
 anchors_preset = 0
 offset_left = 21.333334
 offset_top = 49.333336
 offset_right = 29.999998
 offset_bottom = 54.000008
 
-[node name="HotContainer" type="GridContainer" parent="UserInterface/Inventory/Hotbar" unique_id=1323109768]
+[node name="HotContainer" type="GridContainer" parent="UserInterface/Inventory/Hotbar" unique_id=11696494]
 layout_mode = 0
 offset_left = -90.66664
 offset_top = 7.333332
@@ -539,7 +547,7 @@ offset_right = 25.333359
 offset_bottom = 27.333332
 columns = 5
 
-[node name="Slot19" type="Panel" parent="UserInterface/Inventory/Hotbar/HotContainer" unique_id=28282230 groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "boss_room", "item", "merchant_room"]]
+[node name="Slot19" type="Panel" parent="UserInterface/Inventory/Hotbar/HotContainer" unique_id=739434573 groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "boss_room", "item", "merchant_room"]]
 custom_minimum_size = Vector2(17, 17)
 layout_mode = 2
 size_flags_horizontal = 0
@@ -547,7 +555,7 @@ size_flags_vertical = 4
 theme_override_styles/panel = SubResource("StyleBoxTexture_x2d4g")
 script = ExtResource("6_5c7wf")
 
-[node name="Slot20" type="Panel" parent="UserInterface/Inventory/Hotbar/HotContainer" unique_id=1193724016 groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "boss_room", "item", "merchant_room"]]
+[node name="Slot20" type="Panel" parent="UserInterface/Inventory/Hotbar/HotContainer" unique_id=1767711123 groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "boss_room", "item", "merchant_room"]]
 custom_minimum_size = Vector2(17, 17)
 layout_mode = 2
 size_flags_horizontal = 0
@@ -555,7 +563,7 @@ size_flags_vertical = 4
 theme_override_styles/panel = SubResource("StyleBoxTexture_x2d4g")
 script = ExtResource("6_5c7wf")
 
-[node name="Slot21" type="Panel" parent="UserInterface/Inventory/Hotbar/HotContainer" unique_id=813523237 groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "boss_room", "item", "merchant_room"]]
+[node name="Slot21" type="Panel" parent="UserInterface/Inventory/Hotbar/HotContainer" unique_id=136468072 groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "boss_room", "item", "merchant_room"]]
 custom_minimum_size = Vector2(17, 17)
 layout_mode = 2
 size_flags_horizontal = 0
@@ -563,7 +571,7 @@ size_flags_vertical = 4
 theme_override_styles/panel = SubResource("StyleBoxTexture_x2d4g")
 script = ExtResource("6_5c7wf")
 
-[node name="Slot22" type="Panel" parent="UserInterface/Inventory/Hotbar/HotContainer" unique_id=1491225884 groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "boss_room", "item", "merchant_room"]]
+[node name="Slot22" type="Panel" parent="UserInterface/Inventory/Hotbar/HotContainer" unique_id=57760657 groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "boss_room", "item", "merchant_room"]]
 custom_minimum_size = Vector2(17, 17)
 layout_mode = 2
 size_flags_horizontal = 0
@@ -571,7 +579,7 @@ size_flags_vertical = 4
 theme_override_styles/panel = SubResource("StyleBoxTexture_x2d4g")
 script = ExtResource("6_5c7wf")
 
-[node name="Slot23" type="Panel" parent="UserInterface/Inventory/Hotbar/HotContainer" unique_id=561426232 groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "boss_room", "item", "merchant_room"]]
+[node name="Slot23" type="Panel" parent="UserInterface/Inventory/Hotbar/HotContainer" unique_id=1144975087 groups=["Arms", "Chest", "Equipment", "Herd", "Inventar", "Inventory", "Shoes", "Sword", "Weapon", "boss_room", "item", "merchant_room"]]
 custom_minimum_size = Vector2(17, 17)
 layout_mode = 2
 size_flags_horizontal = 0
@@ -579,7 +587,7 @@ size_flags_vertical = 4
 theme_override_styles/panel = SubResource("StyleBoxTexture_x2d4g")
 script = ExtResource("6_5c7wf")
 
-[node name="coin_sum" type="Panel" parent="UserInterface/Inventory" unique_id=490591349 groups=["Equipment", "Inventory"]]
+[node name="coin_sum" type="Panel" parent="UserInterface/Inventory" unique_id=296555755 groups=["Equipment", "Inventory"]]
 custom_minimum_size = Vector2(12, 12)
 layout_mode = 0
 offset_left = 65.66667

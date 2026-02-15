@@ -6,50 +6,60 @@
 
 	"bat": {
 		"entityCategory": "enemy",
-		"scene": "res://scenes/enemy_vampire_bat.tscn",
+		"skills": ["Screech", "Swoop", "Rabies"],
 		"sprite_type": "bat",
 		"behaviour": ["passive", "enemy_flying"],
-		"spawnrate": { "min": 0.0, "max": 0.44642857 },
+		"spawnrate": { "min": 0.0, "max": 0.4 },
 		"spawncount": { "min": 4, "max": 20 },
 		"weight": 3
 	},
 
 	"skeleton": {
 		"entityCategory": "enemy",
-		"scene": "res://scenes/enemy_skeleton.tscn",
+		"skills": ["Eye-Flash-Slash", "Swoop", "Feint"],
 		"sprite_type": "skeleton",
 		"behaviour": ["hostile", "enemy_walking"],
-		"spawnrate": { "min": 0.0, "max": 0.17857143 },
+		"spawnrate": { "min": 0.0, "max": 0.2 },
 		"spawncount": { "min": 4, "max": 20 },
 		"weight": 3
+	},
+	
+	"tutorial_skeleton": {
+		"entityCategory": "enemy",
+		"skills": ["Precise Hit", "Feint"],
+		"sprite_type": "skeleton",
+		"behaviour": ["tutorial", "immobile"],
+		"spawnrate": { "min": 0.0, "max": 0.2 },
+		"spawncount": { "min": 4, "max": 20 },
+		"weight": 2
 	},
 
 	"base_zombie": {
 		"entityCategory": "enemy",
-		"scene": "res://scenes/enemy_zombie.tscn",
+		"skills": ["Screech", "Rabies"],
 		"sprite_type": "base_zombie",
 		"behaviour": ["hostile", "enemy_walking", "burrowing"],
-		"spawnrate": { "min": 0.0, "max": 0.16785714 },
+		"spawnrate": { "min": 0.0, "max": 0.2 },
 		"spawncount": { "min": 4, "max": 20 },
 		"weight": 4
 	},
 
 	"ghost": {
 		"entityCategory": "enemy",
-		"scene": "res://scenes/enemy_ghost.tscn",
+		"skills": ["Feint", "Encroaching Void"], 
 		"sprite_type": "ghost",
 		"behaviour": ["hostile", "enemy_flying", "burrowing"],
-		"spawnrate": { "min": 0.0, "max": 0.01785714 },
+		"spawnrate": { "min": 0.0, "max": 0.007 },
 		"spawncount": { "min": 4, "max": 20 },
 		"weight": 5
 	},
 
 	"what": {
 		"entityCategory": "enemy",
-		"scene": "res://scenes/enemy_placeholder.tscn",
+		"skills" : ["Screech", "Vortex", "Encroaching Void"],
 		"sprite_type": "what",
 		"behaviour": ["hostile", "wallbound"],
-		"spawnrate": { "min": 0.0, "max": 0.1 },
+		"spawnrate": { "min": 0.0, "max": 0.093 },
 		"spawncount": { "min": 4, "max": 6 },
 		"weight": 6
 	}
