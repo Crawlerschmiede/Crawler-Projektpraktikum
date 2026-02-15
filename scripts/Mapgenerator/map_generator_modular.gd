@@ -55,6 +55,11 @@ var corridor_count: int = 0
 var boss_room_spawned := false
 var room_id: int = 0
 
+#---- Save Game ----
+var last_best_seed: int = 0
+var last_best_genome = null
+var current_floor_index: int = 0 
+
 # Private
 var _closed_door_cache: Dictionary = {}
 var _corridor_cache: Dictionary = {}
@@ -140,6 +145,9 @@ func get_random_tilemap() -> Dictionary:
 
 	_emit_progress_mapped(0.05, 0.45, 0.0, "Running GA...")
 	var best = await genetic_search_best()
+	last_best_seed = best.seed
+	last_best_genome = best.genome
+
 	_emit_progress_mapped(0.05, 0.45, 1.0, "GA finished")
 	await get_tree().process_frame
 
@@ -154,5 +162,55 @@ func get_random_tilemap() -> Dictionary:
 		await bake_rooms_into_world_tilemap()
 		for r in placed_rooms:
 			r.visible = false
+		
+
+	return {"floor": world_tilemap, "top": world_tilemap_top, "minimap": minimap}
+
+#---- Save Game Funktionen zum Speichern und Laden 
+func export_map_blueprint() -> Dictionary:
+	return {
+		"seed": last_best_seed,
+		"genome": last_best_genome.to_dict()
+	}
+	
+func build_map_from_blueprint(bp: Dictionary) -> Dictionary:
+	_yield_counter = 0
+	_emit_progress_mapped(0.0, 0.05, 0.0, "Preparing scenes...")
+	await get_tree().process_frame
+
+	start_room = load("res://scenes/rooms/Rooms/room_11x11_4.tscn")
+	room_scenes = load_room_scenes_from_folder(rooms_folder)
+	closed_door_scenes = load_closed_door_scenes_from_folder(closed_doors_folder)
+
+	var seed: int = int(bp.get("seed", ga_seed))
+	var genome_dict: Dictionary = bp.get("genome", {})
+	var genome: MGGENOME.Genome = MGGENOME.Genome.from_dict(genome_dict)
+
+	clear_world_tilemaps()
+	clear_children_rooms_only()
+
+	placed_rooms.clear()
+	corridor_count = 0
+	boss_room_spawned = false
+	room_id = 0
+	room_type_counts.clear()
+
+	_emit_progress_mapped(0.05, 0.45, 0.0, "Building map from save...")
+	await generate_with_genome(genome, seed, true)
+	_emit_progress_mapped(0.05, 0.45, 1.0, "Map build finished")
+
+	_emit_progress_mapped(0.45, 0.95, 0.0, "Baking tilemaps...")
+	await bake_rooms_into_world_tilemap()
+	_emit_progress_mapped(0.45, 0.95, 1.0, "Baking done")
+
+	for r in placed_rooms:
+		r.visible = false
+
+	minimap = TileMapLayer.new()
+	minimap.name = "Minimap"
+	minimap.visibility_layer = 1 << 1
+
+	_emit_progress_mapped(0.95, 1.0, 1.0, "Loaded from save")
+	await get_tree().process_frame
 
 	return {"floor": world_tilemap, "top": world_tilemap_top, "minimap": minimap}

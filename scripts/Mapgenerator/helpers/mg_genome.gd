@@ -28,6 +28,23 @@ class Genome:
 			+ ", corridor_bias="
 			+ str(corridor_bias)
 		)
+	#---- Save Game Funktionen zur Speicherung von Genomen als Dict für JSON- SaveFile
+
+	func to_dict() -> Dictionary:
+		return {
+			"door_fill_chance": door_fill_chance,
+			"max_corridors": max_corridors,
+			"max_corridor_chain": max_corridor_chain,
+			"corridor_bias": corridor_bias
+		}
+
+	static func from_dict(d: Dictionary) -> Genome:
+		var g := Genome.new()
+		g.door_fill_chance = float(d.get("door_fill_chance", 1.0))
+		g.max_corridors = int(d.get("max_corridors", 10))
+		g.max_corridor_chain = int(d.get("max_corridor_chain", 3))
+		g.corridor_bias = float(d.get("corridor_bias", 1.0))
+		return g
 
 
 class EvalResult:
@@ -84,3 +101,4 @@ func mutate(g: Genome, _rng) -> void:
 		g.max_corridor_chain = int(clamp(g.max_corridor_chain + _rng.randi_range(-1, 1), 0, 6))
 	if _rng.randf() < 0.5:
 		g.corridor_bias = clamp(g.corridor_bias + _rng.randf_range(-0.25, 0.25), 0.3, 2.5)
+		

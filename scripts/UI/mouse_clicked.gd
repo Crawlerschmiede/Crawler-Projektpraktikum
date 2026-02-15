@@ -48,6 +48,31 @@ func _wire_buttons() -> void:
 
 	if has_node("BoxContainer/VBoxContainer2/Exit"):
 		$BoxContainer/VBoxContainer2/Exit.pressed.connect(get_tree().quit)
+		
+	if has_node("BoxContainer/VBoxContainer2/Continue"):
+		var btn := $"BoxContainer/VBoxContainer2/Continue"
+		btn.pressed.connect(_on_continue_pressed)
+
+		# Optional: deaktivieren, wenn kein Save vorhanden
+		if Engine.has_singleton("SaveManager"):
+			btn.disabled = not SaveManager.has_save()
+		else:
+			btn.disabled = true
+			
+			
+# ==========================
+# CONTINUE
+# ==========================
+
+func _on_continue_pressed() -> void:
+
+	if not Engine.has_singleton("SaveManager") or not SaveManager.has_save():
+		return
+
+	SaveManager.pending_continue = true
+
+	get_tree().paused = false
+	get_tree().change_scene_to_packed(MAP_GENERATOR_SCENE)
 
 
 # ==========================

@@ -244,6 +244,7 @@ func _load_world(idx: int) -> void:
 	world_root.name = "WorldRoot"
 	add_child(world_root)
 
+<<<<<<< Updated upstream
 	var entity_container := Node2D.new()
 	entity_container.name = "Entities"
 	world_root.add_child(entity_container)
@@ -253,6 +254,20 @@ func _load_world(idx: int) -> void:
 	# Maps vom Generator holen
 	# -------------------------------------------------
 	var maps: Dictionary = await gen.get_random_tilemap()
+=======
+	var maps: Dictionary
+
+	if Engine.has_singleton("SaveManager") and SaveManager.pending_continue and SaveManager.has_save():
+		var state := SaveManager.load_state()
+		if state.is_empty() or not state.has("map_blueprint"):
+			maps = await gen.get_random_tilemap()
+		else:
+			maps = await gen.build_map_from_blueprint(state["map_blueprint"])
+		SaveManager.pending_continue = false
+	else:
+		maps = await gen.get_random_tilemap()
+
+>>>>>>> Stashed changes
 
 	if maps.is_empty():
 		push_error("Generator returned empty dictionary!")
