@@ -96,7 +96,8 @@ func get_bound_skills() -> Array:
 		return []
 	var bound_skills: Array = Array((info as Dictionary).get("bound_skills", []))
 	return bound_skills
-	
+
+
 func get_range() -> String:
 	print("Itemname: ", item_name)
 	if !item_exists():

@@ -116,10 +116,11 @@ func get_equipment_skills():
 				if skill not in gotten_skills:
 					gotten_skills.append(skill)
 	return gotten_skills
-	
+
+
 func get_equipment_range():
 	var equipment_slots = _get_equipment_slots()
-	var gotten_range="short"
+	var gotten_range = "short"
 	for slot in equipment_slots:
 		var item_in_slot = slot.get_item()
 		if item_in_slot != null:
