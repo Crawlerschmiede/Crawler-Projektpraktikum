@@ -39,7 +39,7 @@ func _init(
 	cooldown = _cooldown
 	is_passive = _is_passive
 	conditions = _conditions
-	switch_conditions =_switch_conditions
+	switch_conditions = _switch_conditions
 
 
 func prep_skill(user, target, battle):
@@ -157,7 +157,7 @@ func condition_met(condition_name, user, _target, battle) -> bool:
 				print("Player is armed?", user.is_armed)
 			else:
 				print("User is not player")
-				
+
 	if "every_x_turns" in condition_name:
 		var splits = condition_name.split("=")
 		is_met = battle.turn_counter % int(splits[1]) == 0
@@ -208,12 +208,12 @@ class Effect:
 			for condition in skill.switch_conditions:
 				print("checkign condition ", condition)
 				if not skill.condition_met(condition, user, target, battle):
-					second_case=false
+					second_case = false
 			if second_case:
 				considered_details = parts[1]
 			else:
-				considered_details = parts[0]		
-			
+				considered_details = parts[0]
+
 		#out-of-battle-stuff happens here
 		if battle == null:
 			match type:
@@ -272,9 +272,9 @@ class Effect:
 						active_dmg *= user.alterations[alteration].dmg_buff
 					if user.alterations[alteration].has("dmg_null"):
 						active_dmg = 0
-						
+
 				if user.is_player:
-					active_dmg*= battle.get_player_range_dmg_mult()
+					active_dmg *= battle.get_player_range_dmg_mult()
 
 				var recipient = user if targets_self else target
 				messages = _safe_invoke(recipient, "take_damage", [active_dmg])
@@ -305,7 +305,10 @@ class Effect:
 				else:
 					if target.frozen > 0:
 						can_move = false
-				if (considered_details in basic_directions or "rnd" in considered_details) and can_move:
+				if (
+					(considered_details in basic_directions or "rnd" in considered_details)
+					and can_move
+				):
 					ret = [battle.move_player(considered_details, value)]
 			"danger_dmg_mult":
 				print("Activating danger")
@@ -352,7 +355,9 @@ class Effect:
 						active_dmg *= user.alterations[alteration].dmg_buff
 					if user.alterations[alteration].has("dmg_null"):
 						active_dmg = 0
-				ret = battle.apply_zones("damage_", active_dmg, considered_details, duration, direction)
+				ret = battle.apply_zones(
+					"damage_", active_dmg, considered_details, duration, direction
+				)
 			"heal_zone":
 				print("Activating death")
 				var duration = 1

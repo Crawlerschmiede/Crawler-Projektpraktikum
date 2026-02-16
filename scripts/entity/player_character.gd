@@ -250,12 +250,13 @@ func update_unlocked_skills():
 		armed = true
 	print("Gotten Skills:", gotten_skills)
 	if armed:
-		is_armed=true
+		is_armed = true
 	else:
-		is_armed=false
+		is_armed = false
 	for ability in gotten_skills:
 		add_skill(ability)
-		
+
+
 func get_used_range():
 	return inventory.get_equipment_range()
 

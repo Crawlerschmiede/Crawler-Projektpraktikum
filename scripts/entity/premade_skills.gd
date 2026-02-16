@@ -307,7 +307,6 @@ var existing_skills = {
 		"effects": [["damage", 1, false, "ramp||consecutive"]],
 		"cooldown": 0
 	},
-	
 	#unarmed skill tree
 	"Flying Fists and Feets":
 	{
@@ -367,16 +366,15 @@ var existing_skills = {
 	{
 		"tree": "knife skills",
 		"description": "When one stab just isn't enough",
-		"effects":
-		[["damage", 1, false, "No"], ["damage", 1, false, "No"]],
+		"effects": [["damage", 1, false, "No"], ["damage", 1, false, "No"]],
 		"cooldown": 2
 	},
 	"Shoot":
 	{
 		"tree": "bow skills",
-		"description": "You feel like, in maybe a couple centuries, this term would hold more weight",
-		"effects":
-		[["damage", 1, false, "No"], ["damage", 1, false, "No"]],
+		"description":
+		"You feel like, in maybe a couple centuries, this term would hold more weight",
+		"effects": [["damage", 1, false, "No"], ["damage", 1, false, "No"]],
 		"cooldown": 2
 	},
 	"Slash":
