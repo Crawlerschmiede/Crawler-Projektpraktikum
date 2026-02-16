@@ -118,8 +118,10 @@ func is_activateable(user = null, target = null, battle = null) -> bool:
 		activateable = false
 	if not battle == null:
 		for condition in conditions:
+			print(condition)
 			if not condition_met(condition, user, target, battle):
 				activateable = false
+			print(activateable)
 	return activateable
 
 
@@ -148,6 +150,13 @@ func condition_met(condition_name, user, _target, battle) -> bool:
 			is_met = not battle.is_player_in_range(user.ranges[1])
 		"outside_long_range":
 			is_met = not battle.is_player_in_range(user.ranges[2])
+		"unarmed":
+			if user.is_player:
+				is_met = not user.is_armed
+				print("Player is armed?", user.is_armed)
+			else:
+				print("User is not player")
+				
 	if "every_x_turns" in condition_name:
 		var splits = condition_name.split("=")
 		is_met = battle.turn_counter % int(splits[1]) == 0

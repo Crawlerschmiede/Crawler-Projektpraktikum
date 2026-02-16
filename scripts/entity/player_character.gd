@@ -13,6 +13,7 @@ var step_timer: float = 0.01
 var base_actions = ["Move Up", "Move Down", "Move Left", "Move Right"]
 var actions = []
 var minimap
+var is_armed = false
 
 var fog_layer: TileMapLayer = null
 var dynamic_fog: bool = true
@@ -213,8 +214,7 @@ func _on_area_2d_area_entered(area: Area2D):
 func level_up():
 	self.max_hp = self.max_hp + 1
 	self.hp = self.max_hp
-	for i in range(5):
-		existing_skilltrees.increase_tree_level("Long Ranged Weaponry")
+	existing_skilltrees.increase_tree_level("Medium Ranged Weaponry")
 	update_unlocked_skills()
 
 
@@ -244,8 +244,15 @@ func update_unlocked_skills():
 	abilities = []
 	var gotten_skills = existing_skilltrees.get_active_skills()
 	var equipped_skills = inventory.get_equipment_skills()
+	var armed = false
 	for extra in equipped_skills:
 		gotten_skills.append(extra)
+		armed = true
+	print("Gotten Skills:", gotten_skills)
+	if armed:
+		is_armed=true
+	else:
+		is_armed=false
 	for ability in gotten_skills:
 		add_skill(ability)
 

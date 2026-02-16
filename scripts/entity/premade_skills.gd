@@ -141,7 +141,8 @@ var existing_skills = {
 		"tier": 1,
 		"description": "It's a punch... you don't need an explanation",
 		"effects": [["damage", 2, false, "No"]],
-		"cooldown": 2
+		"cooldown": 2,
+		"conditions": ["unarmed"]
 	},
 	"Right Pivot":
 	{
@@ -335,16 +336,31 @@ var existing_skills = {
 	"Shank":
 	{
 		"tree": "knife skills",
-		"description": "When one... or I suppose two stabs just aren't enough",
+		"description": "When one stab just isn't enough",
 		"effects":
-		[["damage", 1, false, "No"], ["damage", 1, false, "No"], ["damage", 1, false, "No"]],
+		[["damage", 1, false, "No"], ["damage", 1, false, "No"]],
+		"cooldown": 2
+	},
+	"Shoot":
+	{
+		"tree": "bow skills",
+		"description": "You feel like, in maybe a couple centuries, this term would hold more weight",
+		"effects":
+		[["damage", 1, false, "No"], ["damage", 1, false, "No"]],
 		"cooldown": 2
 	},
 	"Slash":
 	{
 		"tree": "sword skills",
 		"description": "Truly, the most basic of basic things you could do",
-		"effects": [["damage", 3, false, "No"]],
+		"effects": [["damage", 2, false, "No"]],
+		"cooldown": 2
+	},
+	"Stab":
+	{
+		"tree": "spear skills",
+		"description": "Truly, the most basic of basic things you could do",
+		"effects": [["damage", 2, false, "No"]],
 		"cooldown": 2
 	},
 	#item effects (maybe also here? Who knows what anything is at this point)

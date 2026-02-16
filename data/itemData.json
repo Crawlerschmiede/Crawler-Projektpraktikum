@@ -28,17 +28,51 @@
 		"StackSize": 1,
 		"Description": "A sturdy tree branch that can be used for crafting.",
 		"group": "Weapon",
-	"loot_stats": { "weight": 3, "chance": 1.0, "max_stack": 2 },
-	"merchant": {
-		"min_count": 1,
-		"max_count": 2,
-		"min_price": 6,
-		"max_price": 9,
-		"buy_amount": 2,
-		"chance": 1.0,
-		"weight": 1
-	},
-	"bound_skills":["Slash"]
+		"loot_stats": { "weight": 3, "chance": 1.0, "max_stack": 2 },
+		"merchant": {
+			"min_count": 1,
+			"max_count": 2,
+			"min_price": 6,
+			"max_price": 9,
+			"buy_amount": 2,
+			"chance": 1.0,
+			"weight": 1
+		},
+		"bound_skills":["Slash"]
+	  },
+	"placeholder_spear": {
+		"ItemCategory": "Weapon",
+		"StackSize": 1,
+		"Description": "A sturdy tree branch that can be used for crafting.",
+		"group": "Weapon",
+		"loot_stats": { "weight": 3, "chance": 1.0, "max_stack": 2 },
+		"merchant": {
+			"min_count": 1,
+			"max_count": 2,
+			"min_price": 6,
+			"max_price": 9,
+			"buy_amount": 2,
+			"chance": 1.0,
+			"weight": 1
+		},
+		"bound_skills":["Stab"]
+	  },
+	"placeholder_bow": {
+		"ItemCategory": "Weapon",
+		"StackSize": 1,
+		"Description": "A sturdy tree branch that can be used for crafting.",
+		"group": "Weapon",
+		"loot_stats": { "weight": 3, "chance": 1.0, "max_stack": 2 },
+		"merchant": {
+			"min_count": 1,
+			"max_count": 2,
+			"min_price": 6,
+			"max_price": 9,
+			"buy_amount": 2,
+			"chance": 1.0,
+			"weight": 1
+		},
+		"bound_skills":["Shoot"]
 	  },
 	"placeholder_heal_potion": {
 		"ItemCategory": "Consumable",
