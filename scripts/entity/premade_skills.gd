@@ -278,8 +278,8 @@ var existing_skills = {
 	},
 	"Reload":
 	{
-		"tree": "basic",
-		"tier": 1,
+		"tree": "Long Ranged Weaponry",
+		"tier": 2,
 		"description":
 		"You feel strongly that your opponent would be less scary if you shot them more",
 		"effects": [["coolup", 1, true, "No"]],
