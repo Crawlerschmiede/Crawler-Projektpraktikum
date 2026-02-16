@@ -21,7 +21,8 @@
 		"Description": "A sturdy tree branch that can be used for crafting.",
 		"group": "Equipment",
 		"loot_stats": { "weight": 3, "chance": 1.0, "max_stack": 2 },
-		"bound_skills":["Shank"]
+		"bound_skills":["Shank"],
+		"range":"short"
 	  },
 	"placeholder_sword": {
 		"ItemCategory": "Weapon",
@@ -38,7 +39,8 @@
 			"chance": 1.0,
 			"weight": 1
 		},
-		"bound_skills":["Slash"]
+		"bound_skills":["Slash"],
+		"range":"short"
 	  },
 	"placeholder_spear": {
 		"ItemCategory": "Weapon",
@@ -55,7 +57,8 @@
 			"chance": 1.0,
 			"weight": 1
 		},
-		"bound_skills":["Stab"]
+		"bound_skills":["Stab"],
+		"range":"medium"
 	  },
 	"placeholder_bow": {
 		"ItemCategory": "Weapon",
@@ -72,7 +75,8 @@
 			"chance": 1.0,
 			"weight": 1
 		},
-		"bound_skills":["Shoot"]
+		"bound_skills":["Shoot"],
+		"range":"long"
 	  },
 	"placeholder_heal_potion": {
 		"ItemCategory": "Consumable",

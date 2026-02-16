@@ -307,6 +307,36 @@ var existing_skills = {
 		"effects": [["damage", 1, false, "ramp||consecutive"]],
 		"cooldown": 0
 	},
+	
+	#unarmed skill tree
+	"Flying Fists and Feets":
+	{
+		"tree": "Unarmed",
+		"tier": 1,
+		"description": "It's impressive how far a kick can reach if you stretch a bit",
+		"effects": [["damage_buff", 1.25, true, "overwrite_range"]],
+		"passive": true,
+		"conditions": ["unarmed"]
+	},
+	"Sting like a Bee":
+	{
+		"tree": "Unarmed",
+		"tier": 2,
+		"description": "Well... it's not a big sting... let's hope your enemy is allergic",
+		"effects": [["stun", 3, false, "No"]],
+		"cooldown": 4
+	},
+	"Float like a Butterfly":
+	{
+		"tree": "unarmed",
+		"tier": 3,
+		"description":
+		# gdlint:ignore = max-line-length
+		"God, it pains me to think about just how annoying it must be to try and hit you...",
+		"effects": [["movement", 1, true, "conditional--rnd_long||rnd_short"]],
+		"cooldown": 3,
+		"switch_condition": ["outside_short_range"]
+	},
 	#standard actions
 	"Move Up":
 	{
@@ -386,9 +416,11 @@ func get_skill(skill_name):
 	var conditions = []
 	if values.has("conditions"):
 		conditions = values.conditions
-	print(skill_name, values.tree, values.description, cool, passive, conditions)
+	var switch_conditions = []
+	if values.has("switch_condition"):
+		switch_conditions = values.switch_condition
 	var new_skill = Skill.new(
-		skill_name, values.tree, values.description, cool, passive, conditions
+		skill_name, values.tree, values.description, cool, passive, conditions, switch_conditions
 	)
 	for effect in values.effects:
 		new_skill.add_effect(effect[0], effect[1], effect[2], effect[3])

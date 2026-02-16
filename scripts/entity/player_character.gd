@@ -255,6 +255,9 @@ func update_unlocked_skills():
 		is_armed=false
 	for ability in gotten_skills:
 		add_skill(ability)
+		
+func get_used_range():
+	return inventory.get_equipment_range()
 
 
 func update_visibility():

@@ -146,7 +146,8 @@ This is the current workflow:
     "chance": 1.0,
     "weight": 1
   },
-  "bound_skills": ["Slash"]
+  "bound_skills": ["Slash"],
+	"range":"short"
 }
 ```
 
@@ -159,6 +160,7 @@ This is the current workflow:
   - `loot_stats`: (optional) Alternativstruktur mit `weight`, `chance`, `max_stack`.
   - `merchant`: (optional) Objekt mit Verkaufs-/Vorrats-Parametern (`min_count`, `max_count`, `min_price`, `max_price`, `buy_amount`, `chance`, `weight`). Händler-Logik liest diese Felder, um Shops zu füllen.
   - `bound_skills`: (optional) Liste an Skill-Namen, die beim Equippen gebunden werden (wird von `item.gd` gelesen).
+  - `range`: (optional) short|medium|long, je nach Reichweite, welche die Waffe verwenden soll
   - `use_effects`: (optional) Für Verbrauchsgegenstände: Liste der Effekte, die beim Benutzen ausgelöst werden (z. B. `Heal`).
 
 - **Icon laden:** Die UI-Komponente `item.gd` erwartet die Icon-Datei unter `res://assets/item_icons/<item_key>.png`. Falls kein Icon gefunden wird, wird eine Warnung geloggt.

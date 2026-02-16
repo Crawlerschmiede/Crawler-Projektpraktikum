@@ -95,8 +95,20 @@ func get_bound_skills() -> Array:
 		print("not_dict")
 		return []
 	var bound_skills: Array = Array((info as Dictionary).get("bound_skills", []))
-	print("returnin proper")
 	return bound_skills
+	
+func get_range() -> String:
+	print("Itemname: ", item_name)
+	if !item_exists():
+		print("doesn't exist")
+		return ""
+	var data: Dictionary = JsonData.item_data
+	var info: Variant = data[item_name]
+	if typeof(info) != TYPE_DICTIONARY:
+		print("not_dict")
+		return ""
+	var range: String = String((info as Dictionary).get("range", ""))
+	return range
 
 
 func _set_icon() -> void:

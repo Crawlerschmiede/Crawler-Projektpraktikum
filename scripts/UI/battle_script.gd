@@ -314,13 +314,34 @@ func move_player(direction: String, distance: int):
 	check_curr_tile_mods()
 	return "Player moved " + dir
 
+	
 
 func is_player_in_range(y_from_to) -> bool:
-	var min_y = 99999999999999
-	for tile in used_cells:
-		if tile.y < min_y:
-			min_y = tile.y
+	var min_y = get_min_y()
 	return player_gridpos.y >= min_y + y_from_to[0] and player_gridpos.y <= min_y + y_from_to[1]
+	
+	
+func get_player_range_dmg_mult():
+	var dmg_mult: float = 1.0
+	var calculated_range = player.get_used_range()
+	var base_tiles = [0, 0]
+	var player_y = player_gridpos.y - get_min_y()
+	match calculated_range:
+		"short":
+			base_tiles = player.ranges[0]
+		"medium":
+			base_tiles = player.ranges[1]
+		"long":
+			base_tiles = player.ranges[2]
+	var dist = 0
+	if player_y < base_tiles[0]:
+		dist = base_tiles[0]-player_y
+	elif player_y > base_tiles[1]:
+		dist = player_y-base_tiles[1]
+	dmg_mult = 1.0 - (dist*0.3)
+	if dmg_mult<0:
+		dmg_mult=0
+	return dmg_mult
 
 
 func check_curr_tile_mods():

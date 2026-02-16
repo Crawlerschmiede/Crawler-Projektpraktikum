@@ -8,6 +8,7 @@ extends Resource
 @export var cooldown: int
 @export var is_passive: bool
 @export var conditions: Array
+@export var switch_conditions: Array
 var turns_until_reuse: int = 0
 var effects: Array[Effect] = []
 var immediate_effects: Array[Effect] = []
@@ -29,7 +30,8 @@ func _init(
 	_description: String,
 	_cooldown: int,
 	_is_passive: bool,
-	_conditions: Array
+	_conditions: Array,
+	_switch_conditions: Array
 ):
 	name = _name
 	tree_path = _tree_path
@@ -37,13 +39,14 @@ func _init(
 	cooldown = _cooldown
 	is_passive = _is_passive
 	conditions = _conditions
+	switch_conditions =_switch_conditions
 
 
 func prep_skill(user, target, battle):
 	var things_that_happened = []
 	for effect in effects:
 		if effect.type in pre_prepared_effects:
-			var stuff = effect.apply(user, target, battle, name)
+			var stuff = effect.apply(user, target, battle, self)
 			for thing in stuff:
 				things_that_happened.append(thing)
 	return things_that_happened
@@ -55,12 +58,12 @@ func activate_skill(user, target, battle, depth = 0):
 	var stuff = null
 	for effect in effects:
 		if effect.type in high_prio_effects && !effect.type in pre_prepared_effects:
-			stuff = effect.apply(user, target, battle, name, depth)
+			stuff = effect.apply(user, target, battle, self, depth)
 			for thing in stuff:
 				things_that_happened.append(thing)
 	for effect in effects:
 		if !effect.type in high_prio_effects && !effect.type in pre_prepared_effects:
-			stuff = effect.apply(user, target, battle, name, depth)
+			stuff = effect.apply(user, target, battle, self, depth)
 			for thing in stuff:
 				things_that_happened.append(thing)
 	if len(second_turn_effects) != 0:
@@ -78,12 +81,12 @@ func activate_followup():
 	var stuff = null
 	for effect in second_turn_effects:
 		if effect.type in high_prio_effects && !effect.type in pre_prepared_effects:
-			stuff = effect.apply(last_user, last_target, last_battle, name, depth)
+			stuff = effect.apply(last_user, last_target, last_battle, self, depth)
 			for thing in stuff:
 				things_that_happened.append(thing)
 	for effect in second_turn_effects:
 		if !effect.type in high_prio_effects && !effect.type in pre_prepared_effects:
-			stuff = effect.apply(last_user, last_target, last_battle, name, depth)
+			stuff = effect.apply(last_user, last_target, last_battle, self, depth)
 			for thing in stuff:
 				things_that_happened.append(thing)
 	return things_that_happened
@@ -93,7 +96,7 @@ func activate_immediate(user):
 	print("immediate activation")
 	if len(immediate_effects) > 0:
 		for effect in immediate_effects:
-			effect.apply(user, null, null, name)
+			effect.apply(user, null, null, self)
 	return []
 
 
@@ -136,8 +139,6 @@ func condition_met(condition_name, user, _target, battle) -> bool:
 		return false
 	match condition_name:
 		"short_range":
-			# TODO: the whole [0,1] thing should come from a variable to become
-			# variable.
 			is_met = battle.is_player_in_range(user.ranges[0])
 		"medium_range":
 			is_met = battle.is_player_in_range(user.ranges[1])
@@ -196,14 +197,28 @@ class Effect:
 		return obj.callv(method_name, args)
 
 	# gdlint: disable=max-returns
-	func apply(user, target, battle, skill_name, depth = 0):
+	func apply(user, target, battle, skill, depth = 0):
 		var messages = []
 		var ret = []
+		var considered_details = details
+		if "conditional" in considered_details:
+			var parts = considered_details.split("--")
+			parts = parts[1].split("||")
+			var second_case = true
+			for condition in skill.switch_conditions:
+				print("checkign condition ", condition)
+				if not skill.condition_met(condition, user, target, battle):
+					second_case=false
+			if second_case:
+				considered_details = parts[1]
+			else:
+				considered_details = parts[0]		
+			
 		#out-of-battle-stuff happens here
 		if battle == null:
 			match type:
 				"range_buff":
-					match details:
+					match considered_details:
 						"short":
 							user.ranges[0] = [0, 0 + value]
 						"medium":
@@ -221,8 +236,8 @@ class Effect:
 				print("Activating damage!")
 				var active_dmg = value
 				var critted = false
-				if "ramp" in details:
-					var parts = details.split("||")
+				if "ramp" in considered_details:
+					var parts = considered_details.split("||")
 					if len(parts) > 1:
 						var ramp_type = parts[1]
 						match ramp_type:
@@ -230,7 +245,7 @@ class Effect:
 								if user.is_player:
 									if len(battle.player_action_log) > 0:
 										for i in range(battle.player_action_log.size() - 1, -1, -1):
-											if battle.player_action_log[i] == skill_name:
+											if battle.player_action_log[i] == skill.name:
 												active_dmg += 1
 											else:
 												break
@@ -257,6 +272,9 @@ class Effect:
 						active_dmg *= user.alterations[alteration].dmg_buff
 					if user.alterations[alteration].has("dmg_null"):
 						active_dmg = 0
+						
+				if user.is_player:
+					active_dmg*= battle.get_player_range_dmg_mult()
 
 				var recipient = user if targets_self else target
 				messages = _safe_invoke(recipient, "take_damage", [active_dmg])
@@ -265,7 +283,7 @@ class Effect:
 						"Target "
 						+ (messages[0] if messages.size() > 0 else "")
 						+ " from "
-						+ skill_name
+						+ skill.name
 					),
 					"Target " + (messages[1] if messages.size() > 1 else "")
 				]
@@ -287,12 +305,12 @@ class Effect:
 				else:
 					if target.frozen > 0:
 						can_move = false
-				if (details in basic_directions or "rnd" in details) and can_move:
-					ret = [battle.move_player(details, value)]
+				if (considered_details in basic_directions or "rnd" in considered_details) and can_move:
+					ret = [battle.move_player(considered_details, value)]
 			"danger_dmg_mult":
 				print("Activating danger")
 				var duration = 1
-				ret = battle.apply_zones("dmg_mult_", value, details, duration, "bad")
+				ret = battle.apply_zones("dmg_mult_", value, considered_details, duration, "bad")
 			"poison":
 				print("Activating poison!")
 				var recipient = user if targets_self else target
@@ -311,7 +329,7 @@ class Effect:
 			"safety_dmg_reduc":
 				print("Activating safety")
 				var duration = 1
-				ret = battle.apply_zones("dmg_reduc_", value, details, duration, "good")
+				ret = battle.apply_zones("dmg_reduc_", value, considered_details, duration, "good")
 			"death_zone":
 				print("Activating death")
 				var duration = 1
@@ -320,7 +338,7 @@ class Effect:
 					direction = "bad"
 				else:
 					direction = "good"
-				ret = battle.apply_zones("death_", value, details, duration, direction)
+				ret = battle.apply_zones("death_", value, considered_details, duration, direction)
 			"damage_zone":
 				var duration = 1
 				var direction
@@ -334,7 +352,7 @@ class Effect:
 						active_dmg *= user.alterations[alteration].dmg_buff
 					if user.alterations[alteration].has("dmg_null"):
 						active_dmg = 0
-				ret = battle.apply_zones("damage_", active_dmg, details, duration, direction)
+				ret = battle.apply_zones("damage_", active_dmg, considered_details, duration, direction)
 			"heal_zone":
 				print("Activating death")
 				var duration = 1
@@ -343,52 +361,52 @@ class Effect:
 					direction = "good"
 				else:
 					direction = "bad"
-				ret = battle.apply_zones("heal_", value, details, duration, direction)
+				ret = battle.apply_zones("heal_", value, considered_details, duration, direction)
 			"heal":
 				var recipient = user if targets_self else target
 				ret = _safe_invoke(recipient, "heal", [value])
 			"damage_buff":
 				var dur = null
-				if "duration" in details:
-					var parts = details.split("=")
+				if "duration" in considered_details:
+					var parts = considered_details.split("=")
 					dur = int(parts[1])
 				var recipient = user if targets_self else target
 				ret = _safe_invoke(
-					recipient, "add_alteration", ["dmg_buff", value, skill_name, dur]
+					recipient, "add_alteration", ["dmg_buff", value, skill.name, dur]
 				)
 			"dodge_chance":
 				var dur = null
-				if "duration" in details:
-					var parts = details.split("=")
+				if "duration" in considered_details:
+					var parts = considered_details.split("=")
 					dur = int(parts[1])
 				var recipient = user if targets_self else target
 				ret = _safe_invoke(
-					recipient, "add_alteration", ["dodge_chance", value, skill_name, dur]
+					recipient, "add_alteration", ["dodge_chance", value, skill.name, dur]
 				)
 			"counter":
 				var dur = null
-				if "duration" in details:
-					var parts = details.split("=")
+				if "duration" in considered_details:
+					var parts = considered_details.split("=")
 					dur = int(parts[1])
 				var recipient = user if targets_self else target
-				ret = _safe_invoke(recipient, "add_alteration", ["counter", value, skill_name, dur])
+				ret = _safe_invoke(recipient, "add_alteration", ["counter", value, skill.name, dur])
 			"damage_nullification":
 				var dur = null
-				if "duration" in details:
-					var parts = details.split("=")
+				if "duration" in considered_details:
+					var parts = considered_details.split("=")
 					dur = int(parts[1])
 				var recipient = user if targets_self else target
 				ret = _safe_invoke(
-					recipient, "add_alteration", ["dmg_null", value, skill_name, dur]
+					recipient, "add_alteration", ["dmg_null", value, skill.name, dur]
 				)
 			"action_bonus":
 				var dur = null
-				if "duration" in details:
-					var parts = details.split("=")
+				if "duration" in considered_details:
+					var parts = considered_details.split("=")
 					dur = int(parts[1])
 				var recipient = user if targets_self else target
 				ret = _safe_invoke(
-					recipient, "add_alteration", ["action_bonus", value, skill_name, dur]
+					recipient, "add_alteration", ["action_bonus", value, skill.name, dur]
 				)
 			"prepare":
 				var prep_msg := "The enemy seems to be preparing something big... or maybe it's just tired?"
