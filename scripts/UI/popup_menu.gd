@@ -2,6 +2,7 @@ extends CanvasLayer
 
 # custom signal to inform the main scene
 signal menu_closed
+signal save_requested
 
 const SETTINGS_MENU_SCENE := preload("res://scenes/UI/settings_menu.tscn")
 
@@ -36,6 +37,10 @@ func _apply_scale() -> void:
 func _on_continue_pressed():
 	#print("Check:Continue Pressed. Emitting signal.")
 	menu_closed.emit()
+	
+# Funktion für den "Save" Button
+func _on_save_pressed() -> void:
+	save_requested.emit()
 
 
 func _unhandled_input(event: InputEvent) -> void:

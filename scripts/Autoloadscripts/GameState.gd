@@ -1,11 +1,19 @@
 extends Node
 
+var world_index: int = 0
+var map_blueprint: Dictionary = {}
 
-# Called when the node enters the scene tree for the first time.
-func _ready() -> void:
-	pass # Replace with function body.
+func reset_new_game() -> void:
+	world_index = 0
+	map_blueprint = {}
 
+func to_dict() -> Dictionary:
+	return {
+		"world_index": world_index,
+		"map_blueprint": map_blueprint,
+	}
 
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
-	pass
+func from_dict(d: Dictionary) -> void:
+	world_index = int(d.get("world_index", 0))
+	var bp = d.get("map_blueprint", {})
+	map_blueprint = bp if typeof(bp) == TYPE_DICTIONARY else {}

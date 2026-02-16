@@ -55,8 +55,20 @@ func _ready() -> void:
 		await _load_tutorial_world()
 		return
 
-	world_index = 0
-	# Normales Spiel starten (Welt 0)
+# ---------------------------------
+# Continue oder New Game entscheiden
+# ---------------------------------
+	if SaveManager.pending_continue and SaveManager.has_save():
+		var state = SaveManager.load_state()
+		GameState.from_dict(state)
+		world_index = GameState.world_index
+		SaveManager.pending_continue = false
+	else:
+		# komplett neuer Run
+		GameState.reset_new_game()
+		world_index = 0
+
+	# Welt laden (egal ob neu oder geladen)
 	await _load_world(world_index)
 
 
@@ -244,8 +256,7 @@ func _load_world(idx: int) -> void:
 	world_root.name = "WorldRoot"
 	add_child(world_root)
 
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
+
 	var entity_container := Node2D.new()
 	entity_container.name = "Entities"
 	world_root.add_child(entity_container)
@@ -254,26 +265,12 @@ func _load_world(idx: int) -> void:
 	# -------------------------------------------------
 	# Maps vom Generator holen
 	# -------------------------------------------------
-	var maps: Dictionary = await gen.get_random_tilemap()
-=======
-=======
->>>>>>> Stashed changes
 	var maps: Dictionary
 
-	if Engine.has_singleton("SaveManager") and SaveManager.pending_continue and SaveManager.has_save():
-		var state := SaveManager.load_state()
-		if state.is_empty() or not state.has("map_blueprint"):
-			maps = await gen.get_random_tilemap()
-		else:
-			maps = await gen.build_map_from_blueprint(state["map_blueprint"])
-		SaveManager.pending_continue = false
+	if idx == GameState.world_index and not GameState.map_blueprint.is_empty():
+		maps = await gen.build_map_from_blueprint(GameState.map_blueprint)
 	else:
 		maps = await gen.get_random_tilemap()
-
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
 
 	if maps.is_empty():
 		push_error("Generator returned empty dictionary!")
@@ -360,6 +357,11 @@ func _load_world(idx: int) -> void:
 	# -------------------------------------------------
 	_hide_loading()
 	_set_tree_paused(false)
+	
+	GameState.world_index = world_index
+
+	if gen.has_method("export_map_blueprint"):
+		GameState.map_blueprint = gen.export_map_blueprint()
 
 
 func spawn_merchant_entity(cords: Vector2) -> void:
@@ -704,6 +706,9 @@ func toggle_menu():
 
 		if menu_instance.has_signal("menu_closed"):
 			menu_instance.menu_closed.connect(on_menu_closed)
+			
+		if menu_instance.has_signal("save_requested"):
+			menu_instance.save_requested.connect(_on_save_requested)
 	else:
 		on_menu_closed()
 
@@ -713,6 +718,29 @@ func on_menu_closed():
 		menu_instance.queue_free()
 		menu_instance = null
 	_set_tree_paused(false)
+
+func _on_save_requested() -> void:
+	# 1) world_index persistieren
+	GameState.world_index = world_index
+
+	# 2) aktuellen Generator finden und Blueprint exportieren
+	if world_index >= 0 and world_index < generators.size():
+		var gen := generators[world_index]
+		if gen != null and gen.has_method("export_map_blueprint"):
+			var bp: Dictionary = gen.export_map_blueprint()
+			if not bp.is_empty():
+				GameState.map_blueprint = bp
+			else:
+				push_warning("Save: map blueprint empty (genome not ready?)")
+		else:
+			push_warning("Save: generator has no export_map_blueprint()")
+	else:
+		push_warning("Save: invalid world_index %s" % world_index)
+
+	# 3) auf Platte schreiben
+	var ok := SaveManager.save_state(GameState.to_dict())
+	if not ok:
+		push_error("Save failed")
 
 
 func spawn_enemies() -> void:
