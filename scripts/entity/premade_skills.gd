@@ -242,7 +242,7 @@ var existing_skills = {
 		"tree": "Medium Ranged Weaponry",
 		"tier": 3,
 		"description": "Dodging only matters if your opponent has limbs to hit you with",
-		"effects": [["damage", 3, false, "No"], ["freeze", 2, true, "No"]],
+		"effects": [["damage", 3, false, "No"], ["freeze", 1, true, "No"]],
 		"cooldown": 5
 	},
 	"Plant your Spear":
@@ -281,9 +281,9 @@ var existing_skills = {
 		"tier": 2,
 		"description":
 		"Dodging is actually way easier when you can describe the enemy as 'all the way over there'",
-		"effects": [["dodge_chance", 1, true, "No"]],
+		"effects": [["dodge_chance", 0.5, true, "No"]],
 		"passive": true,
-		"conditions": ["every_x_turns=8"]
+		"conditions": ["every_x_turns=2"]
 	},
 	"Open Fields":
 	{

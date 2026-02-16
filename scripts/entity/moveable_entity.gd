@@ -394,7 +394,7 @@ func take_damage(damage):
 				elif dodge_chance - dodged < 10:
 					closeness = ""
 				elif dodge_chance - dodged < 30:
-					closeness = "easily"
+					closeness = " easily"
 				elif dodge_chance - dodged < 50:
 					closeness = " by a disrespectfully large margin"
 				print("but dodges! with a chance of", dodge_chance, " against ", dodged)
@@ -444,6 +444,7 @@ func increase_freeze(amount):
 func full_status_heal():
 	stunned = 0
 	poisoned = 0
+	frozen = 0
 
 
 func deal_with_status_effects() -> Array:
@@ -462,6 +463,7 @@ func deal_with_status_effects() -> Array:
 			poisoned = 0
 		things_that_happened.append("Target" + message[0] + " from poison! Target" + message[1])
 	if frozen > 0:
+		print("Freeze is currently ", frozen)
 		frozen -= freeze_recovery
 		if frozen < 0:
 			frozen = 0

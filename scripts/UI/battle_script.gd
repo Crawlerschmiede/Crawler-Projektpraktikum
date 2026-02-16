@@ -333,9 +333,9 @@ func check_curr_tile_mods():
 				player.hp = 0
 			"death_good":
 				enemy.hp = 0
-			"dmg_bad":
+			"damage_bad":
 				player.take_damage(modifier_value)
-			"dmg_good":
+			"damage_good":
 				enemy.hp.take_damage(modifier_value)
 			"heal_good":
 				player.heal(modifier_value)
