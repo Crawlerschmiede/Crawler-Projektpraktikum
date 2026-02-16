@@ -1,18 +1,18 @@
 [gd_scene format=3 uid="uid://b7ipllkuce5ui"]
 
 [ext_resource type="Script" uid="uid://cgkh3laf368r4" path="res://scripts/Interactables/Lootbox.gd" id="1_f4uf5"]
-[ext_resource type="Texture2D" uid="uid://cvvms8qtfvxlp" path="res://assets/markers/lootbox.png" id="2_1auwj"]
+[ext_resource type="Texture2D" uid="uid://cll76l4mh7fdp" path="res://assets/markers/Item-Truhe.png" id="2_1auwj"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_mhsm6"]
 size = Vector2(9, 5)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_wym0y"]
 atlas = ExtResource("2_1auwj")
-region = Rect2(2, 1, 22, 22)
+region = Rect2(0, 0, 16, 16)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_qbkyk"]
 atlas = ExtResource("2_1auwj")
-region = Rect2(24, 1, 22, 22)
+region = Rect2(16, 0, 16, 16)
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_0m81b"]
 animations = [{
@@ -20,7 +20,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_wym0y")
 }, {
-"duration": 2.0,
+"duration": 1.0,
 "texture": SubResource("AtlasTexture_qbkyk")
 }],
 "loop": false,
