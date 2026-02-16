@@ -801,11 +801,16 @@ func spawn_enemies() -> void:
 			def = data[def["alias_of"]]
 
 		for i in range(spawn_plan[id]):
-			spawn_enemy(def.get("sprite_type", id), def.get("behaviour", []), def.get("skills", []), def.get("stats", {}))
+			spawn_enemy(
+				def.get("sprite_type", id),
+				def.get("behaviour", []),
+				def.get("skills", []),
+				def.get("stats", {})
+			)
 			print("spawn: ", def.get("sprite_type", id))
 
 
-func spawn_enemy(sprite_type: String, behaviour: Array, skills: Array, stats:Dictionary) -> void:
+func spawn_enemy(sprite_type: String, behaviour: Array, skills: Array, stats: Dictionary) -> void:
 	# default: spawn normal enemy
 	var e = ENEMY_SCENE.instantiate()
 	e.add_to_group("enemy")
@@ -814,9 +819,9 @@ func spawn_enemy(sprite_type: String, behaviour: Array, skills: Array, stats:Dic
 	e.types = behaviour
 	e.sprite_type = sprite_type
 	e.abilities_this_has = skills
-	var hp=stats.get("hp",1)
-	var str=stats.get("str",1)
-	var def=stats.get("def",1)
+	var hp = stats.get("hp", 1)
+	var str = stats.get("str", 1)
+	var def = stats.get("def", 1)
 
 	# setup with Floor Tilemap
 	e.setup(dungeon_floor, dungeon_top, hp, str, def)
