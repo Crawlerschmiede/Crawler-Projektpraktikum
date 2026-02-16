@@ -45,7 +45,7 @@
 		"spawnrate": { "min": 0.0, "max": 0.2 },
 		"spawncount": { "min": 4, "max": 20 },
 		"weight": 4,
-		"stats":{"hp":3, "str":1, "def":0, "phyres":0, "firres":0, "eleres":0, "iceres":0}
+		"stats":{"hp":4, "str":1, "def":0, "phyres":0, "firres":0, "eleres":0, "iceres":0}
 	},
 
 	"ghost": {
@@ -56,7 +56,7 @@
 		"spawnrate": { "min": 0.0, "max": 0.007 },
 		"spawncount": { "min": 4, "max": 20 },
 		"weight": 5,
-		"stats":{"hp":3, "str":1, "def":0, "phyres":0, "firres":0, "eleres":0, "iceres":0}
+		"stats":{"hp":3, "str":1, "def":0, "phyres":0.8, "firres":0, "eleres":0, "iceres":0}
 	},
 
 	"what": {
@@ -67,6 +67,6 @@
 		"spawnrate": { "min": 0.0, "max": 0.093 },
 		"spawncount": { "min": 4, "max": 6 },
 		"weight": 6,
-		"stats":{"hp":3, "str":1, "def":0, "phyres":0, "firres":0, "eleres":0, "iceres":0}
+		"stats":{"hp":5, "str":1, "def":0, "phyres":0.5, "firres":0.5, "eleres":0.5, "iceres":0.5}
 	}
 }
