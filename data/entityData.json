@@ -11,7 +11,8 @@
 		"behaviour": ["passive", "enemy_flying"],
 		"spawnrate": { "min": 0.0, "max": 0.4 },
 		"spawncount": { "min": 4, "max": 20 },
-		"weight": 3
+		"weight": 3,
+		"stats":{"hp":2, "str":1, "def":0, "phyres":0, "firres":0, "eleres":0, "iceres":0}
 	},
 
 	"skeleton": {
@@ -21,7 +22,8 @@
 		"behaviour": ["hostile", "enemy_walking"],
 		"spawnrate": { "min": 0.0, "max": 0.2 },
 		"spawncount": { "min": 4, "max": 20 },
-		"weight": 3
+		"weight": 3,
+		"stats":{"hp":3, "str":1, "def":1, "phyres":0.2, "firres":0.3, "eleres":0, "iceres":0}
 	},
 	
 	"tutorial_skeleton": {
@@ -31,7 +33,8 @@
 		"behaviour": ["tutorial", "immobile"],
 		"spawnrate": { "min": 0.0, "max": 0.2 },
 		"spawncount": { "min": 4, "max": 20 },
-		"weight": 3
+		"weight": 3,
+		"stats":{"hp":3, "str":1, "def":0, "phyres":0, "firres":0, "eleres":0, "iceres":0}
 	},
 
 	"base_zombie": {
@@ -41,7 +44,8 @@
 		"behaviour": ["hostile", "enemy_walking", "burrowing"],
 		"spawnrate": { "min": 0.0, "max": 0.2 },
 		"spawncount": { "min": 4, "max": 20 },
-		"weight": 4
+		"weight": 4,
+		"stats":{"hp":3, "str":1, "def":0, "phyres":0, "firres":0, "eleres":0, "iceres":0}
 	},
 
 	"ghost": {
@@ -51,7 +55,8 @@
 		"behaviour": ["hostile", "enemy_flying", "burrowing"],
 		"spawnrate": { "min": 0.0, "max": 0.007 },
 		"spawncount": { "min": 4, "max": 20 },
-		"weight": 5
+		"weight": 5,
+		"stats":{"hp":3, "str":1, "def":0, "phyres":0, "firres":0, "eleres":0, "iceres":0}
 	},
 
 	"what": {
@@ -61,6 +66,7 @@
 		"behaviour": ["hostile", "wallbound"],
 		"spawnrate": { "min": 0.0, "max": 0.093 },
 		"spawncount": { "min": 4, "max": 6 },
-		"weight": 6
+		"weight": 6,
+		"stats":{"hp":3, "str":1, "def":0, "phyres":0, "firres":0, "eleres":0, "iceres":0}
 	}
 }

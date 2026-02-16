@@ -67,6 +67,13 @@ var abilities: Array[Skill] = []
 var acquired_abilities: Array[String] = []
 var base_action_points: int = 1
 var action_points: int
+var resistances:Dictionary = {
+	"physical":0,
+	"fire":0,
+	"electric":0,
+	"earth": 0,
+	"ice":0
+}
 
 #--- status effects (not sure if this is the best way... it'll be fine!) ---
 #--- update it won't be, this is [not very good] and I'll fix it... someday
