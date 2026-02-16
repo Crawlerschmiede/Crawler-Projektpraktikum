@@ -497,20 +497,23 @@ func refill_actions():
 			action_points += int(alterations[alteration].action_bonus)
 
 
-func reset_cooldowns(number:int):
+func reset_cooldowns(number: int):
 	print("resetting cooldowns!!1!!!!!1")
 	for i in range(number):
 		var cooldownables = []
 		for ability in abilities:
-			if ability.turns_until_reuse and  ability.turns_until_reuse>0:
+			if ability.turns_until_reuse and ability.turns_until_reuse > 0:
 				cooldownables.append(ability)
-		var picked = randi_range(0, len(cooldownables)-1)
+		var picked = randi_range(0, len(cooldownables) - 1)
 		for cooldownable in cooldownables:
 			print("cool lad! ", cooldownable.name)
-		if len(cooldownables)>0:
-			print("cooled lad! ", cooldownables[picked].name, cooldownables[picked].turns_until_reuse)
+		if len(cooldownables) > 0:
+			print(
+				"cooled lad! ", cooldownables[picked].name, cooldownables[picked].turns_until_reuse
+			)
 			cooldownables[picked].turns_until_reuse = 0
-	return [] 
+	return []
+
 
 #-- status effect logic --
 

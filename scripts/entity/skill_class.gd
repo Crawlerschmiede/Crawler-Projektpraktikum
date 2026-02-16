@@ -392,9 +392,7 @@ class Effect:
 				)
 			"coolup":
 				var recipient = user if targets_self else target
-				ret = _safe_invoke(
-					recipient, "reset_cooldowns", [value]
-				)
+				ret = _safe_invoke(recipient, "reset_cooldowns", [value])
 			"counter":
 				var dur = null
 				if "duration" in considered_details:
