@@ -390,6 +390,11 @@ class Effect:
 				ret = _safe_invoke(
 					recipient, "add_alteration", ["dodge_chance", value, skill.name, dur]
 				)
+			"coolup":
+				var recipient = user if targets_self else target
+				ret = _safe_invoke(
+					recipient, "reset_cooldowns", [value]
+				)
 			"counter":
 				var dur = null
 				if "duration" in considered_details:

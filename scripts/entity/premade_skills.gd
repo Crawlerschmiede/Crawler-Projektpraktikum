@@ -276,10 +276,20 @@ var existing_skills = {
 		"passive": true,
 		"conditions": ["long_range"]
 	},
+	"Reload":
+	{
+		"tree": "basic",
+		"tier": 1,
+		"description":
+		"You feel strongly that your opponent would be less scary if you shot them more",
+		"effects": [["coolup", 1, true, "No"]],
+		"passive": true,
+		"conditions": ["every_x_turns=4"]
+	},
 	"Out of Reach":
 	{
 		"tree": "Long Ranged Weaponry",
-		"tier": 2,
+		"tier": 3,
 		"description":
 		"Dodging is actually way easier when you can describe the enemy as 'all the way over there'",
 		"effects": [["dodge_chance", 0.5, true, "No"]],
