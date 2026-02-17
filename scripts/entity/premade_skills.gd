@@ -141,7 +141,8 @@ var existing_skills = {
 		"tier": 1,
 		"description": "It's a punch... you don't need an explanation",
 		"effects": [["damage", 2, false, "No"]],
-		"cooldown": 2
+		"cooldown": 2,
+		"conditions": ["unarmed"]
 	},
 	"Right Pivot":
 	{
@@ -242,7 +243,7 @@ var existing_skills = {
 		"tree": "Medium Ranged Weaponry",
 		"tier": 3,
 		"description": "Dodging only matters if your opponent has limbs to hit you with",
-		"effects": [["damage", 3, false, "No"], ["freeze", 2, true, "No"]],
+		"effects": [["damage", 3, false, "No"], ["freeze", 1, true, "No"]],
 		"cooldown": 5
 	},
 	"Plant your Spear":
@@ -275,15 +276,25 @@ var existing_skills = {
 		"passive": true,
 		"conditions": ["long_range"]
 	},
-	"Out of Reach":
+	"Reload":
 	{
 		"tree": "Long Ranged Weaponry",
 		"tier": 2,
 		"description":
-		"Dodging is actually way easier when you can describe the enemy as 'all the way over there'",
-		"effects": [["dodge_chance", 1, true, "No"]],
+		"You feel strongly that your opponent would be less scary if you shot them more",
+		"effects": [["coolup", 1, true, "No"]],
 		"passive": true,
-		"conditions": ["every_x_turns=8"]
+		"conditions": ["every_x_turns=4"]
+	},
+	"Out of Reach":
+	{
+		"tree": "Long Ranged Weaponry",
+		"tier": 3,
+		"description":
+		"Dodging is actually way easier when you can describe the enemy as 'all the way over there'",
+		"effects": [["dodge_chance", 0.5, true, "No"]],
+		"passive": true,
+		"conditions": ["every_x_turns=2"]
 	},
 	"Open Fields":
 	{
@@ -305,6 +316,35 @@ var existing_skills = {
 		"Did you know that shooting our enemy a lot is actually more effective than just once?",
 		"effects": [["damage", 1, false, "ramp||consecutive"]],
 		"cooldown": 0
+	},
+	#unarmed skill tree
+	"Flying Fists and Feets":
+	{
+		"tree": "Unarmed",
+		"tier": 1,
+		"description": "It's impressive how far a kick can reach if you stretch a bit",
+		"effects": [["damage_buff", 1.25, true, "overwrite_range"]],
+		"passive": true,
+		"conditions": ["unarmed"]
+	},
+	"Sting like a Bee":
+	{
+		"tree": "Unarmed",
+		"tier": 2,
+		"description": "Well... it's not a big sting... let's hope your enemy is allergic",
+		"effects": [["stun", 3, false, "No"]],
+		"cooldown": 4
+	},
+	"Float like a Butterfly":
+	{
+		"tree": "unarmed",
+		"tier": 3,
+		"description":
+		# gdlint:ignore = max-line-length
+		"God, it pains me to think about just how annoying it must be to try and hit you...",
+		"effects": [["movement", 1, true, "conditional--rnd_long||rnd_short"]],
+		"cooldown": 3,
+		"switch_condition": ["outside_short_range"]
 	},
 	#standard actions
 	"Move Up":
@@ -335,16 +375,30 @@ var existing_skills = {
 	"Shank":
 	{
 		"tree": "knife skills",
-		"description": "When one... or I suppose two stabs just aren't enough",
-		"effects":
-		[["damage", 1, false, "No"], ["damage", 1, false, "No"], ["damage", 1, false, "No"]],
+		"description": "When one stab just isn't enough",
+		"effects": [["damage", 1, false, "No"], ["damage", 1, false, "No"]],
+		"cooldown": 2
+	},
+	"Shoot":
+	{
+		"tree": "bow skills",
+		"description":
+		"You feel like, in maybe a couple centuries, this term would hold more weight",
+		"effects": [["damage", 1, false, "No"], ["damage", 1, false, "No"]],
 		"cooldown": 2
 	},
 	"Slash":
 	{
 		"tree": "sword skills",
 		"description": "Truly, the most basic of basic things you could do",
-		"effects": [["damage", 3, false, "No"]],
+		"effects": [["damage", 2, false, "No"]],
+		"cooldown": 2
+	},
+	"Stab":
+	{
+		"tree": "spear skills",
+		"description": "Truly, the most basic of basic things you could do",
+		"effects": [["damage", 2, false, "No"]],
 		"cooldown": 2
 	},
 	#item effects (maybe also here? Who knows what anything is at this point)
@@ -370,9 +424,11 @@ func get_skill(skill_name):
 	var conditions = []
 	if values.has("conditions"):
 		conditions = values.conditions
-	print(skill_name, values.tree, values.description, cool, passive, conditions)
+	var switch_conditions = []
+	if values.has("switch_condition"):
+		switch_conditions = values.switch_condition
 	var new_skill = Skill.new(
-		skill_name, values.tree, values.description, cool, passive, conditions
+		skill_name, values.tree, values.description, cool, passive, conditions, switch_conditions
 	)
 	for effect in values.effects:
 		new_skill.add_effect(effect[0], effect[1], effect[2], effect[3])

@@ -67,6 +67,7 @@ var abilities: Array[Skill] = []
 var acquired_abilities: Array[String] = []
 var base_action_points: int = 1
 var action_points: int
+var resistances: Dictionary = {"physical": 0, "fire": 0, "electric": 0, "earth": 0, "ice": 0}
 
 #--- status effects (not sure if this is the best way... it'll be fine!) ---
 #--- update it won't be, this is [not very good] and I'll fix it... someday
@@ -126,9 +127,31 @@ func super_ready(sprite_type: String, entity_type: Array):
 				var is_boss_tile = tile_data.get_custom_data("boss_spawn")
 				if is_boss_tile:
 					print("found boss tile! ", cell)
-					possible_spawns.append(cell)
+					# check with EntityAutoload if the position is valid (not occupied)
+					if EntityAutoload.has_method("canReservePos"):
+						if EntityAutoload.canReservePos(cell, tilemap):
+							possible_spawns.append(cell)
+					elif EntityAutoload.has_method("isValidPos"):
+						# fallback: check tile existence and walkability directly (don't reserve)
+						if tilemap.get_cell_source_id(cell) != -1:
+							var td_fallback := tilemap.get_cell_tile_data(cell)
+							if (
+								td_fallback == null
+								or not td_fallback.get_custom_data("non_walkable")
+							):
+								possible_spawns.append(cell)
+					else:
+						possible_spawns.append(cell)
 
-		var spawnpoint = possible_spawns[rng.randi_range(0, len(possible_spawns) - 1)]
+		if possible_spawns.size() == 0:
+			print("super_ready: boss - no possible spawns found")
+			self.queue_free()
+			return
+		var spawnpoint = possible_spawns[rng.randi_range(0, possible_spawns.size() - 1)]
+		# reserve chosen cell so other entities won't take it
+		if EntityAutoload.has_method("reservePos"):
+			EntityAutoload.reservePos(spawnpoint)
+		print("super_ready: boss - chosen spawn:", spawnpoint)
 		position = tilemap.map_to_local(spawnpoint)
 		grid_pos = spawnpoint
 
@@ -142,9 +165,28 @@ func super_ready(sprite_type: String, entity_type: Array):
 				var is_boss_tile = tile_data.get_custom_data("tutorial_enemy")
 				if is_boss_tile:
 					print("found tutorial tile! ", cell)
-					possible_spawns.append(cell)
+					# avoid spawning on occupied tiles
+					if EntityAutoload.has_method("canReservePos"):
+						if EntityAutoload.canReservePos(cell, tilemap):
+							possible_spawns.append(cell)
+					elif EntityAutoload.has_method("isValidPos"):
+						if tilemap.get_cell_source_id(cell) != -1:
+							var td_fallback2 := tilemap.get_cell_tile_data(cell)
+							if (
+								td_fallback2 == null
+								or not td_fallback2.get_custom_data("non_walkable")
+							):
+								possible_spawns.append(cell)
+					else:
+						possible_spawns.append(cell)
 		if len(possible_spawns) > 0:
-			var spawnpoint = possible_spawns[rng.randi_range(0, len(possible_spawns) - 1)]
+			if possible_spawns.size() == 0:
+				self.queue_free()
+				return
+			var spawnpoint = possible_spawns[rng.randi_range(0, possible_spawns.size() - 1)]
+			if EntityAutoload.has_method("reservePos"):
+				EntityAutoload.reservePos(spawnpoint)
+			print("super_ready: tutorial - chosen spawn:", spawnpoint)
 			position = tilemap.map_to_local(spawnpoint)
 			grid_pos = spawnpoint
 		else:
@@ -161,15 +203,47 @@ func super_ready(sprite_type: String, entity_type: Array):
 				if not is_blocked:
 					if "wallbound" in entity_type:
 						if is_next_to_wall(cell):
-							possible_spawns.append(cell)
+							# only add if EntityAutoload says the pos is free
+							if EntityAutoload.has_method("canReservePos"):
+								if EntityAutoload.canReservePos(cell, tilemap):
+									possible_spawns.append(cell)
+								elif EntityAutoload.has_method("isValidPos"):
+									if tilemap.get_cell_source_id(cell) != -1:
+										var td_fallback3 := tilemap.get_cell_tile_data(cell)
+										if (
+											td_fallback3 == null
+											or not td_fallback3.get_custom_data("non_walkable")
+										):
+											possible_spawns.append(cell)
+							else:
+								possible_spawns.append(cell)
 					else:
-						possible_spawns.append(cell)
+						if EntityAutoload.has_method("canReservePos"):
+							if EntityAutoload.canReservePos(cell, tilemap):
+								possible_spawns.append(cell)
+						elif EntityAutoload.has_method("isValidPos"):
+							if tilemap.get_cell_source_id(cell) != -1:
+								var td_fallback4 := tilemap.get_cell_tile_data(cell)
+								if (
+									td_fallback4 == null
+									or not td_fallback4.get_custom_data("non_walkable")
+								):
+									possible_spawns.append(cell)
+						else:
+							possible_spawns.append(cell)
 			# TODO: add logic for flying enemies, so they can enter certain tiles
 			#if entity_type == "enemy_flying":
 			#	add water/lava/floor trap tiles as possible spawns
 
 		# Initialize grid position based on where the entity starts
-		var spawnpoint = possible_spawns[rng.randi_range(0, len(possible_spawns) - 1)]
+		if possible_spawns.size() == 0:
+			print("super_ready: enemy - no possible spawns found")
+			self.queue_free()
+			return
+		var spawnpoint = possible_spawns[rng.randi_range(0, possible_spawns.size() - 1)]
+		if EntityAutoload.has_method("reservePos"):
+			EntityAutoload.reservePos(spawnpoint)
+		print("super_ready: enemy - chosen spawn:", spawnpoint)
 		position = tilemap.map_to_local(spawnpoint)
 		grid_pos = spawnpoint
 	var sprite_scene = sprites[sprite_type]
@@ -394,7 +468,7 @@ func take_damage(damage):
 				elif dodge_chance - dodged < 10:
 					closeness = ""
 				elif dodge_chance - dodged < 30:
-					closeness = "easily"
+					closeness = " easily"
 				elif dodge_chance - dodged < 50:
 					closeness = " by a disrespectfully large margin"
 				print("but dodges! with a chance of", dodge_chance, " against ", dodged)
@@ -423,6 +497,24 @@ func refill_actions():
 			action_points += int(alterations[alteration].action_bonus)
 
 
+func reset_cooldowns(number: int):
+	print("resetting cooldowns!!1!!!!!1")
+	for i in range(number):
+		var cooldownables = []
+		for ability in abilities:
+			if ability.turns_until_reuse and ability.turns_until_reuse > 0:
+				cooldownables.append(ability)
+		var picked = randi_range(0, len(cooldownables) - 1)
+		for cooldownable in cooldownables:
+			print("cool lad! ", cooldownable.name)
+		if len(cooldownables) > 0:
+			print(
+				"cooled lad! ", cooldownables[picked].name, cooldownables[picked].turns_until_reuse
+			)
+			cooldownables[picked].turns_until_reuse = 0
+	return []
+
+
 #-- status effect logic --
 
 
@@ -444,6 +536,7 @@ func increase_freeze(amount):
 func full_status_heal():
 	stunned = 0
 	poisoned = 0
+	frozen = 0
 
 
 func deal_with_status_effects() -> Array:
@@ -462,6 +555,7 @@ func deal_with_status_effects() -> Array:
 			poisoned = 0
 		things_that_happened.append("Target" + message[0] + " from poison! Target" + message[1])
 	if frozen > 0:
+		print("Freeze is currently ", frozen)
 		frozen -= freeze_recovery
 		if frozen < 0:
 			frozen = 0
