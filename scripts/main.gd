@@ -51,7 +51,7 @@ func _ready() -> void:
 	generators = [generator1, generator2, generator3]
 
 	# Tutorial prüfen (JSON: res://data/tutorialData.json)
-	if _has_completed_tutorial():
+	if _has_completed_tutorial() == false:
 		await _load_tutorial_world()
 		return
 
