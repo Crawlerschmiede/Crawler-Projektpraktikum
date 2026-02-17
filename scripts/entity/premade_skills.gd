@@ -462,17 +462,82 @@ func get_tree_explanation(tree_name):
 func get_detailed_description(skill_name)->String:
 	var skill = existing_skills[skill_name]
 	var description = skill_name+": "
+	if skill.has("on_acquisition"):
+		for effect in skill.on_acquisition:
+			description+=translate_effect(effect)
+		
 	for effect in skill.effects:
+		description+=translate_effect(effect)
+	if skill.has("conditions"):
+		if len(skill.conditions)==1:
+			description+= " if "+skill.conditions[0]
+	if skill.has("cooldown"):
+		description+=" (Cooldown:"+str(skill.cooldown)+")"
+	# actual real description of what the skill does like "Deals 2 physical Damage"
+	return description
+	
+func translate_effect(effect):
 		var to = ""
+		var description = ""
 		if effect[2]:
 			to = "the user"
 		else:
 			to = "your enemy"
 		var val = effect[1]
+		var deets = effect[3]
 		match effect[0]:
 			"damage":
-				description+="Deals "+str(val)+" to "+to+"."
-	if skill.has("cooldown"):
-		description+=" (Cooldown:"+str(skill.cooldown)+")"
-	# actual real description of what the skill does like "Deals 2 physical Damage"
-	return description
+				var start_spec=""
+				var end_spec=""
+				if "fire" in deets:
+					start_spec=" fire"
+				elif "ice" in deets:
+					start_spec=" ice"
+				elif "electric" in deets:
+					start_spec=" electric"
+				elif "earth" in deets:
+					start_spec=" earth"
+				else:
+					start_spec = " physical"
+				if "ramp" in deets:
+					end_spec = " that ramps up"
+					if "consecutive" in deets:
+						end_spec+=" with every consecutive use " 
+					
+				description+="Deals "+str(val)+start_spec+" Damage " +  "to "+to+end_spec
+			"heals":
+				description+="Heals "+to+" for "+str(val)+" HP"
+			"movement":
+				var dir =""
+				match deets:
+					"L":
+						dir = "left"
+					"R":
+						dir = "right"
+					"U":
+						dir = "up"
+					"D":
+						dir = "down"
+				description+="Move "+str(val)+" Tiles "+dir+""
+			"stun":
+				description+="Stun "+to+" for "+str(val)+" turns"
+			"damage_buff":
+				description+="Increase "+to+"'s damage by "+str(100*(val-1))+"%"
+			"dodge_chance":
+				description+=to+" gains a "+str(val*100)+"% chance of dodging"
+			"counter":
+				description+=to+" deals "+str(val)+" damage back when taking damage"
+			"damage_nullification":
+				description+="Nullify "+to+"'s damage"
+			"coolup":
+				description+="Reset the cooldown of "+str(val)+" of "+to+"'s Skills"
+			"action_bonus":
+				description+=to+" gains "+str(val)+" extra actions"
+			"freeze":
+				description+="Freezes "+to+" for "+str(val)+" turns"
+			"safety_dmg_reduc":
+				description+= "Places "+str(val)+" block tiles"
+			"range_buff":
+				description+="Extend "+deets+" range"
+		description+=". "
+		return description
