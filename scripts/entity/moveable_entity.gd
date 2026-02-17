@@ -67,6 +67,7 @@ var abilities: Array[Skill] = []
 var acquired_abilities: Array[String] = []
 var base_action_points: int = 1
 var action_points: int
+var resistances: Dictionary = {"physical": 0, "fire": 0, "electric": 0, "earth": 0, "ice": 0}
 
 #--- status effects (not sure if this is the best way... it'll be fine!) ---
 #--- update it won't be, this is [not very good] and I'll fix it... someday
@@ -467,7 +468,7 @@ func take_damage(damage):
 				elif dodge_chance - dodged < 10:
 					closeness = ""
 				elif dodge_chance - dodged < 30:
-					closeness = "easily"
+					closeness = " easily"
 				elif dodge_chance - dodged < 50:
 					closeness = " by a disrespectfully large margin"
 				print("but dodges! with a chance of", dodge_chance, " against ", dodged)
@@ -496,6 +497,24 @@ func refill_actions():
 			action_points += int(alterations[alteration].action_bonus)
 
 
+func reset_cooldowns(number: int):
+	print("resetting cooldowns!!1!!!!!1")
+	for i in range(number):
+		var cooldownables = []
+		for ability in abilities:
+			if ability.turns_until_reuse and ability.turns_until_reuse > 0:
+				cooldownables.append(ability)
+		var picked = randi_range(0, len(cooldownables) - 1)
+		for cooldownable in cooldownables:
+			print("cool lad! ", cooldownable.name)
+		if len(cooldownables) > 0:
+			print(
+				"cooled lad! ", cooldownables[picked].name, cooldownables[picked].turns_until_reuse
+			)
+			cooldownables[picked].turns_until_reuse = 0
+	return []
+
+
 #-- status effect logic --
 
 
@@ -517,6 +536,7 @@ func increase_freeze(amount):
 func full_status_heal():
 	stunned = 0
 	poisoned = 0
+	frozen = 0
 
 
 func deal_with_status_effects() -> Array:
@@ -535,6 +555,7 @@ func deal_with_status_effects() -> Array:
 			poisoned = 0
 		things_that_happened.append("Target" + message[0] + " from poison! Target" + message[1])
 	if frozen > 0:
+		print("Freeze is currently ", frozen)
 		frozen -= freeze_recovery
 		if frozen < 0:
 			frozen = 0
