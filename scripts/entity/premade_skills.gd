@@ -450,7 +450,7 @@ func get_skills_by_tree(tree_name: String):
 		else:
 			continue
 	return skills_in_tree
-	
+
 
 func get_tree_explanation(tree_name):
 	var skills = get_skills_by_tree(tree_name)
