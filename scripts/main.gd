@@ -824,7 +824,7 @@ func spawn_enemy(sprite_type: String, behaviour: Array, skills: Array, stats: Di
 	var def = stats.get("def", 1)
 
 	# setup with Floor Tilemap
-	e.setup(dungeon_floor, dungeon_top, hp, str, def)
+	e.setup(dungeon_floor, dungeon_top, hp, str, def, stats)
 
 	# Enemies always in WorldRoot
 	if world_root != null:
@@ -842,7 +842,7 @@ func spawn_player() -> void:
 	var e: PlayerCharacter = PLAYER_SCENE.instantiate()
 	e.name = "Player"
 	# Floor setzen (einmal!)
-	e.setup(dungeon_floor, dungeon_top, 10, 3, 0)
+	e.setup(dungeon_floor, dungeon_top, 10, 3, 0, {})
 	e.fog_layer = fog_war_layer
 	# pass dynamic flag and fog tile id to player for re-fogging
 	if e.has_method("set"):
@@ -867,7 +867,6 @@ func spawn_player() -> void:
 		start_pos = Vector2i(-18, 15)
 
 	# erst tilemap, dann gridpos, dann position
-	player.setup(dungeon_floor, dungeon_top, 10, 3, 0)
 	player.grid_pos = start_pos
 	player.global_position = dungeon_floor.to_global(dungeon_floor.map_to_local(start_pos))
 	player.add_to_group("player")
