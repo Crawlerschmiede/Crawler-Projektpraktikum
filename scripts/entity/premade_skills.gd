@@ -456,20 +456,23 @@ func get_tree_explanation(tree_name):
 	var skills = get_skills_by_tree(tree_name)
 	var explanations = {}
 	for skill in skills:
-		explanations[skill]=[existing_skills[skill].get("description"), get_detailed_description(skill)]
+		explanations[skill[0]]=[existing_skills[skill[0]].get("description"), get_detailed_description(skill[0])]
 	return explanations
 
 func get_detailed_description(skill_name)->String:
-	var description = ""
-	for effect in existing_skills[skill_name].effects:
+	var skill = existing_skills[skill_name]
+	var description = skill_name+": "
+	for effect in skill.effects:
 		var to = ""
 		if effect[2]:
 			to = "the user"
 		else:
 			to = "your enemy"
+		var val = effect[1]
 		match effect[0]:
 			"damage":
-				var dmg = effect[1]
-
+				description+="Deals "+str(val)+" to "+to+"."
+	if skill.has("cooldown"):
+		description+=" (Cooldown:"+str(skill.cooldown)+")"
 	# actual real description of what the skill does like "Deals 2 physical Damage"
-	return "Placeholder Description"
+	return description
