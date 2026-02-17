@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://clo6xfsre1pk0"
-path="res://.godot/imported/inventar_slot1.png-bff05a23df91f5964af437ac44045e69.ctex"
+uid="uid://dmehqjh23vjtb"
+path="res://.godot/imported/walls_brazier-sewer.png-3c030e0c0ca418135baca6fb8609e784.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/menu/inventar_slot1.png"
-dest_files=["res://.godot/imported/inventar_slot1.png-bff05a23df91f5964af437ac44045e69.ctex"]
+source_file="res://assets/map-tiles/map_tiles_sewer/walls_brazier-sewer.png"
+dest_files=["res://.godot/imported/walls_brazier-sewer.png-3c030e0c0ca418135baca6fb8609e784.ctex"]
 
 [params]
 

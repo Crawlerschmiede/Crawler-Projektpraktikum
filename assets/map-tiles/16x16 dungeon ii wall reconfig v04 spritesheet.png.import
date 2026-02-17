@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://clo6xfsre1pk0"
-path="res://.godot/imported/inventar_slot1.png-bff05a23df91f5964af437ac44045e69.ctex"
+uid="uid://bdw57k37p55df"
+path="res://.godot/imported/16x16 dungeon ii wall reconfig v04 spritesheet.png-709739b95cc79d342d98e615682565f8.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/menu/inventar_slot1.png"
-dest_files=["res://.godot/imported/inventar_slot1.png-bff05a23df91f5964af437ac44045e69.ctex"]
+source_file="res://assets/map-tiles/16x16 dungeon ii wall reconfig v04 spritesheet.png"
+dest_files=["res://.godot/imported/16x16 dungeon ii wall reconfig v04 spritesheet.png-709739b95cc79d342d98e615682565f8.ctex"]
 
 [params]
 

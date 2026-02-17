@@ -2,16 +2,26 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://clo6xfsre1pk0"
+<<<<<<<< HEAD:assets/menu/inventar_slot1.png.import
+uid="uid://ck0c0slja7ox1"
 path="res://.godot/imported/inventar_slot1.png-bff05a23df91f5964af437ac44045e69.ctex"
+========
+uid="uid://iuomcgerss86"
+path="res://.godot/imported/book animation.png-d519d407e8dee59d119b0fab742127ca.ctex"
+>>>>>>>> origin/dev:assets/menu/book animation.png.import
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
+<<<<<<<< HEAD:assets/menu/inventar_slot1.png.import
 source_file="res://assets/menu/inventar_slot1.png"
 dest_files=["res://.godot/imported/inventar_slot1.png-bff05a23df91f5964af437ac44045e69.ctex"]
+========
+source_file="res://assets/menu/book animation.png"
+dest_files=["res://.godot/imported/book animation.png-d519d407e8dee59d119b0fab742127ca.ctex"]
+>>>>>>>> origin/dev:assets/menu/book animation.png.import
 
 [params]
 

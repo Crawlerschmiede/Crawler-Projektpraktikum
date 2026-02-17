@@ -2,6 +2,7 @@
 
 [ext_resource type="Texture2D" uid="uid://d0oog2dnt3maf" path="res://assets/map-tiles/atlas_floor-16x16.png" id="1_2vdqu"]
 [ext_resource type="Texture2D" uid="uid://d136m2c4wv2rj" path="res://assets/map-tiles/walls_skull.png" id="1_k5ur7"]
+[ext_resource type="Texture2D" uid="uid://p1r7l118n6so" path="res://assets/map-tiles/16x16 dungeon ii wall reconfig v04 spritesheet.png" id="1_m7st2"]
 [ext_resource type="Texture2D" uid="uid://ccbdybvaxr43s" path="res://assets/map-tiles/walls_fountains_fixed.png" id="4_hdxfv"]
 [ext_resource type="Texture2D" uid="uid://5s223i0f2xf6" path="res://assets/map-tiles/walls_ivy.png" id="5_3ccbu"]
 [ext_resource type="Texture2D" uid="uid://dtou2d0xwl1v1" path="res://assets/map-tiles/walls_brazier.png" id="6_ihgxc"]

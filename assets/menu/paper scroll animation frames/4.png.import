@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://clo6xfsre1pk0"
-path="res://.godot/imported/inventar_slot1.png-bff05a23df91f5964af437ac44045e69.ctex"
+uid="uid://dh5108lt58p82"
+path="res://.godot/imported/4.png-20cdd8919a06c39b34c88c9ba29bb7aa.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/menu/inventar_slot1.png"
-dest_files=["res://.godot/imported/inventar_slot1.png-bff05a23df91f5964af437ac44045e69.ctex"]
+source_file="res://assets/menu/paper scroll animation frames/4.png"
+dest_files=["res://.godot/imported/4.png-20cdd8919a06c39b34c88c9ba29bb7aa.ctex"]
 
 [params]
 
