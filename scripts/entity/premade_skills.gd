@@ -456,10 +456,13 @@ func get_tree_explanation(tree_name):
 	var skills = get_skills_by_tree(tree_name)
 	var explanations = {}
 	for skill in skills:
-		explanations[skill[0]]=[existing_skills[skill[0]].get("description"), get_detailed_description(skill[0])]
+		explanations[skill[0]] = [
+			existing_skills[skill[0]].get("description"), get_detailed_description(skill[0])
+		]
 	return explanations
 
-func get_detailed_description(skill_name)->String:
+
+func get_detailed_description(skill_name) -> String:
 	var skill = existing_skills[skill_name]
 	var description = skill_name+": "
 	if skill.has("on_acquisition"):
