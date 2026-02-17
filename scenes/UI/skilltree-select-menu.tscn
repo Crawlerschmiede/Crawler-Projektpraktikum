@@ -1,0 +1,412 @@
+[gd_scene format=3 uid="uid://hrkwbh2iwbrb"]
+
+[ext_resource type="Texture2D" uid="uid://ck3f8fcs1gd7b" path="res://assets/menu/Frames/Border All 9.png" id="1_24525"]
+[ext_resource type="Texture2D" uid="uid://c6scppykglq7t" path="res://assets/menu/Skill Icons/Icon1.png" id="2_c4l62"]
+[ext_resource type="Script" uid="uid://dilk5qvckflif" path="res://scripts/UI/glow.gd" id="2_wrkul"]
+[ext_resource type="FontFile" uid="uid://d4fqcjicieold" path="res://assets/font/PixelPurl.ttf" id="3_wrkul"]
+[ext_resource type="Texture2D" uid="uid://djy78olvcm4wl" path="res://assets/menu/Frames/Border All 10.png" id="4_bh1c7"]
+[ext_resource type="Texture2D" uid="uid://3qagqhukitoo" path="res://assets/menu/Skill Icons/Icon21.png" id="5_adk4j"]
+[ext_resource type="Texture2D" uid="uid://bcb62uivx7hm1" path="res://assets/menu/Frames/Border All 12.png" id="6_n3lvg"]
+[ext_resource type="Texture2D" uid="uid://dbn4yqhp8ymxi" path="res://assets/menu/Skill Icons/Icon31.png" id="7_rjfq6"]
+[ext_resource type="Texture2D" uid="uid://c1nqp44llh4qo" path="res://assets/menu/Frames/Border All 11.png" id="8_5775d"]
+[ext_resource type="Texture2D" uid="uid://c552yhnld62k8" path="res://assets/menu/Skill Icons/Icon9.png" id="9_nxqcl"]
+[ext_resource type="Texture2D" uid="uid://wmjyrdae3rq6" path="res://assets/menu/Frames/Border All 5.png" id="10_gtibh"]
+[ext_resource type="Texture2D" uid="uid://cfygp2wheh3fs" path="res://assets/menu/Skill Icons/Icon44.png" id="11_bkr2p"]
+[ext_resource type="Texture2D" uid="uid://xl65l4o3jvai" path="res://assets/menu/Frames/Border All 3.png" id="12_roqnl"]
+[ext_resource type="Texture2D" uid="uid://l2hfv2s6o6t" path="res://assets/menu/Skill Icons/Icon45.png" id="13_q12nr"]
+[ext_resource type="Texture2D" uid="uid://cywxhggp3mhl5" path="res://assets/menu/Frames/Border All 4.png" id="14_v84qx"]
+[ext_resource type="Texture2D" uid="uid://jluuedlyvq72" path="res://assets/menu/Skill Icons/Icon8.png" id="15_b8l5j"]
+[ext_resource type="Texture2D" uid="uid://mre20230al0l" path="res://assets/menu/Frames/Border All 2.png" id="16_yyfpx"]
+[ext_resource type="Texture2D" uid="uid://c6j6kkr8274vu" path="res://assets/menu/Skill Icons/39.png" id="17_3anod"]
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_ys1md"]
+texture = ExtResource("1_24525")
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_psn44"]
+texture = ExtResource("4_bh1c7")
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_1gqji"]
+texture = ExtResource("6_n3lvg")
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_eq6r3"]
+texture = ExtResource("8_5775d")
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_36iwt"]
+texture = ExtResource("10_gtibh")
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_d7073"]
+texture = ExtResource("12_roqnl")
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_re2b5"]
+texture = ExtResource("14_v84qx")
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_y4ess"]
+texture = ExtResource("16_yyfpx")
+
+[node name="SkilltreeSelectMenu" type="Node2D" unique_id=2145209797]
+
+[node name="VBoxContainer3" type="VBoxContainer" parent="." unique_id=1056444378]
+custom_minimum_size = Vector2(640, 0)
+offset_right = 640.0
+offset_bottom = 480.0
+alignment = 1
+
+[node name="Spacer" type="Control" parent="VBoxContainer3" unique_id=2059954908]
+custom_minimum_size = Vector2(0, 4)
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="VBoxContainer3" unique_id=1136168589]
+custom_minimum_size = Vector2(640, 226)
+layout_mode = 2
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="Skill1" type="Panel" parent="VBoxContainer3/HBoxContainer" unique_id=212416073]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxTexture_ys1md")
+script = ExtResource("2_wrkul")
+
+[node name="Icon" type="TextureRect" parent="VBoxContainer3/HBoxContainer/Skill1" unique_id=1186386707]
+layout_mode = 0
+offset_left = 55.0
+offset_top = 20.0
+offset_right = 95.0
+offset_bottom = 60.0
+texture = ExtResource("2_c4l62")
+
+[node name="Label" type="Label" parent="VBoxContainer3/HBoxContainer/Skill1" unique_id=1986388364]
+layout_mode = 0
+offset_left = 28.0
+offset_top = 65.0
+offset_right = 116.0
+offset_bottom = 83.0
+scale = Vector2(1.1, 1.1)
+theme_override_colors/font_color = Color(0.8040925, 0.68859655, 0.6626495, 1)
+theme_override_fonts/font = ExtResource("3_wrkul")
+text = "Unarmed Combat"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Info" type="Label" parent="VBoxContainer3/HBoxContainer/Skill1" unique_id=2107153196]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 102.0
+offset_right = 142.0
+offset_bottom = 184.0
+scale = Vector2(0.9, 0.9)
+theme_override_colors/font_color = Color(0.62352943, 0.49019608, 0.44705883, 1)
+theme_override_fonts/font = ExtResource("3_wrkul")
+text = "High base damage and status-inflicting strikes at the cost of not using weapons."
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="Skill2" type="Panel" parent="VBoxContainer3/HBoxContainer" unique_id=936819282]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxTexture_psn44")
+script = ExtResource("2_wrkul")
+
+[node name="Icon" type="TextureRect" parent="VBoxContainer3/HBoxContainer/Skill2" unique_id=1808348931]
+layout_mode = 0
+offset_left = 55.0
+offset_top = 20.0
+offset_right = 95.0
+offset_bottom = 60.0
+texture = ExtResource("5_adk4j")
+
+[node name="Label" type="Label" parent="VBoxContainer3/HBoxContainer/Skill2" unique_id=856858420]
+layout_mode = 0
+offset_left = 27.0
+offset_top = 65.0
+offset_right = 115.0
+offset_bottom = 83.0
+scale = Vector2(1.1, 1.1)
+theme_override_colors/font_color = Color(0.6820521, 0.7276157, 0.8091442, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_wrkul")
+text = "Short Ranged
+Weaponry"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Info" type="Label" parent="VBoxContainer3/HBoxContainer/Skill2" unique_id=477780149]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 102.0
+offset_right = 142.0
+offset_bottom = 184.0
+scale = Vector2(0.9, 0.9)
+theme_override_colors/font_color = Color(0.4392157, 0.49411765, 0.6039216, 1)
+theme_override_fonts/font = ExtResource("3_wrkul")
+text = "High-damage melee with evasive maneuvers and double attacks."
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="Skill3" type="Panel" parent="VBoxContainer3/HBoxContainer" unique_id=1604493314]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxTexture_1gqji")
+script = ExtResource("2_wrkul")
+
+[node name="Icon" type="TextureRect" parent="VBoxContainer3/HBoxContainer/Skill3" unique_id=1454910142]
+layout_mode = 0
+offset_left = 55.0
+offset_top = 20.0
+offset_right = 95.0
+offset_bottom = 60.0
+texture = ExtResource("7_rjfq6")
+
+[node name="Label" type="Label" parent="VBoxContainer3/HBoxContainer/Skill3" unique_id=1343513760]
+layout_mode = 0
+offset_left = 28.0
+offset_top = 65.0
+offset_right = 116.0
+offset_bottom = 91.0
+scale = Vector2(1.1, 1.1)
+theme_override_colors/font_color = Color(0.8216613, 0.73094565, 0.59869885, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_wrkul")
+text = "Medium Ranged
+Weaponry"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Info" type="Label" parent="VBoxContainer3/HBoxContainer/Skill3" unique_id=1536455311]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 108.00001
+offset_right = 142.0
+offset_bottom = 190.0
+scale = Vector2(0.9, 0.9)
+theme_override_colors/font_color = Color(0.6862745, 0.5921569, 0.44705883, 1)
+theme_override_fonts/font = ExtResource("3_wrkul")
+text = "Balanced combat featuring heavy attacks and defensive block-tile generation."
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="Skill4" type="Panel" parent="VBoxContainer3/HBoxContainer" unique_id=1881550460]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxTexture_eq6r3")
+script = ExtResource("2_wrkul")
+
+[node name="Icon" type="TextureRect" parent="VBoxContainer3/HBoxContainer/Skill4" unique_id=741056280]
+layout_mode = 0
+offset_left = 55.0
+offset_top = 20.0
+offset_right = 95.0
+offset_bottom = 60.0
+texture = ExtResource("9_nxqcl")
+
+[node name="Label" type="Label" parent="VBoxContainer3/HBoxContainer/Skill4" unique_id=1235306664]
+layout_mode = 0
+offset_left = 28.0
+offset_top = 65.0
+offset_right = 116.0
+offset_bottom = 91.0
+scale = Vector2(1.1, 1.1)
+theme_override_colors/font_color = Color(0.9014424, 0.6577272, 0.5455711, 1)
+theme_override_constants/line_spacing = -2
+theme_override_fonts/font = ExtResource("3_wrkul")
+text = "Long Ranged
+Weaponry"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Info" type="Label" parent="VBoxContainer3/HBoxContainer/Skill4" unique_id=570141123]
+layout_mode = 0
+offset_left = 22.0
+offset_top = 102.0
+offset_right = 144.0
+offset_bottom = 184.0
+scale = Vector2(0.9, 0.9)
+theme_override_colors/font_color = Color(0.8352941, 0.5568628, 0.41960785, 1)
+theme_override_fonts/font = ExtResource("3_wrkul")
+text = "Safe, distant damage with scaling power and high evasion."
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="Spacer3" type="Control" parent="VBoxContainer3" unique_id=418769053]
+custom_minimum_size = Vector2(0, 2)
+layout_mode = 2
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="VBoxContainer3" unique_id=892334168]
+custom_minimum_size = Vector2(640, 226)
+layout_mode = 2
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="Skill5" type="Panel" parent="VBoxContainer3/HBoxContainer2" unique_id=1182028444]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxTexture_36iwt")
+script = ExtResource("2_wrkul")
+
+[node name="Icon" type="TextureRect" parent="VBoxContainer3/HBoxContainer2/Skill5" unique_id=509115649]
+layout_mode = 0
+offset_left = 55.0
+offset_top = 20.0
+offset_right = 95.0
+offset_bottom = 60.0
+texture = ExtResource("11_bkr2p")
+
+[node name="Label" type="Label" parent="VBoxContainer3/HBoxContainer2/Skill5" unique_id=1816971009]
+layout_mode = 0
+offset_left = 28.0
+offset_top = 65.0
+offset_right = 116.0
+offset_bottom = 83.0
+scale = Vector2(1.1, 1.1)
+theme_override_colors/font_color = Color(0.8627451, 0.8039216, 0.827451, 1)
+theme_override_fonts/font = ExtResource("3_wrkul")
+text = "Rogue"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Info" type="Label" parent="VBoxContainer3/HBoxContainer2/Skill5" unique_id=892907705]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 94.0
+offset_right = 142.0
+offset_bottom = 176.0
+scale = Vector2(0.9, 0.9)
+theme_override_colors/font_color = Color(0.6784314, 0.54901963, 0.6392157, 1)
+theme_override_fonts/font = ExtResource("3_wrkul")
+text = "Stealth and agility-based combat with shop discounts and bonus starting damage."
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="Skill6" type="Panel" parent="VBoxContainer3/HBoxContainer2" unique_id=1621255208]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxTexture_d7073")
+script = ExtResource("2_wrkul")
+
+[node name="Icon" type="TextureRect" parent="VBoxContainer3/HBoxContainer2/Skill6" unique_id=303101360]
+layout_mode = 0
+offset_left = 55.0
+offset_top = 20.0
+offset_right = 95.0
+offset_bottom = 60.0
+texture = ExtResource("13_q12nr")
+
+[node name="Label" type="Label" parent="VBoxContainer3/HBoxContainer2/Skill6" unique_id=998331939]
+layout_mode = 0
+offset_left = 28.0
+offset_top = 65.0
+offset_right = 116.0
+offset_bottom = 83.0
+scale = Vector2(1.1, 1.1)
+theme_override_colors/font_color = Color(0.623324, 0.9706983, 0.86431974, 1)
+theme_override_fonts/font = ExtResource("3_wrkul")
+text = "Cleric"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Info" type="Label" parent="VBoxContainer3/HBoxContainer2/Skill6" unique_id=687457348]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 94.0
+offset_right = 142.0
+offset_bottom = 176.0
+scale = Vector2(0.9, 0.9)
+theme_override_colors/font_color = Color(0.14509805, 0.7882353, 0.80784315, 1)
+theme_override_fonts/font = ExtResource("3_wrkul")
+text = "Focused on survival through passive healing, life-leech, and combat item use."
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="Skill7" type="Panel" parent="VBoxContainer3/HBoxContainer2" unique_id=821805072]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxTexture_re2b5")
+script = ExtResource("2_wrkul")
+
+[node name="Icon" type="TextureRect" parent="VBoxContainer3/HBoxContainer2/Skill7" unique_id=1310119308]
+layout_mode = 0
+offset_left = 55.0
+offset_top = 20.0
+offset_right = 95.0
+offset_bottom = 60.0
+texture = ExtResource("15_b8l5j")
+
+[node name="Label" type="Label" parent="VBoxContainer3/HBoxContainer2/Skill7" unique_id=725693698]
+layout_mode = 0
+offset_left = 28.0
+offset_top = 65.0
+offset_right = 116.0
+offset_bottom = 83.0
+scale = Vector2(1.1, 1.1)
+theme_override_colors/font_color = Color(0.6509804, 0.8862745, 0.42352942, 1)
+theme_override_fonts/font = ExtResource("3_wrkul")
+text = "Warrior"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Info" type="Label" parent="VBoxContainer3/HBoxContainer2/Skill7" unique_id=1020900591]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 94.0
+offset_right = 142.0
+offset_bottom = 176.0
+scale = Vector2(0.9, 0.9)
+theme_override_colors/font_color = Color(0.3882353, 0.78431374, 0.3254902, 1)
+theme_override_fonts/font = ExtResource("3_wrkul")
+text = "A tank-focused path that maximizes HP and benefits from staying on block tiles."
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="Skill8" type="Panel" parent="VBoxContainer3/HBoxContainer2" unique_id=756823246]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxTexture_y4ess")
+script = ExtResource("2_wrkul")
+
+[node name="Icon" type="TextureRect" parent="VBoxContainer3/HBoxContainer2/Skill8" unique_id=109847335]
+layout_mode = 0
+offset_left = 55.0
+offset_top = 20.0
+offset_right = 95.0
+offset_bottom = 60.0
+texture = ExtResource("17_3anod")
+expand_mode = 1
+
+[node name="Label" type="Label" parent="VBoxContainer3/HBoxContainer2/Skill8" unique_id=21477142]
+layout_mode = 0
+offset_left = 28.0
+offset_top = 65.0
+offset_right = 116.0
+offset_bottom = 83.0
+scale = Vector2(1.1, 1.1)
+theme_override_colors/font_color = Color(1, 0.60516095, 0.93820965, 1)
+theme_override_fonts/font = ExtResource("3_wrkul")
+text = "Mage"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Info" type="Label" parent="VBoxContainer3/HBoxContainer2/Skill8" unique_id=476197127]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 94.0
+offset_right = 142.0
+offset_bottom = 176.0
+scale = Vector2(0.9, 0.9)
+theme_override_colors/font_color = Color(0.8627451, 0.30980393, 0.92156863, 1)
+theme_override_colors/font_outline_color = Color(0.1254902, 0.11764706, 0.14901961, 1)
+theme_override_fonts/font = ExtResource("3_wrkul")
+text = "Enhances elemental damage and doubles the duration of status effects."
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="Spacer2" type="Control" parent="VBoxContainer3" unique_id=1592782210]
+custom_minimum_size = Vector2(0, 4)
+layout_mode = 2

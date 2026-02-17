@@ -79,8 +79,8 @@ func _load_tutorial_world() -> void:
 	add_child(world_root)
 
 	# Versuche zuerst, die Tutorial-Szene als Generator zu behandeln
-	var tutorial_packed := preload(TUTORIAL_ROOM)
-	var tutorial_inst := tutorial_packed.instantiate()
+	var TutorialPacked := preload(TUTORIAL_ROOM)
+	var tutorial_inst := TutorialPacked.instantiate()
 
 	if tutorial_inst != null and tutorial_inst.has_method("get_random_tilemap"):
 		# Generator-API vorhanden -> wie bei _load_world verwenden
