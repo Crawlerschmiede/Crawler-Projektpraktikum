@@ -471,6 +471,11 @@ func get_detailed_description(skill_name) -> String:
 		
 	for effect in skill.effects:
 		description+=translate_effect(effect)
+	if skill.has("next_turn_effects"):
+		description+=" Then, next turn "
+		for effect in skill.next_turn_effects:
+			description+=translate_effect(effect)
+		
 	if skill.has("conditions"):
 		if len(skill.conditions)==1:
 			description+= " if "+skill.conditions[0]
