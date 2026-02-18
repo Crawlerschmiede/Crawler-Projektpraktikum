@@ -142,10 +142,10 @@ func super_ready(sprite_type: String, entity_type: Array):
 				if is_boss_tile:
 					print("found boss tile! ", cell)
 					# check with EntityAutoload if the position is valid (not occupied)
-					if EntityAutoload.has_method("canReservePos"):
-						if EntityAutoload.canReservePos(cell, tilemap):
+					if EntityAutoload.has_method("can_reserve_pos"):
+						if EntityAutoload.can_reserve_pos(cell, tilemap):
 							possible_spawns.append(cell)
-					elif EntityAutoload.has_method("isValidPos"):
+					elif EntityAutoload.has_method("is_valid_pos"):
 						# fallback: check tile existence and walkability directly (don't reserve)
 						if tilemap.get_cell_source_id(cell) != -1:
 							var td_fallback := tilemap.get_cell_tile_data(cell)
@@ -163,8 +163,8 @@ func super_ready(sprite_type: String, entity_type: Array):
 			return
 		var spawnpoint = possible_spawns[rng.randi_range(0, possible_spawns.size() - 1)]
 		# reserve chosen cell so other entities won't take it
-		if EntityAutoload.has_method("reservePos"):
-			EntityAutoload.reservePos(spawnpoint)
+		if EntityAutoload.has_method("reserve_pos"):
+			EntityAutoload.reserve_pos(spawnpoint)
 		print("super_ready: boss - chosen spawn:", spawnpoint)
 		position = tilemap.map_to_local(spawnpoint)
 		grid_pos = spawnpoint
@@ -180,10 +180,10 @@ func super_ready(sprite_type: String, entity_type: Array):
 				if is_boss_tile:
 					print("found tutorial tile! ", cell)
 					# avoid spawning on occupied tiles
-					if EntityAutoload.has_method("canReservePos"):
-						if EntityAutoload.canReservePos(cell, tilemap):
+					if EntityAutoload.has_method("can_reserve_pos"):
+						if EntityAutoload.can_reserve_pos(cell, tilemap):
 							possible_spawns.append(cell)
-					elif EntityAutoload.has_method("isValidPos"):
+					elif EntityAutoload.has_method("is_valid_pos"):
 						if tilemap.get_cell_source_id(cell) != -1:
 							var td_fallback2 := tilemap.get_cell_tile_data(cell)
 							if (
@@ -198,8 +198,8 @@ func super_ready(sprite_type: String, entity_type: Array):
 				self.queue_free()
 				return
 			var spawnpoint = possible_spawns[rng.randi_range(0, possible_spawns.size() - 1)]
-			if EntityAutoload.has_method("reservePos"):
-				EntityAutoload.reservePos(spawnpoint)
+			if EntityAutoload.has_method("reserve_pos"):
+				EntityAutoload.reserve_pos(spawnpoint)
 			print("super_ready: tutorial - chosen spawn:", spawnpoint)
 			position = tilemap.map_to_local(spawnpoint)
 			grid_pos = spawnpoint
@@ -218,10 +218,10 @@ func super_ready(sprite_type: String, entity_type: Array):
 					if "wallbound" in entity_type:
 						if is_next_to_wall(cell):
 							# only add if EntityAutoload says the pos is free
-							if EntityAutoload.has_method("canReservePos"):
-								if EntityAutoload.canReservePos(cell, tilemap):
+							if EntityAutoload.has_method("can_reserve_pos"):
+								if EntityAutoload.can_reserve_pos(cell, tilemap):
 									possible_spawns.append(cell)
-								elif EntityAutoload.has_method("isValidPos"):
+								elif EntityAutoload.has_method("is_valid_pos"):
 									if tilemap.get_cell_source_id(cell) != -1:
 										var td_fallback3 := tilemap.get_cell_tile_data(cell)
 										if (
@@ -232,10 +232,10 @@ func super_ready(sprite_type: String, entity_type: Array):
 							else:
 								possible_spawns.append(cell)
 					else:
-						if EntityAutoload.has_method("canReservePos"):
-							if EntityAutoload.canReservePos(cell, tilemap):
+						if EntityAutoload.has_method("can_reserve_pos"):
+							if EntityAutoload.can_reserve_pos(cell, tilemap):
 								possible_spawns.append(cell)
-						elif EntityAutoload.has_method("isValidPos"):
+						elif EntityAutoload.has_method("is_valid_pos"):
 							if tilemap.get_cell_source_id(cell) != -1:
 								var td_fallback4 := tilemap.get_cell_tile_data(cell)
 								if (
@@ -255,8 +255,8 @@ func super_ready(sprite_type: String, entity_type: Array):
 			self.queue_free()
 			return
 		var spawnpoint = possible_spawns[rng.randi_range(0, possible_spawns.size() - 1)]
-		if EntityAutoload.has_method("reservePos"):
-			EntityAutoload.reservePos(spawnpoint)
+		if EntityAutoload.has_method("reserve_pos"):
+			EntityAutoload.reserve_pos(spawnpoint)
 		print("super_ready: enemy - chosen spawn:", spawnpoint)
 		position = tilemap.map_to_local(spawnpoint)
 		grid_pos = spawnpoint
