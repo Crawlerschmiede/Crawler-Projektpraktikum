@@ -276,10 +276,9 @@ class Effect:
 
 				if user.is_player:
 					active_dmg *= battle.get_player_range_dmg_mult()
-				active_dmg -= target.def_stat
 
 				var recipient = user if targets_self else target
-				messages = _safe_invoke(recipient, "take_damage", [active_dmg])
+				messages = _safe_invoke(recipient, "take_damage", [active_dmg, details])
 				ret = [
 					(
 						"Target "

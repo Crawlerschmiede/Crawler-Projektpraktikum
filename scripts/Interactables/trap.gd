@@ -15,13 +15,13 @@ var _trigger_anim_name: String = ""
 
 func _ready() -> void:
 	if area == null:
-		push_error("❌ TrapTile: Area2D fehlt!")
+		push_error("TrapTile: Area2D fehlt!")
 		return
 
 	# select animation node based on world_index and set visibility
 
 	if anim == null:
-		push_error("❌ TrapTile: AnimatedSprite2D fehlt!")
+		push_error("TrapTile: AnimatedSprite2D fehlt!")
 		return
 
 	area.body_entered.connect(_on_body_entered)
@@ -50,12 +50,12 @@ func _ready() -> void:
 		anim.stop()
 		anim.frame = 0
 
-	print("✅ TrapTile ready | dmg:", damage, "| cooldown:", cooldown)
+	print("TrapTile ready | dmg:", damage, "| cooldown:", cooldown)
 
 
 func _on_body_entered(body: Node) -> void:
 	if not _ready_to_trigger:
-		print("⏳ Trap trigger blocked (cooldown)")
+		print("Trap trigger blocked (cooldown)")
 		return
 
 	if body == null:
@@ -63,10 +63,10 @@ func _on_body_entered(body: Node) -> void:
 
 	# Nur Player triggern
 	if not body.is_in_group("player"):
-		print("ℹ️ Trap ignored:", body.name)
+		print("Trap ignored:", body.name)
 		return
 
-	print("🔥 TRAP TRIGGERED by:", body.name)
+	print("TRAP TRIGGERED by:", body.name)
 
 	_ready_to_trigger = false
 
@@ -105,14 +105,6 @@ func _apply_damage(player: Node) -> void:
 
 	# Variante 1: Player hat take_damage()
 	if player.has_method("take_damage"):
-		player.take_damage(damage)
+		player.take_damage(damage, "undodgeable")
 		#print("💥 Damage applied via take_damage:", damage)
 		return
-
-	# Variante 2: Player hat hp Variable
-	if "hp" in player:
-		player.hp -= damage
-		#print("💥 Damage applied via hp--:", damage, "| new hp:", player.hp)
-		return
-
-	#print("⚠️ Trap: Player hat weder take_damage() noch hp!")
