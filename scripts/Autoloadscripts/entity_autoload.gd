@@ -1,7 +1,7 @@
 extends Node
 
 var item_data: Dictionary
-var posData: Array = []
+var pos_data: Array = []
 
 
 func _ready():
@@ -25,15 +25,15 @@ func load_data(file_path: String) -> Dictionary:
 	return json.get_data()
 
 
-func isValidPos(pos: Vector2i, tilemap: TileMapLayer = null) -> bool:
+func is_valid_pos(pos: Vector2i, tilemap: TileMapLayer = null) -> bool:
 	# Backwards-compatible: reserve if available and return true, false if occupied/invalid
-	if not canReservePos(pos, tilemap):
+	if not can_reserve_pos(pos, tilemap):
 		return false
-	reservePos(pos)
+	reserve_pos(pos)
 	return true
 
 
-func canReservePos(pos: Vector2i, tilemap: TileMapLayer = null) -> bool:
+func can_reserve_pos(pos: Vector2i, tilemap: TileMapLayer = null) -> bool:
 	# Check tile validity (if tilemap provided) and whether it's already reserved
 	if tilemap != null:
 		if tilemap.get_cell_source_id(pos) == -1:
@@ -42,19 +42,19 @@ func canReservePos(pos: Vector2i, tilemap: TileMapLayer = null) -> bool:
 		if td != null and td.get_custom_data("non_walkable"):
 			return false
 
-	if posData == null:
-		posData = []
-	return not (pos in posData)
+	if pos_data == null:
+		pos_data = []
+	return not (pos in pos_data)
 
 
-func reservePos(pos: Vector2i) -> void:
-	if posData == null:
-		posData = []
-	if not (pos in posData):
-		posData.append(pos)
+func reserve_pos(pos: Vector2i) -> void:
+	if pos_data == null:
+		pos_data = []
+	if not (pos in pos_data):
+		pos_data.append(pos)
 
 
 func reset() -> void:
 	# Reload entity data from disk
 	item_data = load_data("res://data/entityData.json")
-	posData = []
+	pos_data = []
