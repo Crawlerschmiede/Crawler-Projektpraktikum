@@ -372,7 +372,7 @@ func elongate():
 			if not expanded:
 				expanded = true
 				resize(x_size, y_size, [anchor])
-				move_sprite(x_offset, y_offset, rotation)
+				move_sprite(x_offset, y_offset, rotation_deg)
 				for body in collision_area.get_overlapping_bodies():
 					if body == self:
 						continue

@@ -1,4 +1,4 @@
-[gd_scene format=3 uid="uid://dg2fpamqhjmhp"]
+[gd_scene format=3 uid="uid://cxtgxarsnkaox"]
 
 [ext_resource type="Script" uid="uid://c46g0i67damgr" path="res://scripts/UI/Slot.gd" id="6_5c7wf"]
 [ext_resource type="Script" uid="uid://c4jy8dhc1hfq5" path="res://scripts/UI/inventory.gd" id="6_7x6uh"]
@@ -86,6 +86,7 @@ scale = Vector2(3, 3)
 script = ExtResource("6_7x6uh")
 
 [node name="Inner" type="Control" parent="." unique_id=1048780351]
+visible = false
 anchors_preset = 0
 offset_right = 40.0
 offset_bottom = 40.0
