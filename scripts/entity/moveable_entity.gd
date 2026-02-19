@@ -35,13 +35,31 @@ var sprites = {
 		{"idle": "default", "teleport_start": "dig_down", "teleport_end": "dig_up"}
 	],
 	"goblin": [preload("res://scenes/sprite_scenes/goblin_sprite_scene.tscn"), ["Bonk", "War Cry"]],
-	"orc": [preload("res://scenes/sprite_scenes/orc_sprite_scene.tscn"), ["Bonk"]],
+	"orc": 
+	[
+		preload("res://scenes/sprite_scenes/orc_sprite_scene.tscn"), 
+			["Big Bonk", "War Command", "Ground Stomp"],
+			{"idle": "default"}
+	],		
 	"plant":
 	[
 		preload("res://scenes/sprite_scenes/big_plant_sprite_scene.tscn"),
-		["Vine Slash", "Entwine", "Poison Ivy", "Herbicide"],
+		["Vine Slash", "Entwine", "Poison Ivy", "Herbicide", "Mandrake's Screech"],
 		{"idle": "default", "teleport_start": "dig_down", "teleport_end": "dig_up"}
 	],
+	"wendigo": 
+	[
+		preload("res://scenes/sprite_scenes/wendigo_sprite_scene.tscn"), 
+			["Claw Slash", "Mimicry", "Evil that devours", "Insatiable Hunger"],
+			{"idle": "default"}
+	],	
+	"necromancer": 
+	[
+		preload("res://scenes/sprite_scenes/necromancer_scene.tscn"), 
+			["Green Flames", "Life Steal", "Domain Expansion", "Join the dead"],
+			{"idle": "default"}
+	],
+	
 	"pc": [preload("res://scenes/sprite_scenes/player_sprite_scene.tscn")]
 }
 
@@ -119,7 +137,7 @@ func super_ready(sprite_type: String, entity_type: Array):
 					print("found boss tile! ", cell)
 					possible_spawns.append(cell)
 
-		var spawnpoint = possible_spawns[rng.randi_range(0, len(possible_spawns) - 1)]
+		var spawnpoint = possible_spawns[rng.randi_range(0, (len(possible_spawns) - 1 ))]
 		position = tilemap.map_to_local(spawnpoint)
 		grid_pos = spawnpoint
 

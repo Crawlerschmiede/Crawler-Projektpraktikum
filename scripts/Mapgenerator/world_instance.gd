@@ -65,6 +65,7 @@ func spawn_enemies() -> void:
 		spawn_enemy("skeleton", ["hostile", "enemy_walking"])
 	for i in range(3):
 		spawn_enemy("base_zombie", ["hostile", "enemy_walking", "burrowing"])
+	spawn_enemy("plant", ["boss"])
 
 
 func spawn_enemy(sprite_type: String, behaviour: Array) -> void:

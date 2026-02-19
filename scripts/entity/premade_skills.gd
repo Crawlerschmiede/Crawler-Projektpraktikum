@@ -89,6 +89,28 @@ var existing_skills = {
 		"effects": [["buff", 2, true, "No"]],
 		"cooldown": 0  # jorin pls implement enemy cooldown thanks
 	},
+		#Orc Stuff
+	"Big Bonk":
+	{
+		"tree": "orc things",
+		"description": "If in doubt, bonk your enemy.",
+		"effects": [["damage", 2, false, "No"], ["danger_dmg_mult", 2, false, "player_pos"]],
+		"cooldown": 0
+	},
+	"War Command":  #buff dmg for next turn, jorin pls implement
+	{
+		"tree": "orc things",
+		"description": "More scream, more damage",
+		"effects": [["buff", 2, true, "No"]],
+		"cooldown": 2  # jorin pls implement enemy cooldown thanks
+	},
+	"Ground Stomp":
+	{
+		"tree": "orc things",
+		"description": "The Orc Chief stomps its feet into the ground. The whole ground shakes!",
+		"effects": [["damage", 3, false, "No"]],
+		"cooldown": 1
+	},
 	#Carnivorous Plant skills
 	"Vine Slash":
 	{
@@ -133,7 +155,7 @@ var existing_skills = {
 	{
 		"tree": "wendigo things",
 		"description": "Its huge claws try to slash into your flesh",
-		"effects": [["Damage", 3, false, "No"]],
+		"effects": [["Damage", 2, false, "No"]],
 		"cooldown": 0
 	},
 	"Mimicry":
@@ -141,7 +163,51 @@ var existing_skills = {
 		"tree": "wendigo things",
 		"description": "You hear a distorted familiar voice calling for you. From where? Who? You feel dizzy..",
 		"effects": [["Stun", 3, false, "No"]],
-		"cooldown": 0
+		"cooldown": 1
+	},
+	"Evil that devours":
+	{
+		"tree": "wendigo things",
+		"description": "ITS EYES PIERCE INTO YOU.. youre body writhes in agony",
+		"effects": [["Damage", 4, false, "No"],["danger_dmg_mult", 3, false, "area||rand||rand||2"]],
+		"cooldown": 2
+	},
+	"Insatiable Hunger":  #buff dmg for next turn, jorin pls implement
+	{
+		"tree": "wendigo things",
+		"description": "It howls into the void, blood tripping from its teeth. You can feel it getting angrier.. stronger",
+		"effects": [["buff", 2, true, "No"]],
+		"cooldown": 1  # jorin pls implement enemy cooldown thanks
+	},
+	# Necromancer Stuff
+	# Possible Skills: Green Flames, Life Steal, Domain Expansion, Rise from the dead
+	"Green Flames":
+	{
+		"tree": "necromancer things",
+		"description": "Green flames engulf the room",
+		"effects": [["Burn", 2, false, "No"],["danger_dmg_mult", 3, false, "area||rand||rand||2"]],
+		"cooldown": 1
+	},
+	"Life Steal":
+	{
+		"tree": "necromancer things",
+		"description": "The necromancer raises its hand. Its wounds begin to heal, you feel weaker",
+		"effects": [["Stun", 2, false, "No"],["buff", 2, true, "Enemy should heal a bit"]],
+		"cooldown": 1
+	},
+	"Domain Expansion":
+	{
+		"tree": "necromancer things",
+		"description": "Chanting a demonic spell, the room turns to darkness",
+		"effects": [["Damage", 4, false, "No"]],
+		"cooldown": 2
+	},
+	"Join the dead":  #buff dmg for next turn, jorin pls implement
+	{
+		"tree": "necromancer things",
+		"description": "",
+		"effects": [["Damange", 4, false, "No"], ["Stun", 3, false, "No"]],
+		"cooldown": 2
 	},
 		
 	#unarmed player stuff
