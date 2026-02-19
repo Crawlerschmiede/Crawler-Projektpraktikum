@@ -39,3 +39,14 @@ func increase_tree_level(tree_name: String):
 		push_warning("Unknown skilltree: %s" % tree_name)
 		return
 	skilltrees[tree_name] = int(skilltrees[tree_name]) + 1
+
+
+func get_all_explanations():
+	var tree_explanations = {}
+	for tree in skilltrees:
+		tree_explanations[tree] = get_explanation(tree)
+	return tree_explanations
+
+
+func get_explanation(tree_name):
+	return existing_skills.get_tree_explanation(tree_name)

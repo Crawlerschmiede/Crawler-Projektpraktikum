@@ -95,7 +95,14 @@ var animations = null
 
 
 # --- Setup ---
-func setup(tmap: TileMapLayer, top_map: TileMapLayer, _hp, _str, _def):
+func setup(
+	tmap: TileMapLayer,
+	top_map: TileMapLayer,
+	_hp: int,
+	_str: int,
+	_def: int,
+	_resistances: Dictionary
+):
 	tilemap = tmap
 	top_layer = top_map
 	max_hp = _hp
@@ -103,11 +110,18 @@ func setup(tmap: TileMapLayer, top_map: TileMapLayer, _hp, _str, _def):
 	str_stat = _str
 	def_stat = _def
 	action_points = base_action_points
+	print("Setting up with the following:", _resistances)
+	resistances["physical"] = _resistances.get("phyres", 0)
+	resistances["fire"] = _resistances.get("firres", 0)
+	resistances["electric"] = _resistances.get("eleres", 0)
+	resistances["earth"] = _resistances.get("erres", 0)
+	resistances["ice"] = _resistances.get("iceres", 0)
+	print("Ended up with ", resistances)
 
 
 func super_ready(sprite_type: String, entity_type: Array):
 	if tilemap == null:
-		push_error("❌ MoveableEntity hat keine TileMap! setup(tilemap) vergessen?")
+		push_error("MoveableEntity hat keine TileMap! setup(tilemap) vergessen?")
 		return
 	types = entity_type
 	# Spawn logic for player character
@@ -450,13 +464,28 @@ func initiate_battle(player: Node, enemy: Node) -> bool:
 	return true
 
 
-func take_damage(damage):
+func take_damage(damage, type = ""):
 	#print(self, " takes ", damage, " damage!")
 	var taken_damage = damage  #useless right now but just put here for later damage calculations
+	var damage_type = "physical"
+	if "fire" in type:
+		damage_type = "fire"
+	elif "ice" in type:
+		damage_type = "ice"
+	elif "electric" in type:
+		damage_type = "electric"
+	elif "earth" in type:
+		damage_type = "earth"
+	print("Relevant resistances: ", resistances)
+	taken_damage *= (1 - resistances.get(damage_type, 0))
+	if not "ignoredef" in type:
+		taken_damage -= self.def_stat
+	if taken_damage < 0:
+		taken_damage = 0
 	print(self.name, " should take damage")
 	print(alterations)
 	for alteration in alterations:
-		if alterations[alteration].has("dodge_chance"):
+		if alterations[alteration].has("dodge_chance") and not "undodgeable" in type:
 			var dodge_chance = alterations[alteration].dodge_chance * 100
 			var dodged = rng.randi_range(0, 100)
 			if dodged < dodge_chance:
@@ -549,7 +578,7 @@ func deal_with_status_effects() -> Array:
 		gets_a_turn = false
 		things_that_happened.append("Is stunned and cannot move!")
 	if poisoned > 0:
-		var message = take_damage(poisoned)
+		var message = take_damage(poisoned, "ignoredef|undodgeable")
 		poisoned -= poison_recovery
 		if poisoned < 0:
 			poisoned = 0
