@@ -65,7 +65,7 @@ var existing_skills = {
 	{
 		"tree": "skeleton things",
 		"description": "This strike looks easy to dodge... weirdly so",
-		"effects": [["damage", 2, false, "No"], ["safety_dmg_reduc", 0, false, "player_pos"]],
+		"effects": [["damage", 1, false, "No"], ["safety_dmg_reduc", 0, false, "player_pos"]],
 	},
 	"Precise Hit":
 	{
@@ -85,7 +85,7 @@ var existing_skills = {
 	{
 		"tree": "goblin things",
 		"description": "If in doubt, bonk your enemy.",
-		"effects": [["damage", 2, false, "No"], ["danger_dmg_mult", 2, false, "player_pos"]],
+		"effects": [["damage_zone", 2, false, "player_pos"]],
 		"cooldown": 0
 	},
 	"War Cry":  #buff dmg for next turn, jorin pls implement #it is done
@@ -101,7 +101,7 @@ var existing_skills = {
 	{
 		"tree": "orc things",
 		"description": "If in doubt, bonk your enemy.",
-		"effects": [["damage", 2, false, "No"], ["danger_dmg_mult", 2, false, "player_pos"]],
+		"effects": [["damage_zone", 2, false, "area||player_x||player_y||2"]],
 		"cooldown": 0
 	},
 	"War Command":  #buff dmg for next turn, jorin pls implement
@@ -115,46 +115,60 @@ var existing_skills = {
 	{
 		"tree": "orc things",
 		"description": "The Orc Chief stomps its feet into the ground. The whole ground shakes!",
-		"effects": [["damage", 3, false, "No"]],
-		"cooldown": 1
+		"effects": [["danger_dmg_mult", 2, false, "area||player_x||player_y||4"]],
+		"cooldown": 3
+	},
+	"Club Swing":
+	{
+		"tree": "orc things",
+		"description": "Orc pulls back and swings its club with full force",
+		"effects": [["movement", 1, false, "D"],["movement", 1, false, "D"],["movement", 1, false, "D"], ["damage_zone", 3, false, "y=3"], ["damage_zone", 2, false, "y=4"]],
+		"cooldown": 2
 	},
 	#Carnivorous Plant skills
 	"Vine Slash":
 	{
 		"tree": "plant things",
 		"description": "A sharp vine slashes across the room",
-		"effects": [["damage", 2, false, "No"], ["danger_dmg_mult", 2, false, "player_y"]],
+		"effects": [["damage_zone", 2, false, "player_y"]],
 		"cooldown": 0
+	},
+	"Uproot":
+	{
+		"tree": "plant things",
+		"description": "A vine grabs your leg and pulls you towards the enemy",
+		"effects": [["movement", 1, false, "U"],["movement", 1, false, "U"],["movement", 1, false, "U"], ["damage_zone", 3, false, "y=0"], ["damage_zone", 2, false, "y=1"]],
+		"cooldown": 2
 	},
 	"Entwine":
 	{
 		"tree": "plant things",
 		"description":
 		"Thick vines shoot from the ground at your legs and entwine your body. You are stunned!",
-		"effects": [["stun", 2, false, "No"]],
-		"cooldown": 0
+		"effects": [["stun", 1, false, "No"]],
+		"cooldown": 2
 	},
 	"Poison Ivy":
 	{
 		"tree": "plant things",
 		"description": "Vines lash out, a thorn scratches your skin. You don't feel so well..",
 		"effects": [["poison", 2, false, "No"]],
-		"cooldown": 0
+		"cooldown": 2
 	},
 	"Herbicide":
 	{
 		"tree": "plant things",
 		"description": "The trap gapes and lashes out trying to tear its teeth into your flesh.",
-		"effects": [["Damage", 3, false, "No"], ["Damage", 1, true, "No"]],
-		"cooldown": 0
+		"effects": [["danger_dmg_mult", 2, false, "area||player_x||player_y||2"]],
+		"cooldown": 2
 	},
 	"Mandrake's Screech":
 	{
 		"tree": "plant things",
 		"description":
 		"The ground rumbles as your enemy lets out a deafening screech. Its getting angry ...",
-		"effects": [["damage", 1, false, "No"], ["danger_dmg_mult", 2, false, "y=0"]],
-		"cooldown": 0
+		"effects": [["damage", 1, false, "No"], ["damage_buff", 2, true, "duration=2"]],
+		"cooldown": 2
 	},
 	#wendigo
 	# Possible Skills: Mimicry(confusion), Evil that devours (big attack),
@@ -163,7 +177,7 @@ var existing_skills = {
 	{
 		"tree": "wendigo things",
 		"description": "Its huge claws try to slash into your flesh",
-		"effects": [["Damage", 2, false, "No"]],
+		"effects": [["damage_zone", 2, false, "y=0"], ["damage_zone", 2, false, "y=2"], ["damage_zone", 2, false, "y=4"]],
 		"cooldown": 0
 	},
 	"Mimicry":
@@ -171,15 +185,15 @@ var existing_skills = {
 		"tree": "wendigo things",
 		"description":
 		"You hear a distorted familiar voice calling for you. From where? Who? You feel dizzy..",
-		"effects": [["Stun", 3, false, "No"]],
-		"cooldown": 1
+		"effects": [["movement", 1, false, "U"],["movement", 1, false, "U"],["Stun", 2, false, "No"]],
+		"cooldown": 3
 	},
 	"Evil that devours":
 	{
 		"tree": "wendigo things",
 		"description": "ITS EYES PIERCE INTO YOU.. your body writhes in agony",
 		"effects":
-		[["Damage", 4, false, "No"], ["danger_dmg_mult", 3, false, "area||rand||rand||2"]],
+		[["death_zone", 1, false, "surrounding"], ["damage_zone", 2, false, "player_x"]],
 		"cooldown": 2
 	},
 	"Insatiable Hunger":  #buff dmg for next turn, jorin pls implement
@@ -199,28 +213,42 @@ var existing_skills = {
 	{
 		"tree": "necromancer things",
 		"description": "Green flames engulf the room",
-		"effects": [["Burn", 2, false, "No"], ["danger_dmg_mult", 3, false, "area||rand||rand||2"]],
+		"effects": [["Burn", 2, false, "No"],["damage_zone", 2, false, "y=0"],["damage_zone", 2, false, "y=2"],["damage_zone", 2, false, "y=4"],["damage_zone", 2, false, "x=0"],["damage_zone", 2, false, "x=2"],["damage_zone", 2, false, "x=4"]],
 		"cooldown": 1
 	},
 	"Life Steal":
 	{
 		"tree": "necromancer things",
 		"description": "The necromancer raises its hand. Its wounds begin to heal, you feel weaker",
-		"effects": [["Stun", 2, false, "No"], ["heal", 2, true, "No"]],
-		"cooldown": 1
+		"effects": [["Stun", 1, false, "No"], ["heal", 2, true, "No"]],
+		"cooldown": 3
 	},
 	"Domain Expansion":
 	{
 		"tree": "necromancer things",
 		"description": "Chanting a demonic spell, the room turns to darkness",
-		"effects": [["Damage", 4, false, "No"]],
-		"cooldown": 2
+		"effects": [["damage_zone", 2, false, "area||2||2||3"]],
+		"cooldown": 3
 	},
-	"Join the dead":  #buff dmg for next turn, jorin pls implement
+	"Join the dead": 
 	{
 		"tree": "necromancer things",
 		"description": "",
-		"effects": [["Damange", 4, false, "No"], ["Stun", 3, false, "No"]],
+		"effects": [["death_zone", 1, false, "player_pos"], ["damage_zone", 2, false, "surrounding"]],
+		"cooldown": 2
+	},
+	"OBEY": 
+	{
+		"tree": "necromancer things",
+		"description": "Know your place and KNEEL",
+		"effects": [["movement", 1, false, "D"],["movement", 1, false, "D"],["movement", 1, false, "D"], ["Stun", 1, false, "No"]],
+		"cooldown": 2
+	},
+	"BOW TO YOUR MASTER": 
+	{
+		"tree": "necromancer things",
+		"description": "A dark force drags you towards your enemie. This might be your end.",
+		"effects": [["movement", 1, false, "U"],["movement", 1, false, "U"],["movement", 1, false, "U"],["movement", 1, false, "U"], ["death_zone", 1, false, "player_y"]],
 		"cooldown": 2
 	},
 	#unarmed player stuff
