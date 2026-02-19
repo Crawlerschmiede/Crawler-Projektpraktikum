@@ -106,9 +106,10 @@ func _load_tutorial_world() -> void:
 				dungeon_floor.visibility_layer = 1
 
 			spawn_player()
-			spawn_enemies()
+			spawn_enemies(false)
 			spawn_lootbox()
 			spawn_traps()
+			spawn_enemies(true)
 
 			var merchants = find_merchants()
 			for i in merchants:
@@ -203,7 +204,7 @@ func _load_tutorial_world() -> void:
 	dungeon_floor.visibility_layer = 1
 	# Spawne alle Entities wie in normalen Welten
 	spawn_player()
-	spawn_enemies()
+	spawn_enemies(false)
 	spawn_lootbox()
 	spawn_traps()
 	await get_tree().process_frame
@@ -326,9 +327,10 @@ func _load_world(idx: int) -> void:
 	# Spawns
 	# -------------------------------------------------
 	spawn_player()
-	spawn_enemies()
+	spawn_enemies(false)
 	spawn_lootbox()
 	spawn_traps()
+	spawn_enemies(true)
 
 	var merchants = find_merchants()
 	for i in merchants:
@@ -694,7 +696,7 @@ func on_menu_closed():
 	_set_tree_paused(false)
 
 
-func spawn_enemies() -> void:
+func spawn_enemies(do_boss: bool) -> void:
 	var data: Dictionary = EntityAutoload.item_data
 	var settings: Dictionary = data.get("_settings", {})
 
@@ -716,7 +718,9 @@ func spawn_enemies() -> void:
 			continue
 
 		var d: Dictionary = data[k]
-		if d.get("entityCategory") != "enemy":
+		if d.get("entityCategory") != "enemy" and not do_boss:
+			continue
+		elif d.get("entityCategory") != "boss" and do_boss:
 			continue
 
 		# Tutorial-Welt: nur tutorial-Gegner spawnen
@@ -762,14 +766,38 @@ func spawn_enemies() -> void:
 	var current_weight := 0
 	var spawn_plan := {}
 
+	var roll: float
+	var acc: float
+	var chosen: int
+
+	if do_boss:
+		print("Should spawn boss")
+		roll = rng.randf() * total
+		acc = 0.0
+		chosen = 0
+		for j in range(defs.size()):
+			acc += weights[j]
+			if roll <= acc:
+				chosen = j
+				break
+		var def := defs[chosen]
+		spawn_enemy(
+			def.get("sprite_type", "what"),
+			def.get("behaviour", []),
+			def.get("skills", []),
+			def.get("stats", {})
+		)
+		print("Spawned boss!")
+		return
+
 	for _i in range(100):
 		if current_weight >= max_weight:
 			break
 
 		# weighted pick
-		var roll := rng.randf() * total
-		var acc := 0.0
-		var chosen := 0
+		roll = rng.randf() * total
+		acc = 0.0
+		chosen = 0
 
 		for j in range(defs.size()):
 			acc += weights[j]
