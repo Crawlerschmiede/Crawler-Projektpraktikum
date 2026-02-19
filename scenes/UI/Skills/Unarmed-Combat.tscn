@@ -35,10 +35,9 @@ shader_parameter/is_hovered = 0.0
 
 [node name="UnarmedCombat" type="Control" unique_id=323719228]
 layout_mode = 3
-anchors_preset = 15
 anchor_right = 1.0
-anchor_bottom = 1.0
-offset_bottom = -320.0
+anchor_bottom = 0.333
+offset_bottom = 0.16000366
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("4_wd7i8")

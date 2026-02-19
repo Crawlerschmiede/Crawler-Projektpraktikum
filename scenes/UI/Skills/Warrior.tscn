@@ -1,46 +1,46 @@
-[gd_scene format=3 uid="uid://dt65kembe7e8y"]
+[gd_scene format=3 uid="uid://bs1ffeg2iax5d"]
 
-[ext_resource type="Script" uid="uid://bcgc6vpbbgmy5" path="res://scripts/UI/skill_parenting.gd" id="1_wq41w"]
-[ext_resource type="Texture2D" uid="uid://djy78olvcm4wl" path="res://assets/menu/Frames/Border All 10.png" id="2_wq41w"]
-[ext_resource type="Texture2D" uid="uid://3qagqhukitoo" path="res://assets/menu/Skill Icons/Icon21.png" id="3_qkkh8"]
-[ext_resource type="FontFile" uid="uid://d4fqcjicieold" path="res://assets/font/PixelPurl.ttf" id="4_feyd1"]
-[ext_resource type="Texture2D" uid="uid://dnbcc2moncbgd" path="res://assets/menu/Skill Icons/Icon19.png" id="5_punep"]
-[ext_resource type="Script" uid="uid://crd5p6c1cohmb" path="res://scripts/UI/skill_node.gd" id="6_hwv0t"]
-[ext_resource type="Shader" uid="uid://c4ql1yllpgtkg" path="res://shaders/lol_themed_frame.gdshader" id="7_dc05n"]
-[ext_resource type="Texture2D" uid="uid://cfx83krdakbi" path="res://assets/menu/Frames/pixil-frame-0(5).png" id="8_1227o"]
-[ext_resource type="Texture2D" uid="uid://rkv52meowgbo" path="res://assets/menu/Skill Icons/output-onlinepngtools (4).png" id="9_feyd1"]
-[ext_resource type="Shader" uid="uid://d31tjfsou3yfh" path="res://shaders/lol_button.gdshader" id="9_qkkh8"]
-[ext_resource type="Texture2D" uid="uid://deq2jgenty03n" path="res://assets/menu/Skill Icons/Icon47.png" id="10_mjimy"]
-[ext_resource type="Texture2D" uid="uid://3pen5pgx5xkx" path="res://assets/menu/Skill Icons/Icon11.png" id="11_hwv0t"]
-[ext_resource type="Texture2D" uid="uid://drx0ckfvvl54a" path="res://assets/menu/Skill Icons/Icon111.png" id="12_dc05n"]
-[ext_resource type="PackedScene" uid="uid://bar157mm1vbb" path="res://scenes/UI/Skills/Tooltip/skill_tooltip.tscn" id="14_punep"]
+[ext_resource type="Script" uid="uid://bcgc6vpbbgmy5" path="res://scripts/UI/skill_parenting.gd" id="1_8fps4"]
+[ext_resource type="Texture2D" uid="uid://cywxhggp3mhl5" path="res://assets/menu/Frames/Border All 4.png" id="2_8fps4"]
+[ext_resource type="Texture2D" uid="uid://jluuedlyvq72" path="res://assets/menu/Skill Icons/Icon8.png" id="3_2il6m"]
+[ext_resource type="FontFile" uid="uid://d4fqcjicieold" path="res://assets/font/PixelPurl.ttf" id="4_h26ds"]
+[ext_resource type="Texture2D" uid="uid://13iu1hqdl5li" path="res://assets/menu/Skill Icons/Icon30.png" id="5_mbjym"]
+[ext_resource type="Script" uid="uid://crd5p6c1cohmb" path="res://scripts/UI/skill_node.gd" id="6_tw7k0"]
+[ext_resource type="Shader" uid="uid://c4ql1yllpgtkg" path="res://shaders/lol_themed_frame.gdshader" id="7_rnsck"]
+[ext_resource type="Texture2D" uid="uid://cfx83krdakbi" path="res://assets/menu/Frames/pixil-frame-0(5).png" id="8_060gn"]
+[ext_resource type="Shader" uid="uid://d31tjfsou3yfh" path="res://shaders/lol_button.gdshader" id="9_d8r0n"]
+[ext_resource type="Texture2D" uid="uid://bnxjybk6xbetr" path="res://assets/menu/Skill Icons/Icon2m6.png" id="10_8fps4"]
+[ext_resource type="Texture2D" uid="uid://dicgr22u2f4iu" path="res://assets/menu/Skill Icons/Icon15.png" id="11_ot5le"]
+[ext_resource type="Texture2D" uid="uid://6qb73tpb44u4" path="res://assets/menu/Skill Icons/Icon2v1.png" id="12_tw7k0"]
+[ext_resource type="Texture2D" uid="uid://b6c2n6efaiabg" path="res://assets/menu/Skill Icons/Icon36l.png" id="13_rnsck"]
+[ext_resource type="PackedScene" uid="uid://bar157mm1vbb" path="res://scenes/UI/Skills/Tooltip/skill_tooltip.tscn" id="14_gl4ku"]
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_xpe20"]
-texture = ExtResource("2_wq41w")
+texture = ExtResource("2_8fps4")
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_wd7i8"]
-shader = ExtResource("7_dc05n")
+shader = ExtResource("7_rnsck")
 shader_parameter/frame_color = Color(0.7, 0.55, 0.2, 1)
 shader_parameter/shadow_color = Color(0, 0, 0, 0.8)
 shader_parameter/border_thickness = 0.05
 shader_parameter/bevel_intensity = 0.4
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_punep"]
-shader = ExtResource("9_qkkh8")
+shader = ExtResource("9_d8r0n")
 shader_parameter/base_color = Color(0.4, 0.3, 0.1, 1)
 shader_parameter/highlight_color = Color(0.94509804, 0.7411765, 0.27058825, 1)
 shader_parameter/shimmer_speed = 1.0000000475
 shader_parameter/shimmer_width = 0.60000002524012
 shader_parameter/is_hovered = 0.0
 
-[node name="ShortRangedWeaponry" type="Control" unique_id=323719228]
+[node name="Warrior" type="Control" unique_id=323719228]
 layout_mode = 3
 anchor_right = 1.0
 anchor_bottom = 0.333
 offset_bottom = 0.16000366
 grow_horizontal = 2
 grow_vertical = 2
-script = ExtResource("1_wq41w")
+script = ExtResource("1_8fps4")
 
 [node name="Card" type="Panel" parent="." unique_id=887658382]
 custom_minimum_size = Vector2(115, 160)
@@ -55,7 +55,7 @@ offset_left = 32.0
 offset_top = 36.0
 offset_right = 82.0
 offset_bottom = 86.0
-texture = ExtResource("3_qkkh8")
+texture = ExtResource("3_2il6m")
 
 [node name="Label" type="Label" parent="Card" unique_id=1103428069]
 layout_mode = 0
@@ -64,9 +64,9 @@ offset_top = 88.0
 offset_right = 97.0
 offset_bottom = 106.0
 scale = Vector2(1.1, 1.1)
-theme_override_colors/font_color = Color(0.6486836, 0.6977387, 0.785564, 1)
-theme_override_fonts/font = ExtResource("4_feyd1")
-text = "Short Ranged Weaponry"
+theme_override_colors/font_color = Color(0.7315317, 0.9377461, 0.522151, 1)
+theme_override_fonts/font = ExtResource("4_h26ds")
+text = "Warrior"
 horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 3
@@ -94,19 +94,19 @@ offset_top = 56.0
 offset_right = 212.0
 offset_bottom = 101.0
 focus_mode = 0
-texture_normal = ExtResource("5_punep")
+texture_normal = ExtResource("5_mbjym")
 stretch_mode = 0
-script = ExtResource("6_hwv0t")
+script = ExtResource("6_tw7k0")
 
 [node name="Label" type="Label" parent="Upgrades/Skill1" unique_id=600401382]
 layout_mode = 0
 offset_left = -6.0
 offset_top = 48.999992
 offset_right = 75.0
-offset_bottom = 83.28571
+offset_bottom = 64.71429
 scale = Vector2(0.7, 0.7)
-theme_override_fonts/font = ExtResource("4_feyd1")
-text = "Close and Personal"
+theme_override_fonts/font = ExtResource("4_h26ds")
+text = "Shields up"
 horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 3
@@ -117,7 +117,7 @@ material = SubResource("ShaderMaterial_wd7i8")
 layout_mode = 0
 offset_right = 45.0
 offset_bottom = 45.0
-texture = ExtResource("8_1227o")
+texture = ExtResource("8_060gn")
 expand_mode = 1
 
 [node name="Unlock" type="Button" parent="Upgrades/Skill1" unique_id=9188699]
@@ -129,7 +129,7 @@ offset_right = 57.0
 offset_bottom = 5.0
 scale = Vector2(0.6, 0.6)
 focus_mode = 0
-theme_override_fonts/font = ExtResource("4_feyd1")
+theme_override_fonts/font = ExtResource("4_h26ds")
 text = "UNLOCK"
 
 [node name="Skill2" type="TextureButton" parent="Upgrades" unique_id=1014211832 groups=["skill_nodes"]]
@@ -140,19 +140,19 @@ offset_right = 312.0
 offset_bottom = 101.0
 focus_mode = 0
 disabled = true
-texture_normal = ExtResource("9_feyd1")
+texture_normal = ExtResource("10_8fps4")
 stretch_mode = 0
-script = ExtResource("6_hwv0t")
+script = ExtResource("6_tw7k0")
 
 [node name="Label" type="Label" parent="Upgrades/Skill2" unique_id=423597725]
 layout_mode = 0
 offset_left = -6.0
 offset_top = 49.0
 offset_right = 75.42856
-offset_bottom = 67.57143
+offset_bottom = 66.14287
 scale = Vector2(0.7, 0.7)
-theme_override_fonts/font = ExtResource("4_feyd1")
-text = "sly dodge"
+theme_override_fonts/font = ExtResource("4_h26ds")
+text = "Buckler bash"
 horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 3
@@ -163,7 +163,7 @@ material = SubResource("ShaderMaterial_wd7i8")
 layout_mode = 0
 offset_right = 45.0
 offset_bottom = 45.0
-texture = ExtResource("8_1227o")
+texture = ExtResource("8_060gn")
 expand_mode = 1
 
 [node name="Unlock" type="Button" parent="Upgrades/Skill2" unique_id=1127734688]
@@ -175,7 +175,7 @@ offset_right = 57.0
 offset_bottom = 5.0
 scale = Vector2(0.6, 0.6)
 focus_mode = 0
-theme_override_fonts/font = ExtResource("4_feyd1")
+theme_override_fonts/font = ExtResource("4_h26ds")
 text = "UNLOCK"
 
 [node name="Skill3" type="TextureButton" parent="Upgrades" unique_id=987802432 groups=["skill_nodes"]]
@@ -186,19 +186,19 @@ offset_right = 412.0
 offset_bottom = 101.0
 focus_mode = 0
 disabled = true
-texture_normal = ExtResource("10_mjimy")
+texture_normal = ExtResource("11_ot5le")
 stretch_mode = 0
-script = ExtResource("6_hwv0t")
+script = ExtResource("6_tw7k0")
 
 [node name="Label" type="Label" parent="Upgrades/Skill3" unique_id=1814503803]
 layout_mode = 0
 offset_left = -6.0
 offset_top = 49.0
 offset_right = 75.0
-offset_bottom = 81.85715
+offset_bottom = 63.0
 scale = Vector2(0.7, 0.7)
-theme_override_fonts/font = ExtResource("4_feyd1")
-text = "Stabby Stabby"
+theme_override_fonts/font = ExtResource("4_h26ds")
+text = "Immovable object"
 horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 3
@@ -209,7 +209,7 @@ material = SubResource("ShaderMaterial_wd7i8")
 layout_mode = 0
 offset_right = 45.0
 offset_bottom = 45.0
-texture = ExtResource("8_1227o")
+texture = ExtResource("8_060gn")
 expand_mode = 1
 
 [node name="Unlock" type="Button" parent="Upgrades/Skill3" unique_id=1843019748]
@@ -221,7 +221,7 @@ offset_right = 57.0
 offset_bottom = 5.0
 scale = Vector2(0.6, 0.6)
 focus_mode = 0
-theme_override_fonts/font = ExtResource("4_feyd1")
+theme_override_fonts/font = ExtResource("4_h26ds")
 text = "UNLOCK"
 
 [node name="Skill4" type="TextureButton" parent="Upgrades" unique_id=1361995900 groups=["skill_nodes"]]
@@ -232,19 +232,19 @@ offset_right = 512.0
 offset_bottom = 101.0
 focus_mode = 0
 disabled = true
-texture_normal = ExtResource("11_hwv0t")
+texture_normal = ExtResource("12_tw7k0")
 stretch_mode = 0
-script = ExtResource("6_hwv0t")
+script = ExtResource("6_tw7k0")
 
 [node name="Label" type="Label" parent="Upgrades/Skill4" unique_id=1444343859]
 layout_mode = 0
 offset_left = -6.0
 offset_top = 49.0
 offset_right = 75.0
-offset_bottom = 81.85715
+offset_bottom = 64.714294
 scale = Vector2(0.7, 0.7)
-theme_override_fonts/font = ExtResource("4_feyd1")
-text = "Extend the dance floor"
+theme_override_fonts/font = ExtResource("4_h26ds")
+text = "super-heavy armor"
 horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 3
@@ -255,7 +255,7 @@ material = SubResource("ShaderMaterial_wd7i8")
 layout_mode = 0
 offset_right = 45.0
 offset_bottom = 45.0
-texture = ExtResource("8_1227o")
+texture = ExtResource("8_060gn")
 expand_mode = 1
 
 [node name="Unlock" type="Button" parent="Upgrades/Skill4" unique_id=1039940219]
@@ -267,7 +267,7 @@ offset_right = 57.0
 offset_bottom = 5.0
 scale = Vector2(0.6, 0.6)
 focus_mode = 0
-theme_override_fonts/font = ExtResource("4_feyd1")
+theme_override_fonts/font = ExtResource("4_h26ds")
 text = "UNLOCK"
 
 [node name="Skill5" type="TextureButton" parent="Upgrades" unique_id=1692261960 groups=["skill_nodes"]]
@@ -278,9 +278,9 @@ offset_right = 612.0
 offset_bottom = 101.0
 focus_mode = 0
 disabled = true
-texture_normal = ExtResource("12_dc05n")
+texture_normal = ExtResource("13_rnsck")
 stretch_mode = 0
-script = ExtResource("6_hwv0t")
+script = ExtResource("6_tw7k0")
 
 [node name="Label" type="Label" parent="Upgrades/Skill5" unique_id=1175438356]
 layout_mode = 0
@@ -289,8 +289,8 @@ offset_top = 49.0
 offset_right = 75.0
 offset_bottom = 67.57143
 scale = Vector2(0.7, 0.7)
-theme_override_fonts/font = ExtResource("4_feyd1")
-text = "Blade dance"
+theme_override_fonts/font = ExtResource("4_h26ds")
+text = "sprint to cover"
 horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 3
@@ -301,7 +301,7 @@ material = SubResource("ShaderMaterial_wd7i8")
 layout_mode = 0
 offset_right = 45.0
 offset_bottom = 45.0
-texture = ExtResource("8_1227o")
+texture = ExtResource("8_060gn")
 expand_mode = 1
 
 [node name="Unlock" type="Button" parent="Upgrades/Skill5" unique_id=1465215953]
@@ -313,8 +313,8 @@ offset_right = 57.0
 offset_bottom = 5.0
 scale = Vector2(0.6, 0.6)
 focus_mode = 0
-theme_override_fonts/font = ExtResource("4_feyd1")
+theme_override_fonts/font = ExtResource("4_h26ds")
 text = "UNLOCK"
 
-[node name="SkillTooltip" parent="." unique_id=1805550558 instance=ExtResource("14_punep")]
+[node name="SkillTooltip" parent="." unique_id=1805550558 instance=ExtResource("14_gl4ku")]
 layout_mode = 0

@@ -3,6 +3,8 @@
 [ext_resource type="Script" uid="uid://cuprbaln651i" path="res://scripts/UI/skill_tooltip.gd" id="1_dtsmq"]
 [ext_resource type="Texture2D" uid="uid://b73jb13uu444k" path="res://assets/menu/Frames/Tooltip.png" id="2_vwq1v"]
 
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_dtsmq"]
+
 [node name="SkillTooltip" type="Control" unique_id=1805550558]
 custom_minimum_size = Vector2(60, 30)
 layout_mode = 3
@@ -17,23 +19,21 @@ script = ExtResource("1_dtsmq")
 [node name="SkillTooltip" type="PopupPanel" parent="UI" unique_id=1260758551]
 unique_name_in_owner = true
 oversampling_override = 1.0
+mode = 3
 initial_position = 1
-size = Vector2i(60, 31)
+size = Vector2i(120, 60)
+theme_override_styles/panel = SubResource("StyleBoxEmpty_dtsmq")
 
 [node name="TextureRect" type="TextureRect" parent="UI/SkillTooltip" unique_id=663301367]
-offset_left = 4.0
-offset_top = 4.0
-offset_right = 56.0
-offset_bottom = 27.0
+offset_right = 120.0
+offset_bottom = 60.0
 mouse_filter = 2
 texture = ExtResource("2_vwq1v")
 expand_mode = 1
 
 [node name="VBoxContainer" type="VBoxContainer" parent="UI/SkillTooltip" unique_id=2027938687]
-offset_left = 4.0
-offset_top = 4.0
-offset_right = 56.0
-offset_bottom = 27.0
+offset_right = 120.0
+offset_bottom = 60.0
 
 [node name="Label" type="Label" parent="UI/SkillTooltip/VBoxContainer" unique_id=1401870369]
 layout_mode = 2
