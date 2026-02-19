@@ -268,23 +268,23 @@ func cell_exists(cell: Vector2i) -> bool:
 
 func move_player(direction: String, distance: int):
 	var dir = ""
-	var basics = ["U", "D", "L", "R"]
+	var basics = ["u", "d", "l", "r"]
 	var new_cell := player_gridpos
 	if player_sprite == null:
 		return "One cannot move what doesn't exist. Remember this."
 	if direction in basics:
 		var delta := Vector2i.ZERO
 		match direction:
-			"L":
+			"l":
 				delta = Vector2i(-distance, 0)
 				dir = "left"
-			"R":
+			"r":
 				delta = Vector2i(distance, 0)
 				dir = "right"
-			"U":
+			"u":
 				delta = Vector2i(0, -distance)
 				dir = "up"
-			"D":
+			"d":
 				delta = Vector2i(0, distance)
 				dir = "down"
 			_:

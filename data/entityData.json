@@ -77,7 +77,8 @@
 		"behaviour": ["boss"],
 		"spawnrate": { "min": 1, "max": 1 },
 		"spawncount": { "min": 1, "max": 1 },
-		"weight": 0
+		"weight": 0,
+		"stats":{"hp":20, "str":3, "def":1, "phyres":0.4, "firres":0, "eleres":0, "iceres":0.2, "erres": 0.2}
 	},
 	
 	"plant": {
@@ -87,7 +88,8 @@
 		"behaviour": ["boss"],
 		"spawnrate": { "min": 1, "max": 1 },
 		"spawncount": { "min": 1, "max": 1 },
-		"weight": 0
+		"weight": 0,
+		"stats":{"hp":20, "str":3, "def":1, "phyres":0, "firres":-0.5, "eleres":0, "iceres":0, "erres": 0.5}
 	},
 	
 	"wendigo": {
@@ -97,7 +99,8 @@
 		"behaviour": ["boss"],
 		"spawnrate": { "min": 1, "max": 1 },
 		"spawncount": { "min": 1, "max": 1 },
-		"weight": 0
+		"weight": 0,
+		"stats":{"hp":20, "str":3, "def":1, "phyres":0.2, "firres":0, "eleres":0, "iceres":0.8, "erres": 0.2}
 	},
 	
 	"necromancer": {
@@ -107,7 +110,8 @@
 		"behaviour": ["boss"],
 		"spawnrate": { "min": 1, "max": 1 },
 		"spawncount": { "min": 1, "max": 1 },
-		"weight": 0
+		"weight": 0,
+		"stats":{"hp":20, "str":3, "def":1, "phyres":0.2, "firres":0.6, "eleres":0.2, "iceres":0.4, "erres": 0.2}
 	},
 	
 }

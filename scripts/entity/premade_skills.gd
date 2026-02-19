@@ -108,7 +108,7 @@ var existing_skills = {
 	{
 		"tree": "orc things",
 		"description": "More scream, more damage",
-		"effects": [["buff", 2, true, "No"]],
+		"effects": [["damage_buff", 2, true, "duration=2"]],
 		"cooldown": 2  # jorin pls implement enemy cooldown thanks
 	},
 	"Ground Stomp":
@@ -151,7 +151,7 @@ var existing_skills = {
 	"Mandrake's Screech":
 	{
 		"tree": "plant things",
-		"desciption":
+		"description":
 		"The ground rumbles as your enemy lets out a deafening screech. Its getting angry ...",
 		"effects": [["damage", 1, false, "No"], ["danger_dmg_mult", 2, false, "y=0"]],
 		"cooldown": 0
@@ -175,7 +175,7 @@ var existing_skills = {
 	"Evil that devours":
 	{
 		"tree": "wendigo things",
-		"description": "ITS EYES PIERCE INTO YOU.. youre body writhes in agony",
+		"description": "ITS EYES PIERCE INTO YOU.. your body writhes in agony",
 		"effects": [["Damage", 4, false, "No"],["danger_dmg_mult", 3, false, "area||rand||rand||2"]],
 		"cooldown": 2
 	},
@@ -183,7 +183,7 @@ var existing_skills = {
 	{
 		"tree": "wendigo things",
 		"description": "It howls into the void, blood tripping from its teeth. You can feel it getting angrier.. stronger",
-		"effects": [["buff", 2, true, "No"]],
+		"effects": [["damage_buff", 2, true, "duration=2"]],
 		"cooldown": 1  # jorin pls implement enemy cooldown thanks
 	},
 	# Necromancer Stuff
@@ -199,7 +199,7 @@ var existing_skills = {
 	{
 		"tree": "necromancer things",
 		"description": "The necromancer raises its hand. Its wounds begin to heal, you feel weaker",
-		"effects": [["Stun", 2, false, "No"],["buff", 2, true, "Enemy should heal a bit"]],
+		"effects": [["Stun", 2, false, "No"],["heal", 2, true, "No"]],
 		"cooldown": 1
 	},
 	"Domain Expansion":
@@ -510,6 +510,7 @@ func get_skill(skill_name):
 	var switch_conditions = []
 	if values.has("switch_condition"):
 		switch_conditions = values.switch_condition
+	print(values)
 	var new_skill = Skill.new(
 		skill_name, values.tree, values.description, cool, passive, conditions, switch_conditions
 	)
