@@ -99,7 +99,6 @@ func _ready():
 	for i in range(2):
 		update_passives()
 	enemy.decide_attack()
-	check_curr_tile_mods()
 	enemy_prepare_turn()
 
 
@@ -159,7 +158,6 @@ func enemy_turn():
 		if extra_stuff[0]:
 			#print(enemy, " activates its Skill ", enemy.chosen.name, "!")
 			happened = enemy.chosen.activate_skill(enemy, player, self)
-			check_curr_tile_mods()
 			enemy_action_log.append(enemy.chosen.name)
 			print(enemy_action_log)
 			if hit_anim_enemy != null:
@@ -268,23 +266,23 @@ func cell_exists(cell: Vector2i) -> bool:
 
 func move_player(direction: String, distance: int):
 	var dir = ""
-	var basics = ["U", "D", "L", "R"]
+	var basics = ["u", "d", "l", "r"]
 	var new_cell := player_gridpos
 	if player_sprite == null:
 		return "One cannot move what doesn't exist. Remember this."
 	if direction in basics:
 		var delta := Vector2i.ZERO
 		match direction:
-			"L":
+			"l":
 				delta = Vector2i(-distance, 0)
 				dir = "left"
-			"R":
+			"r":
 				delta = Vector2i(distance, 0)
 				dir = "right"
-			"U":
+			"u":
 				delta = Vector2i(0, -distance)
 				dir = "up"
-			"D":
+			"d":
 				delta = Vector2i(0, distance)
 				dir = "down"
 			_:
@@ -356,7 +354,6 @@ func check_curr_tile_mods():
 			"death_good":
 				enemy.hp = 0
 			"damage_bad":
-				print("PLEASEPLEASEPLEASEPLEASEPLSEASLEASPELDASLWESASLESA")
 				player.take_damage(modifier_value)
 			"damage_good":
 				enemy.hp.take_damage(modifier_value)

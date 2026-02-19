@@ -177,10 +177,10 @@ class Effect:
 	var details: String
 
 	func _init(_type: String, _value: float, _targets_self: int, _details: String):
-		type = _type
+		type = _type.to_lower()
 		value = _value
 		targets_self = _targets_self
-		details = _details
+		details = _details.to_lower()
 
 	func _safe_invoke(obj, method_name: String, args := []):
 		# Return a safe default (empty array) if the object is null/freed/missing method.
@@ -297,7 +297,7 @@ class Effect:
 							_safe_invoke(user, "take_damage", [counter_dmg])
 			"movement":
 				print("Activating movement")
-				var basic_directions = ["U", "D", "L", "R"]
+				var basic_directions = ["u", "d", "l", "r"]
 				var can_move = true
 
 				if user.is_player:

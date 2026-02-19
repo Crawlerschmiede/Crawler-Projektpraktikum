@@ -1,11 +1,12 @@
 extends CanvasLayer
 
 const TIPS: Array[String] = [
-	"Torches keep the shadows at bay, but they don't last forever.",
-	"Listen closely; some walls sound hollow when struck.",
-	"Rare loot is often guarded by the deadliest traps.",
-	"Don't forget to pack extra rations for long descents.",
-	"Not all monsters are hostile; some just want to trade."
+	"Don't be afraid to experiment with skill tree combos!",
+	"Yes, the merchant is a rat. Don't ask why.",
+	"Bosses are dangerous foes. Be sure to prepare accordingly.",
+	"Whats can block your path. Navigate carefully.",
+	"When a zombie spots you, watch your back!",
+	"Most skills have cooldowns. Plan your battles accordingly."
 ]
 
 # Progress UI

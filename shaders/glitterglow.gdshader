@@ -3,7 +3,6 @@ shader_type canvas_item;
 uniform float speed : hint_range(0.1, 5.0) = 1.0;
 uniform float glow_power : hint_range(0.0, 10.0) = 1.5;
 uniform float flicker_intensity : hint_range(0.0, 1.0) = 0.0;
-uniform float is_active : hint_range(0.0, 1.0) = 1.0;
 
 uniform vec4 exclude_color_1 : source_color = vec4(0.014, 0.013, 0.016, 1.0); 
 uniform vec4 exclude_color_2 : source_color = vec4(0.0, 0.0, 0.0, 1.0); 

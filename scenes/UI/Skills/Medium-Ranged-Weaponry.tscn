@@ -1,0 +1,320 @@
+[gd_scene format=3 uid="uid://br0plve64p01a"]
+
+[ext_resource type="Script" uid="uid://bcgc6vpbbgmy5" path="res://scripts/UI/skill_parenting.gd" id="1_iglui"]
+[ext_resource type="Texture2D" uid="uid://bcb62uivx7hm1" path="res://assets/menu/Frames/Border All 12.png" id="2_iglui"]
+[ext_resource type="Texture2D" uid="uid://dbn4yqhp8ymxi" path="res://assets/menu/Skill Icons/Icon31.png" id="3_5h0bb"]
+[ext_resource type="FontFile" uid="uid://d4fqcjicieold" path="res://assets/font/PixelPurl.ttf" id="4_f7qah"]
+[ext_resource type="Texture2D" uid="uid://ccbaa20jtwgpu" path="res://assets/menu/Skill Icons/Icon39.png" id="5_wmnsj"]
+[ext_resource type="Script" uid="uid://crd5p6c1cohmb" path="res://scripts/UI/skill_node.gd" id="6_3hbuf"]
+[ext_resource type="Shader" uid="uid://c4ql1yllpgtkg" path="res://shaders/lol_themed_frame.gdshader" id="7_y1x75"]
+[ext_resource type="Texture2D" uid="uid://cfx83krdakbi" path="res://assets/menu/Frames/pixil-frame-0(5).png" id="8_1gr2c"]
+[ext_resource type="Shader" uid="uid://d31tjfsou3yfh" path="res://shaders/lol_button.gdshader" id="9_58kx1"]
+[ext_resource type="Texture2D" uid="uid://xputa1n1hbmg" path="res://assets/menu/Skill Icons/Icon29.png" id="10_f7qah"]
+[ext_resource type="Texture2D" uid="uid://dfy181diogvka" path="res://assets/menu/Skill Icons/Icon38.png" id="11_h6gq1"]
+[ext_resource type="Texture2D" uid="uid://dnfbbd5p0eg2h" path="res://assets/menu/Skill Icons/Icon36.png" id="12_3hbuf"]
+[ext_resource type="Texture2D" uid="uid://yiggyg5fykfe" path="res://assets/menu/Skill Icons/Icon299.png" id="13_y1x75"]
+[ext_resource type="PackedScene" uid="uid://bar157mm1vbb" path="res://scenes/UI/Skills/Tooltip/skill_tooltip.tscn" id="14_s72ja"]
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_xpe20"]
+texture = ExtResource("2_iglui")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_wd7i8"]
+shader = ExtResource("7_y1x75")
+shader_parameter/frame_color = Color(0.7, 0.55, 0.2, 1)
+shader_parameter/shadow_color = Color(0, 0, 0, 0.8)
+shader_parameter/border_thickness = 0.05
+shader_parameter/bevel_intensity = 0.4
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_punep"]
+shader = ExtResource("9_58kx1")
+shader_parameter/base_color = Color(0.4, 0.3, 0.1, 1)
+shader_parameter/highlight_color = Color(0.94509804, 0.7411765, 0.27058825, 1)
+shader_parameter/shimmer_speed = 1.0000000475
+shader_parameter/shimmer_width = 0.60000002524012
+shader_parameter/is_hovered = 0.0
+
+[node name="MediumRangedWeaponry" type="Control" unique_id=323719228]
+layout_mode = 3
+anchor_right = 1.0
+anchor_bottom = 0.333
+offset_bottom = 0.16000366
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_iglui")
+
+[node name="Card" type="Panel" parent="." unique_id=887658382]
+custom_minimum_size = Vector2(115, 160)
+layout_mode = 0
+offset_right = 115.0
+offset_bottom = 160.0
+theme_override_styles/panel = SubResource("StyleBoxTexture_xpe20")
+
+[node name="Icon" type="TextureRect" parent="Card" unique_id=1799908799]
+layout_mode = 0
+offset_left = 32.0
+offset_top = 36.0
+offset_right = 82.0
+offset_bottom = 86.0
+texture = ExtResource("3_5h0bb")
+
+[node name="Label" type="Label" parent="Card" unique_id=1103428069]
+layout_mode = 0
+offset_left = 9.0
+offset_top = 88.0
+offset_right = 97.0
+offset_bottom = 106.0
+scale = Vector2(1.1, 1.1)
+theme_override_colors/font_color = Color(0.8389654, 0.755735, 0.6373909, 1)
+theme_override_fonts/font = ExtResource("4_f7qah")
+text = "Medium Ranged Weaponry"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="Lines" type="Control" parent="." unique_id=1242911724]
+show_behind_parent = true
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+mouse_filter = 2
+
+[node name="Line2D" type="Line2D" parent="Lines" unique_id=1012095093]
+visible = false
+points = PackedVector2Array(190, 79, 290, 79, 390, 79, 490, 79, 590, 79)
+width = 3.0
+
+[node name="Upgrades" type="Control" parent="." unique_id=281724486]
+anchors_preset = 0
+mouse_filter = 2
+
+[node name="Skill1" type="TextureButton" parent="Upgrades" unique_id=1891114277 groups=["skill_nodes"]]
+layout_mode = 0
+offset_left = 167.0
+offset_top = 56.0
+offset_right = 212.0
+offset_bottom = 101.0
+focus_mode = 0
+texture_normal = ExtResource("5_wmnsj")
+stretch_mode = 0
+script = ExtResource("6_3hbuf")
+
+[node name="Label" type="Label" parent="Upgrades/Skill1" unique_id=600401382]
+layout_mode = 0
+offset_left = -6.0
+offset_top = 48.999992
+offset_right = 75.0
+offset_bottom = 83.28571
+scale = Vector2(0.7, 0.7)
+theme_override_fonts/font = ExtResource("4_f7qah")
+text = "Middle of the Road"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+uppercase = true
+
+[node name="Frame" type="TextureRect" parent="Upgrades/Skill1" unique_id=1463884191]
+material = SubResource("ShaderMaterial_wd7i8")
+layout_mode = 0
+offset_right = 45.0
+offset_bottom = 45.0
+texture = ExtResource("8_1gr2c")
+expand_mode = 1
+
+[node name="Unlock" type="Button" parent="Upgrades/Skill1" unique_id=9188699]
+material = SubResource("ShaderMaterial_punep")
+layout_mode = 0
+offset_left = 8.0
+offset_top = -17.0
+offset_right = 57.0
+offset_bottom = 5.0
+scale = Vector2(0.6, 0.6)
+focus_mode = 0
+theme_override_fonts/font = ExtResource("4_f7qah")
+text = "UNLOCK"
+
+[node name="Skill2" type="TextureButton" parent="Upgrades" unique_id=1014211832 groups=["skill_nodes"]]
+layout_mode = 0
+offset_left = 267.0
+offset_top = 56.0
+offset_right = 312.0
+offset_bottom = 101.0
+focus_mode = 0
+disabled = true
+texture_normal = ExtResource("10_f7qah")
+stretch_mode = 0
+script = ExtResource("6_3hbuf")
+
+[node name="Label" type="Label" parent="Upgrades/Skill2" unique_id=423597725]
+layout_mode = 0
+offset_left = -6.0
+offset_top = 49.0
+offset_right = 75.42856
+offset_bottom = 67.57143
+scale = Vector2(0.7, 0.7)
+theme_override_fonts/font = ExtResource("4_f7qah")
+text = "Two-Handed parry"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+uppercase = true
+
+[node name="Frame" type="TextureRect" parent="Upgrades/Skill2" unique_id=724390702]
+material = SubResource("ShaderMaterial_wd7i8")
+layout_mode = 0
+offset_right = 45.0
+offset_bottom = 45.0
+texture = ExtResource("8_1gr2c")
+expand_mode = 1
+
+[node name="Unlock" type="Button" parent="Upgrades/Skill2" unique_id=1127734688]
+material = SubResource("ShaderMaterial_punep")
+layout_mode = 0
+offset_left = 8.0
+offset_top = -17.0
+offset_right = 57.0
+offset_bottom = 5.0
+scale = Vector2(0.6, 0.6)
+focus_mode = 0
+theme_override_fonts/font = ExtResource("4_f7qah")
+text = "UNLOCK"
+
+[node name="Skill3" type="TextureButton" parent="Upgrades" unique_id=987802432 groups=["skill_nodes"]]
+layout_mode = 0
+offset_left = 367.0
+offset_top = 56.0
+offset_right = 412.0
+offset_bottom = 101.0
+focus_mode = 0
+disabled = true
+texture_normal = ExtResource("11_h6gq1")
+stretch_mode = 0
+script = ExtResource("6_3hbuf")
+
+[node name="Label" type="Label" parent="Upgrades/Skill3" unique_id=1814503803]
+layout_mode = 0
+offset_left = -6.0
+offset_top = 49.0
+offset_right = 75.0
+offset_bottom = 66.14287
+scale = Vector2(0.7, 0.7)
+theme_override_fonts/font = ExtResource("4_f7qah")
+text = "Overhau"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+uppercase = true
+
+[node name="Frame" type="TextureRect" parent="Upgrades/Skill3" unique_id=1717504173]
+material = SubResource("ShaderMaterial_wd7i8")
+layout_mode = 0
+offset_right = 45.0
+offset_bottom = 45.0
+texture = ExtResource("8_1gr2c")
+expand_mode = 1
+
+[node name="Unlock" type="Button" parent="Upgrades/Skill3" unique_id=1843019748]
+material = SubResource("ShaderMaterial_punep")
+layout_mode = 0
+offset_left = 8.0
+offset_top = -17.0
+offset_right = 57.0
+offset_bottom = 5.0
+scale = Vector2(0.6, 0.6)
+focus_mode = 0
+theme_override_fonts/font = ExtResource("4_f7qah")
+text = "UNLOCK"
+
+[node name="Skill4" type="TextureButton" parent="Upgrades" unique_id=1361995900 groups=["skill_nodes"]]
+layout_mode = 0
+offset_left = 467.0
+offset_top = 56.0
+offset_right = 512.0
+offset_bottom = 101.0
+focus_mode = 0
+disabled = true
+texture_normal = ExtResource("12_3hbuf")
+stretch_mode = 0
+script = ExtResource("6_3hbuf")
+
+[node name="Label" type="Label" parent="Upgrades/Skill4" unique_id=1444343859]
+layout_mode = 0
+offset_left = -6.0
+offset_top = 49.0
+offset_right = 75.0
+offset_bottom = 81.85715
+scale = Vector2(0.7, 0.7)
+theme_override_fonts/font = ExtResource("4_f7qah")
+text = "plant your spear"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+uppercase = true
+
+[node name="Frame" type="TextureRect" parent="Upgrades/Skill4" unique_id=1961686229]
+material = SubResource("ShaderMaterial_wd7i8")
+layout_mode = 0
+offset_right = 45.0
+offset_bottom = 45.0
+texture = ExtResource("8_1gr2c")
+expand_mode = 1
+
+[node name="Unlock" type="Button" parent="Upgrades/Skill4" unique_id=1039940219]
+material = SubResource("ShaderMaterial_punep")
+layout_mode = 0
+offset_left = 8.0
+offset_top = -17.0
+offset_right = 57.0
+offset_bottom = 5.0
+scale = Vector2(0.6, 0.6)
+focus_mode = 0
+theme_override_fonts/font = ExtResource("4_f7qah")
+text = "UNLOCK"
+
+[node name="Skill5" type="TextureButton" parent="Upgrades" unique_id=1692261960 groups=["skill_nodes"]]
+layout_mode = 0
+offset_left = 567.0
+offset_top = 56.0
+offset_right = 612.0
+offset_bottom = 101.0
+focus_mode = 0
+disabled = true
+texture_normal = ExtResource("13_y1x75")
+stretch_mode = 0
+script = ExtResource("6_3hbuf")
+
+[node name="Label" type="Label" parent="Upgrades/Skill5" unique_id=1175438356]
+layout_mode = 0
+offset_left = -6.0
+offset_top = 49.0
+offset_right = 75.0
+offset_bottom = 67.57143
+scale = Vector2(0.7, 0.7)
+theme_override_fonts/font = ExtResource("4_f7qah")
+text = "Riposte"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+uppercase = true
+
+[node name="Frame" type="TextureRect" parent="Upgrades/Skill5" unique_id=1030239520]
+material = SubResource("ShaderMaterial_wd7i8")
+layout_mode = 0
+offset_right = 45.0
+offset_bottom = 45.0
+texture = ExtResource("8_1gr2c")
+expand_mode = 1
+
+[node name="Unlock" type="Button" parent="Upgrades/Skill5" unique_id=1465215953]
+material = SubResource("ShaderMaterial_punep")
+layout_mode = 0
+offset_left = 8.0
+offset_top = -17.0
+offset_right = 57.0
+offset_bottom = 5.0
+scale = Vector2(0.6, 0.6)
+focus_mode = 0
+theme_override_fonts/font = ExtResource("4_f7qah")
+text = "UNLOCK"
+
+[node name="SkillTooltip" parent="." unique_id=1805550558 instance=ExtResource("14_s72ja")]
+layout_mode = 0
