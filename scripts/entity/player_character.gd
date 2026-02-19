@@ -14,6 +14,7 @@ var base_actions = ["Move Up", "Move Down", "Move Left", "Move Right"]
 var actions = []
 var minimap
 var is_armed = false
+var can_use_weapons = true
 
 var fog_layer: TileMapLayer = null
 var dynamic_fog: bool = true
@@ -246,14 +247,15 @@ func update_unlocked_skills():
 	var gotten_skills = existing_skilltrees.get_active_skills()
 	var equipped_skills = inventory.get_equipment_skills()
 	var armed = false
-	for extra in equipped_skills:
-		gotten_skills.append(extra)
-		armed = true
-	print("Gotten Skills:", gotten_skills)
-	if armed:
-		is_armed = true
-	else:
-		is_armed = false
+	if can_use_weapons:
+		for extra in equipped_skills:
+			gotten_skills.append(extra)
+			armed = true
+		print("Gotten Skills:", gotten_skills)
+		if armed:
+			is_armed = true
+		else:
+			is_armed = false
 	for ability in gotten_skills:
 		add_skill(ability)
 

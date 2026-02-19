@@ -101,7 +101,7 @@ func activate_immediate(user):
 
 
 func add_effect(
-	type: String, value: float, targets_self: bool, details: String, first_turn: bool = true
+	type: String, value, targets_self: bool, details: String, first_turn: bool = true
 ):
 	var eff := Effect.new(type, value, targets_self, details)
 	if first_turn:
@@ -172,12 +172,12 @@ func deactivate(who):
 
 class Effect:
 	var type: String
-	var value: float
+	var value
 	var targets_self: bool
 	# For general use (e.g. movement holds "left" / "user input" / etc.)
 	var details: String
 
-	func _init(_type: String, _value: float, _targets_self: int, _details: String):
+	func _init(_type: String, _value, _targets_self: bool, _details: String):
 		type = _type.to_lower()
 		value = _value
 		targets_self = _targets_self
@@ -226,6 +226,10 @@ class Effect:
 							user.ranges[1] = [2, 2 + value]
 						"long":
 							user.ranges[2] = [4 - value, 4]
+					ret = []
+				"unarmable":
+					if user.is_player:
+						user.can_use_weapons = false
 					ret = []
 			return ret
 
@@ -276,6 +280,20 @@ class Effect:
 						active_dmg = 0
 					if user.alterations[alteration].has("pierce"):
 						considered_details += "||pierce="+str(user.alterations[alteration].pierce)+"||"
+					if user.alterations[alteration].has("elementize"):
+						if not "fire" in considered_details and not "earth" in considered_details and not "ice" in considered_details and not "electric" in considered_details:
+							var added_element =""
+							print("Alteration looks like this mate... ", user.alterations[alteration].elementize )
+							if user.alterations[alteration].elementize == "rand":
+								print("target's resistances ", target.resistances)
+								var min = 999
+								for element in target.resistances.keys():
+									if target.resistances[element]<min:
+										added_element = element
+										min = target.resistances[element]
+							else:
+								added_element = user.alterations[alteration].elementize
+							considered_details += "||"+added_element+"||"
 
 				if user.is_player:
 					active_dmg *= battle.get_player_range_dmg_mult()
@@ -382,6 +400,24 @@ class Effect:
 				var recipient = user if targets_self else target
 				ret = _safe_invoke(
 					recipient, "add_alteration", ["dmg_buff", value, skill.name, dur]
+				)
+			"piercing":
+				var dur = null
+				if "duration" in considered_details:
+					var parts = considered_details.split("=")
+					dur = int(parts[1])
+				var recipient = user if targets_self else target
+				ret = _safe_invoke(
+					recipient, "add_alteration", ["pierce", value, skill.name, dur]
+				)
+			"elementize":
+				var dur = null
+				if "duration" in considered_details:
+					var parts = considered_details.split("=")
+					dur = int(parts[1])
+				var recipient = user if targets_self else target
+				ret = _safe_invoke(
+					recipient, "add_alteration", ["elementize", value, skill.name, dur]
 				)
 			"dodge_chance":
 				var dur = null
