@@ -696,7 +696,7 @@ func on_menu_closed():
 	_set_tree_paused(false)
 
 
-func spawn_enemies(do_boss:bool) -> void:
+func spawn_enemies(do_boss: bool) -> void:
 	var data: Dictionary = EntityAutoload.item_data
 	var settings: Dictionary = data.get("_settings", {})
 
@@ -720,7 +720,7 @@ func spawn_enemies(do_boss:bool) -> void:
 		var d: Dictionary = data[k]
 		if d.get("entityCategory") != "enemy" and not do_boss:
 			continue
-		elif d.get("entityCategory") != "boss" and  do_boss:
+		elif d.get("entityCategory") != "boss" and do_boss:
 			continue
 
 		# Tutorial-Welt: nur tutorial-Gegner spawnen
@@ -765,12 +765,11 @@ func spawn_enemies(do_boss:bool) -> void:
 
 	var current_weight := 0
 	var spawn_plan := {}
-	
-	
+
 	var roll: float
 	var acc: float
 	var chosen: int
-	
+
 	if do_boss:
 		print("Should spawn boss")
 		roll = rng.randf() * total
@@ -783,11 +782,11 @@ func spawn_enemies(do_boss:bool) -> void:
 				break
 		var def := defs[chosen]
 		spawn_enemy(
-				def.get("sprite_type", "what"),
-				def.get("behaviour", []),
-				def.get("skills", []),
-				def.get("stats", {})
-			)
+			def.get("sprite_type", "what"),
+			def.get("behaviour", []),
+			def.get("skills", []),
+			def.get("stats", {})
+		)
 		print("Spawned boss!")
 		return
 

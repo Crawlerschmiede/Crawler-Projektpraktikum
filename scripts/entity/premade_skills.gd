@@ -96,7 +96,7 @@ var existing_skills = {
 		"effects": [["prepare", 0, true, "No"]],
 		"cooldown": 3  # jorin pls implement enemy cooldown thanks #this one too btw
 	},
-		#Orc Stuff
+	#Orc Stuff
 	"Big Bonk":
 	{
 		"tree": "orc things",
@@ -168,7 +168,8 @@ var existing_skills = {
 	"Mimicry":
 	{
 		"tree": "wendigo things",
-		"description": "You hear a distorted familiar voice calling for you. From where? Who? You feel dizzy..",
+		"description":
+		"You hear a distorted familiar voice calling for you. From where? Who? You feel dizzy..",
 		"effects": [["Stun", 3, false, "No"]],
 		"cooldown": 1
 	},
@@ -176,13 +177,15 @@ var existing_skills = {
 	{
 		"tree": "wendigo things",
 		"description": "ITS EYES PIERCE INTO YOU.. your body writhes in agony",
-		"effects": [["Damage", 4, false, "No"],["danger_dmg_mult", 3, false, "area||rand||rand||2"]],
+		"effects":
+		[["Damage", 4, false, "No"], ["danger_dmg_mult", 3, false, "area||rand||rand||2"]],
 		"cooldown": 2
 	},
 	"Insatiable Hunger":  #buff dmg for next turn, jorin pls implement
 	{
 		"tree": "wendigo things",
-		"description": "It howls into the void, blood tripping from its teeth. You can feel it getting angrier.. stronger",
+		"description":
+		"It howls into the void, blood tripping from its teeth. You can feel it getting angrier.. stronger",
 		"effects": [["damage_buff", 2, true, "duration=2"]],
 		"cooldown": 1  # jorin pls implement enemy cooldown thanks
 	},
@@ -192,14 +195,14 @@ var existing_skills = {
 	{
 		"tree": "necromancer things",
 		"description": "Green flames engulf the room",
-		"effects": [["Burn", 2, false, "No"],["danger_dmg_mult", 3, false, "area||rand||rand||2"]],
+		"effects": [["Burn", 2, false, "No"], ["danger_dmg_mult", 3, false, "area||rand||rand||2"]],
 		"cooldown": 1
 	},
 	"Life Steal":
 	{
 		"tree": "necromancer things",
 		"description": "The necromancer raises its hand. Its wounds begin to heal, you feel weaker",
-		"effects": [["Stun", 2, false, "No"],["heal", 2, true, "No"]],
+		"effects": [["Stun", 2, false, "No"], ["heal", 2, true, "No"]],
 		"cooldown": 1
 	},
 	"Domain Expansion":
@@ -216,7 +219,6 @@ var existing_skills = {
 		"effects": [["Damange", 4, false, "No"], ["Stun", 3, false, "No"]],
 		"cooldown": 2
 	},
-		
 	#unarmed player stuff
 	"Punch":
 	{

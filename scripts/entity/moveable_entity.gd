@@ -40,31 +40,30 @@ var sprites = {
 		{"idle": "default", "teleport_start": "dig_down", "teleport_end": "dig_up"}
 	],
 	"goblin": [preload("res://scenes/sprite_scenes/goblin_sprite_scene.tscn"), ["Bonk", "War Cry"]],
-	"orc": 
+	"orc":
 	[
-		preload("res://scenes/sprite_scenes/orc_sprite_scene.tscn"), 
-			["Big Bonk", "War Command", "Ground Stomp"],
-			{"idle": "default"}
-	],		
+		preload("res://scenes/sprite_scenes/orc_sprite_scene.tscn"),
+		["Big Bonk", "War Command", "Ground Stomp"],
+		{"idle": "default"}
+	],
 	"plant":
 	[
 		preload("res://scenes/sprite_scenes/big_plant_sprite_scene.tscn"),
 		["Vine Slash", "Entwine", "Poison Ivy", "Herbicide", "Mandrake's Screech"],
 		{"idle": "default", "teleport_start": "dig_down", "teleport_end": "dig_up"}
 	],
-	"wendigo": 
+	"wendigo":
 	[
-		preload("res://scenes/sprite_scenes/wendigo_sprite_scene.tscn"), 
-			["Claw Slash", "Mimicry", "Evil that devours", "Insatiable Hunger"],
-			{"idle": "default"}
-	],	
-	"necromancer": 
-	[
-		preload("res://scenes/sprite_scenes/necromancer_scene.tscn"), 
-			["Green Flames", "Life Steal", "Domain Expansion", "Join the dead"],
-			{"idle": "default"}
+		preload("res://scenes/sprite_scenes/wendigo_sprite_scene.tscn"),
+		["Claw Slash", "Mimicry", "Evil that devours", "Insatiable Hunger"],
+		{"idle": "default"}
 	],
-	
+	"necromancer":
+	[
+		preload("res://scenes/sprite_scenes/necromancer_scene.tscn"),
+		["Green Flames", "Life Steal", "Domain Expansion", "Join the dead"],
+		{"idle": "default"}
+	],
 	"pc": [preload("res://scenes/sprite_scenes/player_sprite_scene.tscn")]
 }
 
