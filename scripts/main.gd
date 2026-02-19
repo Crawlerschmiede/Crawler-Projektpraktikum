@@ -51,7 +51,7 @@ func _ready() -> void:
 	generators = [generator1, generator2, generator3]
 
 	# Tutorial prüfen (JSON: res://data/tutorialData.json)
-	if _has_completed_tutorial():
+	if _has_completed_tutorial() == false:
 		await _load_tutorial_world()
 		return
 
@@ -290,7 +290,7 @@ func _load_world(idx: int) -> void:
 	if dungeon_top != null:
 		if dungeon_top.get_parent() == null:
 			world_root.add_child(dungeon_top)
-		dungeon_top.z_index = 5  # über Entities, unter Fog
+		dungeon_top.z_index = 1  # über Entities, unter Fog
 
 	# Fog über alles (sicherstellen, dass Fog über dungeon_top liegt)
 	if fog_war_layer != null:
