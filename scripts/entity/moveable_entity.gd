@@ -494,7 +494,19 @@ func take_damage(damage, type = ""):
 	elif "earth" in type:
 		damage_type = "earth"
 	print("Relevant resistances: ", resistances)
-	taken_damage *= (1 - resistances.get(damage_type, 0))
+	var active_res = resistances.get(damage_type, 0)
+	if "pierce" in type:
+		var parts = type.split("||")
+		for i in range(len(parts)):
+			if "pierce" in parts[i]:
+				var pieces = parts[i].split("=")
+				var reduction = int(pieces[1])
+				if active_res>0:
+					if active_res-reduction>0:
+						active_res-=reduction
+					else:
+						active_res=0
+	taken_damage*=(1-active_res)
 	if not "ignoredef" in type:
 		taken_damage -= self.def_stat
 	if taken_damage < 0:

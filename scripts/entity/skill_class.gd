@@ -169,6 +169,7 @@ func deactivate(who):
 	who.deactivate_buff(name)
 
 
+
 class Effect:
 	var type: String
 	var value: float
@@ -273,12 +274,14 @@ class Effect:
 						active_dmg *= user.alterations[alteration].dmg_buff
 					if user.alterations[alteration].has("dmg_null"):
 						active_dmg = 0
+					if user.alterations[alteration].has("pierce"):
+						considered_details += "||pierce="+str(user.alterations[alteration].pierce)+"||"
 
 				if user.is_player:
 					active_dmg *= battle.get_player_range_dmg_mult()
 
 				var recipient = user if targets_self else target
-				messages = _safe_invoke(recipient, "take_damage", [active_dmg, details])
+				messages = _safe_invoke(recipient, "take_damage", [active_dmg, considered_details])
 				ret = [
 					(
 						"Target "

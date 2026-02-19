@@ -89,6 +89,7 @@ func _ready() -> void:
 		add_action(action)
 	for active_tree in PLAYER_ACTIVE_SKILLTREES:
 		existing_skilltrees.increase_tree_level(active_tree)
+		print(existing_skilltrees.get_all_explanations())
 	update_unlocked_skills()
 	add_to_group("player")
 
