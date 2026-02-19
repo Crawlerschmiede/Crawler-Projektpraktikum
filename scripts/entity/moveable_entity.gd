@@ -39,7 +39,7 @@ var sprites = {
 		preload("res://scenes/sprite_scenes/base_zombie_sprite_scene.tscn"),
 		{"idle": "default", "teleport_start": "dig_down", "teleport_end": "dig_up"}
 	],
-	"goblin": [preload("res://scenes/sprite_scenes/goblin_sprite_scene.tscn"), ["Bonk", "War Cry"]],
+	"goblin": [preload("res://scenes/sprite_scenes/goblin_sprite_scene.tscn")],
 	"orc": 
 	[
 		preload("res://scenes/sprite_scenes/orc_sprite_scene.tscn"), 
