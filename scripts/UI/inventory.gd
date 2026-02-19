@@ -118,6 +118,16 @@ func get_equipment_skills():
 	return gotten_skills
 
 
+func get_equipment_range():
+	var equipment_slots = _get_equipment_slots()
+	var gotten_range = "short"
+	for slot in equipment_slots:
+		var item_in_slot = slot.get_item()
+		if item_in_slot != null:
+			gotten_range = slot.get_item().get_range()
+	return gotten_range
+
+
 # -------------------------
 # Lifecycle
 # -------------------------

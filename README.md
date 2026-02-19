@@ -54,10 +54,10 @@ To export locally, use the Godot Editor: **Project → Export…** and select th
 
 ```
 # Format GDScript files
-gdformat scripts/
+gdformat ./
 
 # Lint GDScript files
-gdlint scripts/
+gdlint ./
 ```
 
 Linting Docs: https://github.com/Scony/godot-gdscript-toolkit/wiki/3.-Linter
@@ -80,10 +80,10 @@ These workflows live in `.github/workflows/`:
   - If formatting changes files, it commits them back to the same branch (uses `GITHUB_TOKEN`)
   - Safety: only runs with write permissions for branches in this repo (skips PRs from forks)
 - `gdscript-lint.yml`
-  - Runs on pushes to `dev` and on PRs targeting `dev` or `release`
-  - Runs `gdlint scripts/`
+  - Runs on pushes to `dev`, and on PRs targeting `dev` (and can be run manually)
+  - Runs `gdlint ./`
 - `test-build.yml`
-  - Runs on pushes to `dev` and on PRs targeting `dev` or `release`
+  - Runs on pushes to `dev`, and on PRs targeting `dev` (and can be run manually)
   - Exports Windows and Linux builds (build validation)
 - `release.yml`
   - Runs when you push a tag matching `v*` (example: `v0.1.0`)
@@ -146,7 +146,8 @@ This is the current workflow:
     "chance": 1.0,
     "weight": 1
   },
-  "bound_skills": ["Slash"]
+  "bound_skills": ["Slash"],
+	"range":"short"
 }
 ```
 
@@ -159,13 +160,14 @@ This is the current workflow:
   - `loot_stats`: (optional) Alternativstruktur mit `weight`, `chance`, `max_stack`.
   - `merchant`: (optional) Objekt mit Verkaufs-/Vorrats-Parametern (`min_count`, `max_count`, `min_price`, `max_price`, `buy_amount`, `chance`, `weight`). Händler-Logik liest diese Felder, um Shops zu füllen.
   - `bound_skills`: (optional) Liste an Skill-Namen, die beim Equippen gebunden werden (wird von `item.gd` gelesen).
+  - `range`: (optional) short|medium|long, je nach Reichweite, welche die Waffe verwenden soll
   - `use_effects`: (optional) Für Verbrauchsgegenstände: Liste der Effekte, die beim Benutzen ausgelöst werden (z. B. `Heal`).
 
 - **Icon laden:** Die UI-Komponente `item.gd` erwartet die Icon-Datei unter `res://assets/item_icons/<item_key>.png`. Falls kein Icon gefunden wird, wird eine Warnung geloggt.
 
 - **Daten neu laden:** Die JSON-Datei wird beim Start über `JSONData.gd` geladen. Nach Änderungen an `itemData.json` die Szene/Editor neu laden oder das Spiel neu starten, damit die Änderungen wirksam werden.
 
-- **Händler / Registry:** Zur Laufzeit verwaltet `scripts/merchant_registry.gd` Items für Händler. Standardmäßig werden Händlerdaten aus dem `merchant`-Block in `itemData.json` genutzt, aber du kannst Items zur Laufzeit mit `MerchantRegistry.set_items(reg_key, items_array)` setzen.
+- **Händler / Registry:** Zur Laufzeit verwaltet `scripts/rooms/merchant/merchant_registry.gd` Items für Händler. Standardmäßig werden Händlerdaten aus dem `merchant`-Block in `itemData.json` genutzt, aber du kannst Items zur Laufzeit mit `MerchantRegistry.set_items(reg_key, items_array)` setzen.
 
 - **Tipps:**
   - Verwende als Schlüssel (Item-ID) keine Leerzeichen oder Sonderzeichen, damit Dateinamen und Referenzen sauber funktionieren.
@@ -173,7 +175,7 @@ This is the current workflow:
 
 **Räume hinzufügen**
 
-Dieses Projekt benutzt einen Map-Generator (`scenes/testscene2/map_generator.gd`), der Raum-Szenen aus `res://scenes/rooms/Rooms/` lädt und Türen verbindet. Damit ein Raum korrekt vom Generator verarbeitet wird, beachte bitte die folgende Struktur und Konventionen.
+Dieses Projekt benutzt einen Map-Generator (`scripts/Mapgenerator/map_generator_modular.gd`), der Raum-Szenen aus `res://scenes/rooms/Rooms/` lädt und Türen verbindet. Damit ein Raum korrekt vom Generator verarbeitet wird, beachte bitte die folgende Struktur und Konventionen.
 
 - **Ordner:** Lege neue Raum-Szenen als `.tscn` im Ordner `res://scenes/rooms/Rooms/` ab. Geschlossene Tür-Szenen (zum Backen) kommen in `res://scenes/rooms/Closed Doors/`.
 - **Root-Node:** Verwende `Node2D` als Root des Raum-Scenes. Optional kann das Root-Node das Script `scenes/rooms/Scripts/RoomTemplate.gd` erweitern / ähnliche Export-Variablen anbieten.
@@ -217,7 +219,7 @@ func _ready():
 
 - **Testen:**
   1. Speichere die neue Room-Scene in `res://scenes/rooms/Rooms/`.
-  2. Öffne `scenes/testscene2/map_generator.gd` im Editor und stelle sicher, dass `rooms_folder` auf `res://scenes/rooms/Rooms/` zeigt (Standard-Export ist so gesetzt).
+  2. Öffne `scripts/Mapgenerator/map_generator_modular.gd` im Editor und stelle sicher, dass `rooms_folder` auf `res://scenes/rooms/Rooms/` zeigt (Standard-Export ist so gesetzt).
   3. Starte die Map-Generierung (im Editor ist meist ein Button/Scene-Runner vorhanden) oder rufe `get_random_tilemap()` / `generate_with_genome(...)` über den Generator an.
   4. Prüfe die Debug-Ausgabe: Wenn eine Room-Scene kein `get_free_doors()` liefert, wird der Generator eine Fehlermeldung ausgeben. Nutze `debug_print_free_doors()` zum Debuggen.
 

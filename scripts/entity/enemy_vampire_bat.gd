@@ -20,7 +20,7 @@ var expanded: bool = false
 
 
 func roam():
-	if "boss" in types:
+	if "boss" in types or "immobile" in types:
 		return
 	if "burrowing" in types:
 		if burrowed:
@@ -56,7 +56,7 @@ func is_closer_to_player(
 
 # gdlint: disable=max-returns
 func chase():
-	if "boss" in types:
+	if "boss" in types or "immobile" in types:
 		return
 	if !burrowed:
 		chased_pos = chase_target.grid_pos
@@ -372,7 +372,7 @@ func elongate():
 			if not expanded:
 				expanded = true
 				resize(x_size, y_size, [anchor])
-				move_sprite(x_offset, y_offset, rotation)
+				move_sprite(x_offset, y_offset, rotation_deg)
 				for body in collision_area.get_overlapping_bodies():
 					if body == self:
 						continue

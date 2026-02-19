@@ -9,9 +9,10 @@
 		"skills": ["Screech", "Swoop", "Rabies"],
 		"sprite_type": "bat",
 		"behaviour": ["passive", "enemy_flying"],
-		"spawnrate": { "min": 0.0, "max": 0.44642857 },
+		"spawnrate": { "min": 0.0, "max": 0.4 },
 		"spawncount": { "min": 4, "max": 20 },
-		"weight": 3
+		"weight": 3,
+		"stats":{"hp":2, "str":1, "def":0, "phyres":0, "firres":0, "eleres":0, "iceres":0, "erres": 0}
 	},
 
 	"skeleton": {
@@ -19,9 +20,21 @@
 		"skills": ["Eye-Flash-Slash", "Swoop", "Feint"],
 		"sprite_type": "skeleton",
 		"behaviour": ["hostile", "enemy_walking"],
-		"spawnrate": { "min": 0.0, "max": 0.17857143 },
+		"spawnrate": { "min": 0.0, "max": 0.2 },
 		"spawncount": { "min": 4, "max": 20 },
-		"weight": 3
+		"weight": 3,
+		"stats":{"hp":3, "str":1, "def":1, "phyres":0.2, "firres":0.3, "eleres":0, "iceres":0, "erres": 0}
+	},
+	
+	"tutorial_skeleton": {
+		"entityCategory": "enemy",
+		"skills": ["Precise Hit", "Feint"],
+		"sprite_type": "skeleton",
+		"behaviour": ["tutorial", "immobile"],
+		"spawnrate": { "min": 0.0, "max": 0.2 },
+		"spawncount": { "min": 4, "max": 20 },
+		"weight": 2,
+		"stats":{"hp":3, "str":1, "def":0, "phyres":1, "firres":0, "eleres":0, "iceres":0, "erres": 0}
 	},
 
 	"base_zombie": {
@@ -29,9 +42,10 @@
 		"skills": ["Screech", "Rabies"],
 		"sprite_type": "base_zombie",
 		"behaviour": ["hostile", "enemy_walking", "burrowing"],
-		"spawnrate": { "min": 0.0, "max": 0.16785714 },
+		"spawnrate": { "min": 0.0, "max": 0.2 },
 		"spawncount": { "min": 4, "max": 20 },
-		"weight": 4
+		"weight": 4,
+		"stats":{"hp":4, "str":1, "def":0, "phyres":0, "firres":0, "eleres":0, "iceres":0, "erres": 0.2}
 	},
 
 	"ghost": {
@@ -39,9 +53,10 @@
 		"skills": ["Feint", "Encroaching Void"], 
 		"sprite_type": "ghost",
 		"behaviour": ["hostile", "enemy_flying", "burrowing"],
-		"spawnrate": { "min": 0.0, "max": 0.01785714 },
+		"spawnrate": { "min": 0.0, "max": 0.007 },
 		"spawncount": { "min": 4, "max": 20 },
-		"weight": 5
+		"weight": 5,
+		"stats":{"hp":3, "str":1, "def":0, "phyres":0.8, "firres":0, "eleres":0, "iceres":0, "erres": 0.5}
 	},
 
 	"what": {
@@ -49,9 +64,10 @@
 		"skills" : ["Screech", "Vortex", "Encroaching Void"],
 		"sprite_type": "what",
 		"behaviour": ["hostile", "wallbound"],
-		"spawnrate": { "min": 0.0, "max": 0.1 },
+		"spawnrate": { "min": 0.0, "max": 0.093 },
 		"spawncount": { "min": 4, "max": 6 },
-		"weight": 6
+		"weight": 6,
+		"stats":{"hp":5, "str":1, "def":0, "phyres":0.5, "firres":0.5, "eleres":0.5, "iceres":0.5, "erres": 0.5}
 	},
 	
 	"orc": {
