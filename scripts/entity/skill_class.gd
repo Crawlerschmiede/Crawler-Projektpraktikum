@@ -100,9 +100,7 @@ func activate_immediate(user):
 	return []
 
 
-func add_effect(
-	type: String, value, targets_self: bool, details: String, first_turn: bool = true
-):
+func add_effect(type: String, value, targets_self: bool, details: String, first_turn: bool = true):
 	var eff := Effect.new(type, value, targets_self, details)
 	if first_turn:
 		effects.append(eff)
@@ -167,7 +165,6 @@ func condition_met(condition_name, user, _target, battle) -> bool:
 
 func deactivate(who):
 	who.deactivate_buff(name)
-
 
 
 class Effect:
@@ -279,21 +276,31 @@ class Effect:
 					if user.alterations[alteration].has("dmg_null"):
 						active_dmg = 0
 					if user.alterations[alteration].has("pierce"):
-						considered_details += "||pierce="+str(user.alterations[alteration].pierce)+"||"
+						considered_details += (
+							"||pierce=" + str(user.alterations[alteration].pierce) + "||"
+						)
 					if user.alterations[alteration].has("elementize"):
-						if not "fire" in considered_details and not "earth" in considered_details and not "ice" in considered_details and not "electric" in considered_details:
-							var added_element =""
-							print("Alteration looks like this mate... ", user.alterations[alteration].elementize )
+						if (
+							not "fire" in considered_details
+							and not "earth" in considered_details
+							and not "ice" in considered_details
+							and not "electric" in considered_details
+						):
+							var added_element = ""
+							print(
+								"Alteration looks like this mate... ",
+								user.alterations[alteration].elementize
+							)
 							if user.alterations[alteration].elementize == "rand":
 								print("target's resistances ", target.resistances)
 								var min = 999
 								for element in target.resistances.keys():
-									if target.resistances[element]<min:
+									if target.resistances[element] < min:
 										added_element = element
 										min = target.resistances[element]
 							else:
 								added_element = user.alterations[alteration].elementize
-							considered_details += "||"+added_element+"||"
+							considered_details += "||" + added_element + "||"
 
 				if user.is_player:
 					active_dmg *= battle.get_player_range_dmg_mult()
@@ -407,9 +414,7 @@ class Effect:
 					var parts = considered_details.split("=")
 					dur = int(parts[1])
 				var recipient = user if targets_self else target
-				ret = _safe_invoke(
-					recipient, "add_alteration", ["pierce", value, skill.name, dur]
-				)
+				ret = _safe_invoke(recipient, "add_alteration", ["pierce", value, skill.name, dur])
 			"elementize":
 				var dur = null
 				if "duration" in considered_details:

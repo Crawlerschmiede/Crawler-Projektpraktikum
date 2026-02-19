@@ -444,7 +444,8 @@ var existing_skills = {
 	{
 		"tree": "unarmed",
 		"tier": 5,
-		"description": "They do say punching your opponent square in the face is an elementary technique",
+		"description":
+		"They do say punching your opponent square in the face is an elementary technique",
 		"effects": [["elementize", "rand", true, "No"]],
 		"passive": true
 	},
@@ -575,10 +576,10 @@ func get_detailed_description(skill_name) -> String:
 	for effect in skill.effects:
 		description += translate_effect(effect)
 	if skill.has("next_turn_effects"):
-		description+=" Then, next turn "
+		description += " Then, next turn "
 		for effect in skill.next_turn_effects:
-			description+=translate_effect(effect)
-		
+			description += translate_effect(effect)
+
 	if skill.has("conditions"):
 		if len(skill.conditions) == 1:
 			description += " if " + skill.conditions[0]
