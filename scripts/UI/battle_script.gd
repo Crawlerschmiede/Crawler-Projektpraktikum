@@ -99,7 +99,6 @@ func _ready():
 	for i in range(2):
 		update_passives()
 	enemy.decide_attack()
-	check_curr_tile_mods()
 	enemy_prepare_turn()
 
 
@@ -159,7 +158,6 @@ func enemy_turn():
 		if extra_stuff[0]:
 			#print(enemy, " activates its Skill ", enemy.chosen.name, "!")
 			happened = enemy.chosen.activate_skill(enemy, player, self)
-			check_curr_tile_mods()
 			enemy_action_log.append(enemy.chosen.name)
 			print(enemy_action_log)
 			if hit_anim_enemy != null:
@@ -356,7 +354,6 @@ func check_curr_tile_mods():
 			"death_good":
 				enemy.hp = 0
 			"damage_bad":
-				print("PLEASEPLEASEPLEASEPLEASEPLSEASLEASPELDASLWESASLESA")
 				player.take_damage(modifier_value)
 			"damage_good":
 				enemy.hp.take_damage(modifier_value)
