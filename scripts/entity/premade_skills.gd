@@ -157,7 +157,8 @@ var existing_skills = {
 		"cooldown": 0
 	},
 	#wendigo
-	# Possible Skills: Mimicry(confusion), Evil that devours (big attack), Claw Slash (normal Attack), Insatiable Hunger (Buff)
+	# Possible Skills: Mimicry(confusion), Evil that devours (big attack),
+	# Claw Slash (normal Attack), Insatiable Hunger (Buff)
 	"Claw Slash":
 	{
 		"tree": "wendigo things",
@@ -185,7 +186,10 @@ var existing_skills = {
 	{
 		"tree": "wendigo things",
 		"description":
-		"It howls into the void, blood tripping from its teeth. You can feel it getting angrier.. stronger",
+		(
+			"It howls into the void, blood tripping from its teeth. "
+			+ "You can feel it getting angrier.. stronger"
+		),
 		"effects": [["damage_buff", 2, true, "duration=2"]],
 		"cooldown": 1  # jorin pls implement enemy cooldown thanks
 	},

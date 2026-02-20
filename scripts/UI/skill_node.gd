@@ -1,13 +1,14 @@
-extends TextureButton
 class_name SkillNode
-@onready var glow_shader = preload("res://shaders/glitterglowwithboarder.gdshader")
-@onready var upgrade_button: Button = $Unlock
+extends TextureButton
 
 var requirements: Array[SkillNode] = []
 var is_unlocked: bool = false
 var incoming_line: Line2D = null
 var tooltip_script = load("res://scripts/UI/skill_tooltip.gd")
 var tooltip = tooltip_script.new()
+
+@onready var glow_shader = preload("res://shaders/glitterglowwithboarder.gdshader")
+@onready var upgrade_button: Button = $Unlock
 
 
 func _ready():

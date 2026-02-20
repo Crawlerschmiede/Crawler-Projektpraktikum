@@ -1,5 +1,7 @@
 extends ScrollContainer
 
+const MESSAGE_DELAY := 0.5
+
 @export var combat_log: Array = []
 @export var tooltips: Array = []
 @export var state: String = "log"
@@ -8,7 +10,6 @@ var up_to_date: bool = true
 var custom_font = load("res://assets/font/PixelPurl.ttf")
 var last_state: String = "log"
 var list_index: int = 0
-const message_delay := 0.5
 var message_timer: float = 0.5
 
 @onready var message_list = $VBoxContainer
@@ -37,7 +38,7 @@ func _add_label(text: String) -> void:
 
 func _fill_list(messages: Array, delta) -> void:
 	message_timer += delta
-	if message_timer >= message_delay:
+	if message_timer >= MESSAGE_DELAY:
 		message_timer = 0
 		if list_index < len(messages):
 			_add_label(messages[list_index])
