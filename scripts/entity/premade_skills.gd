@@ -431,6 +431,24 @@ var existing_skills = {
 		"cooldown": 3,
 		"switch_condition": ["outside_short_range"]
 	},
+	"Pressure Points":
+	{
+		"tree": "unarmed",
+		"tier": 4,
+		"description": "Armour? More like... disarm 'er!... wait that doesn't work at all",
+		"effects": [["piercing", 0.2, true, "No"]],
+		"passive": true,
+		"on_acquisition": [["unarmable", 1, true, "No"]],
+	},
+	"Elemental Fists":
+	{
+		"tree": "unarmed",
+		"tier": 5,
+		"description":
+		"They do say punching your opponent square in the face is an elementary technique",
+		"effects": [["elementize", "rand", true, "No"]],
+		"passive": true
+	},
 	#standard actions
 	"Move Up":
 	{
@@ -557,6 +575,11 @@ func get_detailed_description(skill_name) -> String:
 
 	for effect in skill.effects:
 		description += translate_effect(effect)
+	if skill.has("next_turn_effects"):
+		description += " Then, next turn "
+		for effect in skill.next_turn_effects:
+			description += translate_effect(effect)
+
 	if skill.has("conditions"):
 		if len(skill.conditions) == 1:
 			description += " if " + skill.conditions[0]

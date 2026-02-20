@@ -45,7 +45,7 @@
 		"spawnrate": { "min": 0.0, "max": 0.2 },
 		"spawncount": { "min": 4, "max": 20 },
 		"weight": 2,
-		"stats":{"hp":3, "str":1, "def":0, "phyres":1, "firres":0, "eleres":0, "iceres":0, "erres": 0}
+		"stats":{"hp":3, "str":1, "def":0, "phyres":0, "firres":0, "eleres":0, "iceres":0, "erres": 0}
 	},
 
 	"base_zombie": {
