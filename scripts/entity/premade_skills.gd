@@ -122,7 +122,14 @@ var existing_skills = {
 	{
 		"tree": "orc things",
 		"description": "Orc pulls back and swings its club with full force",
-		"effects": [["movement", 1, false, "D"],["movement", 1, false, "D"],["movement", 1, false, "D"], ["damage_zone", 3, false, "y=3"], ["damage_zone", 2, false, "y=4"]],
+		"effects":
+		[
+			["movement", 1, false, "D"],
+			["movement", 1, false, "D"],
+			["movement", 1, false, "D"],
+			["damage_zone", 3, false, "y=3"],
+			["damage_zone", 2, false, "y=4"]
+		],
 		"cooldown": 2
 	},
 	#Carnivorous Plant skills
@@ -137,7 +144,14 @@ var existing_skills = {
 	{
 		"tree": "plant things",
 		"description": "A vine grabs your leg and pulls you towards the enemy",
-		"effects": [["movement", 1, false, "U"],["movement", 1, false, "U"],["movement", 1, false, "U"], ["damage_zone", 3, false, "y=0"], ["damage_zone", 2, false, "y=1"]],
+		"effects":
+		[
+			["movement", 1, false, "U"],
+			["movement", 1, false, "U"],
+			["movement", 1, false, "U"],
+			["damage_zone", 3, false, "y=0"],
+			["damage_zone", 2, false, "y=1"]
+		],
 		"cooldown": 2
 	},
 	"Entwine":
@@ -177,7 +191,12 @@ var existing_skills = {
 	{
 		"tree": "wendigo things",
 		"description": "Its huge claws try to slash into your flesh",
-		"effects": [["damage_zone", 2, false, "y=0"], ["damage_zone", 2, false, "y=2"], ["damage_zone", 2, false, "y=4"]],
+		"effects":
+		[
+			["damage_zone", 2, false, "y=0"],
+			["damage_zone", 2, false, "y=2"],
+			["damage_zone", 2, false, "y=4"]
+		],
 		"cooldown": 0
 	},
 	"Mimicry":
@@ -185,15 +204,15 @@ var existing_skills = {
 		"tree": "wendigo things",
 		"description":
 		"You hear a distorted familiar voice calling for you. From where? Who? You feel dizzy..",
-		"effects": [["movement", 1, false, "U"],["movement", 1, false, "U"],["Stun", 2, false, "No"]],
+		"effects":
+		[["movement", 1, false, "U"], ["movement", 1, false, "U"], ["Stun", 2, false, "No"]],
 		"cooldown": 3
 	},
 	"Evil that devours":
 	{
 		"tree": "wendigo things",
 		"description": "ITS EYES PIERCE INTO YOU.. your body writhes in agony",
-		"effects":
-		[["death_zone", 1, false, "surrounding"], ["damage_zone", 2, false, "player_x"]],
+		"effects": [["death_zone", 1, false, "surrounding"], ["damage_zone", 2, false, "player_x"]],
 		"cooldown": 2
 	},
 	"Insatiable Hunger":  #buff dmg for next turn, jorin pls implement
@@ -213,7 +232,16 @@ var existing_skills = {
 	{
 		"tree": "necromancer things",
 		"description": "Green flames engulf the room",
-		"effects": [["Burn", 2, false, "No"],["damage_zone", 2, false, "y=0"],["damage_zone", 2, false, "y=2"],["damage_zone", 2, false, "y=4"],["damage_zone", 2, false, "x=0"],["damage_zone", 2, false, "x=2"],["damage_zone", 2, false, "x=4"]],
+		"effects":
+		[
+			["Burn", 2, false, "No"],
+			["damage_zone", 2, false, "y=0"],
+			["damage_zone", 2, false, "y=2"],
+			["damage_zone", 2, false, "y=4"],
+			["damage_zone", 2, false, "x=0"],
+			["damage_zone", 2, false, "x=2"],
+			["damage_zone", 2, false, "x=4"]
+		],
 		"cooldown": 1
 	},
 	"Life Steal":
@@ -230,25 +258,39 @@ var existing_skills = {
 		"effects": [["damage_zone", 2, false, "area||2||2||3"]],
 		"cooldown": 3
 	},
-	"Join the dead": 
+	"Join the dead":
 	{
 		"tree": "necromancer things",
 		"description": "",
-		"effects": [["death_zone", 1, false, "player_pos"], ["damage_zone", 2, false, "surrounding"]],
+		"effects":
+		[["death_zone", 1, false, "player_pos"], ["damage_zone", 2, false, "surrounding"]],
 		"cooldown": 2
 	},
-	"OBEY": 
+	"OBEY":
 	{
 		"tree": "necromancer things",
 		"description": "Know your place and KNEEL",
-		"effects": [["movement", 1, false, "D"],["movement", 1, false, "D"],["movement", 1, false, "D"], ["Stun", 1, false, "No"]],
+		"effects":
+		[
+			["movement", 1, false, "D"],
+			["movement", 1, false, "D"],
+			["movement", 1, false, "D"],
+			["Stun", 1, false, "No"]
+		],
 		"cooldown": 2
 	},
-	"BOW TO YOUR MASTER": 
+	"BOW TO YOUR MASTER":
 	{
 		"tree": "necromancer things",
 		"description": "A dark force drags you towards your enemie. This might be your end.",
-		"effects": [["movement", 1, false, "U"],["movement", 1, false, "U"],["movement", 1, false, "U"],["movement", 1, false, "U"], ["death_zone", 1, false, "player_y"]],
+		"effects":
+		[
+			["movement", 1, false, "U"],
+			["movement", 1, false, "U"],
+			["movement", 1, false, "U"],
+			["movement", 1, false, "U"],
+			["death_zone", 1, false, "player_y"]
+		],
 		"cooldown": 2
 	},
 	#unarmed player stuff
