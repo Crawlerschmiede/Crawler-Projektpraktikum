@@ -39,7 +39,7 @@ func _fill_list(messages: Array, delta) -> void:
 	message_timer += delta
 	if message_timer >= message_delay:
 		message_timer = 0
-		if list_index< len(messages):
+		if list_index < len(messages):
 			_add_label(messages[list_index])
 			list_index += 1
 			if list_index == len(messages):
