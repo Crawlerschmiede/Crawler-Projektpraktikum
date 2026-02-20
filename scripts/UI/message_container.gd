@@ -31,6 +31,8 @@ func _add_label(text: String) -> void:
 	#b.add_theme_font_size_override("font_size", 10)
 	b.add_theme_font_override("font", custom_font)
 	message_list.add_child(b)
+	await get_tree().process_frame
+	scroll_vertical =  get_v_scroll_bar().max_value
 
 
 func _fill_list(messages: Array, delta) -> void:
