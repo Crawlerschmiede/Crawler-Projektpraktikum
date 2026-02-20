@@ -1,9 +1,14 @@
 extends Control
 
+const SKILLS_DB_SCRIPT := preload("res://scripts/entity/premade_skills.gd")
+var skills_db = SKILLS_DB_SCRIPT.new()
+var tree_aliases := {"Unarmed Combat": "Unarmed"}
+
 @onready var buttons_container = $Upgrades
 @onready var lines_container = $Lines
 #@onready var set_shader_hover = preload("res://shaders/lol_button.gdshader")
 @onready var tooltip = $SkillTooltip
+@onready var card_label: Label = $Card/Label
 
 
 func _ready():
@@ -61,9 +66,73 @@ func _on_btn_unhover(btn: Button):
 
 
 func _on_skill_hover(skill: SkillNode):
-	var mouse_position = get_global_mouse_position()
-	tooltip.SkillTooltip(Rect2i(mouse_position, Vector2i.ZERO), null)
+	var skill_name = _get_skill_display_name(skill)
+	var skill_description = _get_skill_description(skill_name, skill)
+	tooltip.show_tooltip(skill_name, skill_description)
 
 
-func _on_skill_unhover(skill: SkillNode):
-	tooltip.HideSkillTolltip()
+func _on_skill_unhover(_skill: SkillNode):
+	tooltip.hide_skill_tolltip()
+
+
+func _get_skill_display_name(skill: SkillNode) -> String:
+	var label_node := skill.get_node_or_null("Label") as Label
+	if label_node != null:
+		return label_node.text.strip_edges()
+	return skill.name
+
+
+func _get_skill_description(display_name: String, skill: SkillNode) -> String:
+	var by_name_key = _find_skill_key_by_name(display_name)
+	if by_name_key != "":
+		return skills_db.get_detailed_description(by_name_key)
+
+	var by_tier_key = _find_skill_key_by_tree_tier(skill)
+	if by_tier_key != "":
+		return skills_db.get_detailed_description(by_tier_key)
+
+	return "No description available yet."
+
+
+func _find_skill_key_by_name(display_name: String) -> String:
+	var wanted = _normalize_text(display_name)
+	for skill_name in skills_db.existing_skills.keys():
+		if _normalize_text(skill_name) == wanted:
+			return skill_name
+	return ""
+
+
+func _find_skill_key_by_tree_tier(skill: SkillNode) -> String:
+	if not skill.name.begins_with("Skill"):
+		return ""
+
+	var tier = int(skill.name.trim_prefix("Skill"))
+	if tier < 1:
+		return ""
+
+	var tree_name = card_label.text.strip_edges()
+	if tree_aliases.has(tree_name):
+		tree_name = tree_aliases[tree_name]
+
+	var skills_in_tree = skills_db.get_skills_by_tree(tree_name)
+	if skills_in_tree.is_empty():
+		return ""
+
+	skills_in_tree.sort_custom(
+		func(a, b): return int(a[1].get("tier", 0)) < int(b[1].get("tier", 0))
+	)
+
+	if tier - 1 >= 0 and tier - 1 < skills_in_tree.size():
+		return str(skills_in_tree[tier - 1][0])
+
+	return ""
+
+
+func _normalize_text(value: String) -> String:
+	var lower = value.to_lower()
+	var out = ""
+	for i in range(lower.length()):
+		var ch = lower[i]
+		if (ch >= "a" and ch <= "z") or (ch >= "0" and ch <= "9"):
+			out += ch
+	return out

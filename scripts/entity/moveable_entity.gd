@@ -39,13 +39,30 @@ var sprites = {
 		preload("res://scenes/sprite_scenes/base_zombie_sprite_scene.tscn"),
 		{"idle": "default", "teleport_start": "dig_down", "teleport_end": "dig_up"}
 	],
-	"goblin": [preload("res://scenes/sprite_scenes/goblin_sprite_scene.tscn"), ["Bonk", "War Cry"]],
-	"orc": [preload("res://scenes/sprite_scenes/orc_sprite_scene.tscn"), ["Bonk"]],
+	"goblin": [preload("res://scenes/sprite_scenes/goblin_sprite_scene.tscn")],
+	"orc":
+	[
+		preload("res://scenes/sprite_scenes/orc_sprite_scene.tscn"),
+		["Big Bonk", "War Command", "Ground Stomp"],
+		{"idle": "default"}
+	],
 	"plant":
 	[
 		preload("res://scenes/sprite_scenes/big_plant_sprite_scene.tscn"),
-		["Vine Slash", "Entwine", "Poison Ivy", "Herbicide"],
+		["Vine Slash", "Entwine", "Poison Ivy", "Herbicide", "Mandrake's Screech"],
 		{"idle": "default", "teleport_start": "dig_down", "teleport_end": "dig_up"}
+	],
+	"wendigo":
+	[
+		preload("res://scenes/sprite_scenes/wendigo_sprite_scene.tscn"),
+		["Claw Slash", "Mimicry", "Evil that devours", "Insatiable Hunger"],
+		{"idle": "default"}
+	],
+	"necromancer":
+	[
+		preload("res://scenes/sprite_scenes/necromancer_scene.tscn"),
+		["Green Flames", "Life Steal", "Domain Expansion", "Join the dead"],
+		{"idle": "default"}
 	],
 	"pc": [preload("res://scenes/sprite_scenes/player_sprite_scene.tscn")]
 }
@@ -477,7 +494,24 @@ func take_damage(damage, type = ""):
 	elif "earth" in type:
 		damage_type = "earth"
 	print("Relevant resistances: ", resistances)
-	taken_damage *= (1 - resistances.get(damage_type, 0))
+	var active_res = resistances.get(damage_type, 0)
+	print("active resistance should be ", damage_type, " resistance of ", active_res)
+	print("type is ", type)
+	if "pierce" in type:
+		print("it has pierce")
+		var parts = type.split("||")
+		for i in range(len(parts)):
+			if "pierce" in parts[i]:
+				var pieces = parts[i].split("=")
+				var reduction = float(pieces[1])
+				print("should reduce resistacne by ", reduction)
+				if active_res > 0:
+					if active_res - reduction > 0:
+						active_res -= reduction
+					else:
+						active_res = 0
+	print("After pierce it's ", active_res)
+	taken_damage *= (1 - active_res)
 	if not "ignoredef" in type:
 		taken_damage -= self.def_stat
 	if taken_damage < 0:

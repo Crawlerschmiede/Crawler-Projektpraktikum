@@ -96,6 +96,28 @@ var existing_skills = {
 		"effects": [["prepare", 0, true, "No"]],
 		"cooldown": 3  # jorin pls implement enemy cooldown thanks #this one too btw
 	},
+	#Orc Stuff
+	"Big Bonk":
+	{
+		"tree": "orc things",
+		"description": "If in doubt, bonk your enemy.",
+		"effects": [["damage", 2, false, "No"], ["danger_dmg_mult", 2, false, "player_pos"]],
+		"cooldown": 0
+	},
+	"War Command":  #buff dmg for next turn, jorin pls implement
+	{
+		"tree": "orc things",
+		"description": "More scream, more damage",
+		"effects": [["damage_buff", 2, true, "duration=2"]],
+		"cooldown": 2  # jorin pls implement enemy cooldown thanks
+	},
+	"Ground Stomp":
+	{
+		"tree": "orc things",
+		"description": "The Orc Chief stomps its feet into the ground. The whole ground shakes!",
+		"effects": [["damage", 3, false, "No"]],
+		"cooldown": 1
+	},
 	#Carnivorous Plant skills
 	"Vine Slash":
 	{
@@ -115,7 +137,7 @@ var existing_skills = {
 	"Poison Ivy":
 	{
 		"tree": "plant things",
-		"description": "Vines lash out, a thron scratches your skin. You don't feel so well..",
+		"description": "Vines lash out, a thorn scratches your skin. You don't feel so well..",
 		"effects": [["poison", 2, false, "No"]],
 		"cooldown": 0
 	},
@@ -129,10 +151,77 @@ var existing_skills = {
 	"Mandrake's Screech":
 	{
 		"tree": "plant things",
-		"desciption":
-		"The ground rumbles as your enemy lets out a deafening screech. Its getting angry..",
+		"description":
+		"The ground rumbles as your enemy lets out a deafening screech. Its getting angry ...",
 		"effects": [["damage", 1, false, "No"], ["danger_dmg_mult", 2, false, "y=0"]],
 		"cooldown": 0
+	},
+	#wendigo
+	# Possible Skills: Mimicry(confusion), Evil that devours (big attack),
+	# Claw Slash (normal Attack), Insatiable Hunger (Buff)
+	"Claw Slash":
+	{
+		"tree": "wendigo things",
+		"description": "Its huge claws try to slash into your flesh",
+		"effects": [["Damage", 2, false, "No"]],
+		"cooldown": 0
+	},
+	"Mimicry":
+	{
+		"tree": "wendigo things",
+		"description":
+		"You hear a distorted familiar voice calling for you. From where? Who? You feel dizzy..",
+		"effects": [["Stun", 3, false, "No"]],
+		"cooldown": 1
+	},
+	"Evil that devours":
+	{
+		"tree": "wendigo things",
+		"description": "ITS EYES PIERCE INTO YOU.. your body writhes in agony",
+		"effects":
+		[["Damage", 4, false, "No"], ["danger_dmg_mult", 3, false, "area||rand||rand||2"]],
+		"cooldown": 2
+	},
+	"Insatiable Hunger":  #buff dmg for next turn, jorin pls implement
+	{
+		"tree": "wendigo things",
+		"description":
+		(
+			"It howls into the void, blood tripping from its teeth. "
+			+ "You can feel it getting angrier.. stronger"
+		),
+		"effects": [["damage_buff", 2, true, "duration=2"]],
+		"cooldown": 1  # jorin pls implement enemy cooldown thanks
+	},
+	# Necromancer Stuff
+	# Possible Skills: Green Flames, Life Steal, Domain Expansion, Rise from the dead
+	"Green Flames":
+	{
+		"tree": "necromancer things",
+		"description": "Green flames engulf the room",
+		"effects": [["Burn", 2, false, "No"], ["danger_dmg_mult", 3, false, "area||rand||rand||2"]],
+		"cooldown": 1
+	},
+	"Life Steal":
+	{
+		"tree": "necromancer things",
+		"description": "The necromancer raises its hand. Its wounds begin to heal, you feel weaker",
+		"effects": [["Stun", 2, false, "No"], ["heal", 2, true, "No"]],
+		"cooldown": 1
+	},
+	"Domain Expansion":
+	{
+		"tree": "necromancer things",
+		"description": "Chanting a demonic spell, the room turns to darkness",
+		"effects": [["Damage", 4, false, "No"]],
+		"cooldown": 2
+	},
+	"Join the dead":  #buff dmg for next turn, jorin pls implement
+	{
+		"tree": "necromancer things",
+		"description": "",
+		"effects": [["Damange", 4, false, "No"], ["Stun", 3, false, "No"]],
+		"cooldown": 2
 	},
 	#unarmed player stuff
 	"Punch":
@@ -346,6 +435,24 @@ var existing_skills = {
 		"cooldown": 3,
 		"switch_condition": ["outside_short_range"]
 	},
+	"Pressure Points":
+	{
+		"tree": "unarmed",
+		"tier": 4,
+		"description": "Armour? More like... disarm 'er!... wait that doesn't work at all",
+		"effects": [["piercing", 0.2, true, "No"]],
+		"passive": true,
+		"on_acquisition": [["unarmable", 1, true, "No"]],
+	},
+	"Elemental Fists":
+	{
+		"tree": "unarmed",
+		"tier": 5,
+		"description":
+		"They do say punching your opponent square in the face is an elementary technique",
+		"effects": [["elementize", "rand", true, "No"]],
+		"passive": true
+	},
 	#standard actions
 	"Move Up":
 	{
@@ -427,6 +534,7 @@ func get_skill(skill_name):
 	var switch_conditions = []
 	if values.has("switch_condition"):
 		switch_conditions = values.switch_condition
+	print(values)
 	var new_skill = Skill.new(
 		skill_name, values.tree, values.description, cool, passive, conditions, switch_conditions
 	)
@@ -471,6 +579,11 @@ func get_detailed_description(skill_name) -> String:
 
 	for effect in skill.effects:
 		description += translate_effect(effect)
+	if skill.has("next_turn_effects"):
+		description += " Then, next turn "
+		for effect in skill.next_turn_effects:
+			description += translate_effect(effect)
+
 	if skill.has("conditions"):
 		if len(skill.conditions) == 1:
 			description += " if " + skill.conditions[0]

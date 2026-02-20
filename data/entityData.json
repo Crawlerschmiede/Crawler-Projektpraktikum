@@ -26,6 +26,17 @@
 		"stats":{"hp":3, "str":1, "def":1, "phyres":0.2, "firres":0.3, "eleres":0, "iceres":0, "erres": 0}
 	},
 	
+	"goblin": {
+		"entityCategory": "enemy",
+		"skills": ["Bonk", "War Cry"],
+		"sprite_type": "goblin",
+		"behaviour": ["hostile", "enemy_walking"],
+		"spawnrate": { "min": 0.0, "max": 0.2 },
+		"spawncount": { "min": 4, "max": 20 },
+		"weight": 4,
+		"stats":{"hp":4, "str":2, "def":0, "phyres":0, "firres":0, "eleres":0, "iceres":0, "erres": 0}
+	},
+	
 	"tutorial_skeleton": {
 		"entityCategory": "enemy",
 		"skills": ["Precise Hit", "Feint"],
@@ -34,7 +45,7 @@
 		"spawnrate": { "min": 0.0, "max": 0.2 },
 		"spawncount": { "min": 4, "max": 20 },
 		"weight": 2,
-		"stats":{"hp":3, "str":1, "def":0, "phyres":1, "firres":0, "eleres":0, "iceres":0, "erres": 0}
+		"stats":{"hp":3, "str":1, "def":0, "phyres":0, "firres":0, "eleres":0, "iceres":0, "erres": 0}
 	},
 
 	"base_zombie": {
@@ -68,5 +79,51 @@
 		"spawncount": { "min": 4, "max": 6 },
 		"weight": 6,
 		"stats":{"hp":5, "str":1, "def":0, "phyres":0.5, "firres":0.5, "eleres":0.5, "iceres":0.5, "erres": 0.5}
-	}
+	},
+	
+	
+	"orc": {
+		"entityCategory": "boss",
+		"skills" : ["Big Bonk", "War Command", "Ground Stomp"],
+		"sprite_type": "orc",
+		"behaviour": ["boss"],
+		"spawnrate": { "min": 1, "max": 1 },
+		"spawncount": { "min": 1, "max": 1 },
+		"weight": 0,
+		"stats":{"hp":20, "str":3, "def":1, "phyres":0.4, "firres":0, "eleres":0, "iceres":0.2, "erres": 0.2}
+	},
+	
+	"plant": {
+		"entityCategory": "boss",
+		"skills" : ["Vine Slash", "Entwine", "Poision Ivy", "Herbicide", "Mandrake's Screech"],
+		"sprite_type": "plant",
+		"behaviour": ["boss"],
+		"spawnrate": { "min": 1, "max": 1 },
+		"spawncount": { "min": 1, "max": 1 },
+		"weight": 0,
+		"stats":{"hp":20, "str":3, "def":1, "phyres":0, "firres":-0.5, "eleres":0, "iceres":0, "erres": 0.5}
+	},
+	
+	"wendigo": {
+		"entityCategory": "boss",
+		"skills" : ["Claw Slash", "Mimicry", "Evil that devours", "Insatiable Hunger"],
+		"sprite_type": "wendigo",
+		"behaviour": ["boss"],
+		"spawnrate": { "min": 1, "max": 1 },
+		"spawncount": { "min": 1, "max": 1 },
+		"weight": 0,
+		"stats":{"hp":20, "str":3, "def":1, "phyres":0.2, "firres":0, "eleres":0, "iceres":0.8, "erres": 0.2}
+	},
+	
+	"necromancer": {
+		"entityCategory": "boss",
+		"skills" : ["Green Flames", "Join the dead", "Domain Expansion", "Life Steal"],
+		"sprite_type": "necromancer",
+		"behaviour": ["boss"],
+		"spawnrate": { "min": 1, "max": 1 },
+		"spawncount": { "min": 1, "max": 1 },
+		"weight": 0,
+		"stats":{"hp":20, "str":3, "def":1, "phyres":0.2, "firres":0.6, "eleres":0.2, "iceres":0.4, "erres": 0.2}
+	},
+	
 }

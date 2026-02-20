@@ -9,6 +9,7 @@
 script = ExtResource("1_0kd8o")
 
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=1975337025]
+visible = false
 texture = ExtResource("1_4m5d3")
 flip_v = true
 
