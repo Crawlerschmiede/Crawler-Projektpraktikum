@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://hrkwbh2iwbrb"]
 
 [ext_resource type="Texture2D" uid="uid://ck3f8fcs1gd7b" path="res://assets/menu/Frames/Border All 9.png" id="1_24525"]
+[ext_resource type="Script" uid="uid://dp5c36i7vuc16" path="res://scripts/UI/skilltree_select_menu.gd" id="1_bh1c7"]
 [ext_resource type="Texture2D" uid="uid://c6scppykglq7t" path="res://assets/menu/Skill Icons/Icon1.png" id="2_c4l62"]
 [ext_resource type="Script" uid="uid://dilk5qvckflif" path="res://scripts/UI/glow.gd" id="2_wrkul"]
 [ext_resource type="FontFile" uid="uid://d4fqcjicieold" path="res://assets/font/PixelPurl.ttf" id="3_wrkul"]
@@ -18,6 +19,7 @@
 [ext_resource type="Texture2D" uid="uid://jluuedlyvq72" path="res://assets/menu/Skill Icons/Icon8.png" id="15_b8l5j"]
 [ext_resource type="Texture2D" uid="uid://mre20230al0l" path="res://assets/menu/Frames/Border All 2.png" id="16_yyfpx"]
 [ext_resource type="Texture2D" uid="uid://c6j6kkr8274vu" path="res://assets/menu/Skill Icons/39.png" id="17_3anod"]
+[ext_resource type="Shader" uid="uid://d31tjfsou3yfh" path="res://shaders/lol_button.gdshader" id="20_adk4j"]
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_ys1md"]
 texture = ExtResource("1_24525")
@@ -43,10 +45,22 @@ texture = ExtResource("14_v84qx")
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_y4ess"]
 texture = ExtResource("16_yyfpx")
 
-[node name="SkilltreeSelectMenu" type="Node2D" unique_id=2145209797]
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_n3lvg"]
+shader = ExtResource("20_adk4j")
+shader_parameter/base_color = Color(0.4, 0.3, 0.1, 1)
+shader_parameter/highlight_color = Color(1, 0.9, 0.5, 1)
+shader_parameter/shimmer_speed = 1.0
+shader_parameter/shimmer_width = 0.6
+shader_parameter/is_hovered = 0.0
+
+[node name="SkilltreeSelectMenu" type="Control" unique_id=1125623816]
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_bh1c7")
 
 [node name="VBoxContainer3" type="VBoxContainer" parent="." unique_id=1056444378]
 custom_minimum_size = Vector2(640, 0)
+layout_mode = 0
 offset_right = 640.0
 offset_bottom = 480.0
 alignment = 1
@@ -66,6 +80,7 @@ custom_minimum_size = Vector2(150, 0)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxTexture_ys1md")
 script = ExtResource("2_wrkul")
+metadata/skill_id = "Unarmed-Combat"
 
 [node name="Icon" type="TextureRect" parent="VBoxContainer3/HBoxContainer/Skill1" unique_id=1186386707]
 layout_mode = 0
@@ -107,6 +122,7 @@ custom_minimum_size = Vector2(150, 0)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxTexture_psn44")
 script = ExtResource("2_wrkul")
+metadata/skill_id = "Short-Ranged-Weaponry"
 
 [node name="Icon" type="TextureRect" parent="VBoxContainer3/HBoxContainer/Skill2" unique_id=1808348931]
 layout_mode = 0
@@ -150,6 +166,7 @@ custom_minimum_size = Vector2(150, 0)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxTexture_1gqji")
 script = ExtResource("2_wrkul")
+metadata/skill_id = "Medium-Ranged-Weaponry"
 
 [node name="Icon" type="TextureRect" parent="VBoxContainer3/HBoxContainer/Skill3" unique_id=1454910142]
 layout_mode = 0
@@ -193,6 +210,7 @@ custom_minimum_size = Vector2(150, 0)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxTexture_eq6r3")
 script = ExtResource("2_wrkul")
+metadata/skill_id = "Long-Ranged-Weaponry"
 
 [node name="Icon" type="TextureRect" parent="VBoxContainer3/HBoxContainer/Skill4" unique_id=741056280]
 layout_mode = 0
@@ -246,6 +264,7 @@ custom_minimum_size = Vector2(150, 0)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxTexture_36iwt")
 script = ExtResource("2_wrkul")
+metadata/skill_id = "Rogue"
 
 [node name="Icon" type="TextureRect" parent="VBoxContainer3/HBoxContainer2/Skill5" unique_id=509115649]
 layout_mode = 0
@@ -287,6 +306,7 @@ custom_minimum_size = Vector2(150, 0)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxTexture_d7073")
 script = ExtResource("2_wrkul")
+metadata/skill_id = "Cleric"
 
 [node name="Icon" type="TextureRect" parent="VBoxContainer3/HBoxContainer2/Skill6" unique_id=303101360]
 layout_mode = 0
@@ -328,6 +348,7 @@ custom_minimum_size = Vector2(150, 0)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxTexture_re2b5")
 script = ExtResource("2_wrkul")
+metadata/skill_id = "Warrior"
 
 [node name="Icon" type="TextureRect" parent="VBoxContainer3/HBoxContainer2/Skill7" unique_id=1310119308]
 layout_mode = 0
@@ -369,6 +390,7 @@ custom_minimum_size = Vector2(150, 0)
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxTexture_y4ess")
 script = ExtResource("2_wrkul")
+metadata/skill_id = "Mage"
 
 [node name="Icon" type="TextureRect" parent="VBoxContainer3/HBoxContainer2/Skill8" unique_id=109847335]
 layout_mode = 0
@@ -410,3 +432,15 @@ autowrap_mode = 3
 [node name="Spacer2" type="Control" parent="VBoxContainer3" unique_id=1592782210]
 custom_minimum_size = Vector2(0, 4)
 layout_mode = 2
+
+[node name="Confirm" type="Button" parent="." unique_id=1602233874]
+material = SubResource("ShaderMaterial_n3lvg")
+layout_mode = 0
+offset_left = 281.0
+offset_top = 221.0
+offset_right = 352.0
+offset_bottom = 252.0
+theme_override_fonts/font = ExtResource("3_wrkul")
+text = "Confirm"
+
+[connection signal="pressed" from="Confirm" to="." method="_on_ConfirmButton_pressed"]

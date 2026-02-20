@@ -1,3 +1,39 @@
 [gd_scene format=3 uid="uid://deqt4wqq53lwo"]
 
-[node name="SkilltreeUpgrading" type="Node2D" unique_id=1353276564]
+[ext_resource type="Script" uid="uid://bmon51xtlhjvs" path="res://scripts/UI/selected_skilltree_upgrading.gd" id="1_8u2yp"]
+[ext_resource type="Shader" uid="uid://do682u7jbuev1" path="res://shaders/IntroScreen.gdshader" id="3_ag73x"]
+[ext_resource type="Texture2D" uid="uid://bb54nue8qv54r" path="res://assets/menu/menu background.jpg" id="3_e2hdd"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_e2hdd"]
+shader = ExtResource("3_ag73x")
+shader_parameter/scanline_count = 300.0
+shader_parameter/scanline_intensity = 0.1
+shader_parameter/curvature = 0.05
+shader_parameter/vignette_intensity = 0.4
+
+[node name="SkilltreeUpgrading" type="Control" unique_id=399792445]
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_8u2yp")
+
+[node name="TextureRect2" type="TextureRect" parent="." unique_id=281378997]
+modulate = Color(0.4724152, 0.4724152, 0.4724151, 1)
+layout_mode = 0
+offset_right = 640.0
+offset_bottom = 480.0
+texture = ExtResource("3_e2hdd")
+expand_mode = 1
+
+[node name="TextureRect" type="TextureRect" parent="." unique_id=154268626]
+modulate = Color(0.3172787, 0.31727865, 0.31727865, 1)
+material = SubResource("ShaderMaterial_e2hdd")
+layout_mode = 0
+offset_right = 640.0
+offset_bottom = 480.0
+texture = ExtResource("3_e2hdd")
+expand_mode = 1
+
+[node name="SkillContainer" type="VBoxContainer" parent="." unique_id=1506226704]
+layout_mode = 0
+offset_right = 640.0
+offset_bottom = 480.0

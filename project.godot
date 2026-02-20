@@ -26,6 +26,7 @@ MerchantRegistry="*res://scripts/rooms/merchant/merchant_registry.gd"
 EntityAutoload="*res://scripts/Autoloadscripts/entity_autoload.gd"
 GlobalRNG="*res://scripts/Autoloadscripts/GlobalRNG.gd"
 AutoloadResetRunner="*res://scripts/Autoloadscripts/AutoloadResetRunner.gd"
+SkillState="*uid://b5bce0gix01b7"
 
 [display]
 
