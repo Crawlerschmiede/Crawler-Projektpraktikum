@@ -4,12 +4,12 @@ extends ScrollContainer
 @export var tooltips: Array = []
 @export var state: String = "log"
 @export var changed: bool = false
-var up_to_date:bool =true
+var up_to_date: bool = true
 var custom_font = load("res://assets/font/PixelPurl.ttf")
 var last_state: String = "log"
-var list_index:int = 0
+var list_index: int = 0
 const message_delay := 0.5
-var message_timer:float = 0.5
+var message_timer: float = 0.5
 
 @onready var message_list = $VBoxContainer
 
@@ -32,20 +32,21 @@ func _add_label(text: String) -> void:
 	b.add_theme_font_override("font", custom_font)
 	message_list.add_child(b)
 	await get_tree().process_frame
-	scroll_vertical =  get_v_scroll_bar().max_value
+	scroll_vertical = get_v_scroll_bar().max_value
 
 
 func _fill_list(messages: Array, delta) -> void:
-	message_timer+=delta
-	if message_timer>=message_delay:
+	message_timer += delta
+	if message_timer >= message_delay:
 		message_timer = 0
 		_add_label(messages[list_index])
-		list_index+=1
+		list_index += 1
 		if list_index == len(messages):
-			up_to_date=true
-		
+			up_to_date = true
+
+
 func reset():
-	combat_log =[]
+	combat_log = []
 	_clear_list()
 
 
@@ -61,7 +62,7 @@ func _process(_delta: float) -> void:
 	if state != last_state or changed:
 		#print("clearing")
 		_clear_list()
-		up_to_date=false
+		up_to_date = false
 		list_index = 0
 		last_state = state
 		changed = false
