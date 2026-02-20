@@ -60,10 +60,10 @@ func _on_btn_unhover(btn: Button):
 	tween.tween_method(func(v): btn.material.set_shader_parameter("is_hovered", v), 1.0, 0.0, 0.2)
 
 
-func _on_skill_hover(skill: SkillNode):
+func _on_skill_hover(_skill: SkillNode):
 	var mouse_position = get_global_mouse_position()
-	tooltip.SkillTooltip(Rect2i(mouse_position, Vector2i.ZERO), null)
+	tooltip.skill_tooltip(Rect2i(mouse_position, Vector2i.ZERO), null)
 
 
-func _on_skill_unhover(skill: SkillNode):
-	tooltip.HideSkillTolltip()
+func _on_skill_unhover(_skill: SkillNode):
+	tooltip.hide_skill_tolltip()
