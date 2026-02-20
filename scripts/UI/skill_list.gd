@@ -179,6 +179,7 @@ func _on_button_mouse_entered(btn: Button) -> void:
 
 func _on_skill_pressed(ability) -> void:
 	if player_turn:
+		battle_scene.log_container.reset()
 		if hit_anim_player != null:
 			hit_anim_player.visible = true
 			hit_anim_player.play("default")
