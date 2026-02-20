@@ -7,16 +7,18 @@ var cards_container: Array = []
 
 @onready var confirm_button = $Confirm
 
+
 func _ready():
 	# 1. Find the cards AFTER the scene is ready
 	cards_container = _find_skill_cards(self)
-	
+
 	# 2. Clear global state
 	SkillState.selected_skills.clear()
-	
+
 	# 3. Connect signals
 	for card in cards_container:
 		card.gui_input.connect(_on_card_clicked.bind(card))
+
 
 func _find_skill_cards(node: Node) -> Array:
 	var result: Array = []
@@ -25,6 +27,7 @@ func _find_skill_cards(node: Node) -> Array:
 			result.append(child)
 		result += _find_skill_cards(child)
 	return result
+
 
 func _on_card_clicked(event: InputEvent, card):
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
@@ -35,7 +38,6 @@ func _on_card_clicked(event: InputEvent, card):
 			selected_local.erase(skill_id)
 			print("Removed: ", skill_id)
 		else:
-			
 			if selected_local.size() < MAX_SELECTIONS:
 				selected_local.append(skill_id)
 				print("Added: ", skill_id)
@@ -44,8 +46,8 @@ func _on_card_clicked(event: InputEvent, card):
 
 		print("Current List: ", selected_local, " | Count: ", selected_local.size())
 
+
 func _on_ConfirmButton_pressed():
-	
 	if selected_local.size() == MAX_SELECTIONS:
 		SkillState.selected_skills = selected_local.duplicate()
 		print("Finalizing Selections: ", SkillState.selected_skills)
