@@ -61,7 +61,12 @@ func _on_btn_unhover(btn: Button):
 
 
 func _on_skill_hover(skill: SkillNode):
+<<<<<<< HEAD
 	tooltip.SkillTooltip(null, null)
+=======
+	var mouse_position = get_global_mouse_position()
+	tooltip.SkillTooltip(Rect2i(mouse_position, Vector2i.ZERO), null)
+>>>>>>> dev
 
 
 func _on_skill_unhover(skill: SkillNode):
