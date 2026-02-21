@@ -13,6 +13,8 @@ var step_timer: float = 0.01
 var base_actions = ["Move Up", "Move Down", "Move Left", "Move Right"]
 var actions = []
 var minimap
+var is_armed = false
+var can_use_weapons = true
 
 var fog_layer: TileMapLayer = null
 var dynamic_fog: bool = true
@@ -88,6 +90,7 @@ func _ready() -> void:
 		add_action(action)
 	for active_tree in PLAYER_ACTIVE_SKILLTREES:
 		existing_skilltrees.increase_tree_level(active_tree)
+		print(existing_skilltrees.get_all_explanations())
 	update_unlocked_skills()
 	add_to_group("player")
 
@@ -213,7 +216,7 @@ func _on_area_2d_area_entered(area: Area2D):
 func level_up():
 	self.max_hp = self.max_hp + 1
 	self.hp = self.max_hp
-	existing_skilltrees.increase_tree_level("Short Ranged Weaponry")
+	existing_skilltrees.increase_tree_level("Medium Ranged Weaponry")
 	update_unlocked_skills()
 
 
@@ -243,10 +246,22 @@ func update_unlocked_skills():
 	abilities = []
 	var gotten_skills = existing_skilltrees.get_active_skills()
 	var equipped_skills = inventory.get_equipment_skills()
-	for extra in equipped_skills:
-		gotten_skills.append(extra)
+	var armed = false
+	if can_use_weapons:
+		for extra in equipped_skills:
+			gotten_skills.append(extra)
+			armed = true
+		print("Gotten Skills:", gotten_skills)
+		if armed:
+			is_armed = true
+		else:
+			is_armed = false
 	for ability in gotten_skills:
 		add_skill(ability)
+
+
+func get_used_range():
+	return inventory.get_equipment_range()
 
 
 func update_visibility():

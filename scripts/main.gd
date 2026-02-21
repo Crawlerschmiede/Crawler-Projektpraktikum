@@ -51,7 +51,7 @@ func _ready() -> void:
 	generators = [generator1, generator2, generator3]
 
 	# Tutorial prüfen (JSON: res://data/tutorialData.json)
-	if _has_completed_tutorial():
+	if _has_completed_tutorial() == false:
 		await _load_tutorial_world()
 		return
 
@@ -101,8 +101,8 @@ func _load_tutorial_world() -> void:
 	add_child(world_root)
 
 	# Versuche zuerst, die Tutorial-Szene als Generator zu behandeln
-	var tutorial_packed := preload(TUTORIAL_ROOM)
-	var tutorial_inst := tutorial_packed.instantiate()
+	var TutorialPacked := preload(TUTORIAL_ROOM)
+	var tutorial_inst := TutorialPacked.instantiate()
 
 	if tutorial_inst != null and tutorial_inst.has_method("get_random_tilemap"):
 		# Generator-API vorhanden -> wie bei _load_world verwenden
@@ -128,9 +128,10 @@ func _load_tutorial_world() -> void:
 				dungeon_floor.visibility_layer = 1
 
 			spawn_player()
-			spawn_enemies()
+			spawn_enemies(false)
 			spawn_lootbox()
 			spawn_traps()
+			spawn_enemies(true)
 
 			var merchants = find_merchants()
 			for i in merchants:
@@ -225,7 +226,7 @@ func _load_tutorial_world() -> void:
 	dungeon_floor.visibility_layer = 1
 	# Spawne alle Entities wie in normalen Welten
 	spawn_player()
-	spawn_enemies()
+	spawn_enemies(false)
 	spawn_lootbox()
 	spawn_traps()
 	await get_tree().process_frame
@@ -250,8 +251,8 @@ func _load_world(idx: int) -> void:
 	add_child(world_root)
 
 	# Versuche zuerst, die Tutorial-Szene als Generator zu behandeln
-	var tutorial_packed := preload(TUTORIAL_ROOM)
-	var tutorial_inst := tutorial_packed.instantiate()
+	var TutorialPacked := preload(TUTORIAL_ROOM)
+	var tutorial_inst := TutorialPacked.instantiate()
 
 	if tutorial_inst != null and tutorial_inst.has_method("get_random_tilemap"):
 		# Generator-API vorhanden -> wie bei _load_world verwenden
@@ -277,9 +278,10 @@ func _load_world(idx: int) -> void:
 				dungeon_floor.visibility_layer = 1
 
 			spawn_player()
-			spawn_enemies()
+			spawn_enemies(false)
 			spawn_lootbox()
 			spawn_traps()
+			spawn_enemies(true)
 
 			var merchants = find_merchants()
 			for i in merchants:
@@ -374,7 +376,7 @@ func _load_world(idx: int) -> void:
 	dungeon_floor.visibility_layer = 1
 	# Spawne alle Entities wie in normalen Welten
 	spawn_player()
-	spawn_enemies()
+	spawn_enemies(false)
 	spawn_lootbox()
 	spawn_traps()
 	await get_tree().process_frame
@@ -474,7 +476,7 @@ func _load_world(idx: int) -> void:
 	if dungeon_top != null:
 		if dungeon_top.get_parent() == null:
 			world_root.add_child(dungeon_top)
-		dungeon_top.z_index = 5  # über Entities, unter Fog
+		dungeon_top.z_index = 1  # über Entities, unter Fog
 
 	# Fog über alles (sicherstellen, dass Fog über dungeon_top liegt)
 	if fog_war_layer != null:
@@ -517,7 +519,7 @@ func _load_world(idx: int) -> void:
 	if dungeon_top != null:
 		if dungeon_top.get_parent() == null:
 			world_root.add_child(dungeon_top)
-		dungeon_top.z_index = 5  # über Entities, unter Fog
+		dungeon_top.z_index = 1  # über Entities, unter Fog
 
 	# Fog über alles (sicherstellen, dass Fog über dungeon_top liegt)
 	if fog_war_layer != null:
@@ -556,9 +558,10 @@ func _load_world(idx: int) -> void:
 	# Spawns
 	# -------------------------------------------------
 	spawn_player()
-	spawn_enemies()
+	spawn_enemies(false)
 	spawn_lootbox()
 	spawn_traps()
+	spawn_enemies(true)
 
 	var merchants = find_merchants()
 	for i in merchants:
@@ -973,31 +976,8 @@ func on_menu_closed():
 		menu_instance = null
 	_set_tree_paused(false)
 
-func _on_save_requested() -> void:
-	# 1) world_index persistieren
-	GameState.world_index = world_index
 
-	# 2) aktuellen Generator finden und Blueprint exportieren
-	if world_index >= 0 and world_index < generators.size():
-		var gen := generators[world_index]
-		if gen != null and gen.has_method("export_map_blueprint"):
-			var bp: Dictionary = gen.export_map_blueprint()
-			if not bp.is_empty():
-				GameState.map_blueprint = bp
-			else:
-				push_warning("Save: map blueprint empty (genome not ready?)")
-		else:
-			push_warning("Save: generator has no export_map_blueprint()")
-	else:
-		push_warning("Save: invalid world_index %s" % world_index)
-
-	# 3) auf Platte schreiben
-	var ok := SaveManager.save_state(GameState.to_dict())
-	if not ok:
-		push_error("Save failed")
-
-
-func spawn_enemies() -> void:
+func spawn_enemies(do_boss: bool) -> void:
 	var data: Dictionary = EntityAutoload.item_data
 	var settings: Dictionary = data.get("_settings", {})
 
@@ -1023,17 +1003,9 @@ func spawn_enemies() -> void:
 			continue
 
 		var d: Dictionary = data[k]
-		if d.get("entityCategory") != "enemy":
+		if d.get("entityCategory") != "enemy" and not do_boss:
 			continue
-
-		# Tutorial-Welt: nur tutorial-Gegner spawnen
-		# Normale Welten: keine tutorial-Gegner spawnen
-		var is_tutorial_enemy = "tutorial" in d.get("behaviour", [])
-		var is_tutorial_world = world_index == -1
-
-		if is_tutorial_world and not is_tutorial_enemy:
-			continue
-		elif not is_tutorial_world and is_tutorial_enemy:
+		elif d.get("entityCategory") != "boss" and do_boss:
 			continue
 
 		# Tutorial-Welt: nur tutorial-Gegner spawnen
@@ -1079,14 +1051,38 @@ func spawn_enemies() -> void:
 	var current_weight := 0
 	var spawn_plan := {}
 
+	var roll: float
+	var acc: float
+	var chosen: int
+
+	if do_boss:
+		print("Should spawn boss")
+		roll = rng.randf() * total
+		acc = 0.0
+		chosen = 0
+		for j in range(defs.size()):
+			acc += weights[j]
+			if roll <= acc:
+				chosen = j
+				break
+		var def := defs[chosen]
+		spawn_enemy(
+			def.get("sprite_type", "what"),
+			def.get("behaviour", []),
+			def.get("skills", []),
+			def.get("stats", {})
+		)
+		print("Spawned boss!")
+		return
+
 	for _i in range(100):
 		if current_weight >= max_weight:
 			break
 
 		# weighted pick
-		var roll := rng.randf() * total
-		var acc := 0.0
-		var chosen := 0
+		roll = rng.randf() * total
+		acc = 0.0
+		chosen = 0
 
 		for j in range(defs.size()):
 			acc += weights[j]
@@ -1118,13 +1114,16 @@ func spawn_enemies() -> void:
 			def = data[def["alias_of"]]
 
 		for i in range(spawn_plan[id]):
-			spawn_enemy(def.get("sprite_type", id), def.get("behaviour", []), def.get("skills", []))
-			spawn_enemy(def.get("sprite_type", id), def.get("behaviour", []), def.get("skills", []))
+			spawn_enemy(
+				def.get("sprite_type", id),
+				def.get("behaviour", []),
+				def.get("skills", []),
+				def.get("stats", {})
+			)
 			print("spawn: ", def.get("sprite_type", id))
 
 
-func spawn_enemy(sprite_type: String, behaviour: Array, skills: Array) -> void:
-func spawn_enemy(sprite_type: String, behaviour: Array, skills: Array) -> void:
+func spawn_enemy(sprite_type: String, behaviour: Array, skills: Array, stats: Dictionary) -> void:
 	# default: spawn normal enemy
 	var e = ENEMY_SCENE.instantiate()
 	e.add_to_group("enemy")
@@ -1134,10 +1133,13 @@ func spawn_enemy(sprite_type: String, behaviour: Array, skills: Array) -> void:
 	e.types = behaviour
 	e.sprite_type = sprite_type
 	e.abilities_this_has = skills
+	var hp = stats.get("hp", 1)
+	var str = stats.get("str", 1)
+	var def = stats.get("def", 1)
 	e.abilities_this_has = skills
 
 	# setup with Floor Tilemap
-	e.setup(dungeon_floor, dungeon_top, 3, 1, 0)
+	e.setup(dungeon_floor, dungeon_top, hp, str, def, stats)
 
 	# Enemies always in WorldRoot
 	if world_root != null:
@@ -1155,7 +1157,7 @@ func spawn_player() -> void:
 	var e: PlayerCharacter = PLAYER_SCENE.instantiate()
 	e.name = "Player"
 	# Floor setzen (einmal!)
-	e.setup(dungeon_floor, dungeon_top, 10, 3, 0)
+	e.setup(dungeon_floor, dungeon_top, 10, 3, 0, {})
 	e.fog_layer = fog_war_layer
 	# pass dynamic flag and fog tile id to player for re-fogging
 	if e.has_method("set"):
@@ -1180,7 +1182,6 @@ func spawn_player() -> void:
 		start_pos = Vector2i(-18, 15)
 
 	# erst tilemap, dann gridpos, dann position
-	player.setup(dungeon_floor, dungeon_top, 10, 3, 0)
 	player.grid_pos = start_pos
 	player.global_position = dungeon_floor.to_global(dungeon_floor.map_to_local(start_pos))
 	player.add_to_group("player")

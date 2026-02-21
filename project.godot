@@ -28,6 +28,7 @@ GlobalRNG="*res://scripts/Autoloadscripts/GlobalRNG.gd"
 AutoloadResetRunner="*res://scripts/Autoloadscripts/AutoloadResetRunner.gd"
 SaveManager="*uid://fxofgc6osgav"
 GameState="*uid://0cgtwuf8qn6"
+SkillState="*uid://b5bce0gix01b7"
 
 [display]
 

@@ -54,11 +54,12 @@ func _on_tab_changed(tab_idx: int) -> void:
 
 func _populate_list(tab_idx: int) -> void:
 	_clear_vbox(list_vbox)
+	print("Populating list!")
 	match tab_idx:
 		Tab.SKILLS:
 			for ability in player.abilities:
 				if not ability.is_passive:
-					if ability.is_activateable(battle_scene):
+					if ability.is_activateable(player, enemy, battle_scene):
 						_add_button(ability)
 					else:
 						var butt_label = ability.name
@@ -178,6 +179,7 @@ func _on_button_mouse_entered(btn: Button) -> void:
 
 func _on_skill_pressed(ability) -> void:
 	if player_turn:
+		battle_scene.log_container.reset()
 		if hit_anim_player != null:
 			hit_anim_player.visible = true
 			hit_anim_player.play("default")

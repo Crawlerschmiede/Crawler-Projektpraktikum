@@ -39,13 +39,30 @@ var sprites = {
 		preload("res://scenes/sprite_scenes/base_zombie_sprite_scene.tscn"),
 		{"idle": "default", "teleport_start": "dig_down", "teleport_end": "dig_up"}
 	],
-	"goblin": [preload("res://scenes/sprite_scenes/goblin_sprite_scene.tscn"), ["Bonk", "War Cry"]],
-	"orc": [preload("res://scenes/sprite_scenes/orc_sprite_scene.tscn"), ["Bonk"]],
+	"goblin": [preload("res://scenes/sprite_scenes/goblin_sprite_scene.tscn")],
+	"orc":
+	[
+		preload("res://scenes/sprite_scenes/orc_sprite_scene.tscn"),
+		["Big Bonk", "War Command", "Ground Stomp"],
+		{"idle": "default"}
+	],
 	"plant":
 	[
 		preload("res://scenes/sprite_scenes/big_plant_sprite_scene.tscn"),
-		["Vine Slash", "Entwine", "Poison Ivy", "Herbicide"],
+		["Vine Slash", "Entwine", "Poison Ivy", "Herbicide", "Mandrake's Screech"],
 		{"idle": "default", "teleport_start": "dig_down", "teleport_end": "dig_up"}
+	],
+	"wendigo":
+	[
+		preload("res://scenes/sprite_scenes/wendigo_sprite_scene.tscn"),
+		["Claw Slash", "Mimicry", "Evil that devours", "Insatiable Hunger"],
+		{"idle": "default"}
+	],
+	"necromancer":
+	[
+		preload("res://scenes/sprite_scenes/necromancer_scene.tscn"),
+		["Green Flames", "Life Steal", "Domain Expansion", "Join the dead"],
+		{"idle": "default"}
 	],
 	"pc": [preload("res://scenes/sprite_scenes/player_sprite_scene.tscn")]
 }
@@ -67,6 +84,7 @@ var abilities: Array[Skill] = []
 var acquired_abilities: Array[String] = []
 var base_action_points: int = 1
 var action_points: int
+var resistances: Dictionary = {"physical": 0, "fire": 0, "electric": 0, "earth": 0, "ice": 0}
 
 #--- status effects (not sure if this is the best way... it'll be fine!) ---
 #--- update it won't be, this is [not very good] and I'll fix it... someday
@@ -94,7 +112,14 @@ var animations = null
 
 
 # --- Setup ---
-func setup(tmap: TileMapLayer, top_map: TileMapLayer, _hp, _str, _def):
+func setup(
+	tmap: TileMapLayer,
+	top_map: TileMapLayer,
+	_hp: int,
+	_str: int,
+	_def: int,
+	_resistances: Dictionary
+):
 	tilemap = tmap
 	top_layer = top_map
 	max_hp = _hp
@@ -102,11 +127,18 @@ func setup(tmap: TileMapLayer, top_map: TileMapLayer, _hp, _str, _def):
 	str_stat = _str
 	def_stat = _def
 	action_points = base_action_points
+	print("Setting up with the following:", _resistances)
+	resistances["physical"] = _resistances.get("phyres", 0)
+	resistances["fire"] = _resistances.get("firres", 0)
+	resistances["electric"] = _resistances.get("eleres", 0)
+	resistances["earth"] = _resistances.get("erres", 0)
+	resistances["ice"] = _resistances.get("iceres", 0)
+	print("Ended up with ", resistances)
 
 
 func super_ready(sprite_type: String, entity_type: Array):
 	if tilemap == null:
-		push_error("❌ MoveableEntity hat keine TileMap! setup(tilemap) vergessen?")
+		push_error("MoveableEntity hat keine TileMap! setup(tilemap) vergessen?")
 		return
 	types = entity_type
 	# Spawn logic for player character
@@ -127,10 +159,10 @@ func super_ready(sprite_type: String, entity_type: Array):
 				if is_boss_tile:
 					print("found boss tile! ", cell)
 					# check with EntityAutoload if the position is valid (not occupied)
-					if EntityAutoload.has_method("canReservePos"):
-						if EntityAutoload.canReservePos(cell, tilemap):
+					if EntityAutoload.has_method("can_reserve_pos"):
+						if EntityAutoload.can_reserve_pos(cell, tilemap):
 							possible_spawns.append(cell)
-					elif EntityAutoload.has_method("isValidPos"):
+					elif EntityAutoload.has_method("is_valid_pos"):
 						# fallback: check tile existence and walkability directly (don't reserve)
 						if tilemap.get_cell_source_id(cell) != -1:
 							var td_fallback := tilemap.get_cell_tile_data(cell)
@@ -148,8 +180,8 @@ func super_ready(sprite_type: String, entity_type: Array):
 			return
 		var spawnpoint = possible_spawns[rng.randi_range(0, possible_spawns.size() - 1)]
 		# reserve chosen cell so other entities won't take it
-		if EntityAutoload.has_method("reservePos"):
-			EntityAutoload.reservePos(spawnpoint)
+		if EntityAutoload.has_method("reserve_pos"):
+			EntityAutoload.reserve_pos(spawnpoint)
 		print("super_ready: boss - chosen spawn:", spawnpoint)
 		position = tilemap.map_to_local(spawnpoint)
 		grid_pos = spawnpoint
@@ -165,10 +197,10 @@ func super_ready(sprite_type: String, entity_type: Array):
 				if is_boss_tile:
 					print("found tutorial tile! ", cell)
 					# avoid spawning on occupied tiles
-					if EntityAutoload.has_method("canReservePos"):
-						if EntityAutoload.canReservePos(cell, tilemap):
+					if EntityAutoload.has_method("can_reserve_pos"):
+						if EntityAutoload.can_reserve_pos(cell, tilemap):
 							possible_spawns.append(cell)
-					elif EntityAutoload.has_method("isValidPos"):
+					elif EntityAutoload.has_method("is_valid_pos"):
 						if tilemap.get_cell_source_id(cell) != -1:
 							var td_fallback2 := tilemap.get_cell_tile_data(cell)
 							if (
@@ -183,8 +215,8 @@ func super_ready(sprite_type: String, entity_type: Array):
 				self.queue_free()
 				return
 			var spawnpoint = possible_spawns[rng.randi_range(0, possible_spawns.size() - 1)]
-			if EntityAutoload.has_method("reservePos"):
-				EntityAutoload.reservePos(spawnpoint)
+			if EntityAutoload.has_method("reserve_pos"):
+				EntityAutoload.reserve_pos(spawnpoint)
 			print("super_ready: tutorial - chosen spawn:", spawnpoint)
 			position = tilemap.map_to_local(spawnpoint)
 			grid_pos = spawnpoint
@@ -203,10 +235,10 @@ func super_ready(sprite_type: String, entity_type: Array):
 					if "wallbound" in entity_type:
 						if is_next_to_wall(cell):
 							# only add if EntityAutoload says the pos is free
-							if EntityAutoload.has_method("canReservePos"):
-								if EntityAutoload.canReservePos(cell, tilemap):
+							if EntityAutoload.has_method("can_reserve_pos"):
+								if EntityAutoload.can_reserve_pos(cell, tilemap):
 									possible_spawns.append(cell)
-								elif EntityAutoload.has_method("isValidPos"):
+								elif EntityAutoload.has_method("is_valid_pos"):
 									if tilemap.get_cell_source_id(cell) != -1:
 										var td_fallback3 := tilemap.get_cell_tile_data(cell)
 										if (
@@ -217,10 +249,10 @@ func super_ready(sprite_type: String, entity_type: Array):
 							else:
 								possible_spawns.append(cell)
 					else:
-						if EntityAutoload.has_method("canReservePos"):
-							if EntityAutoload.canReservePos(cell, tilemap):
+						if EntityAutoload.has_method("can_reserve_pos"):
+							if EntityAutoload.can_reserve_pos(cell, tilemap):
 								possible_spawns.append(cell)
-						elif EntityAutoload.has_method("isValidPos"):
+						elif EntityAutoload.has_method("is_valid_pos"):
 							if tilemap.get_cell_source_id(cell) != -1:
 								var td_fallback4 := tilemap.get_cell_tile_data(cell)
 								if (
@@ -240,8 +272,8 @@ func super_ready(sprite_type: String, entity_type: Array):
 			self.queue_free()
 			return
 		var spawnpoint = possible_spawns[rng.randi_range(0, possible_spawns.size() - 1)]
-		if EntityAutoload.has_method("reservePos"):
-			EntityAutoload.reservePos(spawnpoint)
+		if EntityAutoload.has_method("reserve_pos"):
+			EntityAutoload.reserve_pos(spawnpoint)
 		print("super_ready: enemy - chosen spawn:", spawnpoint)
 		position = tilemap.map_to_local(spawnpoint)
 		grid_pos = spawnpoint
@@ -449,13 +481,45 @@ func initiate_battle(player: Node, enemy: Node) -> bool:
 	return true
 
 
-func take_damage(damage):
+func take_damage(damage, type = ""):
 	#print(self, " takes ", damage, " damage!")
 	var taken_damage = damage  #useless right now but just put here for later damage calculations
+	var damage_type = "physical"
+	if "fire" in type:
+		damage_type = "fire"
+	elif "ice" in type:
+		damage_type = "ice"
+	elif "electric" in type:
+		damage_type = "electric"
+	elif "earth" in type:
+		damage_type = "earth"
+	print("Relevant resistances: ", resistances)
+	var active_res = resistances.get(damage_type, 0)
+	print("active resistance should be ", damage_type, " resistance of ", active_res)
+	print("type is ", type)
+	if "pierce" in type:
+		print("it has pierce")
+		var parts = type.split("||")
+		for i in range(len(parts)):
+			if "pierce" in parts[i]:
+				var pieces = parts[i].split("=")
+				var reduction = float(pieces[1])
+				print("should reduce resistacne by ", reduction)
+				if active_res > 0:
+					if active_res - reduction > 0:
+						active_res -= reduction
+					else:
+						active_res = 0
+	print("After pierce it's ", active_res)
+	taken_damage *= (1 - active_res)
+	if not "ignoredef" in type:
+		taken_damage -= self.def_stat
+	if taken_damage < 0:
+		taken_damage = 0
 	print(self.name, " should take damage")
 	print(alterations)
 	for alteration in alterations:
-		if alterations[alteration].has("dodge_chance"):
+		if alterations[alteration].has("dodge_chance") and not "undodgeable" in type:
 			var dodge_chance = alterations[alteration].dodge_chance * 100
 			var dodged = rng.randi_range(0, 100)
 			if dodged < dodge_chance:
@@ -467,7 +531,7 @@ func take_damage(damage):
 				elif dodge_chance - dodged < 10:
 					closeness = ""
 				elif dodge_chance - dodged < 30:
-					closeness = "easily"
+					closeness = " easily"
 				elif dodge_chance - dodged < 50:
 					closeness = " by a disrespectfully large margin"
 				print("but dodges! with a chance of", dodge_chance, " against ", dodged)
@@ -496,6 +560,24 @@ func refill_actions():
 			action_points += int(alterations[alteration].action_bonus)
 
 
+func reset_cooldowns(number: int):
+	print("resetting cooldowns!!1!!!!!1")
+	for i in range(number):
+		var cooldownables = []
+		for ability in abilities:
+			if ability.turns_until_reuse and ability.turns_until_reuse > 0:
+				cooldownables.append(ability)
+		var picked = randi_range(0, len(cooldownables) - 1)
+		for cooldownable in cooldownables:
+			print("cool lad! ", cooldownable.name)
+		if len(cooldownables) > 0:
+			print(
+				"cooled lad! ", cooldownables[picked].name, cooldownables[picked].turns_until_reuse
+			)
+			cooldownables[picked].turns_until_reuse = 0
+	return []
+
+
 #-- status effect logic --
 
 
@@ -517,6 +599,7 @@ func increase_freeze(amount):
 func full_status_heal():
 	stunned = 0
 	poisoned = 0
+	frozen = 0
 
 
 func deal_with_status_effects() -> Array:
@@ -529,12 +612,13 @@ func deal_with_status_effects() -> Array:
 		gets_a_turn = false
 		things_that_happened.append("Is stunned and cannot move!")
 	if poisoned > 0:
-		var message = take_damage(poisoned)
+		var message = take_damage(poisoned, "ignoredef|undodgeable")
 		poisoned -= poison_recovery
 		if poisoned < 0:
 			poisoned = 0
 		things_that_happened.append("Target" + message[0] + " from poison! Target" + message[1])
 	if frozen > 0:
+		print("Freeze is currently ", frozen)
 		frozen -= freeze_recovery
 		if frozen < 0:
 			frozen = 0
