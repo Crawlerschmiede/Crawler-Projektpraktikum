@@ -92,6 +92,7 @@ func _refresh_hotbar_styles() -> void:
 func _ready() -> void:
 	# Connect coin display to PlayerInventory changes
 	_disable_merchant_ui()
+	$Inventory/Inner.visible = false
 
 	if (
 		typeof(PlayerInventory) != TYPE_NIL
