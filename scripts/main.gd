@@ -36,7 +36,7 @@ var loading_screen: CanvasLayer = null
 
 var switching_world := false
 
-var boss_win : bool = false
+var boss_win: bool = false
 
 @onready var backgroundtile = $TileMapLayer
 
@@ -852,7 +852,9 @@ func spawn_enemies(do_boss: bool) -> void:
 			print("spawn: ", def.get("sprite_type", id))
 
 
-func spawn_enemy(sprite_type: String, behaviour: Array, skills: Array, stats: Dictionary, boss: bool = false) -> void:
+func spawn_enemy(
+	sprite_type: String, behaviour: Array, skills: Array, stats: Dictionary, boss: bool = false
+) -> void:
 	# default: spawn normal enemy
 	var e = ENEMY_SCENE.instantiate()
 	e.add_to_group("enemy")
