@@ -192,6 +192,7 @@ func _on_skill_pressed(ability) -> void:
 		player.action_points -= 1
 		if player.action_points < 1:
 			player_turn = false
+			battle_scene.check_curr_tile_mods()
 			player_turn_done.emit()
 		else:
 			var over = battle_scene.check_victory()
