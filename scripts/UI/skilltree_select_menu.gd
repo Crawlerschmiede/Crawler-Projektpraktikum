@@ -21,6 +21,8 @@ func _ready():
 	for card in cards_container:
 		card.gui_input.connect(_on_card_clicked.bind(card))
 
+	_sync_card_visuals()
+
 
 func _find_skill_cards(node: Node) -> Array:
 	var result: Array = []
@@ -46,7 +48,19 @@ func _on_card_clicked(event: InputEvent, card):
 			else:
 				print("Cannot add: Max selections (3) reached.")
 
+		_sync_card_visuals()
 		print("Current List: ", selected_local, " | Count: ", selected_local.size())
+
+
+func _sync_card_visuals() -> void:
+	for card in cards_container:
+		if not card.has_meta("skill_id"):
+			continue
+
+		var skill_id = card.get_meta("skill_id")
+		var is_selected = skill_id in selected_local
+		if card.has_method("set_selected"):
+			card.call("set_selected", is_selected)
 
 
 func _on_ConfirmButton_pressed():
