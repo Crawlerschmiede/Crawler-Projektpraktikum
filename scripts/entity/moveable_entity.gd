@@ -332,6 +332,8 @@ func move_to_tile(direction: Vector2i):
 	var tween = get_tree().create_tween()
 	tween.tween_property(self, "position", target_position, 0.15)
 	tween.finished.connect(_on_move_finished)
+	await tween.finished
+	return true
 
 
 func teleport_to_tile(coordinates: Vector2i, animation = null) -> void:
