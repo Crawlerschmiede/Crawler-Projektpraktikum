@@ -1,5 +1,7 @@
 extends Control
 
+signal selection_confirmed(selected_skills: Array[String])
+
 const MAX_SELECTIONS := 3
 
 var selected_local: Array[String] = []
@@ -51,6 +53,10 @@ func _on_ConfirmButton_pressed():
 	if selected_local.size() == MAX_SELECTIONS:
 		SkillState.selected_skills = selected_local.duplicate()
 		print("Finalizing Selections: ", SkillState.selected_skills)
-		get_tree().change_scene_to_file("res://scenes/UI/skilltree-upgrading.tscn")
+		if get_tree().current_scene == self:
+			get_tree().change_scene_to_file("res://scenes/UI/skilltree-upgrading.tscn")
+		else:
+			emit_signal("selection_confirmed", SkillState.selected_skills)
+			queue_free()
 	else:
 		print("Refusing to confirm. Current count is: ", selected_local.size())
