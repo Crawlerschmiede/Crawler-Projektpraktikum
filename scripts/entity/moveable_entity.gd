@@ -40,27 +40,16 @@ var sprites = {
 		{"idle": "default", "teleport_start": "dig_down", "teleport_end": "dig_up"}
 	],
 	"goblin": [preload("res://scenes/sprite_scenes/goblin_sprite_scene.tscn")],
-	"orc":
-	[
-		preload("res://scenes/sprite_scenes/orc_sprite_scene.tscn"),
-		{"idle": "default"}
-
-	],
+	"orc": [preload("res://scenes/sprite_scenes/orc_sprite_scene.tscn"), {"idle": "default"}],
 	"plant":
 	[
 		preload("res://scenes/sprite_scenes/big_plant_sprite_scene.tscn"),
 		{"idle": "default", "teleport_start": "dig_down", "teleport_end": "dig_up"}
 	],
 	"wendigo":
-	[
-		preload("res://scenes/sprite_scenes/wendigo_sprite_scene.tscn"),
-		{"idle": "default"}
-	],
+	[preload("res://scenes/sprite_scenes/wendigo_sprite_scene.tscn"), {"idle": "default"}],
 	"necromancer":
-	[
-		preload("res://scenes/sprite_scenes/necromancer_scene.tscn"),
-		{"idle": "default"}
-	],
+	[preload("res://scenes/sprite_scenes/necromancer_scene.tscn"), {"idle": "default"}],
 	"pc": [preload("res://scenes/sprite_scenes/player_sprite_scene.tscn")]
 }
 
