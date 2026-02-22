@@ -2,6 +2,7 @@ extends CanvasLayer
 
 signal player_loss
 signal player_victory
+signal player_vicory_boss
 
 const MARKER_PREFAB := preload("res://scenes/rooms/helpers/marker.tscn")
 const MARKER_FLAVOURS = {
@@ -58,6 +59,7 @@ var active: bool = true
 var enemy_action_log = []
 var player_action_log = []
 
+var enemy_is_boss = false
 @onready var hit_anim_enemy: AnimatedSprite2D = $Battle_root/PlayerPosition/enemy_attack_anim
 @onready var hit_anim_player: AnimatedSprite2D = $Battle_root/EnemyPosition/player_attack_anim
 @onready var enemy_marker = $Battle_root/EnemyPosition
@@ -75,6 +77,7 @@ func _ready():
 		player.full_status_heal()
 	if enemy != null and is_instance_valid(enemy):
 		enemy.full_status_heal()
+		enemy_is_boss = enemy.boss
 	enemy_sprite = create_battle_sprite(enemy)
 	player_sprite = create_battle_sprite(player)
 	player_sprite.animation = "idle_up"
