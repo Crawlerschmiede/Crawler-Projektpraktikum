@@ -43,25 +43,22 @@ var sprites = {
 	"orc":
 	[
 		preload("res://scenes/sprite_scenes/orc_sprite_scene.tscn"),
-		["Big Bonk", "War Command", "Ground Stomp"],
 		{"idle": "default"}
+
 	],
 	"plant":
 	[
 		preload("res://scenes/sprite_scenes/big_plant_sprite_scene.tscn"),
-		["Vine Slash", "Entwine", "Poison Ivy", "Herbicide", "Mandrake's Screech"],
 		{"idle": "default", "teleport_start": "dig_down", "teleport_end": "dig_up"}
 	],
 	"wendigo":
 	[
 		preload("res://scenes/sprite_scenes/wendigo_sprite_scene.tscn"),
-		["Claw Slash", "Mimicry", "Evil that devours", "Insatiable Hunger"],
 		{"idle": "default"}
 	],
 	"necromancer":
 	[
 		preload("res://scenes/sprite_scenes/necromancer_scene.tscn"),
-		["Green Flames", "Life Steal", "Domain Expansion", "Join the dead"],
 		{"idle": "default"}
 	],
 	"pc": [preload("res://scenes/sprite_scenes/player_sprite_scene.tscn")]
@@ -284,8 +281,8 @@ func super_ready(sprite_type: String, entity_type: Array):
 	if not "pc" in entity_type:
 		for ability in abilities_this_has:
 			add_skill(ability)
-	if len(sprite_scene) > 2:
-		animations = sprite_scene[2]
+	if len(sprite_scene) > 1:
+		animations = sprite_scene[1]
 
 
 # --- Movement Logic ---
