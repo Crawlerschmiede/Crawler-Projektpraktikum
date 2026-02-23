@@ -32,6 +32,7 @@ func _on_merchant_updated(data: Dictionary):
 
 
 func _rebuild(data: Dictionary):
+	self.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	clear()
 
 	for i in range(data["items"].size()):
@@ -41,6 +42,7 @@ func _rebuild(data: Dictionary):
 		slot.item_name = item["name"]
 		slot.item_count = item["count"]
 		slot.price = item["price"]
+		slot.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 
 		# package size: allow per-item override from merchant data
 		slot.buy_amount = int(item.get("buy_amount", current_merchant.sell_batch))
