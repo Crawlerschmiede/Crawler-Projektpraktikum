@@ -11,11 +11,14 @@ const LOOTBOX := preload("res://scenes/Interactables/Lootbox.tscn")
 const TRAP := preload("res://scenes/Interactables/Trap.tscn")
 const MERCHANT := preload("res://scenes/entity/merchant.tscn")
 const LOADING_SCENE := preload("res://scenes/UI/loading_screen.tscn")
+const SKILLTREE_SELECT_SCENE := preload("res://scenes/UI/skilltree-select-menu.tscn")
+const SKILLTREE_UPGRADING_SCENE := preload("res://scenes/UI/skilltree-upgrading.tscn")
 const START_SCENE := "res://scenes/UI/start-menu.tscn"
 const DEATH_SCENE := "res://scenes/UI/death-screen.tscn"
 const DEATH_SCENE_PACKED := preload("res://scenes/UI/death-screen.tscn")
 const SEWER_TILESET := "res://scenes/rooms/Rooms/roomtiles_2world.tres"
 const TUTORIAL_ROOM := "res://scenes/rooms/Tutorial Rooms/tutorial_room.tscn"
+const UI_MODAL_CONTROLLER := preload("res://scripts/UI/ui_modal_controller.gd")
 @export var menu_scene := preload("res://scenes/UI/popup-menu.tscn")
 @export var fog_tile_id: int = 0  # set this in the inspector to the fog-tile id in your tileset
 @export var fog_dynamic: bool = true  # if true, areas that are no longer visible get fogged again
@@ -48,7 +51,11 @@ var switching_world := false
 
 
 func _ready() -> void:
+	UI_MODAL_CONTROLLER.set_debug_enabled(OS.is_debug_build())
 	generators = [generator1, generator2, generator3]
+
+	await _show_skilltree_select_menu()
+	await _show_skilltree_upgrading_menu()
 
 	# Tutorial prüfen (JSON: res://data/tutorialData.json)
 	if _has_completed_tutorial() == false:
@@ -58,6 +65,60 @@ func _ready() -> void:
 	world_index = 0
 	# Normales Spiel starten (Welt 0)
 	await _load_world(world_index)
+
+
+func _show_skilltree_select_menu() -> void:
+	var skilltree_select = SKILLTREE_SELECT_SCENE.instantiate()
+	if skilltree_select == null:
+		push_warning(
+			"Failed to instantiate skilltree select menu; continuing startup without selection"
+		)
+		return
+
+	var ui_layer := CanvasLayer.new()
+	ui_layer.name = "SkilltreeSelectOverlay"
+	ui_layer.layer = 100
+	add_child(ui_layer)
+	ui_layer.add_child(skilltree_select)
+
+	if skilltree_select is Control:
+		skilltree_select.set_anchors_preset(Control.PRESET_FULL_RECT)
+		skilltree_select.offset_left = 0
+		skilltree_select.offset_top = 0
+		skilltree_select.offset_right = 0
+		skilltree_select.offset_bottom = 0
+
+	if skilltree_select.has_signal("selection_confirmed"):
+		await skilltree_select.selection_confirmed
+
+	if is_instance_valid(ui_layer):
+		ui_layer.queue_free()
+
+
+func _show_skilltree_upgrading_menu() -> void:
+	var skilltree_upgrading = SKILLTREE_UPGRADING_SCENE.instantiate()
+	if skilltree_upgrading == null:
+		push_warning("Failed to instantiate skilltree upgrading menu; continuing startup")
+		return
+
+	var ui_layer := CanvasLayer.new()
+	ui_layer.name = "SkilltreeUpgradingOverlay"
+	ui_layer.layer = 100
+	add_child(ui_layer)
+	ui_layer.add_child(skilltree_upgrading)
+
+	if skilltree_upgrading is Control:
+		skilltree_upgrading.set_anchors_preset(Control.PRESET_FULL_RECT)
+		skilltree_upgrading.offset_left = 0
+		skilltree_upgrading.offset_top = 0
+		skilltree_upgrading.offset_right = 0
+		skilltree_upgrading.offset_bottom = 0
+
+	if skilltree_upgrading.has_signal("closed"):
+		await skilltree_upgrading.closed
+
+	if is_instance_valid(ui_layer):
+		ui_layer.queue_free()
 
 
 func _set_tree_paused(value: bool) -> void:
@@ -681,7 +742,7 @@ func toggle_menu():
 		menu_instance = menu_scene.instantiate()
 		add_child(menu_instance)
 
-		_set_tree_paused(true)
+		UI_MODAL_CONTROLLER.acquire(self, true, true)
 
 		if menu_instance.has_signal("menu_closed"):
 			menu_instance.menu_closed.connect(on_menu_closed)
@@ -693,7 +754,7 @@ func on_menu_closed():
 	if menu_instance != null and is_instance_valid(menu_instance):
 		menu_instance.queue_free()
 		menu_instance = null
-	_set_tree_paused(false)
+	UI_MODAL_CONTROLLER.release(self, true, true)
 
 
 func spawn_enemies(do_boss: bool) -> void:
@@ -870,7 +931,7 @@ func spawn_player() -> void:
 	var e: PlayerCharacter = PLAYER_SCENE.instantiate()
 	e.name = "Player"
 	# Floor setzen (einmal!)
-	e.setup(dungeon_floor, dungeon_top, 10, 3, 0, {})
+	e.setup(dungeon_floor, dungeon_top, 20, 4, 0, {})
 	e.fog_layer = fog_war_layer
 	# pass dynamic flag and fog tile id to player for re-fogging
 	if e.has_method("set"):

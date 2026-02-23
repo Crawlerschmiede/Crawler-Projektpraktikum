@@ -4,12 +4,14 @@ signal closed
 
 const SETTINGS_MENU_SCENE := preload("res://scenes/UI/settings_menu.tscn")
 const POPUP_MENU_SCENE := preload("res://scenes/UI/popup-menu.tscn")
+const UI_MODAL_CONTROLLER := preload("res://scripts/UI/ui_modal_controller.gd")
 
 var _settings_layer: CanvasLayer = null
 var _settings_instance: Control = null
 var _menu_instance: CanvasLayer = null
 var _inventory_transition_active: bool = false
 var _inventory_seen_open: bool = false
+var _close_hotkey_armed: bool = true
 
 
 func _ready():
@@ -21,6 +23,7 @@ func _ready():
 		if sprite.has_signal("clicked"):
 			sprite.clicked.connect(_on_element_clicked)
 	set_process(true)
+	set_process_unhandled_input(true)
 
 
 func _process(_delta: float) -> void:
@@ -36,6 +39,27 @@ func _process(_delta: float) -> void:
 		_inventory_transition_active = false
 		_inventory_seen_open = false
 		visible = true
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventKey and event.echo:
+		return
+
+	if not _close_hotkey_armed:
+		if event.is_action_released("binds_and_menus"):
+			_close_hotkey_armed = true
+			get_viewport().set_input_as_handled()
+		elif event.is_action_pressed("binds_and_menus"):
+			get_viewport().set_input_as_handled()
+		return
+
+	if event.is_action_pressed("binds_and_menus"):
+		closed.emit()
+		get_viewport().set_input_as_handled()
+
+
+func suppress_hotkey_close_until_release() -> void:
+	_close_hotkey_armed = false
 
 
 #func _input(event):
@@ -67,6 +91,7 @@ func _toggle_inventory() -> void:
 func _open_settings_overlay() -> void:
 	if _settings_instance != null:
 		return
+	UI_MODAL_CONTROLLER.acquire(self, true, true)
 
 	_settings_layer = CanvasLayer.new()
 	_settings_layer.name = "SettingsOverlayFromBinds"
@@ -97,11 +122,13 @@ func _on_settings_closed() -> void:
 	_settings_layer = null
 	_settings_instance = null
 	visible = true
+	UI_MODAL_CONTROLLER.release(self, true, true)
 
 
 func _open_menu_overlay() -> void:
 	if _menu_instance != null:
 		return
+	UI_MODAL_CONTROLLER.acquire(self, true, true)
 
 	_menu_instance = POPUP_MENU_SCENE.instantiate()
 	get_tree().root.add_child(_menu_instance)
@@ -118,6 +145,7 @@ func _on_menu_closed() -> void:
 
 	_menu_instance = null
 	visible = true
+	UI_MODAL_CONTROLLER.release(self, true, true)
 
 
 func _trigger_action(action_name: String) -> void:
