@@ -54,6 +54,7 @@ animations = [{
 }]
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" unique_id=358690754]
+position = Vector2(-16, -16)
 sprite_frames = SubResource("SpriteFrames_7ojl6")
 animation = &"idle"
 frame = 4
