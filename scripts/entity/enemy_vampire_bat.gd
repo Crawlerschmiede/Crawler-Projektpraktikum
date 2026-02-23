@@ -8,7 +8,7 @@ var chase_timer: float = 5.0
 var burrowed = false
 var chased_pos: Vector2i
 var chased_direction: Vector2i
-
+var boss: bool = false
 var chosen: Skill
 var sprite_type: String = "bat"
 var behaviour = "idle"

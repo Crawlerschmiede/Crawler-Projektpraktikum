@@ -39,6 +39,8 @@ var loading_screen: CanvasLayer = null
 
 var switching_world := false
 
+var boss_win: bool = false
+
 @onready var backgroundtile = $TileMapLayer
 
 @onready var minimap: TileMapLayer
@@ -134,6 +136,9 @@ func _load_tutorial_world() -> void:
 	await _show_loading()
 
 	_clear_world()
+
+	# Reset boss flag when loading a world so previous boss state doesn't leak
+	boss_win = false
 
 	world_root = Node2D.new()
 	world_root.name = "WorldRoot"
@@ -683,6 +688,14 @@ func _on_player_exit_reached() -> void:
 	if switching_world:
 		return
 
+	# Prevent progressing if a boss is still alive in the world
+	for e in get_tree().get_nodes_in_group("enemy"):
+		if e != null and is_instance_valid(e):
+			# enemies spawned by spawn_enemy have a `boss` property
+			if bool(e.boss) and e.hp > 0:
+				push_warning("You must defeat the boss before advancing!")
+				return
+
 	switching_world = true
 
 	# Prüfen: Sind wir im Tutorial? (Tutorial hat keine Minimap)
@@ -846,7 +859,8 @@ func spawn_enemies(do_boss: bool) -> void:
 			def.get("sprite_type", "what"),
 			def.get("behaviour", []),
 			def.get("skills", []),
-			def.get("stats", {})
+			def.get("stats", {}),
+			true
 		)
 		print("Spawned boss!")
 		return
@@ -899,7 +913,9 @@ func spawn_enemies(do_boss: bool) -> void:
 			print("spawn: ", def.get("sprite_type", id))
 
 
-func spawn_enemy(sprite_type: String, behaviour: Array, skills: Array, stats: Dictionary) -> void:
+func spawn_enemy(
+	sprite_type: String, behaviour: Array, skills: Array, stats: Dictionary, boss: bool = false
+) -> void:
 	# default: spawn normal enemy
 	var e = ENEMY_SCENE.instantiate()
 	e.add_to_group("enemy")
@@ -908,6 +924,7 @@ func spawn_enemy(sprite_type: String, behaviour: Array, skills: Array, stats: Di
 	e.types = behaviour
 	e.sprite_type = sprite_type
 	e.abilities_this_has = skills
+	e.boss = boss
 	var hp = stats.get("hp", 1)
 	var str = stats.get("str", 1)
 	var def = stats.get("def", 1)
@@ -1114,6 +1131,11 @@ func enemy_defeated(enemy):
 		print("enemy_defeated: freeing battle UI")
 		battle.call_deferred("queue_free")
 		battle = null
+
+	# If the defeated enemy was a boss, record victory so level-gating can proceed
+	if enemy != null and is_instance_valid(enemy) and bool(enemy.boss):
+		boss_win = true
+		print("enemy_defeated: boss defeated -> boss_win set to true")
 
 	if enemy != null and is_instance_valid(enemy):
 		print("enemy_defeated: freeing enemy node")

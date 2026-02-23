@@ -39,7 +39,6 @@ animations = [{
 }]
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" unique_id=366324882]
-position = Vector2(2, 7)
 sprite_frames = SubResource("SpriteFrames_xtrj1")
 animation = &"idle"
 frame_progress = 0.39585075
