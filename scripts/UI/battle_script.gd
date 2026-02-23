@@ -312,7 +312,7 @@ func move_player(direction: String, distance: int):
 				if tile.y >= (min_y + from_to[0]) and tile.y <= (min_y + from_to[1]):
 					possible_tiles.append(tile)
 			new_cell = possible_tiles[rng.randi_range(0, len(possible_tiles) - 1)]
-		elif area =="dir":
+		elif area == "dir":
 			var new_dir = basics[rng.randi_range(0, len(basics) - 1)]
 			return move_player(new_dir, distance)
 

@@ -597,7 +597,7 @@ func deal_with_status_effects(battle, phase) -> Array:
 		stunned -= stun_recovery
 		if stunned < 0:
 			stunned = 0
-		if randi_range(0, 100)<=25:
+		if randi_range(0, 100) <= 25:
 			battle.move_player("rnd_dir", 1)
 		things_that_happened.append("Is stunned and movement seems janky")
 	if poisoned > 0 and phase == 2:
