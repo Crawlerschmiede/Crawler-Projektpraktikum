@@ -11,6 +11,8 @@ const LOOTBOX := preload("res://scenes/Interactables/Lootbox.tscn")
 const TRAP := preload("res://scenes/Interactables/Trap.tscn")
 const MERCHANT := preload("res://scenes/entity/merchant.tscn")
 const LOADING_SCENE := preload("res://scenes/UI/loading_screen.tscn")
+const SKILLTREE_SELECT_SCENE := preload("res://scenes/UI/skilltree-select-menu.tscn")
+const SKILLTREE_UPGRADING_SCENE := preload("res://scenes/UI/skilltree-upgrading.tscn")
 const START_SCENE := "res://scenes/UI/start-menu.tscn"
 const DEATH_SCENE := "res://scenes/UI/death-screen.tscn"
 const DEATH_SCENE_PACKED := preload("res://scenes/UI/death-screen.tscn")
@@ -52,6 +54,9 @@ func _ready() -> void:
 	UI_MODAL_CONTROLLER.set_debug_enabled(OS.is_debug_build())
 	generators = [generator1, generator2, generator3]
 
+	await _show_skilltree_select_menu()
+	await _show_skilltree_upgrading_menu()
+
 	# Tutorial prüfen (JSON: res://data/tutorialData.json)
 	if _has_completed_tutorial() == false:
 		await _load_tutorial_world()
@@ -60,6 +65,60 @@ func _ready() -> void:
 	world_index = 0
 	# Normales Spiel starten (Welt 0)
 	await _load_world(world_index)
+
+
+func _show_skilltree_select_menu() -> void:
+	var skilltree_select = SKILLTREE_SELECT_SCENE.instantiate()
+	if skilltree_select == null:
+		push_warning(
+			"Failed to instantiate skilltree select menu; continuing startup without selection"
+		)
+		return
+
+	var ui_layer := CanvasLayer.new()
+	ui_layer.name = "SkilltreeSelectOverlay"
+	ui_layer.layer = 100
+	add_child(ui_layer)
+	ui_layer.add_child(skilltree_select)
+
+	if skilltree_select is Control:
+		skilltree_select.set_anchors_preset(Control.PRESET_FULL_RECT)
+		skilltree_select.offset_left = 0
+		skilltree_select.offset_top = 0
+		skilltree_select.offset_right = 0
+		skilltree_select.offset_bottom = 0
+
+	if skilltree_select.has_signal("selection_confirmed"):
+		await skilltree_select.selection_confirmed
+
+	if is_instance_valid(ui_layer):
+		ui_layer.queue_free()
+
+
+func _show_skilltree_upgrading_menu() -> void:
+	var skilltree_upgrading = SKILLTREE_UPGRADING_SCENE.instantiate()
+	if skilltree_upgrading == null:
+		push_warning("Failed to instantiate skilltree upgrading menu; continuing startup")
+		return
+
+	var ui_layer := CanvasLayer.new()
+	ui_layer.name = "SkilltreeUpgradingOverlay"
+	ui_layer.layer = 100
+	add_child(ui_layer)
+	ui_layer.add_child(skilltree_upgrading)
+
+	if skilltree_upgrading is Control:
+		skilltree_upgrading.set_anchors_preset(Control.PRESET_FULL_RECT)
+		skilltree_upgrading.offset_left = 0
+		skilltree_upgrading.offset_top = 0
+		skilltree_upgrading.offset_right = 0
+		skilltree_upgrading.offset_bottom = 0
+
+	if skilltree_upgrading.has_signal("closed"):
+		await skilltree_upgrading.closed
+
+	if is_instance_valid(ui_layer):
+		ui_layer.queue_free()
 
 
 func _set_tree_paused(value: bool) -> void:
