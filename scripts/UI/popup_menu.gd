@@ -2,6 +2,7 @@ extends CanvasLayer
 
 # custom signal to inform the main scene
 signal menu_closed
+signal save_requested
 
 const SETTINGS_MENU_SCENE := preload("res://scenes/UI/settings_menu.tscn")
 
@@ -34,7 +35,13 @@ func _apply_scale() -> void:
 
 # Function for the "Continue" button
 func _on_continue_pressed():
-	#print("Check:Continue Pressed. Emitting signal.")
+	# Mark that user wants to continue from save (if autoload available)
+	var ss = get_tree().root.get_node_or_null("SaveState")
+	if ss != null:
+		ss.load_from_save = true
+		# leave load_index as-is (main will decide), or set ss.load_index here if desired
+	else:
+		push_error("_on_continue_pressed: SaveState autoload not found; continue will not load from save")
 	menu_closed.emit()
 
 
@@ -75,6 +82,13 @@ func _on_settings_closed() -> void:
 		_settings_layer = null
 	_settings_instance = null
 	$VBoxContainer.visible = true
+
+
+func _on_save_pressed() -> void:
+	print("SAVE")
+	# Emit a signal so an external controller can perform the actual save
+	save_requested.emit()
+
 
 
 # Function for the "Quit" button

@@ -138,13 +138,13 @@ This is the current workflow:
   "group": "Weapon",
   "weight": 3,
   "merchant": {
-    "min_count": 1,
-    "max_count": 2,
-    "min_price": 6,
-    "max_price": 9,
-    "buy_amount": 2,
-    "chance": 1.0,
-    "weight": 1
+	"min_count": 1,
+	"max_count": 2,
+	"min_price": 6,
+	"max_price": 9,
+	"buy_amount": 2,
+	"chance": 1.0,
+	"weight": 1
   },
   "bound_skills": ["Slash"],
 	"range":"short"
@@ -210,8 +210,8 @@ extends Node2D
 var used: bool = false
 
 func _ready():
-    # optional: Darstellung/Collision oder Area2D als Kind
-    pass
+	# optional: Darstellung/Collision oder Area2D als Kind
+	pass
 ```
 
 - **Room Template (Beispiel)**

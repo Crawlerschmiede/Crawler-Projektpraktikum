@@ -86,6 +86,8 @@ func _open_settings_overlay() -> void:
 
 	if _settings_instance.has_signal("closed"):
 		_settings_instance.closed.connect(_on_settings_closed)
+	else:
+		push_error("_open_settings_overlay: settings instance missing 'closed' signal")
 
 	visible = false
 
@@ -108,6 +110,19 @@ func _open_menu_overlay() -> void:
 
 	if _menu_instance.has_signal("menu_closed"):
 		_menu_instance.menu_closed.connect(_on_menu_closed)
+	else:
+		push_error("_open_menu_overlay: popup menu instance missing 'menu_closed' signal")
+
+	# Connect save request from popup menu to local handler only if main doesn't handle it
+	if _menu_instance.has_signal("save_requested"):
+		var root := get_tree().root
+		var handled := false
+		if root.get_child_count() > 0:
+			var maybe_main := root.get_child(0)
+			if maybe_main != null and maybe_main.has_method("save_current_world"):
+				handled = true
+	else:
+		push_error("_open_menu_overlay: popup menu instance missing 'save_requested' signal; save unavailable")
 
 	visible = false
 
@@ -118,6 +133,22 @@ func _on_menu_closed() -> void:
 
 	_menu_instance = null
 	visible = true
+
+
+func _on_save_requested() -> void:
+	# Try to call save on the main scene if available
+	var root := get_tree().root
+	if root.get_child_count() == 0:
+		push_error("_on_save_requested: no root children found to call save on")
+		return
+	var maybe_main := root.get_child(0)
+	if maybe_main == null:
+		push_error("_on_save_requested: root child is null")
+		return
+	if maybe_main.has_method("save_current_world"):
+		maybe_main.call("save_current_world")
+	else:
+		push_error("_on_save_requested: main node has no save_current_world() method")
 
 
 func _trigger_action(action_name: String) -> void:

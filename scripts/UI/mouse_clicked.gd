@@ -46,6 +46,9 @@ func _wire_buttons() -> void:
 	if has_node("BoxContainer/VBoxContainer2/Start New"):
 		$"BoxContainer/VBoxContainer2/Start New".pressed.connect(_on_start_pressed)
 
+	if has_node("BoxContainer/VBoxContainer2/Continue"):
+		$BoxContainer/VBoxContainer2/Continue.pressed.connect(_on_continue_pressed)
+
 	if has_node("BoxContainer/VBoxContainer2/Exit"):
 		$BoxContainer/VBoxContainer2/Exit.pressed.connect(get_tree().quit)
 
@@ -59,6 +62,18 @@ func _on_start_pressed() -> void:
 	emit_signal("start_new_pressed")
 
 	# 👉 WICHTIG: kompletter Szenenwechsel
+	var scene_tree = get_tree()
+	if scene_tree != null:
+		scene_tree.paused = false
+		scene_tree.change_scene_to_packed(MAP_GENERATOR_SCENE)
+	else:
+		push_error("mouse_clicked: SceneTree is null; cannot change to map generator scene")
+
+
+func _on_continue_pressed() -> void:
+	# Set autoload flag so Map_Generator / main can load from save
+	SaveState.load_from_save = true
+	# Then perform the same scene change as starting a new game
 	var scene_tree = get_tree()
 	if scene_tree != null:
 		scene_tree.paused = false
