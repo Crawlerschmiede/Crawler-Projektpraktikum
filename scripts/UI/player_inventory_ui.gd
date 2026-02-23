@@ -1,8 +1,11 @@
 extends CanvasLayer
 
+const UI_MODAL_CONTROLLER := preload("res://scripts/UI/ui_modal_controller.gd")
+
 var holding_item = null
 var current_merchant: Node = null
 var merchant_in_range: bool = false
+var _inventory_modal_active: bool = false
 
 @onready var hot_container := $Inventory/Hotbar/HotContainer
 @onready var equipment := $Inventory/Inner/Equiptment
@@ -45,12 +48,12 @@ func _input(event):
 		if merchantgui_merchant_container.visible:
 			# merchant UI open -> swap to normal inventory
 			_disable_merchant_ui()
-			$Inventory/Inner.visible = true
+			_set_inventory_visible(true)
 			$Inventory/Inner/InventoryLabel/Label.text = "Inventory"
 		else:
 			# Normal toggle when no merchant UI is active
 			_disable_merchant_ui()
-			$Inventory/Inner.visible = !$Inventory/Inner.visible
+			_set_inventory_visible(not $Inventory/Inner.visible)
 			if $Inventory/Inner.visible:
 				$Inventory/Inner/InventoryLabel/Label.text = "Inventory"
 
@@ -69,12 +72,12 @@ func _input(event):
 			_disable_merchant_ui()
 			# close merchant UI and hide the whole inventory (do not switch to normal inventory)
 			$Inventory/Inner/InventoryLabel/Label.text = "Inventory"
-			$Inventory/Inner.visible = false
+			_set_inventory_visible(false)
 			return
 		# Otherwise open merchant UI only when in range
 		if merchant_in_range:
 			_enable_merchant_ui()
-			$Inventory/Inner.visible = true
+			_set_inventory_visible(true)
 			$Inventory/Inner/InventoryLabel/Label.text = "Merchant"
 			return
 
@@ -90,6 +93,7 @@ func _refresh_hotbar_styles() -> void:
 
 
 func _ready() -> void:
+	process_mode = Node.PROCESS_MODE_ALWAYS
 	# Connect coin display to PlayerInventory changes
 	_disable_merchant_ui()
 	$Inventory/Inner.visible = false
@@ -140,6 +144,24 @@ func _ready() -> void:
 		# older engine versions may differ; skip if not available
 		return
 	get_tree().node_added.connect(Callable(self, "_on_node_added"))
+
+
+func _set_inventory_visible(is_visible: bool) -> void:
+	$Inventory/Inner.visible = is_visible
+	_sync_inventory_modal_state()
+
+
+func _sync_inventory_modal_state() -> void:
+	var should_be_active: bool = $Inventory/Inner.visible
+	if should_be_active == _inventory_modal_active:
+		return
+
+	if should_be_active:
+		UI_MODAL_CONTROLLER.acquire(self, true, true)
+	else:
+		UI_MODAL_CONTROLLER.release(self, true, true)
+
+	_inventory_modal_active = should_be_active
 
 
 func _update_coin_screen() -> void:
@@ -217,3 +239,9 @@ func _on_merchant_left(_entity = null) -> void:
 	merchantgui.clear()
 	_disable_merchant_ui()
 	$Inventory/Inner/InventoryLabel/Label.text = "Inventory"
+
+
+func _exit_tree() -> void:
+	if _inventory_modal_active:
+		UI_MODAL_CONTROLLER.release(self, true, true)
+		_inventory_modal_active = false
