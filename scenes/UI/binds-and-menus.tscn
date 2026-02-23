@@ -1043,7 +1043,7 @@ vertical_alignment = 1
 custom_minimum_size = Vector2(100, 100)
 offset_left = -199.0
 offset_top = -123.0
-offset_right = 197.0
+offset_right = 200.0
 offset_bottom = 164.0
 
 [node name="Shortcuts" type="VBoxContainer" parent="PaperScroll/HBoxContainer" unique_id=1841000536]
@@ -1061,13 +1061,14 @@ vertical_alignment = 1
 
 [node name="ScrollContainer" type="ScrollContainer" parent="PaperScroll/HBoxContainer/Shortcuts" unique_id=866295782]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(197, 255)
+custom_minimum_size = Vector2(201, 255)
 layout_mode = 2
 size_flags_horizontal = 0
 theme = ExtResource("16_lfygd")
 
 [node name="GridContainer" type="GridContainer" parent="PaperScroll/HBoxContainer/Shortcuts/ScrollContainer" unique_id=1098058954]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(186, 0)
 layout_mode = 2
 theme_override_constants/h_separation = -4
 columns = 2
