@@ -16,6 +16,7 @@ const DEATH_SCENE := "res://scenes/UI/death-screen.tscn"
 const DEATH_SCENE_PACKED := preload("res://scenes/UI/death-screen.tscn")
 const SEWER_TILESET := "res://scenes/rooms/Rooms/roomtiles_2world.tres"
 const TUTORIAL_ROOM := "res://scenes/rooms/Tutorial Rooms/tutorial_room.tscn"
+const UI_MODAL_CONTROLLER := preload("res://scripts/UI/ui_modal_controller.gd")
 @export var menu_scene := preload("res://scenes/UI/popup-menu.tscn")
 @export var fog_tile_id: int = 0  # set this in the inspector to the fog-tile id in your tileset
 @export var fog_dynamic: bool = true  # if true, areas that are no longer visible get fogged again
@@ -48,6 +49,7 @@ var switching_world := false
 
 
 func _ready() -> void:
+	UI_MODAL_CONTROLLER.set_debug_enabled(OS.is_debug_build())
 	generators = [generator1, generator2, generator3]
 
 	# Tutorial prüfen (JSON: res://data/tutorialData.json)
@@ -681,7 +683,7 @@ func toggle_menu():
 		menu_instance = menu_scene.instantiate()
 		add_child(menu_instance)
 
-		_set_tree_paused(true)
+		UI_MODAL_CONTROLLER.acquire(self, true, true)
 
 		if menu_instance.has_signal("menu_closed"):
 			menu_instance.menu_closed.connect(on_menu_closed)
@@ -693,7 +695,7 @@ func on_menu_closed():
 	if menu_instance != null and is_instance_valid(menu_instance):
 		menu_instance.queue_free()
 		menu_instance = null
-	_set_tree_paused(false)
+	UI_MODAL_CONTROLLER.release(self, true, true)
 
 
 func spawn_enemies(do_boss: bool) -> void:
