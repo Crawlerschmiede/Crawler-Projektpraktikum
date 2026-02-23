@@ -37,13 +37,3 @@ expand_mode = 1
 layout_mode = 0
 offset_right = 640.0
 offset_bottom = 480.0
-
-[node name="Continue" type="Button" parent="." unique_id=209471113]
-layout_mode = 0
-offset_left = 270.0
-offset_top = 438.0
-offset_right = 370.0
-offset_bottom = 469.0
-text = "Continue"
-
-[connection signal="pressed" from="Continue" to="." method="_on_continue_pressed"]

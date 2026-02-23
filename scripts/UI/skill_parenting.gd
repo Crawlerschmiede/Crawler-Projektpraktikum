@@ -44,11 +44,8 @@ func create_line(node_a, node_b) -> Line2D:
 	line.width = 3
 	line.default_color = Color(0.5, 0.5, 0.5)  # Grey by default
 
-	var center_a_global = node_a.global_position + (node_a.size / 2)
-	var center_b_global = node_b.global_position + (node_b.size / 2)
-	var lines_to_local: Transform2D = lines_container.get_global_transform().affine_inverse()
-	var pos_a = lines_to_local * center_a_global
-	var pos_b = lines_to_local * center_b_global
+	var pos_a = node_a.global_position + (node_a.size / 2)
+	var pos_b = node_b.global_position + (node_b.size / 2)
 
 	line.add_point(pos_a)
 	line.add_point(pos_b)

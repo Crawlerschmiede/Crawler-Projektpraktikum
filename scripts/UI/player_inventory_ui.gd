@@ -96,7 +96,7 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	# Connect coin display to PlayerInventory changes
 	_disable_merchant_ui()
-	$Inventory/Inner.visible = false
+	_set_inventory_visible($Inventory/Inner.visible)
 
 	if (
 		typeof(PlayerInventory) != TYPE_NIL
