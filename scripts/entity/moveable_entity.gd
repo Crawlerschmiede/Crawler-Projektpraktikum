@@ -601,22 +601,23 @@ func full_status_heal():
 	frozen = 0
 
 
-func deal_with_status_effects() -> Array:
+func deal_with_status_effects(battle, phase) -> Array:
 	var gets_a_turn = true
 	var things_that_happened = []
-	if stunned > 0:
+	if stunned > 0 and phase == 1:
 		stunned -= stun_recovery
 		if stunned < 0:
 			stunned = 0
-		gets_a_turn = false
-		things_that_happened.append("Is stunned and cannot move!")
-	if poisoned > 0:
+		if randi_range(0, 100)<=25:
+			battle.move_player("rnd_dir", 1)
+		things_that_happened.append("Is stunned and movement seems janky")
+	if poisoned > 0 and phase == 2:
 		var message = take_damage(poisoned, "ignoredef|undodgeable")
 		poisoned -= poison_recovery
 		if poisoned < 0:
 			poisoned = 0
 		things_that_happened.append("Target" + message[0] + " from poison! Target" + message[1])
-	if frozen > 0:
+	if frozen > 0 and phase == 2:
 		print("Freeze is currently ", frozen)
 		frozen -= freeze_recovery
 		if frozen < 0:

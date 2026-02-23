@@ -304,6 +304,8 @@ class Effect:
 
 				if user.is_player:
 					active_dmg *= battle.get_player_range_dmg_mult()
+				if user.stunned>0:
+					active_dmg*=0.75
 
 				var recipient = user if targets_self else target
 				messages = _safe_invoke(recipient, "take_damage", [active_dmg, considered_details])
@@ -334,6 +336,8 @@ class Effect:
 				else:
 					if target.frozen > 0:
 						can_move = false
+				if user.stunned > 0 and GlobalRNG.randi_range(0, 100)<50:
+					considered_details = "rnd_dir"
 				if (
 					(considered_details in basic_directions or "rnd" in considered_details)
 					and can_move
