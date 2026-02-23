@@ -8,6 +8,7 @@ signal player_moved
 const STEP_COOLDOWN: float = 0.01
 const PLAYER_ACTIVE_SKILLTREES: Array[String] = ["basic"]
 const BINDS_AND_MENUS := preload("res://scenes/UI/binds-and-menus.tscn")
+const UI_MODAL_CONTROLLER := preload("res://scripts/UI/ui_modal_controller.gd")
 
 var step_timer: float = 0.01
 var base_actions = ["Move Up", "Move Down", "Move Left", "Move Right"]
@@ -34,18 +35,23 @@ func _cell_key(cell: Vector2i) -> String:
 	return "%d,%d" % [cell.x, cell.y]
 
 
-func _input(_event):
-	# Check if the 'toggle_menu' action (H) was just pressed
-	if Input.is_action_just_pressed("binds_and_menus"):
-		if _binds_and_menus_instance == null:
-			_open_menu()
-		else:
-			_close_menu()
+func _input(event: InputEvent) -> void:
+	if not event.is_action_pressed("binds_and_menus"):
+		return
+
+	if _binds_and_menus_instance == null:
+		_open_menu(true)
+	else:
+		_close_menu()
+
+	get_viewport().set_input_as_handled()
 
 
-func _open_menu() -> void:
+func _open_menu(opened_by_hotkey: bool = false) -> void:
 	if _binds_and_menus_instance != null:
 		return
+
+	UI_MODAL_CONTROLLER.acquire(self, true, true)
 
 	_binds_and_menus_layer = CanvasLayer.new()
 	_binds_and_menus_layer.name = "BindsAndMenusOverlay"
@@ -55,6 +61,11 @@ func _open_menu() -> void:
 
 	_binds_and_menus_instance = BINDS_AND_MENUS.instantiate()
 	_binds_and_menus_layer.add_child(_binds_and_menus_instance)
+	if (
+		opened_by_hotkey
+		and _binds_and_menus_instance.has_method("suppress_hotkey_close_until_release")
+	):
+		_binds_and_menus_instance.call("suppress_hotkey_close_until_release")
 
 	_binds_and_menus_instance.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_binds_and_menus_instance.offset_left = 0
@@ -72,6 +83,7 @@ func _close_menu() -> void:
 
 	_binds_and_menus_layer = null
 	_binds_and_menus_instance = null
+	UI_MODAL_CONTROLLER.release(self, true, true)
 
 
 func _ready() -> void:
@@ -136,6 +148,8 @@ func _physics_process(delta: float):
 # Function to get the current input direction vector
 func get_held_direction() -> Vector2i:
 	var direction = Vector2i.ZERO
+	if UI_MODAL_CONTROLLER.is_movement_locked():
+		return direction
 	if $UserInterface/Inventory/Inner.visible:
 		return direction
 	if Input.is_action_pressed("ui_right"):
