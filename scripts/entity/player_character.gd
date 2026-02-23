@@ -134,7 +134,7 @@ func _physics_process(delta: float):
 	if input_direction != Vector2i.ZERO:
 		# We only start a new move if the character is not already moving AND the cooldown is ready
 		if not is_moving and step_timer <= 0.0:
-			move_to_tile(input_direction)
+			await move_to_tile(input_direction)
 			# Reset the cooldown timer immediately after starting the move
 			step_timer = STEP_COOLDOWN
 			if _check_exit_tile():
