@@ -1,6 +1,6 @@
 {
 	"_settings": {
-		"max_total_weight_per_level": [80, 80, 120],
+		"max_total_weight_per_level": [100, 110, 120],
 		"default_max_total_weight": 30
 	},
 
@@ -9,9 +9,9 @@
 		"skills": ["Screech", "Swoop", "Rabies"],
 		"sprite_type": "bat",
 		"behaviour": ["passive", "enemy_flying"],
-		"spawnrate": { "min": 0.5, "max": 0.5 },
-		"spawncount": { "min": 5, "max": 5 },
-		"weight": 4,
+		"spawnrate": { "min": 0.0, "max": 0.4 },
+		"spawncount": { "min": 4, "max": 20 },
+		"weight": 3,
 		"stats":{"hp":2, "str":1, "def":0, "phyres":0, "firres":0, "eleres":0, "iceres":0, "erres": 0}
 	},
 
@@ -20,9 +20,9 @@
 		"skills": ["Eye-Flash-Slash", "Swoop", "Feint"],
 		"sprite_type": "skeleton",
 		"behaviour": ["hostile", "enemy_walking"],
-		"spawnrate": { "min": 0.15, "max": 0.15 },
-		"spawncount": { "min": 2, "max": 2 },
-		"weight": 4,
+		"spawnrate": { "min": 0.0, "max": 0.2 },
+		"spawncount": { "min": 4, "max": 20 },
+		"weight": 3,
 		"stats":{"hp":3, "str":1, "def":1, "phyres":0.2, "firres":0.3, "eleres":0, "iceres":0, "erres": 0}
 	},
 	
@@ -31,9 +31,9 @@
 		"skills": ["Bonk", "War Cry"],
 		"sprite_type": "goblin",
 		"behaviour": ["hostile", "enemy_walking"],
-		"spawnrate": { "min": 0.0, "max": 0.0 },
-		"spawncount": { "min": 0, "max": 0 },
-		"weight": 100,
+		"spawnrate": { "min": 0.0, "max": 0.2 },
+		"spawncount": { "min": 4, "max": 20 },
+		"weight": 4,
 		"stats":{"hp":4, "str":2, "def":0, "phyres":0, "firres":0, "eleres":0, "iceres":0, "erres": 0}
 	},
 	
@@ -43,7 +43,7 @@
 		"sprite_type": "skeleton",
 		"behaviour": ["tutorial", "immobile"],
 		"spawnrate": { "min": 0.0, "max": 0.2 },
-		"spawncount": { "min": 1, "max": 1 },
+		"spawncount": { "min": 4, "max": 20 },
 		"weight": 2,
 		"stats":{"hp":3, "str":1, "def":0, "phyres":0, "firres":0, "eleres":0, "iceres":0, "erres": 0}
 	},
@@ -53,8 +53,8 @@
 		"skills": ["Screech", "Rabies"],
 		"sprite_type": "base_zombie",
 		"behaviour": ["hostile", "enemy_walking", "burrowing"],
-		"spawnrate": { "min": 0.25, "max": 0.25 },
-		"spawncount": { "min": 2, "max": 2 },
+		"spawnrate": { "min": 0.0, "max": 0.2 },
+		"spawncount": { "min": 4, "max": 20 },
 		"weight": 4,
 		"stats":{"hp":4, "str":1, "def":0, "phyres":0, "firres":0, "eleres":0, "iceres":0, "erres": 0.2}
 	},
@@ -64,9 +64,9 @@
 		"skills": ["Feint", "Encroaching Void"], 
 		"sprite_type": "ghost",
 		"behaviour": ["hostile", "enemy_flying", "burrowing"],
-		"spawnrate": { "min": 0.0, "max": 0.0 },
-		"spawncount": { "min": 0, "max": 0 },
-		"weight": 100,
+		"spawnrate": { "min": 0.0, "max": 0.007 },
+		"spawncount": { "min": 4, "max": 20 },
+		"weight": 5,
 		"stats":{"hp":3, "str":1, "def":0, "phyres":0.8, "firres":0, "eleres":0, "iceres":0, "erres": 0.5}
 	},
 
@@ -75,8 +75,8 @@
 		"skills" : ["Screech", "Vortex", "Encroaching Void"],
 		"sprite_type": "what",
 		"behaviour": ["hostile", "wallbound"],
-		"spawnrate": { "min": 0.05, "max": 0.05 },
-		"spawncount": { "min": 2, "max": 2 },
+		"spawnrate": { "min": 0.0, "max": 0.093 },
+		"spawncount": { "min": 4, "max": 6 },
 		"weight": 6,
 		"stats":{"hp":5, "str":1, "def":0, "phyres":0.5, "firres":0.5, "eleres":0.5, "iceres":0.5, "erres": 0.5}
 	},
@@ -91,5 +91,39 @@
 		"spawncount": { "min": 1, "max": 1 },
 		"weight": 0,
 		"stats":{"hp":20, "str":3, "def":1, "phyres":0.4, "firres":0, "eleres":0, "iceres":0.2, "erres": 0.2}
-	}	
+	},
+	
+	"plant": {
+		"entityCategory": "boss",
+		"skills" : ["Vine Slash", "Entwine", "Poision Ivy","Uproot", "Herbicide", "Mandrake's Screech"],
+		"sprite_type": "plant",
+		"behaviour": ["boss"],
+		"spawnrate": { "min": 1, "max": 1 },
+		"spawncount": { "min": 1, "max": 1 },
+		"weight": 0,
+		"stats":{"hp":20, "str":3, "def":1, "phyres":0, "firres":-0.5, "eleres":0, "iceres":0, "erres": 0.5}
+	},
+	
+	"wendigo": {
+		"entityCategory": "boss",
+		"skills" : ["Claw Slash", "Mimicry", "Evil that devours", "Insatiable Hunger"],
+		"sprite_type": "wendigo",
+		"behaviour": ["boss"],
+		"spawnrate": { "min": 1, "max": 1 },
+		"spawncount": { "min": 1, "max": 1 },
+		"weight": 0,
+		"stats":{"hp":20, "str":3, "def":1, "phyres":0.2, "firres":0, "eleres":0, "iceres":0.8, "erres": 0.2}
+	},
+	
+	"necromancer": {
+		"entityCategory": "boss",
+		"skills" : ["Green Flames", "Join the dead", "Domain Expansion", "Life Steal", "OBEY", "BOW TO YOUR MASTER"],
+		"sprite_type": "necromancer",
+		"behaviour": ["boss"],
+		"spawnrate": { "min": 1, "max": 1 },
+		"spawncount": { "min": 1, "max": 1 },
+		"weight": 0,
+		"stats":{"hp":20, "str":3, "def":1, "phyres":0.2, "firres":0.6, "eleres":0.2, "iceres":0.4, "erres": 0.2}
+	},
+	
 }
