@@ -11,6 +11,8 @@ var inventory: Dictionary = {}
 
 var coins: int = 100
 
+var _emit_pending: bool = false
+
 var slot_group_by_index: Dictionary = {}
 
 var suppress_signal: bool = false
@@ -39,10 +41,6 @@ func set_player_max_hp(max_hp_val: int) -> void:
 	player_max_hp = int(max_hp_val)
 	if has_signal("hp_changed"):
 		emit_signal("hp_changed", int(player_hp), int(player_max_hp))
-
-
-var _emit_pending: bool = false
-
 
 func _ready() -> void:
 	# initialize per-session merchant registry to persist merchant state in memory

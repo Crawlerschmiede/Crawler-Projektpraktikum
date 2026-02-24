@@ -170,7 +170,7 @@ func _ready() -> void:
 	update_health_bars()
 
 
-func _on_hp_changed(current: int, maxhp: int) -> void:
+func _on_hp_changed() -> void:
 	# Signal handler signature must accept the two args; delegate to updater
 	update_health_bars()
 
