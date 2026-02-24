@@ -679,19 +679,6 @@ func _clear_world() -> void:
 	dungeon_floor = null
 	dungeon_top = null
 
-	# Reset entity spawn reservations so next world can reuse positions
-	if EntityAutoload != null and EntityAutoload.has_method("reset"):
-		EntityAutoload.reset()
-
-	# Reset player inventory and runtime player-related singletons so new game starts clean
-	if (
-		typeof(PlayerInventory) != TYPE_NIL
-		and PlayerInventory != null
-		and PlayerInventory.has_method("reset")
-	):
-		PlayerInventory.reset()
-
-
 func _on_player_exit_reached() -> void:
 	if switching_world:
 		return
@@ -1183,6 +1170,19 @@ func game_over():
 			scene_tree.change_scene_to_file(DEATH_SCENE)
 	else:
 		push_error("game_over: SceneTree is null; cannot change scene")
+	
+		# Reset entity spawn reservations so next world can reuse positions
+	if EntityAutoload != null and EntityAutoload.has_method("reset"):
+		EntityAutoload.reset()
+
+	# Reset player inventory and runtime player-related singletons so new game starts clean
+	if (
+		typeof(PlayerInventory) != TYPE_NIL
+		and PlayerInventory != null
+		and PlayerInventory.has_method("reset")
+	):
+		PlayerInventory.reset()
+
 
 
 # -----------------------------------------------------
