@@ -139,6 +139,10 @@ The script helps you:
 - watch release workflow runs and optionally open related pages
 - sync `dev` from `release` after publishing
 
+Behavior:
+- In an interactive terminal, it shows a menu.
+- In non-interactive execution (no TTY), it automatically runs the full flow with defaults (no flags required).
+
 **Adding Items**
 
 - **Data location:** Item definitions are stored in `res://data/itemData.json`. Each entry is a JSON object keyed by the internal item name (ID).
