@@ -2,10 +2,15 @@
 
 [ext_resource type="Script" uid="uid://ymt6jotu3r5l" path="res://scripts/rooms/merchant/merchant_item_buy_box.gd" id="1_f2anx"]
 [ext_resource type="Script" uid="uid://c46g0i67damgr" path="res://scripts/UI/Slot.gd" id="2_f2anx"]
+[ext_resource type="Texture2D" uid="uid://djpx3uswd4l2i" path="res://assets/menu/UI_Flat_ButtonCheck01a.png" id="3_o15i5"]
 [ext_resource type="Script" uid="uid://u4efks5fjcn0" path="res://scripts/UI/buy_bt.gd" id="4_alqq2"]
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_fuok5"]
+texture = ExtResource("3_o15i5")
 
 [node name="row" type="HBoxContainer" unique_id=1261252993]
 custom_minimum_size = Vector2(100, 0)
+alignment = 1
 script = ExtResource("1_f2anx")
 
 [node name="item" type="Panel" parent="." unique_id=1106623243 groups=["Equipment", "Inventory"]]
@@ -25,4 +30,5 @@ script = ExtResource("2_f2anx")
 [node name="Buy" type="Panel" parent="." unique_id=802809856]
 custom_minimum_size = Vector2(20, 0)
 layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxTexture_fuok5")
 script = ExtResource("4_alqq2")

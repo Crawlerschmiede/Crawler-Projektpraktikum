@@ -2,6 +2,7 @@ extends CanvasLayer
 
 signal player_loss
 signal player_victory
+signal player_vicory_boss
 
 const MARKER_PREFAB := preload("res://scenes/rooms/helpers/marker.tscn")
 const MARKER_FLAVOURS = {
@@ -58,6 +59,7 @@ var active: bool = true
 var enemy_action_log = []
 var player_action_log = []
 
+var enemy_is_boss = false
 @onready var hit_anim_enemy: AnimatedSprite2D = $Battle_root/PlayerPosition/enemy_attack_anim
 @onready var hit_anim_player: AnimatedSprite2D = $Battle_root/EnemyPosition/player_attack_anim
 @onready var enemy_marker = $Battle_root/EnemyPosition
@@ -75,6 +77,7 @@ func _ready():
 		player.full_status_heal()
 	if enemy != null and is_instance_valid(enemy):
 		enemy.full_status_heal()
+		enemy_is_boss = enemy.boss
 	enemy_sprite = create_battle_sprite(enemy)
 	player_sprite = create_battle_sprite(player)
 	player_sprite.animation = "idle_up"
@@ -150,7 +153,7 @@ func enemy_turn():
 	if !over:
 		for ability in enemy.abilities:
 			ability.tick_down()
-		var extra_stuff = enemy.deal_with_status_effects()
+		var extra_stuff = enemy.deal_with_status_effects(self, 1)
 		happened = extra_stuff[1]
 		for happening in happened:
 			log_container.add_log_event(happening)
@@ -169,7 +172,11 @@ func enemy_turn():
 				log_container.add_log_event(happening)
 			enemy.decide_attack()
 			enemy_prepare_turn()
-		extra_stuff = player.deal_with_status_effects()
+			extra_stuff = enemy.deal_with_status_effects(self, 2)
+			happened = extra_stuff[1]
+			for happening in happened:
+				log_container.add_log_event(happening)
+		extra_stuff = player.deal_with_status_effects(self, 1)
 		happened = extra_stuff[1]
 		update_health_bars()
 		for happening in happened:
@@ -290,6 +297,7 @@ func move_player(direction: String, distance: int):
 
 		new_cell = player_gridpos + delta
 	elif "rnd" in direction:
+		var ranges = ["short", "medium", "long"]
 		var parts = direction.split("_")
 		var area = parts[1]
 		var from_to = []
@@ -302,10 +310,14 @@ func move_player(direction: String, distance: int):
 				from_to = player.ranges[1]
 			"long":
 				from_to = player.ranges[2]
-		for tile in used_cells:
-			if tile.y >= (min_y + from_to[0]) and tile.y <= (min_y + from_to[1]):
-				possible_tiles.append(tile)
-		new_cell = possible_tiles[rng.randi_range(0, len(possible_tiles) - 1)]
+		if area in ranges:
+			for tile in used_cells:
+				if tile.y >= (min_y + from_to[0]) and tile.y <= (min_y + from_to[1]):
+					possible_tiles.append(tile)
+			new_cell = possible_tiles[rng.randi_range(0, len(possible_tiles) - 1)]
+		elif area == "dir":
+			var new_dir = basics[rng.randi_range(0, len(basics) - 1)]
+			return move_player(new_dir, distance)
 
 	if !cell_exists(new_cell):
 		return "Attempting to move " + dir + ", the player only pushed against the wall"

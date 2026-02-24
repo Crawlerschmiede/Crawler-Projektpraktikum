@@ -303,6 +303,13 @@ var existing_skills = {
 		"cooldown": 2,
 		"conditions": ["unarmed"]
 	},
+	"Panic Button (Presentation only)":
+	{
+		"tree": "basic",
+		"description": "This strike looks easy to dodge... weirdly so",
+		"effects": [["heal", 99, true, "No"], ["safety_dmg_reduc", 0, true, "player_pos"]],
+		"tier": 1,
+	},
 	"Right Pivot":
 	{
 		"tree": "basic",

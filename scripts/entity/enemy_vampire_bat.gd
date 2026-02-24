@@ -8,7 +8,7 @@ var chase_timer: float = 5.0
 var burrowed = false
 var chased_pos: Vector2i
 var chased_direction: Vector2i
-
+var boss: bool = false
 var chosen: Skill
 var sprite_type: String = "bat"
 var behaviour = "idle"
@@ -61,10 +61,10 @@ func chase():
 	if !burrowed:
 		chased_pos = chase_target.grid_pos
 		chased_direction = chase_target.latest_direction
-	var used_animation = animations
 	if !chasing:
 		if "burrowing" in types:
 			if !burrowed:
+				print("Animations is ", animations)
 				if animations != null and animations.has("teleport_start"):
 					sprite.play(animations["teleport_start"])
 				else:
@@ -76,9 +76,9 @@ func chase():
 			var animation_array = null
 			var digrection = (chased_direction) * -2
 			var targ_dig_pos = chased_pos + digrection
-			if used_animation:
-				if used_animation["teleport_start"] and used_animation["teleport_end"]:
-					animation_array = [used_animation["teleport_end"]]
+			if animations:
+				if animations["teleport_start"] and animations["teleport_end"]:
+					animation_array = [animations["teleport_end"]]
 			await teleport_to_tile(targ_dig_pos, animation_array)
 			chasing = true
 			burrowed = false

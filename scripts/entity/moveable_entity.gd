@@ -40,30 +40,16 @@ var sprites = {
 		{"idle": "default", "teleport_start": "dig_down", "teleport_end": "dig_up"}
 	],
 	"goblin": [preload("res://scenes/sprite_scenes/goblin_sprite_scene.tscn")],
-	"orc":
-	[
-		preload("res://scenes/sprite_scenes/orc_sprite_scene.tscn"),
-		["Big Bonk", "War Command", "Ground Stomp"],
-		{"idle": "default"}
-	],
+	"orc": [preload("res://scenes/sprite_scenes/orc_sprite_scene.tscn"), {"idle": "default"}],
 	"plant":
 	[
 		preload("res://scenes/sprite_scenes/big_plant_sprite_scene.tscn"),
-		["Vine Slash", "Entwine", "Poison Ivy", "Herbicide", "Mandrake's Screech"],
 		{"idle": "default", "teleport_start": "dig_down", "teleport_end": "dig_up"}
 	],
 	"wendigo":
-	[
-		preload("res://scenes/sprite_scenes/wendigo_sprite_scene.tscn"),
-		["Claw Slash", "Mimicry", "Evil that devours", "Insatiable Hunger"],
-		{"idle": "default"}
-	],
+	[preload("res://scenes/sprite_scenes/wendigo_sprite_scene.tscn"), {"idle": "default"}],
 	"necromancer":
-	[
-		preload("res://scenes/sprite_scenes/necromancer_scene.tscn"),
-		["Green Flames", "Life Steal", "Domain Expansion", "Join the dead"],
-		{"idle": "default"}
-	],
+	[preload("res://scenes/sprite_scenes/necromancer_scene.tscn"), {"idle": "default"}],
 	"pc": [preload("res://scenes/sprite_scenes/player_sprite_scene.tscn")]
 }
 
@@ -284,8 +270,8 @@ func super_ready(sprite_type: String, entity_type: Array):
 	if not "pc" in entity_type:
 		for ability in abilities_this_has:
 			add_skill(ability)
-	if len(sprite_scene) > 2:
-		animations = sprite_scene[2]
+	if len(sprite_scene) > 1:
+		animations = sprite_scene[1]
 
 
 # --- Movement Logic ---
@@ -332,6 +318,8 @@ func move_to_tile(direction: Vector2i):
 	var tween = get_tree().create_tween()
 	tween.tween_property(self, "position", target_position, 0.15)
 	tween.finished.connect(_on_move_finished)
+	await tween.finished
+	return true
 
 
 func teleport_to_tile(coordinates: Vector2i, animation = null) -> void:
@@ -602,22 +590,23 @@ func full_status_heal():
 	frozen = 0
 
 
-func deal_with_status_effects() -> Array:
+func deal_with_status_effects(battle, phase) -> Array:
 	var gets_a_turn = true
 	var things_that_happened = []
-	if stunned > 0:
+	if stunned > 0 and phase == 1:
 		stunned -= stun_recovery
 		if stunned < 0:
 			stunned = 0
-		gets_a_turn = false
-		things_that_happened.append("Is stunned and cannot move!")
-	if poisoned > 0:
+		if randi_range(0, 100) <= 25:
+			battle.move_player("rnd_dir", 1)
+		things_that_happened.append("Is stunned and movement seems janky")
+	if poisoned > 0 and phase == 2:
 		var message = take_damage(poisoned, "ignoredef|undodgeable")
 		poisoned -= poison_recovery
 		if poisoned < 0:
 			poisoned = 0
 		things_that_happened.append("Target" + message[0] + " from poison! Target" + message[1])
-	if frozen > 0:
+	if frozen > 0 and phase == 2:
 		print("Freeze is currently ", frozen)
 		frozen -= freeze_recovery
 		if frozen < 0:

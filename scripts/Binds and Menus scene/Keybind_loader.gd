@@ -14,6 +14,7 @@ func _make_menu_label(
 	label.add_theme_color_override("font_color", Color("#42242c"))
 	label.add_theme_font_override("font", MENU_FONT)
 	label.horizontal_alignment = text_alignment
+	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	return label
 
 
@@ -49,9 +50,9 @@ func display_all_custom_binds():
 		var key_text = events[0].as_text() if events.size() > 0 else "---"
 		var key_label = _make_menu_label(key_text, HORIZONTAL_ALIGNMENT_RIGHT)
 
-		#if events.size() > 0:
-		#	key_label.text = events[0].as_text().replace("- Physical", "")
-		#else:
-		#	key_label.text = "---"
+		if events.size() > 0:
+			key_label.text = events[0].as_text().replace("- Physical", "")
+		else:
+			key_label.text = "---"
 
 		grid.add_child(key_label)

@@ -5,6 +5,7 @@ signal menu_closed
 signal save_requested
 
 const SETTINGS_MENU_SCENE := preload("res://scenes/UI/settings_menu.tscn")
+const UI_MODAL_CONTROLLER := preload("res://scripts/UI/ui_modal_controller.gd")
 
 const REFERENCE_SIZE := Vector2(640.0, 480.0)
 const BASE_SCALE := Vector2(3.2, 2.8)
@@ -56,6 +57,7 @@ func _unhandled_input(event: InputEvent) -> void:
 func _on_settings_pressed() -> void:
 	if _settings_instance != null:
 		return
+	UI_MODAL_CONTROLLER.acquire(self, true, true)
 	$VBoxContainer.visible = false
 	_settings_layer = CanvasLayer.new()
 	_settings_layer.name = "SettingsOverlay"
@@ -82,6 +84,7 @@ func _on_settings_closed() -> void:
 		_settings_layer = null
 	_settings_instance = null
 	$VBoxContainer.visible = true
+	UI_MODAL_CONTROLLER.release(self, true, true)
 
 
 func _on_save_pressed() -> void:

@@ -1,5 +1,7 @@
 extends Control
 
+signal closed
+
 @onready var container = $SkillContainer
 
 
@@ -13,3 +15,8 @@ func _ready():
 		container.add_child(skill_instance)
 		if skill_instance is Control:
 			skill_instance.custom_minimum_size.y = 156
+
+
+func _on_continue_pressed() -> void:
+	closed.emit()
+	queue_free()

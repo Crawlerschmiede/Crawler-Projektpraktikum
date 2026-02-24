@@ -61,7 +61,7 @@ func _populate_list(tab_idx: int) -> void:
 				if not ability.is_passive:
 					if ability.is_activateable(player, enemy, battle_scene):
 						_add_button(ability)
-					else:
+					elif ability.turns_until_reuse > 0:
 						var butt_label = ability.name
 						butt_label = (
 							butt_label + " (Cooldown: " + str(ability.turns_until_reuse) + ")"
@@ -192,6 +192,8 @@ func _on_skill_pressed(ability) -> void:
 		player.action_points -= 1
 		if player.action_points < 1:
 			player_turn = false
+			player.deal_with_status_effects(battle_scene, 2)
+			battle_scene.check_curr_tile_mods()
 			player_turn_done.emit()
 		else:
 			var over = battle_scene.check_victory()

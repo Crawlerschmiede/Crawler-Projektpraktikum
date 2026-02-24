@@ -3,7 +3,6 @@ extends Node2D
 # gdlint: disable=max-file-lines
 
 signal player_spawned
-
 const ENEMY_SCENE = preload("res://scenes/entity/enemy.tscn")
 const BATTLE_SCENE = preload("res://scenes/UI/battle.tscn")
 const PLAYER_SCENE = preload("res://scenes/entity/player-character-scene.tscn")
@@ -11,6 +10,9 @@ const LOOTBOX = preload("res://scenes/Interactables/Lootbox.tscn")
 const TRAP = preload("res://scenes/Interactables/Trap.tscn")
 const MERCHANT = preload("res://scenes/entity/merchant.tscn")
 const LOADING_SCENE = preload("res://scenes/UI/loading_screen.tscn")
+const SKILLTREE_SELECT_SCENE = preload("res://scenes/UI/skilltree-select-menu.tscn")
+const SKILLTREE_UPGRADING_SCENE = preload("res://scenes/UI/skilltree-upgrading.tscn")
+const UI_MODAL_CONTROLLER = preload("res://scripts/UI/ui_modal_controller.gd")
 const START_SCENE = "res://scenes/UI/start-menu.tscn"
 const DEATH_SCENE = "res://scenes/UI/death-screen.tscn"
 const DEATH_SCENE_PACKED = preload("res://scenes/UI/death-screen.tscn")
@@ -38,6 +40,8 @@ var loading_screen: CanvasLayer = null
 
 var switching_world = false
 
+var boss_win: bool = false
+
 @onready var backgroundtile = $TileMapLayer
 
 @onready var minimap: TileMapLayer
@@ -50,7 +54,11 @@ var switching_world = false
 
 
 func _ready() -> void:
+	UI_MODAL_CONTROLLER.set_debug_enabled(OS.is_debug_build())
 	generators = [generator1, generator2, generator3]
+
+	await _show_skilltree_select_menu()
+	await _show_skilltree_upgrading_menu()
 
 	# Tutorial prüfen (JSON: res://data/tutorialData.json)
 	if _has_completed_tutorial() == false:
@@ -71,6 +79,60 @@ func _ready() -> void:
 	await _load_world(world_index)
 
 
+func _show_skilltree_select_menu() -> void:
+	var skilltree_select = SKILLTREE_SELECT_SCENE.instantiate()
+	if skilltree_select == null:
+		push_warning(
+			"Failed to instantiate skilltree select menu; continuing startup without selection"
+		)
+		return
+
+	var ui_layer := CanvasLayer.new()
+	ui_layer.name = "SkilltreeSelectOverlay"
+	ui_layer.layer = 100
+	add_child(ui_layer)
+	ui_layer.add_child(skilltree_select)
+
+	if skilltree_select is Control:
+		skilltree_select.set_anchors_preset(Control.PRESET_FULL_RECT)
+		skilltree_select.offset_left = 0
+		skilltree_select.offset_top = 0
+		skilltree_select.offset_right = 0
+		skilltree_select.offset_bottom = 0
+
+	if skilltree_select.has_signal("selection_confirmed"):
+		await skilltree_select.selection_confirmed
+
+	if is_instance_valid(ui_layer):
+		ui_layer.queue_free()
+
+
+func _show_skilltree_upgrading_menu() -> void:
+	var skilltree_upgrading = SKILLTREE_UPGRADING_SCENE.instantiate()
+	if skilltree_upgrading == null:
+		push_warning("Failed to instantiate skilltree upgrading menu; continuing startup")
+		return
+
+	var ui_layer := CanvasLayer.new()
+	ui_layer.name = "SkilltreeUpgradingOverlay"
+	ui_layer.layer = 100
+	add_child(ui_layer)
+	ui_layer.add_child(skilltree_upgrading)
+
+	if skilltree_upgrading is Control:
+		skilltree_upgrading.set_anchors_preset(Control.PRESET_FULL_RECT)
+		skilltree_upgrading.offset_left = 0
+		skilltree_upgrading.offset_top = 0
+		skilltree_upgrading.offset_right = 0
+		skilltree_upgrading.offset_bottom = 0
+
+	if skilltree_upgrading.has_signal("closed"):
+		await skilltree_upgrading.closed
+
+	if is_instance_valid(ui_layer):
+		ui_layer.queue_free()
+
+
 func _set_tree_paused(value: bool) -> void:
 	var scene_tree = get_tree()
 	if scene_tree != null:
@@ -84,6 +146,9 @@ func _load_tutorial_world() -> void:
 	await _show_loading()
 
 	_clear_world()
+
+	# Reset boss flag when loading a world so previous boss state doesn't leak
+	boss_win = false
 
 	world_root = Node2D.new()
 	world_root.name = "WorldRoot"
@@ -683,6 +748,14 @@ func _on_player_exit_reached() -> void:
 	if switching_world:
 		return
 
+	# Prevent progressing if a boss is still alive in the world
+	for e in get_tree().get_nodes_in_group("enemy"):
+		if e != null and is_instance_valid(e):
+			# enemies spawned by spawn_enemy have a `boss` property
+			if bool(e.boss) and e.hp > 0:
+				push_warning("You must defeat the boss before advancing!")
+				return
+
 	switching_world = true
 
 	# Prüfen: Sind wir im Tutorial? (Tutorial hat keine Minimap)
@@ -742,7 +815,7 @@ func toggle_menu():
 		menu_instance = menu_scene.instantiate()
 		add_child(menu_instance)
 
-		_set_tree_paused(true)
+		UI_MODAL_CONTROLLER.acquire(self, true, true)
 
 		if menu_instance.has_signal("menu_closed"):
 			menu_instance.menu_closed.connect(on_menu_closed)
@@ -763,7 +836,7 @@ func on_menu_closed():
 	if menu_instance != null and is_instance_valid(menu_instance):
 		menu_instance.queue_free()
 		menu_instance = null
-	_set_tree_paused(false)
+	UI_MODAL_CONTROLLER.release(self, true, true)
 
 
 func _serialize_tilemap(tm: TileMapLayer) -> Dictionary:
@@ -1240,7 +1313,8 @@ func spawn_enemies(do_boss: bool) -> void:
 			def.get("sprite_type", "what"),
 			def.get("behaviour", []),
 			def.get("skills", []),
-			def.get("stats", {})
+			def.get("stats", {}),
+			true
 		)
 		print("Spawned boss!")
 		return
@@ -1293,7 +1367,9 @@ func spawn_enemies(do_boss: bool) -> void:
 			print("spawn: ", def.get("sprite_type", id))
 
 
-func spawn_enemy(sprite_type: String, behaviour: Array, skills: Array, stats: Dictionary) -> void:
+func spawn_enemy(
+	sprite_type: String, behaviour: Array, skills: Array, stats: Dictionary, boss: bool = false
+) -> void:
 	# default: spawn normal enemy
 	var e = ENEMY_SCENE.instantiate()
 	e.add_to_group("enemy")
@@ -1302,6 +1378,7 @@ func spawn_enemy(sprite_type: String, behaviour: Array, skills: Array, stats: Di
 	e.types = behaviour
 	e.sprite_type = sprite_type
 	e.abilities_this_has = skills
+	e.boss = boss
 	var hp = stats.get("hp", 1)
 	var str = stats.get("str", 1)
 	var def = stats.get("def", 1)
@@ -1325,7 +1402,7 @@ func spawn_player() -> void:
 	var e: PlayerCharacter = PLAYER_SCENE.instantiate()
 	e.name = "Player"
 	# Floor setzen (einmal!)
-	e.setup(dungeon_floor, dungeon_top, 10, 3, 0, {})
+	e.setup(dungeon_floor, dungeon_top, 20, 4, 0, {})
 	e.fog_layer = fog_war_layer
 	# pass dynamic flag and fog tile id to player for re-fogging
 	if e.has_method("set"):
@@ -1584,6 +1661,11 @@ func enemy_defeated(enemy):
 		print("enemy_defeated: freeing battle UI")
 		battle.call_deferred("queue_free")
 		battle = null
+
+	# If the defeated enemy was a boss, record victory so level-gating can proceed
+	if enemy != null and is_instance_valid(enemy) and bool(enemy.boss):
+		boss_win = true
+		print("enemy_defeated: boss defeated -> boss_win set to true")
 
 	if enemy != null and is_instance_valid(enemy):
 		print("enemy_defeated: freeing enemy node")
