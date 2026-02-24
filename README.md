@@ -76,7 +76,7 @@ These workflows live in `.github/workflows/`:
 
 - `gdscript-format.yml`
   - Runs on pushes to `dev`, and on PRs targeting `dev` (and can be run manually)
-  - Auto-formats GDScript in `scripts/` via `gdformat`
+  - Auto-formats GDScript project-wide via `gdformat ./`
   - If formatting changes files, it commits them back to the same branch (uses `GITHUB_TOKEN`)
   - Safety: only runs with write permissions for branches in this repo (skips PRs from forks)
 - `gdscript-lint.yml`
@@ -124,17 +124,17 @@ This is the current workflow:
    git push origin dev
    ```
 
-**Items hinzufügen**
+**Adding Items**
 
-- **Ort der Daten:** Die Item-Definitionen werden in `res://data/itemData.json` gepflegt. Jede Eigenschaft ist ein JSON-Objekt, dessen Schlüssel der interne Item-Name (ID) ist.
-- **Icon:** Lege für jedes Item ein Icon unter `res://assets/item_icons/` ab. Der Dateiname sollte genau dem Item-Key entsprechen (z. B. `placeholder_sword.png` für das Item `placeholder_sword`).
-- **Minimalbeispiel (JSON):**
+- **Data location:** Item definitions are stored in `res://data/itemData.json`. Each entry is a JSON object keyed by the internal item name (ID).
+- **Icon:** Add one icon per item under `res://assets/item_icons/`. The file name should exactly match the item key (for example `placeholder_sword.png` for item `placeholder_sword`).
+- **Minimal example (JSON):**
 
 ```json
 "placeholder_sword": {
   "ItemCategory": "Weapon",
   "StackSize": 1,
-  "Description": "Ein einfaches Schwert.",
+  "Description": "A simple sword.",
   "group": "Weapon",
   "weight": 3,
   "merchant": {
@@ -151,79 +151,75 @@ This is the current workflow:
 }
 ```
 
-- **Wichtige Felder (Erklärung):**
-  - `ItemCategory`: Kategorie (z. B. `Weapon`, `Consumable`).
-  - `StackSize`: Maximale Stapelgröße im Inventar.
-  - `Description`: Tooltip / Beschreibungstext.
-  - `group`: Gruppierung/Typ, wird teilweise für UI/Logik verwendet.
-  - `weight`: (optional) Wird von Loot-/Pool-Generatoren benutzt.
-  - `loot_stats`: (optional) Alternativstruktur mit `weight`, `chance`, `max_stack`.
-  - `merchant`: (optional) Objekt mit Verkaufs-/Vorrats-Parametern (`min_count`, `max_count`, `min_price`, `max_price`, `buy_amount`, `chance`, `weight`). Händler-Logik liest diese Felder, um Shops zu füllen.
-  - `bound_skills`: (optional) Liste an Skill-Namen, die beim Equippen gebunden werden (wird von `item.gd` gelesen).
-  - `range`: (optional) short|medium|long, je nach Reichweite, welche die Waffe verwenden soll
-  - `use_effects`: (optional) Für Verbrauchsgegenstände: Liste der Effekte, die beim Benutzen ausgelöst werden (z. B. `Heal`).
+- **Key fields (explanation):**
+  - `ItemCategory`: Category (for example `Weapon`, `Consumable`).
+  - `StackSize`: Maximum stack size in inventory.
+  - `Description`: Tooltip / description text.
+  - `group`: Group/type, used by some UI and gameplay logic.
+  - `weight`: (optional) Used by loot/pool generators.
+  - `loot_stats`: (optional) Alternative structure with `weight`, `chance`, `max_stack`.
+  - `merchant`: (optional) Object with shop stock/pricing parameters (`min_count`, `max_count`, `min_price`, `max_price`, `buy_amount`, `chance`, `weight`). Merchant logic reads these fields to populate shops.
+  - `bound_skills`: (optional) List of skill names bound when equipping the item (read by `item.gd`).
+  - `range`: (optional) `short|medium|long`, depending on weapon range behavior.
+  - `use_effects`: (optional) For consumables: list of effects triggered when used (for example `Heal`).
 
-- **Icon laden:** Die UI-Komponente `item.gd` erwartet die Icon-Datei unter `res://assets/item_icons/<item_key>.png`. Falls kein Icon gefunden wird, wird eine Warnung geloggt.
+- **Loading icons:** The UI component `item.gd` expects icons at `res://assets/item_icons/<item_key>.png`. If no icon is found, a warning is logged.
 
-- **Daten neu laden:** Die JSON-Datei wird beim Start über `JSONData.gd` geladen. Nach Änderungen an `itemData.json` die Szene/Editor neu laden oder das Spiel neu starten, damit die Änderungen wirksam werden.
+- **Reloading data:** The JSON file is loaded at startup via `JSONData.gd`. After changing `itemData.json`, reload the scene/editor or restart the game so the changes take effect.
 
-- **Händler / Registry:** Zur Laufzeit verwaltet `scripts/rooms/merchant/merchant_registry.gd` Items für Händler. Standardmäßig werden Händlerdaten aus dem `merchant`-Block in `itemData.json` genutzt, aber du kannst Items zur Laufzeit mit `MerchantRegistry.set_items(reg_key, items_array)` setzen.
+- **Merchant / registry:** At runtime, `scripts/rooms/merchant/merchant_registry.gd` manages merchant items. By default merchant data comes from the `merchant` block in `itemData.json`, but you can override items at runtime with `MerchantRegistry.set_items(reg_key, items_array)`.
 
-- **Tipps:**
-  - Verwende als Schlüssel (Item-ID) keine Leerzeichen oder Sonderzeichen, damit Dateinamen und Referenzen sauber funktionieren.
-  - Falls du größere Assets hinzufügst, denke an Git LFS (`git lfs install` / `git lfs track`) für Binärdateien.
+- **Tips:**
+  - Do not use spaces or special characters in keys (item IDs) so file names and references stay clean.
+  - If you add larger assets, remember to use Git LFS (`git lfs install` / `git lfs track`) for binaries.
 
-**Räume hinzufügen**
+**Adding Rooms**
 
-Dieses Projekt benutzt einen Map-Generator (`scripts/Mapgenerator/map_generator_modular.gd`), der Raum-Szenen aus `res://scenes/rooms/Rooms/` lädt und Türen verbindet. Damit ein Raum korrekt vom Generator verarbeitet wird, beachte bitte die folgende Struktur und Konventionen.
+This project uses a map generator (`scripts/Mapgenerator/map_generator_modular.gd`) that loads room scenes from `res://scenes/rooms/Rooms/` and connects doors. To ensure a room is processed correctly, follow this structure and conventions.
 
-- **Ordner:** Lege neue Raum-Szenen als `.tscn` im Ordner `res://scenes/rooms/Rooms/` ab. Geschlossene Tür-Szenen (zum Backen) kommen in `res://scenes/rooms/Closed Doors/`.
-- **Root-Node:** Verwende `Node2D` als Root des Raum-Scenes. Optional kann das Root-Node das Script `scenes/rooms/Scripts/RoomTemplate.gd` erweitern / ähnliche Export-Variablen anbieten.
-- **Wichtige Kinder-Nodes:**
-  - `TileMapLayer` (ein `TileMapLayer`-Node): Boden/Tiles des Raums. Wird vom Generator gelesen und in die Welt-Karte gebacken.
-  - `TopLayer` (optional, `TileMapLayer`): Oberer Layer (Überlagertes Dekor), wird separat gebacken.
-  - `Doors` (ein `Node2D`): enthält Kinder-Node(s), die Türen markieren (siehe unten).
+- **Folder:** Add new room scenes as `.tscn` files under `res://scenes/rooms/Rooms/`. Closed-door scenes (used for baking) go in `res://scenes/rooms/Closed Doors/`.
+- **Root node:** Use `Node2D` as the room scene root. Optionally, the root can extend `scenes/rooms/Scripts/RoomTemplate.gd` (or expose equivalent exported variables).
+- **Important child nodes:**
+  - `TileMapLayer` (a `TileMapLayer` node): room floor/tiles. Read by the generator and baked into the world tilemap.
+  - `TopLayer` (optional, `TileMapLayer`): upper overlay/decor layer, baked separately.
+  - `Doors` (a `Node2D`): contains child nodes that mark door positions.
 
-- **Door-Objekte:** Jede Tür im Raum sollte als Child unter `Doors` liegen. Der Map-Generator erwartet, dass Tür-Objekte folgende Eigenschaften/Benennung haben:
-  - Exportierte/Eigenschaft `direction` (z. B. `"U"/"D"/"L"/"R"` oder `"up"/"down"/...`); der Generator liest `direction` um passende Closed-Door-Szenen zu finden.
-  - Property `used` (bool), Standard `false`. Der Generator setzt `used = true`, wenn die Tür verbunden oder gebacken wurde.
-  - Positioniere die Tür-Node genau dort, wo die Tür im Raum liegen soll (global_position wird später an die Welt-Tiles angepasst).
+- **Door objects:** Each room door should be a child of `Doors`. The map generator expects:
+  - Exported/property `direction` (currently `"north"`, `"south"`, `"east"`, `"west"`); used to match closed-door scenes.
+  - Property `used` (bool), default `false`. The generator sets `used = true` once a door is connected or baked.
+  - Correct node positioning where the door should be in the room (`global_position` is used later during tile placement).
 
-- **Room-Metadaten / Export-Variablen:** Um das Verhalten des Generators zu steuern, definiere Export-Variablen am Root (oder nutze `RoomTemplate.gd`):
-  - `spawn_chance` (float): Wahrscheinlichkeit, dass der Raum gewählt wird.
-  - `max_count` (int): Max. wie oft der Raum pro Map vorkommt.
-  - `min_rooms_before_spawn` (int): Mindestanzahl bereits platzierter Räume, bevor dieser erscheinen darf.
-  - `is_corridor` (bool): Ob der Raum als Korridor gilt (wichtig für den GA)
-  - `required_min_count` (int): Wenn >0, wird dieser Raum als 'required' betrachtet und der Generator sorgt dafür, dass er vorkommt.
+- **Room metadata / exported vars:** To control generator behavior, define exported vars on the room root (or use `RoomTemplate.gd`):
+  - `spawn_chance` (float): Probability that this room is selected.
+  - `max_count` (int): Maximum number of times this room can appear per map.
+  - `min_rooms_before_spawn` (int): Minimum number of already placed rooms before this one can appear.
+  - `is_corridor` (bool): Whether this room is considered a corridor (important for GA constraints).
+  - `required_min_count` (int): If >0, the room is treated as required and the generator ensures it appears.
 
-- **Raum-Key / Gruppierung:** Der Generator kann die erste Group des Root-Nodes als `room_key` nutzen. Füge bei Bedarf eine Scene-Group hinzu (`Node -> Groups` im Editor), z. B. `treasure_room`, um Räume zu kategorisieren.
+- **Room key / grouping:** The generator can use the first group on the root node as `room_key`. Add a scene group (`Node -> Groups` in the editor), for example `treasure_room`, when you want categorization.
 
-- **Closed Doors:** Falls du spezielle Tür-Grafiken/-Tiles brauchst, lege passende Closed-Door-Scenes im `Closed Doors`-Ordner ab. Diese Szenen sollten ebenfalls eine exportierte `direction` haben oder `Doors`-Children mit `direction`.
+- **Closed doors:** If you need custom closed-door visuals/tiles, add matching closed-door scenes in the `Closed Doors` folder. These scenes should also expose `direction` or include `Doors` children with `direction`.
 
-- **Minimaler Door-Script (Beispiel)**
-  Erstelle eine kleine Tür-Node ohne komplexes Script; das folgende reicht oft:
+- **Minimal door script (example)**
+  Use a lightweight door node; this is typically enough:
 
 ```gdscript
-extends Node2D
+extends Marker2D
 
-@export var direction: String = "U"
-var used: bool = false
-
-func _ready():
-    # optional: Darstellung/Collision oder Area2D als Kind
-    pass
+@export_enum("north", "south", "east", "west") var direction: String
+var used := false
 ```
 
-- **Room Template (Beispiel)**
-  Du kannst das vorhandene Template `scenes/rooms/Scripts/RoomTemplate.gd` verwenden — es stellt `get_free_doors()` bereit, das der Generator erwartet.
+- **Room template (example)**
+  You can use the existing template `scenes/rooms/Scripts/RoomTemplate.gd` — it provides `get_free_doors()`, which the generator expects.
 
-- **Testen:**
-  1. Speichere die neue Room-Scene in `res://scenes/rooms/Rooms/`.
-  2. Öffne `scripts/Mapgenerator/map_generator_modular.gd` im Editor und stelle sicher, dass `rooms_folder` auf `res://scenes/rooms/Rooms/` zeigt (Standard-Export ist so gesetzt).
-  3. Starte die Map-Generierung (im Editor ist meist ein Button/Scene-Runner vorhanden) oder rufe `get_random_tilemap()` / `generate_with_genome(...)` über den Generator an.
-  4. Prüfe die Debug-Ausgabe: Wenn eine Room-Scene kein `get_free_doors()` liefert, wird der Generator eine Fehlermeldung ausgeben. Nutze `debug_print_free_doors()` zum Debuggen.
+- **Testing:**
+  1. Save your new room scene in `res://scenes/rooms/Rooms/`.
+  2. Open `scripts/Mapgenerator/map_generator_modular.gd` in the editor and confirm that `rooms_folder` points to `res://scenes/rooms/Rooms/` (this is the default export value).
+  3. Start map generation (usually via an editor button/runner) or call `get_random_tilemap()` / `generate_with_genome(...)` on the generator.
+  4. Check debug output: if a room scene does not provide `get_free_doors()`, the generator logs an error. Also verify that `Doors` contains only Door nodes and that each door has a valid `direction`.
 
-- **Fehlerquellen / Tipps:**
-  - Stelle sicher, dass `TileMapLayer` und optional `TopLayer` existieren und korrekt TileSets verwenden.
-  - Türen müssen korrekt positioniert und mit `direction` versehen sein — sonst kann der Generator sie nicht verbinden oder passende Closed-Door-Szenen finden.
-  - Wenn dein Raum nach dem Backen nicht sichtbar ist, prüfe `placed_rooms` und ob `visible` auf `false` gesetzt wurde (Generator blendet Räume manchmal aus, nachdem die TileMap gebacken wurde).
+- **Common pitfalls / tips:**
+  - Ensure `TileMapLayer` and optional `TopLayer` exist and use valid TileSets.
+  - Door nodes must be positioned correctly and provide `direction`; otherwise the generator cannot connect them or find matching closed-door scenes.
+  - If a room is not visible after baking, inspect `placed_rooms` and whether `visible` has been set to `false` (the generator may hide rooms after baking tilemaps).
