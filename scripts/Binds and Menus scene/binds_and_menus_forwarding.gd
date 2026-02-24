@@ -149,7 +149,9 @@ func _open_menu_overlay() -> void:
 			if maybe_main != null and maybe_main.has_method("save_current_world"):
 				handled = true
 	else:
-		push_error("_open_menu_overlay: popup menu instance missing 'save_requested' signal; save unavailable")
+		push_error(
+			"_open_menu_overlay: popup menu instance missing 'save_requested' signal; save unavailable"
+		)
 
 	visible = false
 

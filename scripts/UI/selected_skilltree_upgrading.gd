@@ -18,7 +18,9 @@ func _ready():
 
 	for skill_id in sel:
 		if SkillState.skill_scene_paths == null or not SkillState.skill_scene_paths.has(skill_id):
-			push_warning("selected_skilltree_upgrading: missing scene path for skill: %s" % skill_id)
+			push_warning(
+				"selected_skilltree_upgrading: missing scene path for skill: %s" % skill_id
+			)
 			continue
 		var scene_path = SkillState.skill_scene_paths[skill_id]
 		var skill_scene = load(scene_path)

@@ -5,5 +5,6 @@ extends Node
 
 var load_from_save: bool = false
 
+
 func reset():
 	load_from_save = false

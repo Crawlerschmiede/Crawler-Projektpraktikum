@@ -42,7 +42,9 @@ func _on_continue_pressed():
 		ss.load_from_save = true
 		# leave load_index as-is (main will decide), or set ss.load_index here if desired
 	else:
-		push_error("_on_continue_pressed: SaveState autoload not found; continue will not load from save")
+		push_error(
+			"_on_continue_pressed: SaveState autoload not found; continue will not load from save"
+		)
 	menu_closed.emit()
 
 
@@ -91,7 +93,6 @@ func _on_save_pressed() -> void:
 	print("SAVE")
 	# Emit a signal so an external controller can perform the actual save
 	save_requested.emit()
-
 
 
 # Function for the "Quit" button

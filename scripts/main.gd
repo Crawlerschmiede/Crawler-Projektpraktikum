@@ -68,7 +68,9 @@ func _ready() -> void:
 		# Load saved maps from file and pass them to _load_world
 		var loaded = load_world_from_file(0)
 		if loaded == {}:
-			push_error("_ready: requested load_from_save but load failed; falling back to new world")
+			push_error(
+				"_ready: requested load_from_save but load failed; falling back to new world"
+			)
 			world_index = 0
 		else:
 			saved_maps = loaded
@@ -366,7 +368,9 @@ func _load_world(idx: int) -> void:
 		dungeon_top = maps.get("top", null)
 		minimap = maps.get("minimap", null)
 	else:
-		push_error("_load_world: requested load_from_save but no saved_maps available; falling back to generator")
+		push_error(
+			"_load_world: requested load_from_save but no saved_maps available; falling back to generator"
+		)
 		var maps_fallback: Dictionary = await gen.get_random_tilemap()
 		if maps_fallback.is_empty():
 			push_error("Generator returned empty dictionary!")
@@ -376,11 +380,10 @@ func _load_world(idx: int) -> void:
 		dungeon_floor = maps_fallback.get("floor", null)
 		dungeon_top = maps_fallback.get("top", null)
 		minimap = maps_fallback.get("minimap", null)
-	
+
 	dungeon_floor.owner = world_root
 	dungeon_top.owner = world_root
-	
-	
+
 	if dungeon_floor == null:
 		push_error("Generator returned null floor tilemap!")
 		_hide_loading()
@@ -873,7 +876,7 @@ func _serialize_tilemap(tm: TileMapLayer) -> Dictionary:
 			"x": int(cell.x),
 			"y": int(cell.y),
 			"source_id": int(tm.get_cell_source_id(cell)),
-			"atlas": [int(atlas.x), int(atlas.y)], # <- WICHTIG: immer als Array speichern
+			"atlas": [int(atlas.x), int(atlas.y)],  # <- WICHTIG: immer als Array speichern
 			"alt": int(tm.get_cell_alternative_tile(cell)),
 		}
 		out["cells"].append(item)
@@ -916,8 +919,16 @@ func _deserialize_tilemap(data: Dictionary) -> TileMapLayer:
 			if typeof(rr) == TYPE_DICTIONARY:
 				var p = rr.get("pos", [0, 0])
 				var s = rr.get("size", [0, 0])
-				if typeof(p) == TYPE_ARRAY and p.size() >= 2 and typeof(s) == TYPE_ARRAY and s.size() >= 2:
-					tm.set_meta("room_rect", Rect2i(Vector2i(int(p[0]), int(p[1])), Vector2i(int(s[0]), int(s[1]))))
+				if (
+					typeof(p) == TYPE_ARRAY
+					and p.size() >= 2
+					and typeof(s) == TYPE_ARRAY
+					and s.size() >= 2
+				):
+					tm.set_meta(
+						"room_rect",
+						Rect2i(Vector2i(int(p[0]), int(p[1])), Vector2i(int(s[0]), int(s[1])))
+					)
 
 	# restore cells
 	var cells = data.get("cells", [])
@@ -1046,7 +1057,6 @@ func _serialize_entities() -> Array:
 			if _obj_has_property(c, "fog_tile_id"):
 				item["fog_tile_id"] = int(c.get("fog_tile_id"))
 
-
 			item["inventory"] = PlayerInventory.inventory
 
 		out.append(item)
@@ -1062,7 +1072,6 @@ func _deserialize_entities(list_data: Array) -> void:
 		push_error("_deserialize_entities: world_root is null")
 		return
 
-	
 	var container = world_root
 
 	for item in list_data:
@@ -1107,7 +1116,9 @@ func _deserialize_entities(list_data: Array) -> void:
 			m.add_to_group("vision_objects")
 			if item.has("grid_pos"):
 				var gp3 = item.get("grid_pos")
-				m.global_position = dungeon_floor.to_global(dungeon_floor.map_to_local(Vector2i(int(gp3[0]), int(gp3[1]))))
+				m.global_position = dungeon_floor.to_global(
+					dungeon_floor.map_to_local(Vector2i(int(gp3[0]), int(gp3[1])))
+				)
 			elif item.has("global_position"):
 				var gp4 = item.get("global_position")
 				m.global_position = Vector2(float(gp4[0]), float(gp4[1]))
@@ -1120,7 +1131,9 @@ func _deserialize_entities(list_data: Array) -> void:
 			container.add_child(l)
 			if item.has("grid_pos"):
 				var gp5 = item.get("grid_pos")
-				l.global_position = dungeon_floor.to_global(dungeon_floor.map_to_local(Vector2i(int(gp5[0]), int(gp5[1]))))
+				l.global_position = dungeon_floor.to_global(
+					dungeon_floor.map_to_local(Vector2i(int(gp5[0]), int(gp5[1])))
+				)
 			elif item.has("global_position"):
 				var gp6 = item.get("global_position")
 				l.global_position = Vector2(float(gp6[0]), float(gp6[1]))
@@ -1133,7 +1146,9 @@ func _deserialize_entities(list_data: Array) -> void:
 			tr.add_to_group("vision_objects")
 			if item.has("grid_pos"):
 				var gp7 = item.get("grid_pos")
-				tr.global_position = dungeon_floor.to_global(dungeon_floor.map_to_local(Vector2i(int(gp7[0]), int(gp7[1]))))
+				tr.global_position = dungeon_floor.to_global(
+					dungeon_floor.map_to_local(Vector2i(int(gp7[0]), int(gp7[1])))
+				)
 			elif item.has("global_position"):
 				var gp8 = item.get("global_position")
 				tr.global_position = Vector2(float(gp8[0]), float(gp8[1]))
@@ -1154,7 +1169,9 @@ func _deserialize_entities(list_data: Array) -> void:
 			if item.has("grid_pos"):
 				var gp9 = item.get("grid_pos")
 				player.grid_pos = Vector2i(int(gp9[0]), int(gp9[1]))
-				player.global_position = dungeon_floor.to_global(dungeon_floor.map_to_local(player.grid_pos))
+				player.global_position = dungeon_floor.to_global(
+					dungeon_floor.map_to_local(player.grid_pos)
+				)
 			elif item.has("global_position"):
 				var gp10 = item.get("global_position")
 				player.global_position = Vector2(float(gp10[0]), float(gp10[1]))
@@ -1181,7 +1198,6 @@ func _deserialize_entities(list_data: Array) -> void:
 
 				PlayerInventory.inventory = fixed_inv
 				PlayerInventory._emit_changed()
-
 
 
 func _obj_has_property(obj: Object, prop: String) -> bool:
@@ -1506,6 +1522,7 @@ func _on_player_moved() -> void:
 			# Fog reveal nur für diesen Raum
 			reveal_room_layer(room_layer)
 			return
+
 
 func load_world_from_file(idx: int) -> Dictionary:
 	# Load saved world JSON from user:// and return instantiated TileMapLayer nodes
