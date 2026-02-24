@@ -53,6 +53,7 @@ func _ready() -> void:
 
 	refresh_style()
 
+
 func _fit_item_to_slot(it: Node) -> void:
 	if it == null:
 		return
@@ -82,6 +83,7 @@ func _fit_item_to_slot(it: Node) -> void:
 			print("Scale Result: ", result)
 			var scale_value := float(result.get_string(1))
 			c.scale = Vector2(scale_value, scale_value)
+
 
 func _on_mouse_entered() -> void:
 	if self.name == "Slot12":
@@ -156,7 +158,7 @@ func put_into_slot(new_item: Node) -> void:
 		ci.visible = true
 
 	_fit_item_to_slot(new_item)
-	
+
 	item = new_item
 	refresh_style()
 	_remove_preview()
