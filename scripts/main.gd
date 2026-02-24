@@ -63,14 +63,15 @@ func _ready() -> void:
 		var early_loaded = load_world_from_file(0)
 		if typeof(early_loaded) == TYPE_DICTIONARY and not early_loaded.is_empty():
 			# restore selected skills into SkillState autoload if available
-			if typeof(SkillState) != TYPE_NIL and early_loaded.has("selected_skills"):
-				SkillState.selected_skills = early_loaded.get("selected_skills", [])
+			SkillState.selected_skills.clear()
+			for skill in early_loaded["selected_skills"]:
+				SkillState.selected_skills.append(skill)
 			# keep the loaded maps for later use in _load_world
 			saved_maps = early_loaded
 			world_index = int(early_loaded.get("world_index", 0))
-
-	await _show_skilltree_select_menu()
-	await _show_skilltree_upgrading_menu()
+	else:
+		await _show_skilltree_select_menu()
+		await _show_skilltree_upgrading_menu()
 
 	# Tutorial prüfen (JSON: res://data/tutorialData.json)
 	if _has_completed_tutorial() == false:
