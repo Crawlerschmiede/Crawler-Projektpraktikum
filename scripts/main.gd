@@ -952,7 +952,15 @@ func spawn_player() -> void:
 	var e: PlayerCharacter = PLAYER_SCENE.instantiate()
 	e.name = "Player"
 	# Floor setzen (einmal!)
-	e.setup(dungeon_floor, dungeon_top, 20, 4, 0, {})
+	# Use HP stored in PlayerInventory autoload if available
+	var player_max_hp := 20
+	var player_hp := 20
+	if typeof(PlayerInventory) != TYPE_NIL and PlayerInventory != null:
+		player_max_hp = int(PlayerInventory.player_max_hp)
+		player_hp = int(PlayerInventory.player_hp)
+	e.setup(dungeon_floor, dungeon_top, player_max_hp, 4, 0, {})
+	# restore current HP if stored (setup sets both max and current to max)
+	player_hp = min(PlayerInventory.player_hp, PlayerInventory.player_max_hp)
 	e.fog_layer = fog_war_layer
 	# pass dynamic flag and fog tile id to player for re-fogging
 	if e.has_method("set"):
