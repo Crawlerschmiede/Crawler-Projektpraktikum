@@ -520,11 +520,21 @@ script = ExtResource("6_5c7wf")
 [node name="coin_sum" type="Panel" parent="." unique_id=296555755 groups=["Equipment", "Inventory"]]
 custom_minimum_size = Vector2(12, 12)
 layout_mode = 0
-offset_left = 65.66667
-offset_top = 56.333332
-offset_right = 77.66667
-offset_bottom = 68.33333
+offset_left = -100.000015
+offset_top = 58.000004
+offset_right = -88.000015
+offset_bottom = 70.0
 size_flags_horizontal = 0
 size_flags_vertical = 4
 script = ExtResource("6_5c7wf")
 has_background = false
+
+[node name="Player_HPBar" type="ProgressBar" parent="." unique_id=1450900866]
+layout_mode = 0
+offset_left = 56.33329
+offset_top = 62.666634
+offset_right = 96.33329
+offset_bottom = 80.66663
+scale = Vector2(1, 0.7)
+theme = ExtResource("12_4ypmo")
+theme_override_fonts/font = ExtResource("9_6k8oa")

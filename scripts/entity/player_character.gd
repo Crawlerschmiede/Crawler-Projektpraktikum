@@ -233,6 +233,10 @@ func level_up():
 	SkillState.skilltrees.increase_tree_level("Medium Ranged Weaponry")
 	update_unlocked_skills()
 
+	# Persist new HP values to autoload
+	if typeof(PlayerInventory) != TYPE_NIL and PlayerInventory != null:
+		PlayerInventory.set_player_hp(int(self.hp), int(self.max_hp))
+
 
 func _check_exit_tile() -> bool:
 	if tilemap == null:

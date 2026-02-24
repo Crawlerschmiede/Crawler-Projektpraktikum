@@ -2,6 +2,7 @@ extends Node
 
 signal inventory_changed
 signal item_picked_up(item_name: String, amount: int)
+signal hp_changed(current: int, max: int)
 
 const NUM_INVENTORY_SLOTS: int = 25
 
@@ -10,13 +11,36 @@ var inventory: Dictionary = {}
 
 var coins: int = 100
 
+var _emit_pending: bool = false
+
 var slot_group_by_index: Dictionary = {}
 
 var suppress_signal: bool = false
 
 var selected_slot: int = 18
 
-var _emit_pending: bool = false
+# Player HP stored centrally in autoload (keeps player state across scenes)
+var player_max_hp: int = 20
+var player_hp: int = 20
+
+
+func set_player_hp(current: int, max_hp_val: int) -> void:
+	player_max_hp = int(max_hp_val)
+	player_hp = int(current)
+	if has_signal("hp_changed"):
+		emit_signal("hp_changed", int(player_hp), int(player_max_hp))
+
+
+func set_player_current_hp(current: int) -> void:
+	player_hp = int(current)
+	if has_signal("hp_changed"):
+		emit_signal("hp_changed", int(player_hp), int(player_max_hp))
+
+
+func set_player_max_hp(max_hp_val: int) -> void:
+	player_max_hp = int(max_hp_val)
+	if has_signal("hp_changed"):
+		emit_signal("hp_changed", int(player_hp), int(player_max_hp))
 
 
 func _ready() -> void:
@@ -372,4 +396,8 @@ func reset() -> void:
 	slot_group_by_index.clear()
 	suppress_signal = false
 	selected_slot = 18
+
+	# Reset player HP defaults
+	player_max_hp = 20
+	player_hp = 20
 	_emit_changed()

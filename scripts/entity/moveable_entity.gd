@@ -531,6 +531,9 @@ func take_damage(damage, type = ""):
 	hp = hp - taken_damage
 	#print("Now has ", hp, "HP")
 	print("And in fact does...")
+	# Sync player HP to PlayerInventory autoload when this entity is the player
+	if self.is_player and typeof(PlayerInventory) != TYPE_NIL and PlayerInventory != null:
+		PlayerInventory.set_player_hp(int(max(hp, 0)), int(max_hp))
 	return [" took " + str(taken_damage) + " Damage", " now has " + str(hp) + " HP"]
 
 
@@ -539,6 +542,9 @@ func heal(healing):
 	var healed_hp = healing  #useless right now but just put here for later damage calculations
 	hp = hp + healed_hp
 	#print("Now has ", hp, "HP")
+	# Sync player HP to PlayerInventory autoload when this entity is the player
+	if self.is_player and typeof(PlayerInventory) != TYPE_NIL and PlayerInventory != null:
+		PlayerInventory.set_player_hp(int(min(hp, max_hp)), int(max_hp))
 	return [" healed by " + str(healed_hp), " now has " + str(hp) + " HP"]
 
 
