@@ -16,6 +16,8 @@ const SKILLTREE_UPGRADING_SCENE := preload("res://scenes/UI/skilltree-upgrading.
 const START_SCENE := "res://scenes/UI/start-menu.tscn"
 const DEATH_SCENE := "res://scenes/UI/death-screen.tscn"
 const DEATH_SCENE_PACKED := preload("res://scenes/UI/death-screen.tscn")
+const WIN_SCENE := "res://scenes/UI/won-screen.tscn"
+const WIN_SCENE_PACKED := preload("res://scenes/UI/won-screen.tscn")
 const SEWER_TILESET := "res://scenes/rooms/Rooms/roomtiles_2world.tres"
 const TUTORIAL_ROOM := "res://scenes/rooms/Tutorial Rooms/tutorial_room.tscn"
 const UI_MODAL_CONTROLLER := preload("res://scripts/UI/ui_modal_controller.gd")
@@ -292,9 +294,17 @@ func _load_world(idx: int) -> void:
 	_clear_world()
 
 	if idx < 0 or idx >= generators.size():
-		push_error("No more worlds left!")
+		# No more worlds left -> show win screen (similar to game_over behavior)
 		_hide_loading()
 		_set_tree_paused(false)
+		var scene_tree := get_tree()
+		if scene_tree != null:
+			if typeof(WIN_SCENE_PACKED) != TYPE_NIL:
+				scene_tree.change_scene_to_packed(WIN_SCENE_PACKED)
+			else:
+				scene_tree.change_scene_to_file(WIN_SCENE)
+		else:
+			push_error("No more worlds left and SceneTree is null")
 		return
 
 	var gen := generators[idx]
@@ -948,7 +958,7 @@ func spawn_player() -> void:
 	var e: PlayerCharacter = PLAYER_SCENE.instantiate()
 	e.name = "Player"
 	# Floor setzen (einmal!)
-	e.setup(dungeon_floor, dungeon_top, 20, 4, 0, {})
+	e.setup(dungeon_floor, dungeon_top, 10, 3, 0, {})
 	e.fog_layer = fog_war_layer
 	# pass dynamic flag and fog tile id to player for re-fogging
 	if e.has_method("set"):
