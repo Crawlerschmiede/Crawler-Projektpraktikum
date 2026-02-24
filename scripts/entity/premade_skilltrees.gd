@@ -9,10 +9,10 @@ var existing_skills = SKILLS.new()
 #skills should be in the format [name, required tier]
 var skilltrees = {
 	"basic": 0,
-	"Short Ranged Weaponry": 0,
-	"Medium Ranged Weaponry": 0,
-	"Long Ranged Weaponry": 0,
-	"Unarmed": 0
+	"Short-Ranged-Weaponry": 0,
+	"Medium-Ranged-Weaponry": 0,
+	"Long-Ranged-Weaponry": 0,
+	"Unarmed-Combat": 0
 }
 
 
@@ -39,6 +39,7 @@ func increase_tree_level(tree_name: String):
 		push_warning("Unknown skilltree: %s" % tree_name)
 		return
 	skilltrees[tree_name] = int(skilltrees[tree_name]) + 1
+	print("Leveled successfully: ", tree_name)
 
 
 func activate(tree_name: String):
@@ -47,6 +48,7 @@ func activate(tree_name: String):
 		return
 	if int(skilltrees[tree_name]) < 1:
 		skilltrees[tree_name] = int(skilltrees[tree_name]) + 1
+		print("Activated successfully: ", tree_name)
 
 
 func get_all_explanations():
