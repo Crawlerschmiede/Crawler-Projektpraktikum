@@ -10,4 +10,4 @@ build/
 *.bak
 *.tmp
 
-.\data\tutorialData.json
+data/tutorialData.json
