@@ -29,6 +29,7 @@
 		"StackSize": 1,
 		"Description": "A sturdy tree branch that can be used for crafting.",
 		"group": "Weapon",
+		"example_in_inventory": "Weapon",
 		"loot_stats": { "weight": 3, "chance": 1.0, "max_stack": 2 },
 		"merchant": {
 			"min_count": 1,
