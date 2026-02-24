@@ -179,6 +179,7 @@ merge_release_pr() {
   echo "Found PR #$pr_number"
   local merge_flag="--merge"
   local execution_flag=""
+  local admin_after_checks=0
   if [[ "$NON_INTERACTIVE" -eq 0 ]]; then
     echo "Choose merge method:"
     echo "1) merge commit"
@@ -200,6 +201,7 @@ merge_release_pr() {
     echo "1) merge now (default)"
     echo "2) auto-merge when requirements pass (--auto)"
     echo "3) admin override now (--admin)"
+    echo "4) admin after checks pass (watch checks, then --admin)"
 
     local exec_mode
     read -r -p "Execution mode [1]: " exec_mode
@@ -209,6 +211,7 @@ merge_release_pr() {
       1) execution_flag="" ;;
       2) execution_flag="--auto" ;;
       3) execution_flag="--admin" ;;
+      4) admin_after_checks=1 ;;
       *) echo "Invalid execution mode."; return ;;
     esac
   else
@@ -218,6 +221,19 @@ merge_release_pr() {
   fi
 
   if confirm "Attempt to merge PR #$pr_number now?"; then
+    if [[ "$admin_after_checks" -eq 1 ]]; then
+      echo "Watching PR checks until they complete..."
+      if gh pr checks "$pr_number" --repo "$REPO_SLUG" --watch --fail-fast --interval 10; then
+        echo "Checks passed. Performing admin merge..."
+        gh pr merge "$pr_number" --repo "$REPO_SLUG" "$merge_flag" --admin
+        echo "Merge command executed (--admin after checks)."
+      else
+        echo "Checks did not pass. Admin merge skipped."
+        return
+      fi
+      return
+    fi
+
     if gh pr merge "$pr_number" --repo "$REPO_SLUG" "$merge_flag" ${execution_flag:+$execution_flag}; then
       if [[ -n "$execution_flag" ]]; then
         echo "Merge command executed ($execution_flag)."
@@ -227,7 +243,7 @@ merge_release_pr() {
     else
       echo "Merge failed with current mode."
       if [[ "$NON_INTERACTIVE" -eq 0 ]]; then
-        echo "Tip: if branch policy requires review/checks, retry and choose --auto or --admin."
+        echo "Tip: if branch policy requires review/checks, retry and choose --auto, --admin, or admin-after-checks."
       fi
       return
     fi
