@@ -124,6 +124,21 @@ This is the current workflow:
    git push origin dev
    ```
 
+### Interactive release helper (Git Bash)
+
+If you want a guided CLI flow for the same process, use:
+
+```bash
+bash tools/release-assistant.sh
+```
+
+The script helps you:
+- inspect current release status (latest tag, latest GitHub release, branch SHAs, open `dev -> release` PR)
+- create/view and merge a `dev -> release` PR via `gh`
+- create and push a `v<major>.<minor>.<patch>` tag on `release` (triggers `release.yml`)
+- watch release workflow runs and optionally open related pages
+- sync `dev` from `release` after publishing
+
 **Adding Items**
 
 - **Data location:** Item definitions are stored in `res://data/itemData.json`. Each entry is a JSON object keyed by the internal item name (ID).
