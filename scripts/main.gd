@@ -684,7 +684,11 @@ func _clear_world() -> void:
 		EntityAutoload.reset()
 
 	# Reset player inventory and runtime player-related singletons so new game starts clean
-	if typeof(PlayerInventory) != TYPE_NIL and PlayerInventory != null and PlayerInventory.has_method("reset"):
+	if (
+		typeof(PlayerInventory) != TYPE_NIL
+		and PlayerInventory != null
+		and PlayerInventory.has_method("reset")
+	):
 		PlayerInventory.reset()
 
 
@@ -1165,7 +1169,11 @@ func game_over():
 	var scene_tree = get_tree()
 
 	# Ensure runtime state resets (inventory, etc.) when player dies
-	if typeof(PlayerInventory) != TYPE_NIL and PlayerInventory != null and PlayerInventory.has_method("reset"):
+	if (
+		typeof(PlayerInventory) != TYPE_NIL
+		and PlayerInventory != null
+		and PlayerInventory.has_method("reset")
+	):
 		PlayerInventory.reset()
 	if scene_tree != null:
 		# Switch to preloaded death scene if available
