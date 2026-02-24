@@ -137,6 +137,10 @@ func _open_menu_overlay() -> void:
 
 	if _menu_instance.has_signal("menu_closed"):
 		_menu_instance.menu_closed.connect(_on_menu_closed)
+	if _menu_instance.has_signal("save_requested"):
+		var cb = Callable(self, "_on_save_requested")
+		if not _menu_instance.is_connected("save_requested", cb):
+			_menu_instance.connect("save_requested", cb)
 
 
 func _on_menu_closed() -> void:

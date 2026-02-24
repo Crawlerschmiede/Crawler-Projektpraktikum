@@ -403,14 +403,15 @@ func _load_world(idx: int) -> void:
 		dungeon_top = maps_fallback.get("top", null)
 		minimap = maps_fallback.get("minimap", null)
 
-	dungeon_floor.owner = world_root
-	dungeon_top.owner = world_root
-
 	if dungeon_floor == null:
 		push_error("Generator returned null floor tilemap!")
 		_hide_loading()
 		_set_tree_paused(false)
 		return
+
+	dungeon_floor.owner = world_root
+	if dungeon_top != null:
+		dungeon_top.owner = world_root
 
 	# -------------------------------------------------
 	# Tileset Override für Welt 2
