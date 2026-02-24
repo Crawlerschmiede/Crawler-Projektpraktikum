@@ -1193,7 +1193,7 @@ func game_over():
 			scene_tree.change_scene_to_file(DEATH_SCENE)
 	else:
 		push_error("game_over: SceneTree is null; cannot change scene")
-	
+
 		# Reset entity spawn reservations so next world can reuse positions
 	if EntityAutoload != null and EntityAutoload.has_method("reset"):
 		EntityAutoload.reset()
@@ -1205,7 +1205,6 @@ func game_over():
 		and PlayerInventory.has_method("reset")
 	):
 		PlayerInventory.reset()
-
 
 
 # -----------------------------------------------------
