@@ -27,7 +27,7 @@ EntityAutoload="*res://scripts/Autoloadscripts/entity_autoload.gd"
 GlobalRNG="*res://scripts/Autoloadscripts/GlobalRNG.gd"
 AutoloadResetRunner="*res://scripts/Autoloadscripts/AutoloadResetRunner.gd"
 SaveState="*uid://c4n0rfm8fhrc"
-SkillState="*res://scripts/Autoloadscripts/SkillState.gd"
+SkillState="*uid://b5bce0gix01b7"
 
 [display]
 

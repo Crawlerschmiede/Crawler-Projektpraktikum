@@ -3,22 +3,25 @@ extends Node2D
 # gdlint: disable=max-file-lines
 
 signal player_spawned
-const ENEMY_SCENE = preload("res://scenes/entity/enemy.tscn")
-const BATTLE_SCENE = preload("res://scenes/UI/battle.tscn")
-const PLAYER_SCENE = preload("res://scenes/entity/player-character-scene.tscn")
-const LOOTBOX = preload("res://scenes/Interactables/Lootbox.tscn")
-const TRAP = preload("res://scenes/Interactables/Trap.tscn")
-const MERCHANT = preload("res://scenes/entity/merchant.tscn")
-const LOADING_SCENE = preload("res://scenes/UI/loading_screen.tscn")
-const SKILLTREE_SELECT_SCENE = preload("res://scenes/UI/skilltree-select-menu.tscn")
-const SKILLTREE_UPGRADING_SCENE = preload("res://scenes/UI/skilltree-upgrading.tscn")
-const UI_MODAL_CONTROLLER = preload("res://scripts/UI/ui_modal_controller.gd")
-const START_SCENE = "res://scenes/UI/start-menu.tscn"
-const DEATH_SCENE = "res://scenes/UI/death-screen.tscn"
-const DEATH_SCENE_PACKED = preload("res://scenes/UI/death-screen.tscn")
-const SEWER_TILESET = "res://scenes/rooms/Rooms/roomtiles_2world.tres"
-const TUTORIAL_ROOM = "res://scenes/rooms/Tutorial Rooms/tutorial_room.tscn"
-@export var menu_scene = preload("res://scenes/UI/popup-menu.tscn")
+
+const ENEMY_SCENE := preload("res://scenes/entity/enemy.tscn")
+const BATTLE_SCENE := preload("res://scenes/UI/battle.tscn")
+const PLAYER_SCENE := preload("res://scenes/entity/player-character-scene.tscn")
+const LOOTBOX := preload("res://scenes/Interactables/Lootbox.tscn")
+const TRAP := preload("res://scenes/Interactables/Trap.tscn")
+const MERCHANT := preload("res://scenes/entity/merchant.tscn")
+const LOADING_SCENE := preload("res://scenes/UI/loading_screen.tscn")
+const SKILLTREE_SELECT_SCENE := preload("res://scenes/UI/skilltree-select-menu.tscn")
+const SKILLTREE_UPGRADING_SCENE := preload("res://scenes/UI/skilltree-upgrading.tscn")
+const START_SCENE := "res://scenes/UI/start-menu.tscn"
+const DEATH_SCENE := "res://scenes/UI/death-screen.tscn"
+const DEATH_SCENE_PACKED := preload("res://scenes/UI/death-screen.tscn")
+const WIN_SCENE := "res://scenes/UI/won-screen.tscn"
+const WIN_SCENE_PACKED := preload("res://scenes/UI/won-screen.tscn")
+const SEWER_TILESET := "res://scenes/rooms/Rooms/roomtiles_2world.tres"
+const TUTORIAL_ROOM := "res://scenes/rooms/Tutorial Rooms/tutorial_room.tscn"
+const UI_MODAL_CONTROLLER := preload("res://scripts/UI/ui_modal_controller.gd")
+@export var menu_scene := preload("res://scenes/UI/popup-menu.tscn")
 @export var fog_tile_id: int = 0  # set this in the inspector to the fog-tile id in your tileset
 @export var fog_dynamic: bool = true  # if true, areas that are no longer visible get fogged again
 
@@ -326,9 +329,17 @@ func _load_world(idx: int) -> void:
 	_clear_world()
 
 	if idx < 0 or idx >= generators.size():
-		push_error("No more worlds left!")
+		# No more worlds left -> show win screen (similar to game_over behavior)
 		_hide_loading()
 		_set_tree_paused(false)
+		var scene_tree := get_tree()
+		if scene_tree != null:
+			if typeof(WIN_SCENE_PACKED) != TYPE_NIL:
+				scene_tree.change_scene_to_packed(WIN_SCENE_PACKED)
+			else:
+				scene_tree.change_scene_to_file(WIN_SCENE)
+		else:
+			push_error("No more worlds left and SceneTree is null")
 		return
 
 	var gen = generators[idx]
@@ -768,6 +779,10 @@ func _clear_world() -> void:
 	# Reset entity spawn reservations so next world can reuse positions
 	if EntityAutoload != null and EntityAutoload.has_method("reset"):
 		EntityAutoload.reset()
+
+	# Reset global RNG to base seed so new-world generation is deterministic
+	if typeof(GlobalRNG) != TYPE_NIL and GlobalRNG != null and GlobalRNG.has_method("reset"):
+		GlobalRNG.reset()
 
 
 func _on_player_exit_reached() -> void:
@@ -1322,8 +1337,14 @@ func spawn_enemies(do_boss: bool) -> void:
 	var total = 0.0
 
 	for d in defs:
-		var sr = d.get("spawnrate", {})
-		var avg = (float(sr.get("min", 0)) + float(sr.get("max", 0))) * 0.5
+		var sr_raw = d.get("spawnrate", {})
+		var sr = {}
+		if sr_raw.has(str(world_index)):
+			sr = sr_raw[str(world_index)]
+		elif sr_raw.has("min"):
+			sr = sr_raw
+
+		var avg := (float(sr.get("min", 0)) + float(sr.get("max", 0))) * 0.5
 		weights.append(avg)
 		total += avg
 
@@ -1333,8 +1354,8 @@ func spawn_enemies(do_boss: bool) -> void:
 		total = float(weights.size())
 
 	# --- Spawn-Plan erstellen ---
-	var rng = GlobalRNG.get_rng()
-	rng.seed = GlobalRNG.next_seed()
+	# Use a fresh RNG from GlobalRNG (get_rng already seeds with next_seed())
+	var rng := GlobalRNG.get_rng()
 
 	var current_weight = 0
 	var spawn_plan = {}
@@ -1381,8 +1402,14 @@ func spawn_enemies(do_boss: bool) -> void:
 
 		var def = defs[chosen]
 
-		var sc = def.get("spawncount", {})
-		var count = rng.randi_range(int(sc.get("min", 0)), int(sc.get("max", 1)))
+		var sc_raw = def.get("spawncount", {})
+		var sc = {}
+		if sc_raw.has(str(world_index)):
+			sc = sc_raw[str(world_index)]
+		elif sc_raw.has("min"):
+			sc = sc_raw
+
+		var count := rng.randi_range(int(sc.get("min", 0)), int(sc.get("max", 1)))
 
 		var w = int(def.get("weight", 1))
 		var id = def["_id"]
@@ -1447,7 +1474,7 @@ func spawn_player() -> void:
 	var e: PlayerCharacter = PLAYER_SCENE.instantiate()
 	e.name = "Player"
 	# Floor setzen (einmal!)
-	e.setup(dungeon_floor, dungeon_top, 20, 4, 0, {})
+	e.setup(dungeon_floor, dungeon_top, 10, 3, 0, {})
 	e.fog_layer = fog_war_layer
 	# pass dynamic flag and fog tile id to player for re-fogging
 	if e.has_method("set"):

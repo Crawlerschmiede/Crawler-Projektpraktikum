@@ -33,6 +33,11 @@ if [[ -z "$REPO_SLUG" ]]; then
   REPO_SLUG="$(git remote get-url origin | sed -E 's#(git@github.com:|https://github.com/)##; s#\.git$##')"
 fi
 
+NON_INTERACTIVE=0
+if [[ ! -t 0 || ! -t 1 ]]; then
+  NON_INTERACTIVE=1
+fi
+
 trim() {
   local value="$*"
   value="${value#${value%%[![:space:]]*}}"
@@ -42,6 +47,10 @@ trim() {
 
 confirm() {
   local prompt="$1"
+  if [[ "$NON_INTERACTIVE" -eq 1 ]]; then
+    echo "$prompt [auto-yes]"
+    return 0
+  fi
   local answer
   read -r -p "$prompt [y/N]: " answer
   case "${answer,,}" in
@@ -114,26 +123,39 @@ create_or_view_pr() {
   git fetch origin "$DEV_BRANCH" "$RELEASE_BRANCH" --tags --prune
 
   local existing_pr
-  existing_pr="$(gh pr list --repo "$REPO_SLUG" --base "$RELEASE_BRANCH" --head "$DEV_BRANCH" --state open --json number,url,title --jq '.[0] | "#\(.number) \(.title) \(.url)"' 2>/dev/null || true)"
+  existing_pr="$(gh pr list --repo "$REPO_SLUG" --base "$RELEASE_BRANCH" --head "$DEV_BRANCH" --state open --json number,url,title --jq 'if length > 0 then .[0] | "#\(.number) \(.title) \(.url)" else "" end' 2>/dev/null || true)"
 
   if [[ -n "$(trim "$existing_pr")" ]]; then
     echo "Open PR already exists: $existing_pr"
-    if confirm "Open PR in browser?"; then
+    if [[ "$NON_INTERACTIVE" -eq 0 ]] && confirm "Open PR in browser?"; then
       gh pr view --repo "$REPO_SLUG" --base "$RELEASE_BRANCH" --head "$DEV_BRANCH" --web
     fi
     return
   fi
 
   local default_title="Release: merge ${DEV_BRANCH} into ${RELEASE_BRANCH}"
-  local default_body="Automated PR created by tools/release-assistant.sh\n\n- Source: ${DEV_BRANCH}\n- Target: ${RELEASE_BRANCH}"
+  local default_body
+  default_body=$(cat <<EOF
+Automated PR created by tools/release-assistant.sh
+
+- Source: ${DEV_BRANCH}
+- Target: ${RELEASE_BRANCH}
+EOF
+)
 
   local pr_title pr_body
-  read -r -p "PR title [$default_title]: " pr_title
-  pr_title="$(trim "${pr_title:-$default_title}")"
+  if [[ "$NON_INTERACTIVE" -eq 1 ]]; then
+    pr_title="$default_title"
+    pr_body="$default_body"
+    echo "Using default PR title/body (non-interactive mode)."
+  else
+    read -r -p "PR title [$default_title]: " pr_title
+    pr_title="$(trim "${pr_title:-$default_title}")"
 
-  echo "PR body (single line; leave empty for default):"
-  read -r pr_body
-  pr_body="$(trim "${pr_body:-$default_body}")"
+    echo "PR body (single line; leave empty for default):"
+    read -r pr_body
+    pr_body="$(trim "${pr_body:-$default_body}")"
+  fi
 
   gh pr create \
     --repo "$REPO_SLUG" \
@@ -155,26 +177,76 @@ merge_release_pr() {
   fi
 
   echo "Found PR #$pr_number"
-  echo "Choose merge method:"
-  echo "1) merge commit"
-  echo "2) squash"
-  echo "3) rebase"
-
-  local method
-  read -r -p "Method [1]: " method
-  method="${method:-1}"
-
   local merge_flag="--merge"
-  case "$method" in
-    1) merge_flag="--merge" ;;
-    2) merge_flag="--squash" ;;
-    3) merge_flag="--rebase" ;;
-    *) echo "Invalid method."; return ;;
-  esac
+  local execution_flag=""
+  local admin_after_checks=0
+  if [[ "$NON_INTERACTIVE" -eq 0 ]]; then
+    echo "Choose merge method:"
+    echo "1) merge commit"
+    echo "2) squash"
+    echo "3) rebase"
+
+    local method
+    read -r -p "Method [1]: " method
+    method="${method:-1}"
+
+    case "$method" in
+      1) merge_flag="--merge" ;;
+      2) merge_flag="--squash" ;;
+      3) merge_flag="--rebase" ;;
+      *) echo "Invalid method."; return ;;
+    esac
+
+    echo "Choose merge execution mode:"
+    echo "1) merge now (default)"
+    echo "2) auto-merge when requirements pass (--auto)"
+    echo "3) admin override now (--admin)"
+    echo "4) admin after checks pass (watch checks, then --admin)"
+
+    local exec_mode
+    read -r -p "Execution mode [1]: " exec_mode
+    exec_mode="${exec_mode:-1}"
+
+    case "$exec_mode" in
+      1) execution_flag="" ;;
+      2) execution_flag="--auto" ;;
+      3) execution_flag="--admin" ;;
+      4) admin_after_checks=1 ;;
+      *) echo "Invalid execution mode."; return ;;
+    esac
+  else
+    echo "Using merge commit (non-interactive mode)."
+    execution_flag="--auto"
+    echo "Using auto-merge mode (non-interactive mode)."
+  fi
 
   if confirm "Attempt to merge PR #$pr_number now?"; then
-    gh pr merge "$pr_number" --repo "$REPO_SLUG" "$merge_flag"
-    echo "Merge command executed."
+    if [[ "$admin_after_checks" -eq 1 ]]; then
+      echo "Watching PR checks until they complete..."
+      if gh pr checks "$pr_number" --repo "$REPO_SLUG" --watch --fail-fast --interval 10; then
+        echo "Checks passed. Performing admin merge..."
+        gh pr merge "$pr_number" --repo "$REPO_SLUG" "$merge_flag" --admin
+        echo "Merge command executed (--admin after checks)."
+      else
+        echo "Checks did not pass. Admin merge skipped."
+        return
+      fi
+      return
+    fi
+
+    if gh pr merge "$pr_number" --repo "$REPO_SLUG" "$merge_flag" ${execution_flag:+$execution_flag}; then
+      if [[ -n "$execution_flag" ]]; then
+        echo "Merge command executed ($execution_flag)."
+      else
+        echo "Merge command executed."
+      fi
+    else
+      echo "Merge failed with current mode."
+      if [[ "$NON_INTERACTIVE" -eq 0 ]]; then
+        echo "Tip: if branch policy requires review/checks, retry and choose --auto, --admin, or admin-after-checks."
+      fi
+      return
+    fi
   fi
 }
 
@@ -222,8 +294,13 @@ create_and_push_tag() {
 
   local suggested tag msg
   suggested="$(suggest_next_tag)"
-  read -r -p "Tag to create [$suggested]: " tag
-  tag="$(trim "${tag:-$suggested}")"
+  if [[ "$NON_INTERACTIVE" -eq 1 ]]; then
+    tag="$suggested"
+    echo "Using suggested tag: $tag"
+  else
+    read -r -p "Tag to create [$suggested]: " tag
+    tag="$(trim "${tag:-$suggested}")"
+  fi
 
   if [[ ! "$tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
     echo "Tag must match v<major>.<minor>.<patch> (example: v0.1.0)."
@@ -241,8 +318,12 @@ create_and_push_tag() {
   fi
 
   local default_msg="Release $tag"
-  read -r -p "Tag message [$default_msg]: " msg
-  msg="$(trim "${msg:-$default_msg}")"
+  if [[ "$NON_INTERACTIVE" -eq 1 ]]; then
+    msg="$default_msg"
+  else
+    read -r -p "Tag message [$default_msg]: " msg
+    msg="$(trim "${msg:-$default_msg}")"
+  fi
 
   echo "About to run:"
   echo "  git tag -a $tag -m \"$msg\""
@@ -253,14 +334,17 @@ create_and_push_tag() {
     git push origin "$tag"
     echo "Tag pushed. This should trigger workflow: $RELEASE_WORKFLOW_FILE"
 
-    if confirm "Watch release workflow runs now?"; then
+    if [[ "$NON_INTERACTIVE" -eq 1 ]] || confirm "Watch release workflow runs now?"; then
       gh run list --repo "$REPO_SLUG" --workflow "$RELEASE_WORKFLOW_FILE" --limit 10
       echo
       echo "Use: gh run watch --repo $REPO_SLUG <run-id>"
     fi
 
-    if confirm "Open Releases page in browser?"; then
-      gh repo view --repo "$REPO_SLUG" --web
+    if [[ "$NON_INTERACTIVE" -eq 0 ]] && confirm "Open Releases page in browser?"; then
+      if ! gh repo view "$REPO_SLUG" --web; then
+        echo "Could not open releases page automatically."
+        echo "Open manually: https://github.com/${REPO_SLUG}/releases"
+      fi
     fi
   fi
 }
@@ -268,6 +352,9 @@ create_and_push_tag() {
 watch_release_workflow() {
   echo "Recent runs for $RELEASE_WORKFLOW_FILE:"
   gh run list --repo "$REPO_SLUG" --workflow "$RELEASE_WORKFLOW_FILE" --limit 10
+  if [[ "$NON_INTERACTIVE" -eq 1 ]]; then
+    return
+  fi
   echo
   read -r -p "Run ID to watch (empty = skip): " run_id
   run_id="$(trim "$run_id")"
@@ -312,7 +399,23 @@ run_full_flow() {
   fi
 }
 
+run_full_flow_noninteractive() {
+  echo
+  echo "Running non-interactive full flow (no flags required)."
+  print_status
+  create_or_view_pr
+  merge_release_pr
+  create_and_push_tag
+  sync_dev_from_release
+}
+
 main_menu() {
+  if [[ "$NON_INTERACTIVE" -eq 1 ]]; then
+    print_header
+    run_full_flow_noninteractive
+    return
+  fi
+
   while true; do
     print_header
     print_status

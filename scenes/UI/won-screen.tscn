@@ -1,4 +1,4 @@
-[gd_scene format=3 uid="uid://dt31k4kw5u513"]
+[gd_scene format=3 uid="uid://cj0vraklr5vmr"]
 
 [ext_resource type="Script" uid="uid://cygq4e306a2g" path="res://scripts/death_screen.gd" id="1_w2my2"]
 [ext_resource type="Texture2D" uid="uid://bb54nue8qv54r" path="res://assets/menu/menu background.jpg" id="2_r3yrg"]
