@@ -36,15 +36,6 @@ func _apply_scale() -> void:
 
 # Function for the "Continue" button
 func _on_continue_pressed():
-	# Mark that user wants to continue from save (if autoload available)
-	var ss = get_tree().root.get_node_or_null("SaveState")
-	if ss != null:
-		ss.load_from_save = true
-		# leave load_index as-is (main will decide), or set ss.load_index here if desired
-	else:
-		push_error(
-			"_on_continue_pressed: SaveState autoload not found; continue will not load from save"
-		)
 	menu_closed.emit()
 
 

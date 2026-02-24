@@ -137,23 +137,7 @@ func _open_menu_overlay() -> void:
 
 	if _menu_instance.has_signal("menu_closed"):
 		_menu_instance.menu_closed.connect(_on_menu_closed)
-	else:
-		push_error("_open_menu_overlay: popup menu instance missing 'menu_closed' signal")
 
-	# Connect save request from popup menu to local handler only if main doesn't handle it
-	if _menu_instance.has_signal("save_requested"):
-		var root := get_tree().root
-		var handled := false
-		if root.get_child_count() > 0:
-			var maybe_main := root.get_child(0)
-			if maybe_main != null and maybe_main.has_method("save_current_world"):
-				handled = true
-	else:
-		push_error(
-			"_open_menu_overlay: popup menu instance missing 'save_requested' signal; save unavailable"
-		)
-
-	visible = false
 
 
 func _on_menu_closed() -> void:

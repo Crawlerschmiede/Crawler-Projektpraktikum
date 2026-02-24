@@ -57,6 +57,18 @@ func _ready() -> void:
 	UI_MODAL_CONTROLLER.set_debug_enabled(OS.is_debug_build())
 	generators = [generator1, generator2, generator3]
 
+	# If user requested loading from save, try to pre-load save data
+	# BEFORE showing skill selection so previously selected skills are restored
+	if SaveState.load_from_save:
+		var early_loaded = load_world_from_file(0)
+		if typeof(early_loaded) == TYPE_DICTIONARY and not early_loaded.is_empty():
+			# restore selected skills into SkillState autoload if available
+			if typeof(SkillState) != TYPE_NIL and early_loaded.has("selected_skills"):
+				SkillState.selected_skills = early_loaded.get("selected_skills", [])
+			# keep the loaded maps for later use in _load_world
+			saved_maps = early_loaded
+			world_index = int(early_loaded.get("world_index", 0))
+
 	await _show_skilltree_select_menu()
 	await _show_skilltree_upgrading_menu()
 
@@ -64,8 +76,8 @@ func _ready() -> void:
 	if _has_completed_tutorial() == false:
 		await _load_tutorial_world()
 		return
-	if SaveState.load_from_save:
-		# Load saved maps from file and pass them to _load_world
+	if SaveState.load_from_save and (saved_maps == {} or not (typeof(saved_maps) == TYPE_DICTIONARY and saved_maps.has("floor"))):
+		# No early-loaded save present -> load now
 		var loaded = load_world_from_file(0)
 		if loaded == {}:
 			push_error(
@@ -75,7 +87,7 @@ func _ready() -> void:
 		else:
 			saved_maps = loaded
 			world_index = int(loaded.get("world_index", 0))
-	else:
+	elif not SaveState.load_from_save and (saved_maps == {} or not typeof(saved_maps) == TYPE_DICTIONARY):
 		world_index = 0
 
 	await _load_world(world_index)
@@ -1230,6 +1242,12 @@ func save_current_world() -> void:
 	else:
 		payload["minimap"] = {}
 
+	# selected skills (persist player's chosen skills)
+	if typeof(SkillState) != TYPE_NIL:
+		payload["selected_skills"] = SkillState.selected_skills
+	else:
+		payload["selected_skills"] = []
+
 	var path = "user://world_tilemap_save.json"
 	var f = FileAccess.open(path, FileAccess.WRITE)
 	if f == null:
@@ -1566,6 +1584,9 @@ func load_world_from_file(idx: int) -> Dictionary:
 	result["top"] = top_tm
 	result["entities"] = entities_data
 	result["minimap"] = minimap_node
+
+	# restore selected skills into the returned result so caller can apply them early
+	result["selected_skills"] = payload.get("selected_skills", [])
 
 	return result
 
