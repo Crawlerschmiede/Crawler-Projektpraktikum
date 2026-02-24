@@ -42,6 +42,7 @@ func set_player_max_hp(max_hp_val: int) -> void:
 	if has_signal("hp_changed"):
 		emit_signal("hp_changed", int(player_hp), int(player_max_hp))
 
+
 func _ready() -> void:
 	# initialize per-session merchant registry to persist merchant state in memory
 	if get("merchant_registry") == null:
