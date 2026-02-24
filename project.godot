@@ -17,7 +17,7 @@ config/icon="res://icon.svg"
 
 [autoload]
 
-SettingsManager="*res://scripts/Autoloadscripts/settings_manager.gd"
+SettingsManager="*uid://qh1ypufg3idr"
 JsonData="*res://scripts/Autoloadscripts/JSONData.gd"
 PlayerInventory="*res://scripts/Autoloadscripts/PlayerInventory.gd"
 Setting="*res://scripts/Autoloadscripts/setting.gd"
@@ -26,8 +26,8 @@ MerchantRegistry="*res://scripts/rooms/merchant/merchant_registry.gd"
 EntityAutoload="*res://scripts/Autoloadscripts/entity_autoload.gd"
 GlobalRNG="*res://scripts/Autoloadscripts/GlobalRNG.gd"
 AutoloadResetRunner="*res://scripts/Autoloadscripts/AutoloadResetRunner.gd"
-SkillState="*uid://b5bce0gix01b7"
 SaveState="*uid://c4n0rfm8fhrc"
+SkillState="*res://scripts/Autoloadscripts/SkillState.gd"
 
 [display]
 
