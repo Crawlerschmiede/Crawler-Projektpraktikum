@@ -823,7 +823,13 @@ func spawn_enemies(do_boss: bool) -> void:
 	var total := 0.0
 
 	for d in defs:
-		var sr = d.get("spawnrate", {})
+		var sr_raw = d.get("spawnrate", {})
+		var sr = {}
+		if sr_raw.has(str(world_index)):
+			sr = sr_raw[str(world_index)]
+		elif sr_raw.has("min"):
+			sr = sr_raw
+
 		var avg := (float(sr.get("min", 0)) + float(sr.get("max", 0))) * 0.5
 		weights.append(avg)
 		total += avg
@@ -882,7 +888,13 @@ func spawn_enemies(do_boss: bool) -> void:
 
 		var def := defs[chosen]
 
-		var sc = def.get("spawncount", {})
+		var sc_raw = def.get("spawncount", {})
+		var sc = {}
+		if sc_raw.has(str(world_index)):
+			sc = sc_raw[str(world_index)]
+		elif sc_raw.has("min"):
+			sc = sc_raw
+
 		var count := rng.randi_range(int(sc.get("min", 0)), int(sc.get("max", 1)))
 
 		var w := int(def.get("weight", 1))
