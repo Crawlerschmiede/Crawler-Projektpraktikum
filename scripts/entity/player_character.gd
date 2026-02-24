@@ -101,8 +101,8 @@ func _ready() -> void:
 	for action in base_actions:
 		add_action(action)
 	for active_tree in PLAYER_ACTIVE_SKILLTREES:
-		existing_skilltrees.increase_tree_level(active_tree)
-		print(existing_skilltrees.get_all_explanations())
+		SkillState.skilltrees.activate(active_tree)
+		print(SkillState.skilltrees.get_all_explanations())
 	update_unlocked_skills()
 	add_to_group("player")
 
@@ -230,7 +230,7 @@ func _on_area_2d_area_entered(area: Area2D):
 func level_up():
 	self.max_hp = self.max_hp + 1
 	self.hp = self.max_hp
-	existing_skilltrees.increase_tree_level("Medium Ranged Weaponry")
+	SkillState.skilltrees.increase_tree_level("Medium Ranged Weaponry")
 	update_unlocked_skills()
 
 
@@ -258,7 +258,7 @@ func is_hiding() -> bool:
 func update_unlocked_skills():
 	print("update_skills")
 	abilities = []
-	var gotten_skills = existing_skilltrees.get_active_skills()
+	var gotten_skills = SkillState.skilltrees.get_active_skills()
 	var equipped_skills = inventory.get_equipment_skills()
 	var armed = false
 	if can_use_weapons:
