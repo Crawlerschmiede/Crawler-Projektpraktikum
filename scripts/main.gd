@@ -693,6 +693,10 @@ func _clear_world() -> void:
 	if EntityAutoload != null and EntityAutoload.has_method("reset"):
 		EntityAutoload.reset()
 
+	# Reset global RNG to base seed so new-world generation is deterministic
+	if typeof(GlobalRNG) != TYPE_NIL and GlobalRNG != null and GlobalRNG.has_method("reset"):
+		GlobalRNG.reset()
+
 
 func _on_player_exit_reached() -> void:
 	if switching_world:
@@ -850,8 +854,8 @@ func spawn_enemies(do_boss: bool) -> void:
 		total = float(weights.size())
 
 	# --- Spawn-Plan erstellen ---
+	# Use a fresh RNG from GlobalRNG (get_rng already seeds with next_seed())
 	var rng := GlobalRNG.get_rng()
-	rng.seed = GlobalRNG.next_seed()
 
 	var current_weight := 0
 	var spawn_plan := {}
