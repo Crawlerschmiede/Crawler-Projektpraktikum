@@ -1,5 +1,8 @@
 extends Node
 
+const SKILLTREES := preload("res://scripts/entity/premade_skilltrees.gd")
+var skilltrees := SKILLTREES.new()
+
 var selected_skills: Array[String] = []
 
 var skill_scene_paths := {
