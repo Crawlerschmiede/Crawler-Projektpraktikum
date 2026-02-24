@@ -16,7 +16,7 @@ var _slot_callables: Dictionary = {}  # key: Node (slot), value: Callable
 var _cached_inv_slots: Array = []
 var _cached_inv_slots_valid: bool = false
 var _inv_slot_nodes_by_index: Dictionary = {}
-@onready var player_hp_bar : ProgressBar =  $Player_HPBar
+@onready var player_hp_bar: ProgressBar = $Player_HPBar
 @onready var inv_grid: GridContainer = $Inner/Equiptment
 @onready var equip_grid: GridContainer = $Inner/GridContainer
 @onready var hotbar_grid: GridContainer = $Hotbar/HotContainer
@@ -77,6 +77,7 @@ func _has_property(obj: Object, prop: StringName) -> bool:
 			return true
 	return false
 
+
 func update_health_bars():
 	# Use PlayerInventory autoload fields
 	var cur := 0
@@ -87,7 +88,8 @@ func update_health_bars():
 	if maxhp <= 0:
 		maxhp = 1
 	player_hp_bar.value = (cur * 100.0) / maxhp
-		
+
+
 func _get_ui() -> Node:
 	if _ui != null and is_instance_valid(_ui):
 		return _ui
@@ -155,7 +157,11 @@ func _ready() -> void:
 	_connect_inventory_signal()
 
 	# Also connect to HP changes in PlayerInventory so UI updates automatically
-	if typeof(PlayerInventory) != TYPE_NIL and PlayerInventory != null and PlayerInventory.has_signal("hp_changed"):
+	if (
+		typeof(PlayerInventory) != TYPE_NIL
+		and PlayerInventory != null
+		and PlayerInventory.has_signal("hp_changed")
+	):
 		var hp_cb: Callable = Callable(self, "_on_hp_changed")
 		if not PlayerInventory.hp_changed.is_connected(hp_cb):
 			PlayerInventory.hp_changed.connect(hp_cb)

@@ -200,6 +200,7 @@ func update_health_bars():
 	if enemy != null and is_instance_valid(enemy):
 		enemy_hp_bar.value = (enemy.hp * 100.0) / enemy.max_hp
 
+
 func player_turn():
 	if not active:
 		return
