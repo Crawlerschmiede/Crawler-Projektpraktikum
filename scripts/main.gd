@@ -77,7 +77,13 @@ func _ready() -> void:
 	if _has_completed_tutorial() == false:
 		await _load_tutorial_world()
 		return
-	if SaveState.load_from_save and (saved_maps == {} or not (typeof(saved_maps) == TYPE_DICTIONARY and saved_maps.has("floor"))):
+	if (
+		SaveState.load_from_save
+		and (
+			saved_maps == {}
+			or not (typeof(saved_maps) == TYPE_DICTIONARY and saved_maps.has("floor"))
+		)
+	):
 		# No early-loaded save present -> load now
 		var loaded = load_world_from_file(0)
 		if loaded == {}:
@@ -88,7 +94,10 @@ func _ready() -> void:
 		else:
 			saved_maps = loaded
 			world_index = int(loaded.get("world_index", 0))
-	elif not SaveState.load_from_save and (saved_maps == {} or not typeof(saved_maps) == TYPE_DICTIONARY):
+	elif (
+		not SaveState.load_from_save
+		and (saved_maps == {} or not typeof(saved_maps) == TYPE_DICTIONARY)
+	):
 		world_index = 0
 
 	await _load_world(world_index)

@@ -139,7 +139,6 @@ func _open_menu_overlay() -> void:
 		_menu_instance.menu_closed.connect(_on_menu_closed)
 
 
-
 func _on_menu_closed() -> void:
 	if _menu_instance != null:
 		_menu_instance.queue_free()
