@@ -1,5 +1,9 @@
 extends Node2D
 
+# gdlint: disable=max-file-lines
+
+signal player_spawned
+
 const ENEMY_SCENE := preload("res://scenes/entity/enemy.tscn")
 const BATTLE_SCENE := preload("res://scenes/UI/battle.tscn")
 const PLAYER_SCENE := preload("res://scenes/entity/player-character-scene.tscn")
@@ -7,13 +11,20 @@ const LOOTBOX := preload("res://scenes/Interactables/Lootbox.tscn")
 const TRAP := preload("res://scenes/Interactables/Trap.tscn")
 const MERCHANT := preload("res://scenes/entity/merchant.tscn")
 const LOADING_SCENE := preload("res://scenes/UI/loading_screen.tscn")
+const SKILLTREE_SELECT_SCENE := preload("res://scenes/UI/skilltree-select-menu.tscn")
+const SKILLTREE_UPGRADING_SCENE := preload("res://scenes/UI/skilltree-upgrading.tscn")
 const START_SCENE := "res://scenes/UI/start-menu.tscn"
+const DEATH_SCENE := "res://scenes/UI/death-screen.tscn"
+const DEATH_SCENE_PACKED := preload("res://scenes/UI/death-screen.tscn")
+const SEWER_TILESET := "res://scenes/rooms/Rooms/roomtiles_2world.tres"
+const TUTORIAL_ROOM := "res://scenes/rooms/Tutorial Rooms/tutorial_room.tscn"
+const UI_MODAL_CONTROLLER := preload("res://scripts/UI/ui_modal_controller.gd")
 @export var menu_scene := preload("res://scenes/UI/popup-menu.tscn")
 @export var fog_tile_id: int = 0  # set this in the inspector to the fog-tile id in your tileset
 @export var fog_dynamic: bool = true  # if true, areas that are no longer visible get fogged again
 
 # --- World state ---
-var world_index: int = 0
+var world_index: int = -1
 var generators: Array[Node2D] = []
 
 var world_root: Node2D = null
@@ -28,6 +39,8 @@ var loading_screen: CanvasLayer = null
 
 var switching_world := false
 
+var boss_win: bool = false
+
 @onready var backgroundtile = $TileMapLayer
 
 @onready var minimap: TileMapLayer
@@ -36,65 +49,337 @@ var switching_world := false
 @onready var generator2: Node2D = $World2
 @onready var generator3: Node2D = $World3
 
-@onready var colorfilter: ColorRect = $ColorFilter
-
 @onready var fog_war_layer := $FogWar
 
 
 func _ready() -> void:
+	UI_MODAL_CONTROLLER.set_debug_enabled(OS.is_debug_build())
 	generators = [generator1, generator2, generator3]
+
+	await _show_skilltree_select_menu()
+	await _show_skilltree_upgrading_menu()
+
+	# Tutorial prüfen (JSON: res://data/tutorialData.json)
+	if _has_completed_tutorial() == false:
+		await _load_tutorial_world()
+		return
+
+	world_index = 0
+	# Normales Spiel starten (Welt 0)
 	await _load_world(world_index)
 
 
-func _load_world(idx: int) -> void:
-	get_tree().paused = true
+func _show_skilltree_select_menu() -> void:
+	var skilltree_select = SKILLTREE_SELECT_SCENE.instantiate()
+	if skilltree_select == null:
+		push_warning(
+			"Failed to instantiate skilltree select menu; continuing startup without selection"
+		)
+		return
+
+	var ui_layer := CanvasLayer.new()
+	ui_layer.name = "SkilltreeSelectOverlay"
+	ui_layer.layer = 100
+	add_child(ui_layer)
+	ui_layer.add_child(skilltree_select)
+
+	if skilltree_select is Control:
+		skilltree_select.set_anchors_preset(Control.PRESET_FULL_RECT)
+		skilltree_select.offset_left = 0
+		skilltree_select.offset_top = 0
+		skilltree_select.offset_right = 0
+		skilltree_select.offset_bottom = 0
+
+	if skilltree_select.has_signal("selection_confirmed"):
+		await skilltree_select.selection_confirmed
+
+	if is_instance_valid(ui_layer):
+		ui_layer.queue_free()
+
+
+func _show_skilltree_upgrading_menu() -> void:
+	var skilltree_upgrading = SKILLTREE_UPGRADING_SCENE.instantiate()
+	if skilltree_upgrading == null:
+		push_warning("Failed to instantiate skilltree upgrading menu; continuing startup")
+		return
+
+	var ui_layer := CanvasLayer.new()
+	ui_layer.name = "SkilltreeUpgradingOverlay"
+	ui_layer.layer = 100
+	add_child(ui_layer)
+	ui_layer.add_child(skilltree_upgrading)
+
+	if skilltree_upgrading is Control:
+		skilltree_upgrading.set_anchors_preset(Control.PRESET_FULL_RECT)
+		skilltree_upgrading.offset_left = 0
+		skilltree_upgrading.offset_top = 0
+		skilltree_upgrading.offset_right = 0
+		skilltree_upgrading.offset_bottom = 0
+
+	if skilltree_upgrading.has_signal("closed"):
+		await skilltree_upgrading.closed
+
+	if is_instance_valid(ui_layer):
+		ui_layer.queue_free()
+
+
+func _set_tree_paused(value: bool) -> void:
+	var scene_tree = get_tree()
+	if scene_tree != null:
+		scene_tree.paused = value
+	else:
+		push_warning("_set_tree_paused: SceneTree is null; ignored")
+
+
+func _load_tutorial_world() -> void:
+	_set_tree_paused(true)
 	await _show_loading()
 
-	# sorgt dafür, dass Loading immer weggeht
-	var success := false
+	_clear_world()
+
+	# Reset boss flag when loading a world so previous boss state doesn't leak
+	boss_win = false
+
+	world_root = Node2D.new()
+	world_root.name = "WorldRoot"
+	add_child(world_root)
+
+	# Versuche zuerst, die Tutorial-Szene als Generator zu behandeln
+	var TutorialPacked := preload(TUTORIAL_ROOM)
+	var tutorial_inst := TutorialPacked.instantiate()
+
+	if tutorial_inst != null and tutorial_inst.has_method("get_random_tilemap"):
+		# Generator-API vorhanden -> wie bei _load_world verwenden
+		var maps: Dictionary = await tutorial_inst.get_random_tilemap()
+
+		if maps.is_empty():
+			push_warning("Tutorial generator returned empty maps, falling back to scene extraction")
+		else:
+			dungeon_floor = maps.get("floor", null)
+			dungeon_top = maps.get("top", null)
+			minimap = maps.get("minimap", null)
+
+			# attach maps to world_root if not parented
+			if dungeon_floor != null and dungeon_floor.get_parent() == null:
+				world_root.add_child(dungeon_floor)
+			if dungeon_top != null and dungeon_top.get_parent() == null:
+				world_root.add_child(dungeon_top)
+
+			if fog_war_layer != null and dungeon_floor != null:
+				init_fog_layer()
+
+			if dungeon_floor != null:
+				dungeon_floor.visibility_layer = 1
+
+			spawn_player()
+			spawn_enemies(false)
+			spawn_lootbox()
+			spawn_traps()
+			spawn_enemies(true)
+
+			var merchants = find_merchants()
+			for i in merchants:
+				spawn_merchant_entity(i)
+
+			_hide_loading()
+			get_tree().paused = false
+			if is_instance_valid(tutorial_inst):
+				tutorial_inst.queue_free()
+			return
+
+	# Fallback: Tutorial-Szene wie bisher parsen (TileMapLayer / Area2D etc.)
+	var tutorial_scene = tutorial_inst as Node2D
+	if tutorial_scene == null:
+		push_error("Failed to load tutorial scene!")
+		_hide_loading()
+		_set_tree_paused(false)
+		return
+
+	# Extrahiere Tilemaps aus der Tutorial Room
+	var tilemaps = tutorial_scene.find_children("*", "TileMapLayer")
+
+	if tilemaps.is_empty():
+		push_error("Tutorial scene has no TileMapLayer!")
+		_hide_loading()
+		_set_tree_paused(false)
+		return
+
+	# Nutze die erste Tilemap als floor
+	dungeon_floor = tilemaps[0] as TileMapLayer
+
+	# Falls es mehrere gibt, nimm die mit "floor" im Namen oder die zweite als top
+	if tilemaps.size() > 1:
+		for tm in tilemaps:
+			if tm.name.to_lower().contains("tile"):
+				dungeon_floor = tm as TileMapLayer
+			elif tm.name.to_lower().contains("top"):
+				dungeon_top = tm as TileMapLayer
+
+		# Falls kein "top" gefunden, nutze die zweite Tilemap
+		if dungeon_top == null and tilemaps.size() > 1:
+			dungeon_top = tilemaps[1] as TileMapLayer
+	else:
+		# Wenn nur eine Tilemap, nutze sie auch als top
+		dungeon_top = dungeon_floor
+
+	# Verschiebe alle TileMapLayers zum world_root
+	for tm in tilemaps:
+		if tm.get_parent() != null:
+			tm.get_parent().remove_child(tm)
+		world_root.add_child(tm)
+		tm.position = Vector2.ZERO
+
+	# Extrahiere und verschiebe alle Area2D-Nodes mit ihren Kindern
+	var area2ds = tutorial_scene.find_children("*", "Area2D")
+	for area in area2ds:
+		if area.get_parent() != null:
+			area.get_parent().remove_child(area)
+		world_root.add_child(area)
+		area.position = Vector2.ZERO
+
+	# Extrahiere und verschiebe auch alle StaticBody2D und andere Physics-Bodies für Obstacles
+	var physics_bodies = tutorial_scene.find_children("*", "PhysicsBody2D")
+	for body in physics_bodies:
+		if body.get_parent() != null:
+			body.get_parent().remove_child(body)
+		world_root.add_child(body)
+		body.position = Vector2.ZERO
+
+	# Die restliche Tutorial-Szene kann gelöscht werden
+	tutorial_scene.queue_free()
+
+	# Initialize fog layer
+	if fog_war_layer != null and dungeon_floor != null:
+		# Reparent fog layer into world_root so z_index ordering works across the same parent
+		if fog_war_layer.get_parent() != world_root:
+			var old_parent := fog_war_layer.get_parent()
+			if old_parent != null:
+				old_parent.remove_child(fog_war_layer)
+			world_root.add_child(fog_war_layer)
+			# align position after reparenting
+			fog_war_layer.position = dungeon_floor.position
+		# Set fog z to be above dungeon_top (or dungeon_floor)
+		var base_z := 0
+		if dungeon_top != null:
+			base_z = dungeon_top.z_index
+		elif dungeon_floor != null:
+			base_z = dungeon_floor.z_index
+		fog_war_layer.z_index = base_z + 10
+		await init_fog_layer()
+
+	dungeon_floor.visibility_layer = 1
+	# Spawne alle Entities wie in normalen Welten
+	spawn_player()
+	spawn_enemies(false)
+	spawn_lootbox()
+	spawn_traps()
+	await get_tree().process_frame
+	await get_tree().process_frame
+	_on_player_moved()
+
+	var merchants = find_merchants()
+	for i in merchants:
+		spawn_merchant_entity(i)
+
+	_hide_loading()
+	_set_tree_paused(false)
+
+
+func _load_world(idx: int) -> void:
+	_set_tree_paused(true)
+	await _show_loading()
 
 	_clear_world()
 
 	if idx < 0 or idx >= generators.size():
 		push_error("No more worlds left!")
 		_hide_loading()
-		get_tree().paused = false
+		_set_tree_paused(false)
 		return
 
 	var gen := generators[idx]
 
-	# Ensure loading screen binds to this generator so progress updates show immediately
+	# Loading screen mit Generator verbinden
 	if loading_screen != null and is_instance_valid(loading_screen) and gen != null:
 		if loading_screen.has_method("bind_to_generator"):
 			loading_screen.call("bind_to_generator", gen)
 
+	# -------------------------------------------------
+	# WorldRoot + Entity Container erstellen
+	# -------------------------------------------------
 	world_root = Node2D.new()
 	world_root.name = "WorldRoot"
 	add_child(world_root)
 
+	var entity_container := Node2D.new()
+	entity_container.name = "Entities"
+	world_root.add_child(entity_container)
+	entity_container.z_index = 3
+
+	# -------------------------------------------------
+	# Maps vom Generator holen
+	# -------------------------------------------------
 	var maps: Dictionary = await gen.get_random_tilemap()
 
 	if maps.is_empty():
 		push_error("Generator returned empty dictionary!")
 		_hide_loading()
-		get_tree().paused = false
+		_set_tree_paused(false)
 		return
 
 	dungeon_floor = maps.get("floor", null)
 	dungeon_top = maps.get("top", null)
 	minimap = maps.get("minimap", null)
 
-	# initialize fog layer tiles so Player.update_visibility can erase them later
-	if fog_war_layer != null and dungeon_floor != null:
-		init_fog_layer()
-
 	if dungeon_floor == null:
 		push_error("Generator returned null floor tilemap!")
 		_hide_loading()
-		get_tree().paused = false
+		_set_tree_paused(false)
 		return
 
-	# minimap background
+	# -------------------------------------------------
+	# Tileset Override für Welt 2
+	# -------------------------------------------------
+	if idx == 1:
+		var sewer_tileset = load(SEWER_TILESET) as TileSet
+		if sewer_tileset != null:
+			dungeon_floor.tile_set = sewer_tileset
+			if dungeon_top != null:
+				dungeon_top.tile_set = sewer_tileset
+
+	# -------------------------------------------------
+	# Tilemaps hinzufügen + Layering
+	# -------------------------------------------------
+	if dungeon_floor.get_parent() == null:
+		world_root.add_child(dungeon_floor)
+	dungeon_floor.z_index = 0
+
+	if dungeon_top != null:
+		if dungeon_top.get_parent() == null:
+			world_root.add_child(dungeon_top)
+		dungeon_top.z_index = 1  # über Entities, unter Fog
+
+	# Fog über alles (sicherstellen, dass Fog über dungeon_top liegt)
+	if fog_war_layer != null:
+		# Reparent fog layer into world_root so its z_index compares with dungeon_top (same parent)
+		if fog_war_layer.get_parent() != world_root:
+			var old_parent := fog_war_layer.get_parent()
+			if old_parent != null:
+				old_parent.remove_child(fog_war_layer)
+			world_root.add_child(fog_war_layer)
+			fog_war_layer.position = dungeon_floor.position
+		# compute base z from dungeon_top if available
+		var base_z := 0
+		if dungeon_top != null:
+			base_z = dungeon_top.z_index
+		elif dungeon_floor != null:
+			base_z = dungeon_floor.z_index
+		fog_war_layer.z_index = base_z + 10
+		await init_fog_layer()
+
+	# -------------------------------------------------
+	# Minimap Background
+	# -------------------------------------------------
 	if minimap != null and backgroundtile != null:
 		var bg := backgroundtile.duplicate() as TileMapLayer
 		bg.name = "MinimapBackground"
@@ -103,26 +388,25 @@ func _load_world(idx: int) -> void:
 		minimap.add_child(bg)
 		minimap.move_child(bg, -1)
 
-	if dungeon_floor.get_parent() == null:
-		world_root.add_child(dungeon_floor)
-	if dungeon_top != null and dungeon_top.get_parent() == null:
-		world_root.add_child(dungeon_top)
-
 	dungeon_floor.visibility_layer = 1
-	update_color_filter()
-
+	# -------------------------------------------------
+	# Spawns
+	# -------------------------------------------------
 	spawn_player()
-	spawn_enemies()
+	spawn_enemies(false)
 	spawn_lootbox()
 	spawn_traps()
+	spawn_enemies(true)
 
 	var merchants = find_merchants()
-
 	for i in merchants:
 		spawn_merchant_entity(i)
 
+	# -------------------------------------------------
+	# Fertig
+	# -------------------------------------------------
 	_hide_loading()
-	get_tree().paused = false
+	_set_tree_paused(false)
 
 
 func spawn_merchant_entity(cords: Vector2) -> void:
@@ -239,6 +523,9 @@ func spawn_traps() -> void:
 
 		var loot := TRAP.instantiate() as Node2D
 		loot.name = "Trap_%s" % i
+		# assign current world index so the trap knows which world it belongs to
+		if loot.has_method("set"):
+			loot.set("world_index", world_index)
 		world_root.add_child(loot)
 		loot.global_position = world_pos
 
@@ -328,19 +615,6 @@ func _has_custom_data_layer(tile_set: TileSet, layer_name: String) -> bool:
 	return false
 
 
-func update_color_filter() -> void:
-	if world_index == 0:
-		colorfilter.visible = false
-		return
-
-	colorfilter.visible = true
-
-	if world_index == 1:
-		colorfilter.color = Color(1.0, 0.9, 0.3, 0.20)
-	elif world_index == 2:
-		colorfilter.color = Color(1.0, 0.2, 0.2, 0.25)
-
-
 func init_fog_layer() -> void:
 	# Fill the FogWar TileMapLayer with a fog tile so Player.update_visibility can erase cells.
 	if fog_war_layer == null or dungeon_floor == null:
@@ -352,8 +626,15 @@ func init_fog_layer() -> void:
 	# align position/visibility/z so it overlays the floor
 	fog_war_layer.position = dungeon_floor.position
 	fog_war_layer.visibility_layer = dungeon_floor.visibility_layer
-	fog_war_layer.z_index = (dungeon_floor.z_index if dungeon_floor != null else 0) + 10
+	# Ensure fog layer is above the dungeon_top layer (if present) or above the floor otherwise
+	var base_z := 0
+	if dungeon_top != null:
+		base_z = dungeon_top.z_index
+	elif dungeon_floor != null:
+		base_z = dungeon_floor.z_index
+	fog_war_layer.z_index = base_z + 10
 
+	# Debug info: print parent and z indices so we can observe ordering at runtime
 	var counter := 0
 	var used_rect := dungeon_floor.get_used_rect()
 	var yield_every := 300
@@ -386,18 +667,42 @@ func _clear_world() -> void:
 		player = null
 
 	if world_root != null and is_instance_valid(world_root):
+		# Preserve fog_war_layer if it was reparented into world_root so it is not freed
+		if fog_war_layer != null and is_instance_valid(fog_war_layer):
+			if fog_war_layer.get_parent() == world_root:
+				world_root.remove_child(fog_war_layer)
+				add_child(fog_war_layer)
+
 		world_root.queue_free()
 		world_root = null
 
 	dungeon_floor = null
 	dungeon_top = null
 
+	# Reset entity spawn reservations so next world can reuse positions
+	if EntityAutoload != null and EntityAutoload.has_method("reset"):
+		EntityAutoload.reset()
+
 
 func _on_player_exit_reached() -> void:
 	if switching_world:
 		return
+
+	# Prevent progressing if a boss is still alive in the world
+	for e in get_tree().get_nodes_in_group("enemy"):
+		if e != null and is_instance_valid(e):
+			# enemies spawned by spawn_enemy have a `boss` property
+			if bool(e.boss) and e.hp > 0:
+				push_warning("You must defeat the boss before advancing!")
+				return
+
 	switching_world = true
 
+	# Prüfen: Sind wir im Tutorial? (Tutorial hat keine Minimap)
+	if world_index == -1:
+		_set_tutorial_completed()
+
+	# Normale Welten
 	world_index += 1
 	await _load_world(world_index)
 
@@ -409,7 +714,18 @@ func _on_player_exit_reached() -> void:
 # ---------------------------------------
 func _process(_delta) -> void:
 	if Input.is_action_just_pressed("ui_menu"):
+		if _is_binds_overlay_active():
+			return
 		toggle_menu()
+
+
+func _is_binds_overlay_active() -> bool:
+	var root := get_tree().root
+	if root == null:
+		return false
+
+	var overlay := root.find_child("BindsAndMenusOverlay", true, false)
+	return overlay != null
 
 
 func update_minimap_player_marker() -> void:
@@ -439,7 +755,7 @@ func toggle_menu():
 		menu_instance = menu_scene.instantiate()
 		add_child(menu_instance)
 
-		get_tree().paused = true
+		UI_MODAL_CONTROLLER.acquire(self, true, true)
 
 		if menu_instance.has_signal("menu_closed"):
 			menu_instance.menu_closed.connect(on_menu_closed)
@@ -451,10 +767,10 @@ func on_menu_closed():
 	if menu_instance != null and is_instance_valid(menu_instance):
 		menu_instance.queue_free()
 		menu_instance = null
-	get_tree().paused = false
+	UI_MODAL_CONTROLLER.release(self, true, true)
 
 
-func spawn_enemies() -> void:
+func spawn_enemies(do_boss: bool) -> void:
 	var data: Dictionary = EntityAutoload.item_data
 	var settings: Dictionary = data.get("_settings", {})
 
@@ -464,6 +780,10 @@ func spawn_enemies() -> void:
 	if world_index < max_weights.size():
 		max_weight = max_weights[world_index]
 
+	# Tutorial override: immer 3
+	#if world_index == -1:
+	#max_weight = 2
+
 	# --- Enemy Definitions sammeln ---
 	var defs: Array[Dictionary] = []
 
@@ -472,7 +792,19 @@ func spawn_enemies() -> void:
 			continue
 
 		var d: Dictionary = data[k]
-		if d.get("entityCategory") != "enemy":
+		if d.get("entityCategory") != "enemy" and not do_boss:
+			continue
+		elif d.get("entityCategory") != "boss" and do_boss:
+			continue
+
+		# Tutorial-Welt: nur tutorial-Gegner spawnen
+		# Normale Welten: keine tutorial-Gegner spawnen
+		var is_tutorial_enemy = "tutorial" in d.get("behaviour", [])
+		var is_tutorial_world = world_index == -1
+
+		if is_tutorial_world and not is_tutorial_enemy:
+			continue
+		elif not is_tutorial_world and is_tutorial_enemy:
 			continue
 
 		# Alias auflösen
@@ -508,14 +840,39 @@ func spawn_enemies() -> void:
 	var current_weight := 0
 	var spawn_plan := {}
 
+	var roll: float
+	var acc: float
+	var chosen: int
+
+	if do_boss:
+		print("Should spawn boss")
+		roll = rng.randf() * total
+		acc = 0.0
+		chosen = 0
+		for j in range(defs.size()):
+			acc += weights[j]
+			if roll <= acc:
+				chosen = j
+				break
+		var def := defs[chosen]
+		spawn_enemy(
+			def.get("sprite_type", "what"),
+			def.get("behaviour", []),
+			def.get("skills", []),
+			def.get("stats", {}),
+			true
+		)
+		print("Spawned boss!")
+		return
+
 	for _i in range(100):
 		if current_weight >= max_weight:
 			break
 
 		# weighted pick
-		var roll := rng.randf() * total
-		var acc := 0.0
-		var chosen := 0
+		roll = rng.randf() * total
+		acc = 0.0
+		chosen = 0
 
 		for j in range(defs.size()):
 			acc += weights[j]
@@ -547,20 +904,33 @@ func spawn_enemies() -> void:
 			def = data[def["alias_of"]]
 
 		for i in range(spawn_plan[id]):
-			spawn_enemy(def.get("sprite_type", id), def.get("behaviour", []))
+			spawn_enemy(
+				def.get("sprite_type", id),
+				def.get("behaviour", []),
+				def.get("skills", []),
+				def.get("stats", {})
+			)
 			print("spawn: ", def.get("sprite_type", id))
 
 
-func spawn_enemy(sprite_type: String, behaviour: Array) -> void:
+func spawn_enemy(
+	sprite_type: String, behaviour: Array, skills: Array, stats: Dictionary, boss: bool = false
+) -> void:
 	# default: spawn normal enemy
 	var e = ENEMY_SCENE.instantiate()
 	e.add_to_group("enemy")
 	e.add_to_group("vision_objects")
+
 	e.types = behaviour
 	e.sprite_type = sprite_type
+	e.abilities_this_has = skills
+	e.boss = boss
+	var hp = stats.get("hp", 1)
+	var str = stats.get("str", 1)
+	var def = stats.get("def", 1)
 
 	# setup with Floor Tilemap
-	e.setup(dungeon_floor, dungeon_top, 3, 1, 0)
+	e.setup(dungeon_floor, dungeon_top, hp, str, def, stats)
 
 	# Enemies always in WorldRoot
 	if world_root != null:
@@ -578,7 +948,7 @@ func spawn_player() -> void:
 	var e: PlayerCharacter = PLAYER_SCENE.instantiate()
 	e.name = "Player"
 	# Floor setzen (einmal!)
-	e.setup(dungeon_floor, dungeon_top, 10, 3, 0)
+	e.setup(dungeon_floor, dungeon_top, 10, 3, 0, {})
 	e.fog_layer = fog_war_layer
 	# pass dynamic flag and fog tile id to player for re-fogging
 	if e.has_method("set"):
@@ -588,14 +958,21 @@ func spawn_player() -> void:
 	world_root.add_child(e)
 	player = e
 
+	# Ensure player is drawn above fog layer so player is visible
+	if fog_war_layer != null:
+		player.z_index = fog_war_layer.z_index + 10000000
+
 	# minimap rein
 	player.set_minimap(minimap)
 
 	# Spawn Position
 	var start_pos := Vector2i(2, 2)
 
+	# Tutorial world: spawn at different position
+	if minimap == null:
+		start_pos = Vector2i(-18, 15)
+
 	# erst tilemap, dann gridpos, dann position
-	player.setup(dungeon_floor, dungeon_top, 10, 3, 0)
 	player.grid_pos = start_pos
 	player.global_position = dungeon_floor.to_global(dungeon_floor.map_to_local(start_pos))
 	player.add_to_group("player")
@@ -614,6 +991,9 @@ func spawn_player() -> void:
 	# WICHTIG: einmal initial Fog aufdecken
 	if player.has_method("update_visibility"):
 		player.update_visibility()
+		# ensure reveal runs after any reparenting/initialization in this frame
+		player.call_deferred("_reveal_on_spawn")
+		emit_signal("player_spawned", player)
 
 
 func _on_player_moved() -> void:
@@ -710,7 +1090,7 @@ func instantiate_battle(player_node: Node, enemy: Node):
 			print("instantiate_battle: battle has no signal player_loss")
 
 		print("instantiate_battle: pausing tree to run battle")
-		get_tree().paused = true
+		_set_tree_paused(true)
 
 
 func find_merchants() -> Array[Vector2]:
@@ -742,14 +1122,20 @@ func find_merchants() -> Array[Vector2]:
 func enemy_defeated(enemy):
 	print("enemy_defeated: The battle is won - handler called")
 	# Make sure game is unpaused first so UI can update
-	if get_tree().paused:
+	var scene_tree := get_tree()
+	if scene_tree != null and scene_tree.paused:
 		print("enemy_defeated: unpausing tree")
-		get_tree().paused = false
+		_set_tree_paused(false)
 
 	if battle != null and is_instance_valid(battle):
 		print("enemy_defeated: freeing battle UI")
 		battle.call_deferred("queue_free")
 		battle = null
+
+	# If the defeated enemy was a boss, record victory so level-gating can proceed
+	if enemy != null and is_instance_valid(enemy) and bool(enemy.boss):
+		boss_win = true
+		print("enemy_defeated: boss defeated -> boss_win set to true")
 
 	if enemy != null and is_instance_valid(enemy):
 		print("enemy_defeated: freeing enemy node")
@@ -771,5 +1157,49 @@ func _on_battle_player_victory(enemy) -> void:
 
 
 func game_over():
-	get_tree().paused = false
-	get_tree().change_scene_to_file(START_SCENE)
+	_set_tree_paused(false)
+	var scene_tree = get_tree()
+	if scene_tree != null:
+		# Switch to preloaded death scene if available
+		if typeof(DEATH_SCENE_PACKED) != TYPE_NIL:
+			scene_tree.change_scene_to_packed(DEATH_SCENE_PACKED)
+		else:
+			scene_tree.change_scene_to_file(DEATH_SCENE)
+	else:
+		push_error("game_over: SceneTree is null; cannot change scene")
+
+
+# -----------------------------------------------------
+# JSON: Tutorial abgeschlossen?
+# -----------------------------------------------------
+func _has_completed_tutorial() -> bool:
+	var path := "res://data/tutorialData.json"
+
+	if not FileAccess.file_exists(path):
+		return false
+
+	var file := FileAccess.open(path, FileAccess.READ)
+	if file:
+		var json_text: String = file.get_as_text()
+		file.close()
+
+		var parsed: Variant = JSON.parse_string(json_text)
+
+		if typeof(parsed) == TYPE_DICTIONARY:
+			var data: Dictionary = parsed
+			return bool(data.get("tutorial_completed", false))
+
+	return false
+
+
+# -----------------------------------------------------
+# JSON: Tutorial als abgeschlossen speichern
+# -----------------------------------------------------
+func _set_tutorial_completed() -> void:
+	var path := "res://data/tutorialData.json"
+	var data: Dictionary = {"tutorial_completed": true}
+
+	var file := FileAccess.open(path, FileAccess.WRITE)
+	if file:
+		file.store_string(JSON.stringify(data, "\t"))
+		file.close()

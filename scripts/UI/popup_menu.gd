@@ -4,6 +4,7 @@ extends CanvasLayer
 signal menu_closed
 
 const SETTINGS_MENU_SCENE := preload("res://scenes/UI/settings_menu.tscn")
+const UI_MODAL_CONTROLLER := preload("res://scripts/UI/ui_modal_controller.gd")
 
 const REFERENCE_SIZE := Vector2(640.0, 480.0)
 const BASE_SCALE := Vector2(3.2, 2.8)
@@ -38,9 +39,18 @@ func _on_continue_pressed():
 	menu_closed.emit()
 
 
+func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed and not event.echo:
+		var key_event := event as InputEventKey
+		if key_event.keycode == KEY_ESCAPE:
+			menu_closed.emit()
+			get_viewport().set_input_as_handled()
+
+
 func _on_settings_pressed() -> void:
 	if _settings_instance != null:
 		return
+	UI_MODAL_CONTROLLER.acquire(self, true, true)
 	$VBoxContainer.visible = false
 	_settings_layer = CanvasLayer.new()
 	_settings_layer.name = "SettingsOverlay"
@@ -67,6 +77,7 @@ func _on_settings_closed() -> void:
 		_settings_layer = null
 	_settings_instance = null
 	$VBoxContainer.visible = true
+	UI_MODAL_CONTROLLER.release(self, true, true)
 
 
 # Function for the "Quit" button

@@ -4,3 +4,8 @@
 *.translation
 build/
 ~*.dll
+.vscode/settings.json
+
+# local/editor backup and temp files
+*.bak
+*.tmp

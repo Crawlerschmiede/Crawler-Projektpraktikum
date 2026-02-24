@@ -54,13 +54,14 @@ func _on_tab_changed(tab_idx: int) -> void:
 
 func _populate_list(tab_idx: int) -> void:
 	_clear_vbox(list_vbox)
+	print("Populating list!")
 	match tab_idx:
 		Tab.SKILLS:
 			for ability in player.abilities:
 				if not ability.is_passive:
-					if ability.is_activateable(battle_scene):
+					if ability.is_activateable(player, enemy, battle_scene):
 						_add_button(ability)
-					else:
+					elif ability.turns_until_reuse > 0:
 						var butt_label = ability.name
 						butt_label = (
 							butt_label + " (Cooldown: " + str(ability.turns_until_reuse) + ")"
@@ -70,10 +71,14 @@ func _populate_list(tab_idx: int) -> void:
 			for ability in player.actions:
 				_add_button(ability)
 	if list_vbox.get_child_count() > 0:
-		# wait one frame to ensure buttons are in scene tree
-		await get_tree().process_frame
-	if list_vbox.get_child_count() > 0:
+		var scene_tree = get_tree()
+		if scene_tree != null:
+			await scene_tree.process_frame
+		else:
+			push_warning("_populate_list: SceneTree is null; skipping yield")
 		selected_index = 0
+		if scene_tree != null:
+			await scene_tree.process_frame
 		_highlight_selected()
 
 
@@ -145,7 +150,11 @@ func _scroll_to_button(btn: Button) -> void:
 	if not is_instance_valid(btn):
 		return
 
-	await get_tree().process_frame
+	var scene_tree = get_tree()
+	if scene_tree != null:
+		await scene_tree.process_frame
+	else:
+		push_warning("_scroll_to_button: SceneTree is null; skipping yield")
 
 	if not is_instance_valid(btn):
 		return
@@ -170,17 +179,21 @@ func _on_button_mouse_entered(btn: Button) -> void:
 
 func _on_skill_pressed(ability) -> void:
 	if player_turn:
+		battle_scene.log_container.reset()
 		if hit_anim_player != null:
 			hit_anim_player.visible = true
 			hit_anim_player.play("default")
 			await hit_anim_player.animation_finished
 			hit_anim_player.visible = false
 		var stuff = ability.activate_skill(player, enemy, battle_scene)
+		battle_scene.player_action_log.append(ability.name)
 		for thing in stuff:
 			battle_scene.log_container.add_log_event(thing)
 		player.action_points -= 1
 		if player.action_points < 1:
 			player_turn = false
+			player.deal_with_status_effects(battle_scene, 2)
+			battle_scene.check_curr_tile_mods()
 			player_turn_done.emit()
 		else:
 			var over = battle_scene.check_victory()
