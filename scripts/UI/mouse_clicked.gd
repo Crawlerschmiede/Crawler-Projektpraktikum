@@ -127,4 +127,3 @@ func _setup_focus_navigation():
 			child.focus_mode = Control.FOCUS_ALL
 
 	# Fokus auf ersten Button
-	

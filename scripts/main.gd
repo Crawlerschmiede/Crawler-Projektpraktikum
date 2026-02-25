@@ -287,13 +287,14 @@ func _load_tutorial_world() -> void:
 	_hide_loading()
 	_set_tree_paused(false)
 
+
 func _play_music_for_world(idx: int):
 	print("--- MUSIC DEBUG: Function called for index: ", idx)
 # 1. Safety check: does the player exist and is the array populated?
 	if music_player == null:
 		push_error("MusicPlayer node not found!")
 		return
-		
+
 	if idx < 0 or idx >= world_music.size():
 		push_warning("No music assigned for world index: %d" % idx)
 		return
@@ -305,6 +306,7 @@ func _play_music_for_world(idx: int):
 		music_player.play()
 		print("Now playing music for World: ", idx)
 
+
 func _load_world(idx: int) -> void:
 	_play_music_for_world(idx)
 	_set_tree_paused(true)
@@ -314,7 +316,7 @@ func _load_world(idx: int) -> void:
 
 	if idx < 0 or idx >= generators.size():
 		# No more worlds left -> show win screen (similar to game_over behavior)
-		
+
 		_hide_loading()
 		_set_tree_paused(false)
 		var scene_tree := get_tree()
