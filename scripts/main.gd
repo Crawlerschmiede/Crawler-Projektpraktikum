@@ -956,13 +956,19 @@ func spawn_enemies(do_boss: bool) -> void:
 				def.get("sprite_type", id),
 				def.get("behaviour", []),
 				def.get("skills", []),
-				def.get("stats", {})
+				def.get("stats", {}),
+				def.get("weight", 1)
 			)
 			print("spawn: ", def.get("sprite_type", id))
 
 
 func spawn_enemy(
-	sprite_type: String, behaviour: Array, skills: Array, stats: Dictionary, boss: bool = false
+	sprite_type: String,
+	behaviour: Array,
+	skills: Array,
+	stats: Dictionary,
+	xp: int,
+	boss: bool = false
 ) -> void:
 	# default: spawn normal enemy
 	var e = ENEMY_SCENE.instantiate()
@@ -973,6 +979,7 @@ func spawn_enemy(
 	e.sprite_type = sprite_type
 	e.abilities_this_has = skills
 	e.boss = boss
+	e.xp = xp
 	var hp = stats.get("hp", 1)
 	var str = stats.get("str", 1)
 	var def = stats.get("def", 1)
@@ -1171,6 +1178,7 @@ func enemy_defeated(enemy):
 	print("enemy_defeated: The battle is won - handler called")
 	# Make sure game is unpaused first so UI can update
 	var scene_tree := get_tree()
+	var gained_xp = 0
 	if scene_tree != null and scene_tree.paused:
 		print("enemy_defeated: unpausing tree")
 		_set_tree_paused(false)
@@ -1186,12 +1194,19 @@ func enemy_defeated(enemy):
 		print("enemy_defeated: boss defeated -> boss_win set to true")
 
 	if enemy != null and is_instance_valid(enemy):
+		gained_xp = enemy.xp
 		print("enemy_defeated: freeing enemy node")
 		enemy.call_deferred("queue_free")
 
 	if player != null and is_instance_valid(player):
 		print("enemy_defeated: leveling up player")
-		player.level_up()
+		print("player shall gain xp: ", gained_xp)
+		SkillState.current_xp += gained_xp
+		if SkillState.next_necessary_xp < SkillState.current_xp:
+			SkillState.current_xp = SkillState.current_xp - SkillState.next_necessary_xp
+			SkillState.next_necessary_xp *= 2
+			await _show_skilltree_upgrading_menu()
+			player.level_up()
 
 
 func _on_battle_player_loss() -> void:
