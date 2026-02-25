@@ -1,6 +1,8 @@
 class_name SkillNode
 extends TextureButton
 
+signal tree_leveled(tree_name)
+
 var requirements: Array[SkillNode] = []
 var is_unlocked: bool = false
 var incoming_line: Line2D = null
@@ -38,6 +40,8 @@ func _on_upgrade_button_pressed():
 	for skill in all_skills:
 		if skill is SkillNode:
 			skill.check_unlockability()
+	print("Leveled tree ", get_parent().get_parent().name)
+	tree_leveled.emit(get_parent().get_parent().name)
 
 
 func can_be_unlocked() -> bool:

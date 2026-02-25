@@ -1,7 +1,7 @@
 extends Control
 
-const SKILLS_DB_SCRIPT := preload("res://scripts/entity/premade_skills.gd")
-var skills_db = SKILLS_DB_SCRIPT.new()
+var skills_db = SkillState.skilltrees.existing_skills
+var skilltrees = SkillState.skilltrees
 var tree_aliases := {"Unarmed Combat": "Unarmed"}
 
 @onready var buttons_container = $Upgrades
@@ -9,6 +9,13 @@ var tree_aliases := {"Unarmed Combat": "Unarmed"}
 #@onready var set_shader_hover = preload("res://shaders/lol_button.gdshader")
 @onready var tooltip = $SkillTooltip
 @onready var card_label: Label = $Card/Label
+
+const tree_aliasing={
+	"LongRangedWeaponry":"Long-Ranged-Weaponry",
+	"UnarmedCombat":"Unarmed-Combat",
+	"ShortRangedWeaponry":"Short-Ranged-Weaponry",
+	"MediumRangedWeaponry":"Medium-Ranged-Weaponry"
+}
 
 
 func _ready():
@@ -26,6 +33,8 @@ func _ready():
 
 	for skill in all_skills:
 		if skill is SkillNode:
+			if skill.has_signal("tree_leveled"):
+				skill.tree_leveled.connect(_on_tree_levelup)
 			skill.check_unlockability()
 			skill.mouse_entered.connect(_on_skill_hover.bind(skill))
 			skill.mouse_exited.connect(_on_skill_unhover.bind(skill))
@@ -35,6 +44,10 @@ func _ready():
 			var btn = skill.upgrade_button
 			btn.mouse_entered.connect(_on_btn_hover.bind(btn))
 			btn.mouse_exited.connect(_on_btn_unhover.bind(btn))
+			
+func _on_tree_levelup(tree_name):
+	tree_name = tree_aliasing[tree_name]
+	skilltrees.increase_tree_level(tree_name)
 
 
 func create_line(node_a, node_b) -> Line2D:
