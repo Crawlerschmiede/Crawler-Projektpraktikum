@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://j4d673mjsdsh"
+path="res://.godot/imported/(plant)Trouble with Tribals.mp3-9d33d71585e4dbafda412c2eecd4aa5f.mp3str"
+
+[deps]
+
+source_file="res://assets/sfx/(plant)Trouble with Tribals.mp3"
+dest_files=["res://.godot/imported/(plant)Trouble with Tribals.mp3-9d33d71585e4dbafda412c2eecd4aa5f.mp3str"]
+
+[params]
+
+loop=true
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

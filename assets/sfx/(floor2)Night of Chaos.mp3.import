@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://dunxcn6h0ahc7"
+path="res://.godot/imported/(floor2)Night of Chaos.mp3-b5d57feb4cda64e4ca1311e2dc13edca.mp3str"
+
+[deps]
+
+source_file="res://assets/sfx/(floor2)Night of Chaos.mp3"
+dest_files=["res://.godot/imported/(floor2)Night of Chaos.mp3-b5d57feb4cda64e4ca1311e2dc13edca.mp3str"]
+
+[params]
+
+loop=true
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4
