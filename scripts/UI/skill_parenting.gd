@@ -5,14 +5,13 @@ signal leveled_up
 var skills_db = SkillState.skilltrees.existing_skills
 var skilltrees = SkillState.skilltrees
 var tree_aliases := {"Unarmed Combat": "Unarmed"}
-var already_leveled: bool =false
+var already_leveled: bool = false
 
 @onready var buttons_container = $Upgrades
 @onready var lines_container = $Lines
 #@onready var set_shader_hover = preload("res://shaders/lol_button.gdshader")
 @onready var tooltip = $SkillTooltip
 @onready var card_label: Label = $Card/Label
-
 
 
 func _ready():
@@ -41,14 +40,16 @@ func _ready():
 			var btn = skill.upgrade_button
 			btn.mouse_entered.connect(_on_btn_hover.bind(btn))
 			btn.mouse_exited.connect(_on_btn_unhover.bind(btn))
-			
+
+
 func _on_tree_levelup(tree_name):
 	if not already_leveled:
 		skilltrees.increase_tree_level(tree_name)
 	leveled_up.emit()
 
+
 func lock_levelup():
-	already_leveled=true
+	already_leveled = true
 
 
 func create_line(node_a, node_b) -> Line2D:

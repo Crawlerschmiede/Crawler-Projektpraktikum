@@ -941,7 +941,12 @@ func spawn_enemies(do_boss: bool) -> void:
 
 
 func spawn_enemy(
-	sprite_type: String, behaviour: Array, skills: Array, stats: Dictionary, xp:int,  boss: bool = false
+	sprite_type: String,
+	behaviour: Array,
+	skills: Array,
+	stats: Dictionary,
+	xp: int,
+	boss: bool = false
 ) -> void:
 	# default: spawn normal enemy
 	var e = ENEMY_SCENE.instantiate()
@@ -1174,10 +1179,10 @@ func enemy_defeated(enemy):
 	if player != null and is_instance_valid(player):
 		print("enemy_defeated: leveling up player")
 		print("player shall gain xp: ", gained_xp)
-		SkillState.current_xp+=gained_xp
-		if SkillState.next_necessary_xp<SkillState.current_xp:
-			SkillState.current_xp = SkillState.current_xp-SkillState.next_necessary_xp
-			SkillState.next_necessary_xp*=2
+		SkillState.current_xp += gained_xp
+		if SkillState.next_necessary_xp < SkillState.current_xp:
+			SkillState.current_xp = SkillState.current_xp - SkillState.next_necessary_xp
+			SkillState.next_necessary_xp *= 2
 			await _show_skilltree_upgrading_menu()
 			player.level_up()
 

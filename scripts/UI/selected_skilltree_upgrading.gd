@@ -2,8 +2,8 @@ extends Control
 
 signal closed
 
-var already_leveled:bool = false
-var allowed_levels:int = 1
+var already_leveled: bool = false
+var allowed_levels: int = 1
 
 @onready var container = $SkillContainer
 var skill_scenes = []
@@ -23,12 +23,14 @@ func _ready():
 			if skill_instance.has_signal("leveled_up"):
 				skill_instance.leveled_up.connect(_on_leveling)
 
+
 func _on_leveling():
-	allowed_levels-=1
+	allowed_levels -= 1
 	if allowed_levels <= 0:
 		already_leveled = true
 		closed.emit()
 		queue_free()
+
 
 func _on_continue_pressed() -> void:
 	if already_leveled:

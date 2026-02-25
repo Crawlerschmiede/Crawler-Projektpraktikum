@@ -257,7 +257,7 @@ func update_unlocked_skills():
 	print("update_skills")
 	abilities = []
 	var gotten_skills = SkillState.skilltrees.get_active_skills()
-	print("Gotten skills ",gotten_skills)
+	print("Gotten skills ", gotten_skills)
 	var equipped_skills = inventory.get_equipment_skills()
 	var armed = false
 	if can_use_weapons:

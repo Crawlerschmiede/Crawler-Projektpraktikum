@@ -6,7 +6,7 @@ var skilltrees := SKILLTREES.new()
 var selected_skills: Array[String] = []
 
 var next_necessary_xp = 2
-var current_xp=0
+var current_xp = 0
 
 var skill_scene_paths := {
 	"Cleric": "res://scenes/UI/Skills/Cleric.tscn",
