@@ -1169,6 +1169,8 @@ func enemy_defeated(enemy):
 
 	if player != null and is_instance_valid(player):
 		print("enemy_defeated: leveling up player")
+		print_stack()
+		await _show_skilltree_upgrading_menu()
 		player.level_up()
 
 

@@ -1,8 +1,11 @@
 extends Control
 
+signal leveled_up
+
 var skills_db = SkillState.skilltrees.existing_skills
 var skilltrees = SkillState.skilltrees
 var tree_aliases := {"Unarmed Combat": "Unarmed"}
+var already_leveled: bool =false
 
 @onready var buttons_container = $Upgrades
 @onready var lines_container = $Lines
@@ -10,12 +13,6 @@ var tree_aliases := {"Unarmed Combat": "Unarmed"}
 @onready var tooltip = $SkillTooltip
 @onready var card_label: Label = $Card/Label
 
-const tree_aliasing={
-	"LongRangedWeaponry":"Long-Ranged-Weaponry",
-	"UnarmedCombat":"Unarmed-Combat",
-	"ShortRangedWeaponry":"Short-Ranged-Weaponry",
-	"MediumRangedWeaponry":"Medium-Ranged-Weaponry"
-}
 
 
 func _ready():
@@ -46,8 +43,12 @@ func _ready():
 			btn.mouse_exited.connect(_on_btn_unhover.bind(btn))
 			
 func _on_tree_levelup(tree_name):
-	tree_name = tree_aliasing[tree_name]
-	skilltrees.increase_tree_level(tree_name)
+	if not already_leveled:
+		skilltrees.increase_tree_level(tree_name)
+	leveled_up.emit()
+
+func lock_levelup():
+	already_leveled=true
 
 
 func create_line(node_a, node_b) -> Line2D:

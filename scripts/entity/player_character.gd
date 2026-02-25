@@ -101,9 +101,6 @@ func _ready() -> void:
 	for action in base_actions:
 		add_action(action)
 	SkillState.skilltrees.activate("basic")
-	for active_tree in active_skilltrees:
-		SkillState.skilltrees.activate(active_tree)
-		print(SkillState.skilltrees.get_all_explanations())
 	update_unlocked_skills()
 	add_to_group("player")
 
@@ -231,9 +228,6 @@ func _on_area_2d_area_entered(area: Area2D):
 func level_up():
 	self.max_hp = self.max_hp + 1
 	self.hp = self.max_hp
-	for active_tree in SkillState.selected_skills:
-		print("leveling up ", active_tree)
-		SkillState.skilltrees.increase_tree_level(active_tree)
 	update_unlocked_skills()
 	print("now has ", abilities)
 

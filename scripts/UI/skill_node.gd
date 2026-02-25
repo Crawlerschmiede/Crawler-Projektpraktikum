@@ -4,6 +4,7 @@ extends TextureButton
 signal tree_leveled(tree_name)
 
 var requirements: Array[SkillNode] = []
+var skilltrees = SkillState.skilltrees
 var is_unlocked: bool = false
 var incoming_line: Line2D = null
 var tooltip_script = load("res://scripts/UI/skill_tooltip.gd")
@@ -12,13 +13,27 @@ var tooltip = tooltip_script.new()
 @onready var glow_shader = preload("res://shaders/glitterglowwithboarder.gdshader")
 @onready var upgrade_button: Button = $Unlock
 
+const tree_aliasing={
+	"LongRangedWeaponry":"Long-Ranged-Weaponry",
+	"UnarmedCombat":"Unarmed-Combat",
+	"ShortRangedWeaponry":"Short-Ranged-Weaponry",
+	"MediumRangedWeaponry":"Medium-Ranged-Weaponry"
+}
 
 func _ready():
 	#self.pressed.connect(_on_skill_pressed)
+	is_unlocked=already_unlocked()
 	update_visuals()
 	upgrade_button.visible = false
 	upgrade_button.pressed.connect(_on_upgrade_button_pressed)
-
+	
+func already_unlocked():
+	var own_tree = tree_aliasing[get_parent().get_parent().name]
+	var own_required_tier =  int(str(name)[-1])
+	if skilltrees.skilltrees[own_tree]>= own_required_tier:
+		return true
+	return false
+	
 
 func _gui_input(event):
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
@@ -40,8 +55,7 @@ func _on_upgrade_button_pressed():
 	for skill in all_skills:
 		if skill is SkillNode:
 			skill.check_unlockability()
-	print("Leveled tree ", get_parent().get_parent().name)
-	tree_leveled.emit(get_parent().get_parent().name)
+	tree_leveled.emit(tree_aliasing[get_parent().get_parent().name])
 
 
 func can_be_unlocked() -> bool:
