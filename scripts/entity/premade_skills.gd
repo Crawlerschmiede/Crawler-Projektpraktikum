@@ -337,7 +337,7 @@ var existing_skills = {
 	#short ranged weaponry
 	"Close and Personal":
 	{
-		"tree": "Short Ranged Weaponry",
+		"tree": "Short-Ranged-Weaponry",
 		"tier": 1,
 		"description": "Oh damn...",
 		"effects": [["damage_buff", 1.5, true, "No"]],
@@ -346,7 +346,7 @@ var existing_skills = {
 	},
 	"Sly Dodge":
 	{
-		"tree": "Short Ranged Weaponry",
+		"tree": "Short-Ranged-Weaponry",
 		"tier": 2,
 		"description": "For when you like where you are, but like, not for a few seconds",
 		"effects": [["movement", 1, true, "D"]],
@@ -355,7 +355,7 @@ var existing_skills = {
 	},
 	"Stabby Stabby":
 	{
-		"tree": "Short Ranged Weaponry",
+		"tree": "Short-Ranged-Weaponry",
 		"tier": 3,
 		"description": "Oh shoot...",
 		"effects": [["action_bonus", 1, true, "No"]],
@@ -364,7 +364,7 @@ var existing_skills = {
 	},
 	"Extend the Dancefloor":
 	{
-		"tree": "Short Ranged Weaponry",
+		"tree": "Short-Ranged-Weaponry",
 		"tier": 4,
 		"description":
 		# gdlint:ignore = max-line-length
@@ -376,7 +376,7 @@ var existing_skills = {
 	},
 	"Blade Dance":
 	{
-		"tree": "Short Ranged Weaponry",
+		"tree": "Short-Ranged-Weaponry",
 		"tier": 5,
 		"description":
 		# gdlint:ignore = max-line-length
@@ -387,7 +387,7 @@ var existing_skills = {
 	#medium ranged weaponry
 	"Middle of the Road":
 	{
-		"tree": "Medium Ranged Weaponry",
+		"tree": "Medium-Ranged-Weaponry",
 		"tier": 1,
 		"description": "Oh damn...",
 		"effects": [["damage_buff", 1.5, true, "No"]],
@@ -396,7 +396,7 @@ var existing_skills = {
 	},
 	"Two Handed Parry":
 	{
-		"tree": "Medium Ranged Weaponry",
+		"tree": "Medium-Ranged-Weaponry",
 		"tier": 2,
 		"description":
 		"Turns out, holding your weapon in two hands actually gives you more strength than with one!",
@@ -406,7 +406,7 @@ var existing_skills = {
 	},
 	"Overhau":
 	{
-		"tree": "Medium Ranged Weaponry",
+		"tree": "Medium-Ranged-Weaponry",
 		"tier": 3,
 		"description": "Dodging only matters if your opponent has limbs to hit you with",
 		"effects": [["damage", 3, false, "No"], ["freeze", 1, true, "No"]],
@@ -426,7 +426,7 @@ var existing_skills = {
 	},
 	"Riposte":
 	{
-		"tree": "Medium Ranged Weaponry",
+		"tree": "Medium-Ranged-Weaponry",
 		"tier": 5,
 		"description": "You know who looks extra punchable? People that punch you",
 		"effects": [["counter", 1, true, "No"]],
@@ -435,7 +435,7 @@ var existing_skills = {
 	#long ranged weaponry
 	"Sniper Position":
 	{
-		"tree": "Long Ranged Weaponry",
+		"tree": "Long-Ranged-Weaponry",
 		"tier": 1,
 		"description": "Oh damn...",
 		"effects": [["damage_buff", 1.5, true, "No"]],
@@ -444,7 +444,7 @@ var existing_skills = {
 	},
 	"Reload":
 	{
-		"tree": "Long Ranged Weaponry",
+		"tree": "Long-Ranged-Weaponry",
 		"tier": 2,
 		"description":
 		"You feel strongly that your opponent would be less scary if you shot them more",
@@ -454,7 +454,7 @@ var existing_skills = {
 	},
 	"Out of Reach":
 	{
-		"tree": "Long Ranged Weaponry",
+		"tree": "Long-Ranged-Weaponry",
 		"tier": 3,
 		"description":
 		"Dodging is actually way easier when you can describe the enemy as 'all the way over there'",
@@ -464,7 +464,7 @@ var existing_skills = {
 	},
 	"Open Fields":
 	{
-		"tree": "Long Ranged Weaponry",
+		"tree": "Long-Ranged-Weaponry",
 		"tier": 4,
 		"description":
 		# gdlint:ignore = max-line-length
@@ -476,7 +476,7 @@ var existing_skills = {
 	},
 	"Fill the Sky":
 	{
-		"tree": "Long Ranged Weaponry",
+		"tree": "Long-Ranged-Weaponry",
 		"tier": 5,
 		"description":
 		"Did you know that shooting our enemy a lot is actually more effective than just once?",
@@ -486,7 +486,7 @@ var existing_skills = {
 	#unarmed skill tree
 	"Flying Fists and Feets":
 	{
-		"tree": "Unarmed",
+		"tree": "Unarmed-Combat",
 		"tier": 1,
 		"description": "It's impressive how far a kick can reach if you stretch a bit",
 		"effects": [["damage_buff", 1.25, true, "overwrite_range"]],
@@ -495,7 +495,7 @@ var existing_skills = {
 	},
 	"Sting like a Bee":
 	{
-		"tree": "Unarmed",
+		"tree": "Unarmed-Combat",
 		"tier": 2,
 		"description": "Well... it's not a big sting... let's hope your enemy is allergic",
 		"effects": [["stun", 3, false, "No"]],
@@ -503,7 +503,7 @@ var existing_skills = {
 	},
 	"Float like a Butterfly":
 	{
-		"tree": "unarmed",
+		"tree": "Unarmed-Combat",
 		"tier": 3,
 		"description":
 		# gdlint:ignore = max-line-length
@@ -514,7 +514,7 @@ var existing_skills = {
 	},
 	"Pressure Points":
 	{
-		"tree": "unarmed",
+		"tree": "Unarmed-Combat",
 		"tier": 4,
 		"description": "Armour? More like... disarm 'er!... wait that doesn't work at all",
 		"effects": [["piercing", 0.2, true, "No"]],
@@ -523,7 +523,7 @@ var existing_skills = {
 	},
 	"Elemental Fists":
 	{
-		"tree": "unarmed",
+		"tree": "Unarmed-Combat",
 		"tier": 5,
 		"description":
 		"They do say punching your opponent square in the face is an elementary technique",

@@ -24,7 +24,8 @@ const UI_MODAL_CONTROLLER := preload("res://scripts/UI/ui_modal_controller.gd")
 @export var menu_scene := preload("res://scenes/UI/popup-menu.tscn")
 @export var fog_tile_id: int = 0  # set this in the inspector to the fog-tile id in your tileset
 @export var fog_dynamic: bool = true  # if true, areas that are no longer visible get fogged again
-
+@export var world_music: Array[AudioStream] = []
+@onready var music_player: AudioStreamPlayer = $MusicPlayer
 # --- World state ---
 var world_index: int = -1
 var generators: Array[Node2D] = []
@@ -322,7 +323,27 @@ func _load_tutorial_world() -> void:
 	_set_tree_paused(false)
 
 
+func _play_music_for_world(idx: int):
+	print("--- MUSIC DEBUG: Function called for index: ", idx)
+# 1. Safety check: does the player exist and is the array populated?
+	if music_player == null:
+		push_error("MusicPlayer node not found!")
+		return
+
+	if idx < 0 or idx >= world_music.size():
+		push_warning("No music assigned for world index: %d" % idx)
+		return
+
+	# 2. Assign and Play
+	var selected_track = world_music[idx]
+	if selected_track != null:
+		music_player.stream = selected_track
+		music_player.play()
+		print("Now playing music for World: ", idx)
+
+
 func _load_world(idx: int) -> void:
+	_play_music_for_world(idx)
 	_set_tree_paused(true)
 	await _show_loading()
 
@@ -330,6 +351,7 @@ func _load_world(idx: int) -> void:
 
 	if idx < 0 or idx >= generators.size():
 		# No more worlds left -> show win screen (similar to game_over behavior)
+
 		_hide_loading()
 		_set_tree_paused(false)
 		var scene_tree := get_tree()
@@ -1434,13 +1456,19 @@ func spawn_enemies(do_boss: bool) -> void:
 				def.get("sprite_type", id),
 				def.get("behaviour", []),
 				def.get("skills", []),
-				def.get("stats", {})
+				def.get("stats", {}),
+				def.get("weight", 1)
 			)
 			print("spawn: ", def.get("sprite_type", id))
 
 
 func spawn_enemy(
-	sprite_type: String, behaviour: Array, skills: Array, stats: Dictionary, boss: bool = false
+	sprite_type: String,
+	behaviour: Array,
+	skills: Array,
+	stats: Dictionary,
+	xp: int,
+	boss: bool = false
 ) -> void:
 	# default: spawn normal enemy
 	var e = ENEMY_SCENE.instantiate()
@@ -1451,6 +1479,7 @@ func spawn_enemy(
 	e.sprite_type = sprite_type
 	e.abilities_this_has = skills
 	e.boss = boss
+	e.xp = xp
 	var hp = stats.get("hp", 1)
 	var str = stats.get("str", 1)
 	var def = stats.get("def", 1)
@@ -1728,7 +1757,8 @@ func find_merchants() -> Array[Vector2]:
 func enemy_defeated(enemy):
 	print("enemy_defeated: The battle is won - handler called")
 	# Make sure game is unpaused first so UI can update
-	var scene_tree = get_tree()
+	var scene_tree := get_tree()
+	var gained_xp = 0
 	if scene_tree != null and scene_tree.paused:
 		print("enemy_defeated: unpausing tree")
 		_set_tree_paused(false)
@@ -1744,12 +1774,19 @@ func enemy_defeated(enemy):
 		print("enemy_defeated: boss defeated -> boss_win set to true")
 
 	if enemy != null and is_instance_valid(enemy):
+		gained_xp = enemy.xp
 		print("enemy_defeated: freeing enemy node")
 		enemy.call_deferred("queue_free")
 
 	if player != null and is_instance_valid(player):
 		print("enemy_defeated: leveling up player")
-		player.level_up()
+		print("player shall gain xp: ", gained_xp)
+		SkillState.current_xp += gained_xp
+		if SkillState.next_necessary_xp < SkillState.current_xp:
+			SkillState.current_xp = SkillState.current_xp - SkillState.next_necessary_xp
+			SkillState.next_necessary_xp *= 2
+			await _show_skilltree_upgrading_menu()
+			player.level_up()
 
 
 func _on_battle_player_loss() -> void:

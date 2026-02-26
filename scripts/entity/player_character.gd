@@ -6,7 +6,6 @@ signal player_moved
 
 # Time (in seconds) the character pauses on a tile before taking the next step
 const STEP_COOLDOWN: float = 0.01
-const PLAYER_ACTIVE_SKILLTREES: Array[String] = ["basic"]
 const BINDS_AND_MENUS := preload("res://scenes/UI/binds-and-menus.tscn")
 const UI_MODAL_CONTROLLER := preload("res://scripts/UI/ui_modal_controller.gd")
 
@@ -16,6 +15,7 @@ var actions = []
 var minimap
 var is_armed = false
 var can_use_weapons = true
+var active_skilltrees: Array[String] = SkillState.selected_skills
 
 var fog_layer: TileMapLayer = null
 var dynamic_fog: bool = true
@@ -100,9 +100,7 @@ func _ready() -> void:
 	self.is_player = true
 	for action in base_actions:
 		add_action(action)
-	for active_tree in PLAYER_ACTIVE_SKILLTREES:
-		SkillState.skilltrees.activate(active_tree)
-		print(SkillState.skilltrees.get_all_explanations())
+	SkillState.skilltrees.activate("basic")
 	update_unlocked_skills()
 	add_to_group("player")
 
@@ -230,8 +228,8 @@ func _on_area_2d_area_entered(area: Area2D):
 func level_up():
 	self.max_hp = self.max_hp + 1
 	self.hp = self.max_hp
-	SkillState.skilltrees.increase_tree_level("Medium Ranged Weaponry")
 	update_unlocked_skills()
+	print("now has ", abilities)
 
 
 func _check_exit_tile() -> bool:
@@ -259,6 +257,7 @@ func update_unlocked_skills():
 	print("update_skills")
 	abilities = []
 	var gotten_skills = SkillState.skilltrees.get_active_skills()
+	print("Gotten skills ", gotten_skills)
 	var equipped_skills = inventory.get_equipment_skills()
 	var armed = false
 	if can_use_weapons:
