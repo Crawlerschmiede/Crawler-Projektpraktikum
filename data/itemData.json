@@ -2,7 +2,7 @@
 	"Hund": {
 		"ItemCategory": "Hund",
 		"StackSize": 99,
-		"Description": "A sturdy tree branch that can be used for crafting.",
+		"Description": "",
 		"group": "Sword",
 		"loot_stats": { "weight": 3, "chance": 1.0, "max_stack": 2 },
 		"merchant": {
@@ -18,7 +18,7 @@
 	"arm": {
 		"ItemCategory": "Equipment",
 		"StackSize": 1,
-		"Description": "Ein abgetrennter Arm. Kann als Waffe oder Trophäe dienen.",
+		"Description": "",
 		"group": "Weapon",
 		"bound_skills": ["Bash"],
 		"range": "short",
@@ -37,7 +37,7 @@
 	"bow": {
 		"ItemCategory": "Weapon",
 		"StackSize": 1,
-		"Description": "Ein einfacher Bogen. Ermöglicht Fernangriffe.",
+		"Description": "",
 		"group": "Weapon",
 		"bound_skills": ["Shoot"],
 		"range": "long",
@@ -55,7 +55,7 @@
 	"chest": {
 		"ItemCategory": "Equipment",
 		"StackSize": 1,
-		"Description": "Rüstung für den Oberkörper.",
+		"Description": "",
 		"group": "chest",
 		"bound_skills": ["Block"],
 		"slot": "chest",
@@ -73,7 +73,7 @@
 	"crossbow": {
 		"ItemCategory": "Weapon",
 		"StackSize": 1,
-		"Description": "Eine Armbrust für präzise Fernangriffe.",
+		"Description": "",
 		"group": "Weapon",
 		"bound_skills": ["Shoot"],
 		"range": "long",
@@ -91,7 +91,7 @@
 	"dagger": {
 		"ItemCategory": "Weapon",
 		"StackSize": 1,
-		"Description": "Ein Dolch für schnelle Angriffe.",
+		"Description": "",
 		"group": "Weapon",
 		"bound_skills": ["Stab", "Shank"],
 		"range": "short",
@@ -109,7 +109,7 @@
 	"halberd": {
 		"ItemCategory": "Weapon",
 		"StackSize": 1,
-		"Description": "Eine Hellebarde mit großer Reichweite.",
+		"Description": "",
 		"group": "Weapon",
 		"bound_skills": ["Slash", "Stab"],
 		"range": "medium",
@@ -127,7 +127,7 @@
 	"hatchet": {
 		"ItemCategory": "Weapon",
 		"StackSize": 1,
-		"Description": "Eine kleine Axt für Nahkampf.",
+		"Description": "",
 		"group": "Weapon",
 		"bound_skills": ["Slash"],
 		"range": "short",
@@ -145,7 +145,7 @@
 	"head": {
 		"ItemCategory": "Equipment",
 		"StackSize": 1,
-		"Description": "Kopfbedeckung oder Trophäe.",
+		"Description": "",
 		"group": "head",
 		"slot": "head",
 		"loot_stats": { "weight": 3, "chance": 1.0, "max_stack": 2 },
@@ -162,7 +162,7 @@
 	"heal_potion": {
 		"ItemCategory": "Consumable",
 		"StackSize": 99,
-		"Description": "Heiltrank zur Wiederherstellung von Lebenspunkten.",
+		"Description": "",
 		"group": "Equipment",
 		"use_effects": ["Heal"],
 		"loot_stats": { "weight": 3, "chance": 1.0, "max_stack": 2 },
@@ -179,7 +179,7 @@
 	"legs": {
 		"ItemCategory": "Equipment",
 		"StackSize": 1,
-		"Description": "Beinschutz für mehr Verteidigung.",
+		"Description": "",
 		"group": "legs",
 		"slot": "legs",
 		"loot_stats": { "weight": 3, "chance": 1.0, "max_stack": 2 },
@@ -196,7 +196,7 @@
 	"spear": {
 		"ItemCategory": "Weapon",
 		"StackSize": 1,
-		"Description": "Ein Speer für mittlere Reichweite.",
+		"Description": "",
 		"group": "Weapon",
 		"bound_skills": ["Stab"],
 		"range": "medium",
@@ -214,7 +214,7 @@
 	"throwing_knives": {
 		"ItemCategory": "Weapon",
 		"StackSize": 10,
-		"Description": "Wurfmesser für Fernangriffe.",
+		"Description": "",
 		"group": "Weapon",
 		"bound_skills": ["Throw"],
 		"range": "long",
@@ -232,7 +232,7 @@
 	"wand": {
 		"ItemCategory": "Weapon",
 		"StackSize": 1,
-		"Description": "Magischer Zauberstab.",
+		"Description": "",
 		"group": "Weapon",
 		"bound_skills": ["Cast"],
 		"range": "long",
