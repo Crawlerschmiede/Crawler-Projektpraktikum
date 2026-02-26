@@ -97,6 +97,55 @@ func get_bound_skills() -> Array:
 	var bound_skills: Array = Array((info as Dictionary).get("bound_skills", []))
 	return bound_skills
 
+func get_damage_factor() -> float:
+	print("Itemname: ", item_name)
+
+	if !item_exists():
+		print("Item does not exist")
+		return 0.0
+
+	if !JsonData or !JsonData.item_data:
+		print("JsonData or item_data missing")
+		return 0.0
+
+	var data: Dictionary = JsonData.item_data
+
+	if !data.has(item_name):
+		print("Item not found in data")
+		return 0.0
+
+	var item_data: Dictionary = data[item_name]
+
+	if !item_data.has("damage_factor"):
+		print("damage_factor not found")
+		return 0.0
+
+	return float(item_data["damage_factor"])
+
+func get_defence_factor() -> float:
+	print("Itemname: ", item_name)
+
+	if !item_exists():
+		print("Item does not exist")
+		return 0.0
+
+	if !JsonData or !JsonData.item_data:
+		print("JsonData or item_data missing")
+		return 0.0
+
+	var data: Dictionary = JsonData.item_data
+
+	if !data.has(item_name):
+		print("Item not found in data")
+		return 0.0
+
+	var item_data: Dictionary = data[item_name]
+
+	if !item_data.has("defence_factor"):
+		print("defence_factor not found")
+		return 0.0
+
+	return float(item_data["defence_factor"])
 
 func get_range() -> String:
 	print("Itemname: ", item_name)
