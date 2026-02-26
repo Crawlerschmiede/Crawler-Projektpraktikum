@@ -469,9 +469,13 @@ func initiate_battle(player: Node, enemy: Node) -> bool:
 	return true
 
 
-func take_damage(damage, type = ""):
+func take_damage(damage, type = "", damage_factor = 1.0):
 	#print(self, " takes ", damage, " damage!")
-	var taken_damage = damage  #useless right now but just put here for later damage calculations
+	var taken_damage = damage  # Basis-Schaden
+	var dmg_fac: float = float(damage_factor)
+	dmg_fac = clamp(dmg_fac, 0.0, 1.0)
+	taken_damage *= (1.0 + dmg_fac)
+	print("[DEBUG] damage_factor (param): ", dmg_fac)
 	var damage_type = "physical"
 	if "fire" in type:
 		damage_type = "fire"
@@ -501,7 +505,13 @@ func take_damage(damage, type = ""):
 	print("After pierce it's ", active_res)
 	taken_damage *= (1 - active_res)
 	if not "ignoredef" in type:
-		taken_damage -= self.def_stat
+		var def_fac: float = 0.0
+		if has_method("get_defence_factor"):
+			def_fac = float(call("get_defence_factor"))
+			print("[DEBUG] defence_factor: ", def_fac)
+		# Clamp to avoid >95% damage reduction.
+		def_fac = clamp(def_fac, 0.0, 0.95)
+		taken_damage *= (1.0 - def_fac)
 	if taken_damage < 0:
 		taken_damage = 0
 	print(self.name, " should take damage")
