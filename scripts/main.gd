@@ -1239,6 +1239,12 @@ func _has_completed_tutorial() -> bool:
 	var path := "res://data/tutorialData.json"
 
 	if not FileAccess.file_exists(path):
+		var data: Dictionary = {"tutorial_completed": false}
+
+		var file := FileAccess.open(path, FileAccess.WRITE)
+		if file:
+			file.store_string(JSON.stringify(data, "\t"))
+			file.close()
 		return false
 
 	var file := FileAccess.open(path, FileAccess.READ)

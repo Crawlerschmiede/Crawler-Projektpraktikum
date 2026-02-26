@@ -9,3 +9,5 @@ build/
 # local/editor backup and temp files
 *.bak
 *.tmp
+
+data/tutorialData.json
