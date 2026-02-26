@@ -1,89 +1,250 @@
 {
-  "Hund": {
-	"ItemCategory": "Hund",
-	"StackSize": 99,
-	"Description": "A sturdy tree branch that can be used for crafting.",
-	"group": "Sword",
-	"loot_stats": { "weight": 3, "chance": 1.0, "max_stack": 2 },
-	"merchant": {
-		"min_count": 1,
-		"max_count": 3,
-		"min_price": 4,
-		"max_price": 8,
-		"buy_amount": 1,
-		"chance": 1.0,
-		"weight": 1
-	}
-  },
-	"placeholder_dagger_poison": {
-		"ItemCategory": "Weapon",
-		"StackSize": 1,
-		"Description": "A sturdy tree branch that can be used for crafting.",
-		"group": "Equipment",
-		"loot_stats": { "weight": 3, "chance": 1.0, "max_stack": 2 },
-		"bound_skills":["Shank"],
-		"range":"short"
-	  },
-	"placeholder_sword": {
-		"ItemCategory": "Weapon",
-		"StackSize": 1,
-		"Description": "A sturdy tree branch that can be used for crafting.",
-		"group": "Weapon",
-		"loot_stats": { "weight": 3, "chance": 1.0, "max_stack": 2 },
-		"merchant": {
-			"min_count": 1,
-			"max_count": 2,
-			"min_price": 6,
-			"max_price": 9,
-			"buy_amount": 2,
-			"chance": 1.0,
-			"weight": 1
-		},
-		"bound_skills":["Slash"],
-		"range":"short"
-	  },
-	"placeholder_spear": {
-		"ItemCategory": "Weapon",
-		"StackSize": 1,
-		"Description": "A sturdy tree branch that can be used for crafting.",
-		"group": "Weapon",
-		"loot_stats": { "weight": 3, "chance": 1.0, "max_stack": 2 },
-		"merchant": {
-			"min_count": 1,
-			"max_count": 2,
-			"min_price": 6,
-			"max_price": 9,
-			"buy_amount": 2,
-			"chance": 1.0,
-			"weight": 1
-		},
-		"bound_skills":["Stab"],
-		"range":"medium"
-	  },
-	"placeholder_bow": {
-		"ItemCategory": "Weapon",
-		"StackSize": 1,
-		"Description": "A sturdy tree branch that can be used for crafting.",
-		"group": "Weapon",
-		"loot_stats": { "weight": 3, "chance": 1.0, "max_stack": 2 },
-		"merchant": {
-			"min_count": 1,
-			"max_count": 2,
-			"min_price": 6,
-			"max_price": 9,
-			"buy_amount": 2,
-			"chance": 1.0,
-			"weight": 1
-		},
-		"bound_skills":["Shoot"],
-		"range":"long"
-	  },
-	"placeholder_heal_potion": {
-		"ItemCategory": "Consumable",
+	"Hund": {
+		"ItemCategory": "Hund",
 		"StackSize": 99,
 		"Description": "A sturdy tree branch that can be used for crafting.",
-		"group": "Equipment",
+		"group": "Sword",
 		"loot_stats": { "weight": 3, "chance": 1.0, "max_stack": 2 },
-		"use_effects":["Heal"]
-	  }
+		"merchant": {
+			"min_count": 1,
+			"max_count": 3,
+			"min_price": 4,
+			"max_price": 8,
+			"buy_amount": 1,
+			"chance": 1.0,
+			"weight": 1
+		}
+	},
+	"arm": {
+		"ItemCategory": "Equipment",
+		"StackSize": 1,
+		"Description": "Ein abgetrennter Arm. Kann als Waffe oder Trophäe dienen.",
+		"group": "Weapon",
+		"bound_skills": ["Bash"],
+		"range": "short",
+		"slot": "arm",
+		"loot_stats": { "weight": 3, "chance": 1.0, "max_stack": 2 },
+		"merchant": {
+			"min_count": 1,
+			"max_count": 3,
+			"min_price": 4,
+			"max_price": 8,
+			"buy_amount": 1,
+			"chance": 1.0,
+			"weight": 1
+		}
+	},
+	"bow": {
+		"ItemCategory": "Weapon",
+		"StackSize": 1,
+		"Description": "Ein einfacher Bogen. Ermöglicht Fernangriffe.",
+		"group": "Weapon",
+		"bound_skills": ["Shoot"],
+		"range": "long",
+		"loot_stats": { "weight": 3, "chance": 1.0, "max_stack": 2 },
+		"merchant": {
+			"min_count": 1,
+			"max_count": 3,
+			"min_price": 4,
+			"max_price": 8,
+			"buy_amount": 1,
+			"chance": 1.0,
+			"weight": 1
+		}
+	},
+	"chest": {
+		"ItemCategory": "Equipment",
+		"StackSize": 1,
+		"Description": "Rüstung für den Oberkörper.",
+		"group": "chest",
+		"bound_skills": ["Block"],
+		"slot": "chest",
+		"loot_stats": { "weight": 3, "chance": 1.0, "max_stack": 2 },
+		"merchant": {
+			"min_count": 1,
+			"max_count": 3,
+			"min_price": 4,
+			"max_price": 8,
+			"buy_amount": 1,
+			"chance": 1.0,
+			"weight": 1
+		}
+	},
+	"crossbow": {
+		"ItemCategory": "Weapon",
+		"StackSize": 1,
+		"Description": "Eine Armbrust für präzise Fernangriffe.",
+		"group": "Weapon",
+		"bound_skills": ["Shoot"],
+		"range": "long",
+		"loot_stats": { "weight": 3, "chance": 1.0, "max_stack": 2 },
+		"merchant": {
+			"min_count": 1,
+			"max_count": 3,
+			"min_price": 4,
+			"max_price": 8,
+			"buy_amount": 1,
+			"chance": 1.0,
+			"weight": 1
+		}
+	},
+	"dagger": {
+		"ItemCategory": "Weapon",
+		"StackSize": 1,
+		"Description": "Ein Dolch für schnelle Angriffe.",
+		"group": "Weapon",
+		"bound_skills": ["Stab", "Shank"],
+		"range": "short",
+		"loot_stats": { "weight": 3, "chance": 1.0, "max_stack": 2 },
+		"merchant": {
+			"min_count": 1,
+			"max_count": 3,
+			"min_price": 4,
+			"max_price": 8,
+			"buy_amount": 1,
+			"chance": 1.0,
+			"weight": 1
+		}
+	},
+	"halberd": {
+		"ItemCategory": "Weapon",
+		"StackSize": 1,
+		"Description": "Eine Hellebarde mit großer Reichweite.",
+		"group": "Weapon",
+		"bound_skills": ["Slash", "Stab"],
+		"range": "medium",
+		"loot_stats": { "weight": 3, "chance": 1.0, "max_stack": 2 },
+		"merchant": {
+			"min_count": 1,
+			"max_count": 3,
+			"min_price": 4,
+			"max_price": 8,
+			"buy_amount": 1,
+			"chance": 1.0,
+			"weight": 1
+		}
+	},
+	"hatchet": {
+		"ItemCategory": "Weapon",
+		"StackSize": 1,
+		"Description": "Eine kleine Axt für Nahkampf.",
+		"group": "Weapon",
+		"bound_skills": ["Slash"],
+		"range": "short",
+		"loot_stats": { "weight": 3, "chance": 1.0, "max_stack": 2 },
+		"merchant": {
+			"min_count": 1,
+			"max_count": 3,
+			"min_price": 4,
+			"max_price": 8,
+			"buy_amount": 1,
+			"chance": 1.0,
+			"weight": 1
+		}
+	},
+	"head": {
+		"ItemCategory": "Equipment",
+		"StackSize": 1,
+		"Description": "Kopfbedeckung oder Trophäe.",
+		"group": "head",
+		"slot": "head",
+		"loot_stats": { "weight": 3, "chance": 1.0, "max_stack": 2 },
+		"merchant": {
+			"min_count": 1,
+			"max_count": 3,
+			"min_price": 4,
+			"max_price": 8,
+			"buy_amount": 1,
+			"chance": 1.0,
+			"weight": 1
+		}
+	},
+	"heal_potion": {
+		"ItemCategory": "Consumable",
+		"StackSize": 99,
+		"Description": "Heiltrank zur Wiederherstellung von Lebenspunkten.",
+		"group": "Equipment",
+		"use_effects": ["Heal"],
+		"loot_stats": { "weight": 3, "chance": 1.0, "max_stack": 2 },
+		"merchant": {
+			"min_count": 1,
+			"max_count": 3,
+			"min_price": 4,
+			"max_price": 8,
+			"buy_amount": 1,
+			"chance": 1.0,
+			"weight": 1
+		}
+	},
+	"legs": {
+		"ItemCategory": "Equipment",
+		"StackSize": 1,
+		"Description": "Beinschutz für mehr Verteidigung.",
+		"group": "legs",
+		"slot": "legs",
+		"loot_stats": { "weight": 3, "chance": 1.0, "max_stack": 2 },
+		"merchant": {
+			"min_count": 1,
+			"max_count": 3,
+			"min_price": 4,
+			"max_price": 8,
+			"buy_amount": 1,
+			"chance": 1.0,
+			"weight": 1
+		}
+	},
+	"spear": {
+		"ItemCategory": "Weapon",
+		"StackSize": 1,
+		"Description": "Ein Speer für mittlere Reichweite.",
+		"group": "Weapon",
+		"bound_skills": ["Stab"],
+		"range": "medium",
+		"loot_stats": { "weight": 3, "chance": 1.0, "max_stack": 2 },
+		"merchant": {
+			"min_count": 1,
+			"max_count": 3,
+			"min_price": 4,
+			"max_price": 8,
+			"buy_amount": 1,
+			"chance": 1.0,
+			"weight": 1
+		}
+	},
+	"throwing_knives": {
+		"ItemCategory": "Weapon",
+		"StackSize": 10,
+		"Description": "Wurfmesser für Fernangriffe.",
+		"group": "Weapon",
+		"bound_skills": ["Throw"],
+		"range": "long",
+		"loot_stats": { "weight": 3, "chance": 1.0, "max_stack": 2 },
+		"merchant": {
+			"min_count": 1,
+			"max_count": 3,
+			"min_price": 4,
+			"max_price": 8,
+			"buy_amount": 1,
+			"chance": 1.0,
+			"weight": 1
+		}
+	},
+	"wand": {
+		"ItemCategory": "Weapon",
+		"StackSize": 1,
+		"Description": "Magischer Zauberstab.",
+		"group": "Weapon",
+		"bound_skills": ["Cast"],
+		"range": "long",
+		"loot_stats": { "weight": 3, "chance": 1.0, "max_stack": 2 },
+		"merchant": {
+			"min_count": 1,
+			"max_count": 3,
+			"min_price": 4,
+			"max_price": 8,
+			"buy_amount": 1,
+			"chance": 1.0,
+			"weight": 1
+		}
+	},
 }
