@@ -34,6 +34,7 @@ func _collect_slots_recursive(root: Node, out: Array[Node]) -> void:
 			if c.get_child_count() > 0:
 				_collect_slots_recursive(c, out)
 
+
 func get_equipment_damage_factor() -> Array:
 	var equipment_slots = _get_equipment_slots()
 	var damage_factors: Array = []
@@ -45,6 +46,7 @@ func get_equipment_damage_factor() -> Array:
 			damage_factors.append(df)
 	return damage_factors
 
+
 func get_equipment_defence_factor() -> Array:
 	var equipment_slots = _get_equipment_slots()
 	var defence_factors: Array = []
@@ -53,18 +55,12 @@ func get_equipment_defence_factor() -> Array:
 		var item_in_slot = slot.get_item()
 		if item_in_slot != null:
 			var df = item_in_slot.get_defence_factor()
-			print(
-				"[DEF] slot=",
-				slot.name,
-				" item=",
-				item_in_slot.get("item_name"),
-				" df=",
-				df
-			)
+			print("[DEF] slot=", slot.name, " item=", item_in_slot.get("item_name"), " df=", df)
 			defence_factors.append(df)
 
 	return defence_factors
-	
+
+
 func _is_descendant(parent: Node, child: Node) -> bool:
 	# Safe replacement for Engine-specific "is_a_parent_of" across Node types.
 	if parent == null or child == null:

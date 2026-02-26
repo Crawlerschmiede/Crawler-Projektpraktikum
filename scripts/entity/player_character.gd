@@ -272,6 +272,7 @@ func update_unlocked_skills():
 	for ability in gotten_skills:
 		add_skill(ability)
 
+
 func get_damage_factor() -> float:
 	# inventory.get_equipment_damage_factor() liefert ein Array von Einträgen,
 	# einzelne Einträge können entweder Zahlen oder Arrays von Zahlen sein.
@@ -285,6 +286,7 @@ func get_damage_factor() -> float:
 		elif typeof(e) == TYPE_INT or typeof(e) == TYPE_FLOAT:
 			total *= float(e)
 	return total
+
 
 func get_defence_factor() -> float:
 	# inventory.get_equipment_defence_factor() liefert ein Array von Einträgen,
@@ -300,7 +302,8 @@ func get_defence_factor() -> float:
 			total += float(e)
 	total = clamp(total, 0.0, 0.95)
 	return total
-	
+
+
 func get_used_range():
 	return inventory.get_equipment_range()
 

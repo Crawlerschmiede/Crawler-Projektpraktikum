@@ -468,6 +468,7 @@ func initiate_battle(player: Node, enemy: Node) -> bool:
 	main.instantiate_battle(player, enemy)
 	return true
 
+
 func take_damage(damage, type = "", damage_factor = 1.0):
 	#print(self, " takes ", damage, " damage!")
 	var taken_damage = damage  # Basis-Schaden

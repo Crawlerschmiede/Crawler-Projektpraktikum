@@ -97,6 +97,7 @@ func get_bound_skills() -> Array:
 	var bound_skills: Array = Array((info as Dictionary).get("bound_skills", []))
 	return bound_skills
 
+
 func get_damage_factor() -> float:
 	print("Itemname: ", item_name)
 
@@ -122,6 +123,7 @@ func get_damage_factor() -> float:
 
 	return float(item_data["damage_factor"])
 
+
 func get_defence_factor() -> float:
 	print("Itemname: ", item_name)
 
@@ -146,6 +148,7 @@ func get_defence_factor() -> float:
 		return 0.0
 
 	return float(item_data["defence_factor"])
+
 
 func get_range() -> String:
 	print("Itemname: ", item_name)
