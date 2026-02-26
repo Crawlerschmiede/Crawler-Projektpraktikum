@@ -26,6 +26,7 @@ var _binds_and_menus_layer: CanvasLayer = null
 
 @onready var camera: Camera2D = $Camera2D
 @onready var minimap_viewport: SubViewport = $CanvasLayer/SubViewportContainer/SubViewport
+@onready var minimap_video: VideoStreamPlayer = $CanvasLayer/SubViewportContainer/SubViewport/VideoStreamPlayer
 @onready var pickup_ui = $CanvasLayer2
 @onready var inventory = $UserInterface/Inventory
 #@export var binds_and_menus: PackedScene
@@ -116,6 +117,12 @@ func set_minimap(mm: TileMapLayer) -> void:
 		minimap.get_parent().remove_child(minimap)
 
 	minimap_viewport.add_child(minimap)
+
+	# Wenn mehr als ein Kind (z.B. Minimap + VideoStreamPlayer), dann VideoStreamPlayer ausblenden
+	if minimap_viewport.get_child_count() > 1 and minimap_video != null:
+		minimap_video.visible = false
+	elif minimap_video != null:
+		minimap_video.visible = true
 
 
 # --- Input Handling with Cooldown ---
