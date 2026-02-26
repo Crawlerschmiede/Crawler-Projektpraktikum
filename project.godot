@@ -17,7 +17,7 @@ config/icon="res://icon.svg"
 
 [autoload]
 
-SettingsManager="*res://scripts/Autoloadscripts/settings_manager.gd"
+SettingsManager="*uid://qh1ypufg3idr"
 JsonData="*res://scripts/Autoloadscripts/JSONData.gd"
 PlayerInventory="*res://scripts/Autoloadscripts/PlayerInventory.gd"
 Setting="*res://scripts/Autoloadscripts/setting.gd"

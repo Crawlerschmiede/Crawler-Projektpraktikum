@@ -1,7 +1,7 @@
 extends Node
 
 var rng: RandomNumberGenerator
-var base_seed: int = 42
+var base_seed: int = 40
 var _counter: int = 0
 
 

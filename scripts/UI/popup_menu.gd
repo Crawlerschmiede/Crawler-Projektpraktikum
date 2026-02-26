@@ -2,6 +2,7 @@ extends CanvasLayer
 
 # custom signal to inform the main scene
 signal menu_closed
+signal save_requested
 
 const SETTINGS_MENU_SCENE := preload("res://scenes/UI/settings_menu.tscn")
 const UI_MODAL_CONTROLLER := preload("res://scripts/UI/ui_modal_controller.gd")
@@ -35,7 +36,6 @@ func _apply_scale() -> void:
 
 # Function for the "Continue" button
 func _on_continue_pressed():
-	#print("Check:Continue Pressed. Emitting signal.")
 	menu_closed.emit()
 
 
@@ -78,6 +78,12 @@ func _on_settings_closed() -> void:
 	_settings_instance = null
 	$VBoxContainer.visible = true
 	UI_MODAL_CONTROLLER.release(self, true, true)
+
+
+func _on_save_pressed() -> void:
+	print("SAVE")
+	# Emit a signal so an external controller can perform the actual save
+	save_requested.emit()
 
 
 # Function for the "Quit" button
