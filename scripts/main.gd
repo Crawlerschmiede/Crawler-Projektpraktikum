@@ -25,7 +25,6 @@ const UI_MODAL_CONTROLLER := preload("res://scripts/UI/ui_modal_controller.gd")
 @export var fog_tile_id: int = 0  # set this in the inspector to the fog-tile id in your tileset
 @export var fog_dynamic: bool = true  # if true, areas that are no longer visible get fogged again
 @export var world_music: Array[AudioStream] = []
-@onready var music_player: AudioStreamPlayer = $MusicPlayer
 # --- World state ---
 var world_index: int = -1
 var generators: Array[Node2D] = []
@@ -50,6 +49,7 @@ var boss_win: bool = false
 
 @onready var minimap: TileMapLayer
 
+@onready var music_player: AudioStreamPlayer = $MusicPlayer
 @onready var generator1: Node2D = $World1
 @onready var generator2: Node2D = $World2
 @onready var generator3: Node2D = $World3
