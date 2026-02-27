@@ -52,6 +52,16 @@ handle_input_locally = false
 size = Vector2i(100, 100)
 render_target_update_mode = 4
 
+[node name="CenterContainer" type="CenterContainer" parent="CanvasLayer/SubViewportContainer/SubViewport" unique_id=1303603811]
+offset_right = 116.0
+offset_bottom = 96.0
+
+[node name="Label" type="Label" parent="CanvasLayer/SubViewportContainer/SubViewport/CenterContainer" unique_id=1233788877]
+layout_mode = 2
+text = "No Minimap 
+Available"
+horizontal_alignment = 1
+
 [node name="MiniCam" type="Camera2D" parent="CanvasLayer/SubViewportContainer/SubViewport" unique_id=1332466115]
 zoom = Vector2(0.2, 0.2)
 

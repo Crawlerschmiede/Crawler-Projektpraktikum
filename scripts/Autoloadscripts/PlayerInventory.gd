@@ -62,8 +62,6 @@ func _slot_accepts_item(slot_node: Node, item_name: String) -> bool:
 		return false
 
 	var item_group: String = _get_item_group(item_name)
-
-	# Debug Infos
 	var slot_groups: Array[StringName] = slot_node.get_groups()
 	print(
 		"[INV] CHECK groups: slot=",
@@ -76,14 +74,19 @@ func _slot_accepts_item(slot_node: Node, item_name: String) -> bool:
 		item_group
 	)
 
-	# Slot muss passende Gruppe haben
-	if slot_node.is_in_group(item_group):
+	# Wenn Slot irgendeine Gruppe "Inventory" hat, akzeptiere alles
+	if "Inventory" in slot_groups:
+		print("[INV] ✅ OK: universal Inventory slot (in group list)")
+		return true
+
+	# Slot muss passende Gruppe haben (exakter Match)
+	if item_group in slot_groups:
 		print("[INV] ✅ OK: slot in group ", item_group)
 		return true
 
-	# Fallback
-	if item_group == "Inventory" and slot_node.is_in_group("Inventory"):
-		print("[INV] ✅ OK: Inventory fallback")
+	# Fallback für Items ohne Gruppe
+	if item_group == "Inventory":
+		print("[INV] ✅ OK: Item ohne Gruppe, akzeptiert")
 		return true
 
 	print("[INV] ❌ DENY: group mismatch")
