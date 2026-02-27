@@ -13,14 +13,15 @@
 			"buy_amount": 1,
 			"chance": 1.0,
 			"weight": 1
-		}
+		},
+		"bound_skills": []
 	},
 	"arm": {
 		"ItemCategory": "Equipment",
 		"StackSize": 1,
 		"Description": "",
 		"group": "Weapon",
-		"bound_skills": ["Bash"],
+		"bound_skills": ["Bash", "Punch"],
 		"range": "short",
 		"slot": "arm",
 		"loot_stats": { "weight": 3, "chance": 1.0, "max_stack": 2 },
@@ -75,7 +76,7 @@
 		"StackSize": 1,
 		"Description": "",
 		"group": "Weapon",
-		"bound_skills": ["Shoot"],
+		"bound_skills": ["Shoot", "Reload"],
 		"range": "long",
 		"loot_stats": { "weight": 3, "chance": 1.0, "max_stack": 2 },
 		"merchant": {
@@ -93,7 +94,7 @@
 		"StackSize": 1,
 		"Description": "",
 		"group": "Weapon",
-		"bound_skills": ["Stab", "Shank"],
+		"bound_skills": ["Stab", "Shank", "Blade Dance"],
 		"range": "short",
 		"loot_stats": { "weight": 3, "chance": 1.0, "max_stack": 2 },
 		"merchant": {
@@ -111,7 +112,7 @@
 		"StackSize": 1,
 		"Description": "",
 		"group": "Weapon",
-		"bound_skills": ["Slash", "Stab"],
+		"bound_skills": ["Slash", "Stab", "Overhau"],
 		"range": "medium",
 		"loot_stats": { "weight": 3, "chance": 1.0, "max_stack": 2 },
 		"merchant": {
@@ -148,6 +149,7 @@
 		"Description": "",
 		"group": "head",
 		"slot": "head",
+		"bound_skills": ["Block"],
 		"loot_stats": { "weight": 3, "chance": 1.0, "max_stack": 2 },
 		"merchant": {
 			"min_count": 1,
@@ -182,6 +184,7 @@
 		"Description": "",
 		"group": "legs",
 		"slot": "legs",
+		"bound_skills": ["Sly Dodge", "Move Left", "Move Right"],
 		"loot_stats": { "weight": 3, "chance": 1.0, "max_stack": 2 },
 		"merchant": {
 			"min_count": 1,
@@ -198,7 +201,7 @@
 		"StackSize": 1,
 		"Description": "",
 		"group": "Weapon",
-		"bound_skills": ["Stab"],
+		"bound_skills": ["Stab", "Riposte"],
 		"range": "medium",
 		"loot_stats": { "weight": 3, "chance": 1.0, "max_stack": 2 },
 		"merchant": {
@@ -216,7 +219,7 @@
 		"StackSize": 10,
 		"Description": "",
 		"group": "Weapon",
-		"bound_skills": ["Throw"],
+		"bound_skills": ["Throw", "Fill the Sky"],
 		"range": "long",
 		"loot_stats": { "weight": 3, "chance": 1.0, "max_stack": 2 },
 		"merchant": {
@@ -234,7 +237,7 @@
 		"StackSize": 1,
 		"Description": "",
 		"group": "Weapon",
-		"bound_skills": ["Cast"],
+		"bound_skills": ["Cast", "Vortex"],
 		"range": "long",
 		"loot_stats": { "weight": 3, "chance": 1.0, "max_stack": 2 },
 		"merchant": {
@@ -246,5 +249,5 @@
 			"chance": 1.0,
 			"weight": 1
 		}
-	},
+	}
 }
