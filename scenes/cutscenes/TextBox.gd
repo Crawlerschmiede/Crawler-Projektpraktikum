@@ -1,37 +1,50 @@
 extends Panel
 
-@onready var text_label: RichTextLabel = $RichTextLabel
-@onready var next_hint: Control = $NextHint # optional, kann auch fehlen
+@onready var text_label: RichTextLabel = $Margin/RichTextLabel
+@onready var next_icon: Control = $NextIcon
+
+@export var blink_min_alpha := 0.2
+@export var blink_time := 0.35
+
+signal finished
 
 var lines: Array[String] = []
 var index := 0
 var active := false
+var blink_tween: Tween
 
-signal finished
+func _ready() -> void:
+	visible = false
 
-func show_lines(new_lines: Array[String]) -> void:
-	lines = new_lines
+	# Icon immer über Text
+	next_icon.z_as_relative = false
+	next_icon.z_index = 100
+	next_icon.visible = false
+
+func show_lines(new_lines: Array) -> void:
+	# robust: akzeptiert Array, Array[String], PackedStringArray
+	lines.clear()
+	for x in new_lines:
+		lines.append(str(x))
+
 	index = 0
 	active = true
 	visible = true
-	_show_current()
+	text_label.text = lines[index]
 
 func _unhandled_input(event: InputEvent) -> void:
 	if !active:
 		return
-	if event.is_action_pressed("ui_accept"):
-		_next()
 
-func _show_current() -> void:
-	text_label.text = lines[index]
-	if next_hint:
-		next_hint.visible = (index < lines.size() - 1)
+	if event.is_action_pressed("dialog_next"):
+		_next_line()
 
-func _next() -> void:
+
+func _next_line() -> void:
 	index += 1
 	if index >= lines.size():
 		active = false
 		visible = false
 		finished.emit()
 	else:
-		_show_current()
+		text_label.text = lines[index]

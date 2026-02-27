@@ -2,45 +2,9 @@
 
 [ext_resource type="Script" uid="uid://dsjkoasx5gew7" path="res://scenes/cutscenes/bossroom_entry.gd" id="1_80xuo"]
 [ext_resource type="PackedScene" uid="uid://baj7jh2io882q" path="res://scenes/sprite_scenes/player_sprite_scene.tscn" id="1_tjrmh"]
-[ext_resource type="Texture2D" uid="uid://bbjtny7tvnh" path="res://assets/cutscenes/bossroom_entrance.png" id="2_80xuo"]
-[ext_resource type="Script" uid="uid://dpbeq2133781t" path="res://scenes/cutscenes/TextBox.gd" id="4_ov154"]
-
-[sub_resource type="Animation" id="Animation_ov154"]
-length = 0.001
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("Path2D/PathFollow2D:progress_ratio")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [0.0]
-}
-
-[sub_resource type="Animation" id="Animation_nj0ts"]
-resource_name = "walk"
-length = 0.001
-tracks/0/type = "value"
-tracks/0/imported = false
-tracks/0/enabled = true
-tracks/0/path = NodePath("Path2D/PathFollow2D:progress_ratio")
-tracks/0/interp = 1
-tracks/0/loop_wrap = true
-tracks/0/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [0.0]
-}
-
-[sub_resource type="AnimationLibrary" id="AnimationLibrary_lx5xm"]
-_data = {
-&"RESET": SubResource("Animation_ov154"),
-&"walk": SubResource("Animation_nj0ts")
-}
+[ext_resource type="Texture2D" uid="uid://c7mtoit5h8nbo" path="res://assets/cutscenes/bossroom_entrance.png" id="2_80xuo"]
+[ext_resource type="Script" uid="uid://es58xubthk8t" path="res://scenes/cutscenes/control.gd" id="4_nj0ts"]
+[ext_resource type="Script" uid="uid://pa0hg48an04e" path="res://scenes/cutscenes/DialogBox.gd" id="4_ov154"]
 
 [sub_resource type="Curve2D" id="Curve2D_wwy48"]
 bake_interval = 0.01
@@ -51,9 +15,6 @@ point_count = 2
 
 [node name="BossroomEntry" type="Node2D" unique_id=751097517]
 script = ExtResource("1_80xuo")
-
-[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=1296816973]
-libraries/ = SubResource("AnimationLibrary_lx5xm")
 
 [node name="TextureRect" type="TextureRect" parent="." unique_id=1835426209]
 offset_left = -48.0
@@ -72,40 +33,59 @@ rotates = false
 loop = false
 
 [node name="Camera2D" type="Camera2D" parent="Path2D/PathFollow2D" unique_id=1309388943]
-zoom = Vector2(1.5, 1.5)
 position_smoothing_enabled = true
-position_smoothing_speed = 8.0
+position_smoothing_speed = 13.0
 
 [node name="AnimatedSprite2D" parent="Path2D/PathFollow2D" unique_id=782547247 instance=ExtResource("1_tjrmh")]
-position = Vector2(11.981302, -2.1091614)
 rotation = -0.009101001
 scale = Vector2(3.5499997, 3.6874979)
 animation = &"walk_right"
 autoplay = "walk_right"
-frame_progress = 0.48345408
+frame_progress = 0.71350706
 
-[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1297459684]
+[node name="DialogLayer" type="CanvasLayer" parent="." unique_id=1297459684]
+layer = 4
 
-[node name="Panel" type="Panel" parent="CanvasLayer" unique_id=1672983426]
-anchors_preset = 7
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
+[node name="Control" type="Control" parent="DialogLayer" unique_id=164187422]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -79.5
-offset_top = -87.0
-offset_right = 79.5
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("4_nj0ts")
+
+[node name="DialogBox" type="Panel" parent="DialogLayer/Control" unique_id=1653802408]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 440.0
+offset_bottom = 640.0
 grow_horizontal = 2
 grow_vertical = 0
 script = ExtResource("4_ov154")
 
-[node name="MarginContainer" type="MarginContainer" parent="CanvasLayer/Panel" unique_id=493516604]
-layout_mode = 0
-offset_right = 40.0
-offset_bottom = 40.0
+[node name="RichTextLabel" type="RichTextLabel" parent="DialogLayer/Control/DialogBox" unique_id=1817394001]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 
-[node name="RichTextLabel" type="RichTextLabel" parent="CanvasLayer/Panel/MarginContainer" unique_id=2144945699]
-layout_mode = 2
-
-[node name="NextText" type="Label" parent="CanvasLayer/Panel/MarginContainer" unique_id=1346333575]
-layout_mode = 2
+[node name="NextArrow" type="Label" parent="DialogLayer/Control/DialogBox" unique_id=725174032]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -270.0
+offset_top = -130.0
+offset_right = -210.0
+offset_bottom = -107.0
+grow_horizontal = 0
+grow_vertical = 0
+text = "Press ▶"
