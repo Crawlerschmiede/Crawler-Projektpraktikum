@@ -798,14 +798,6 @@ func _clear_world() -> void:
 	dungeon_floor = null
 	dungeon_top = null
 
-	# Reset entity spawn reservations so next world can reuse positions
-	if EntityAutoload != null and EntityAutoload.has_method("reset"):
-		EntityAutoload.reset()
-
-	# Reset global RNG to base seed so new-world generation is deterministic
-	if typeof(GlobalRNG) != TYPE_NIL and GlobalRNG != null and GlobalRNG.has_method("reset"):
-		GlobalRNG.reset()
-
 
 func _on_player_exit_reached() -> void:
 	if switching_world:
@@ -1802,6 +1794,14 @@ func _on_battle_player_victory(enemy) -> void:
 func game_over():
 	_set_tree_paused(false)
 	var scene_tree = get_tree()
+
+	# Ensure runtime state resets (inventory, etc.) when player dies
+	if (
+		typeof(PlayerInventory) != TYPE_NIL
+		and PlayerInventory != null
+		and PlayerInventory.has_method("reset")
+	):
+		PlayerInventory.reset()
 	if scene_tree != null:
 		# Switch to preloaded death scene if available
 		if typeof(DEATH_SCENE_PACKED) != TYPE_NIL:
@@ -1810,6 +1810,18 @@ func game_over():
 			scene_tree.change_scene_to_file(DEATH_SCENE)
 	else:
 		push_error("game_over: SceneTree is null; cannot change scene")
+
+		# Reset entity spawn reservations so next world can reuse positions
+	if EntityAutoload != null and EntityAutoload.has_method("reset"):
+		EntityAutoload.reset()
+
+	# Reset player inventory and runtime player-related singletons so new game starts clean
+	if (
+		typeof(PlayerInventory) != TYPE_NIL
+		and PlayerInventory != null
+		and PlayerInventory.has_method("reset")
+	):
+		PlayerInventory.reset()
 
 
 # -----------------------------------------------------
