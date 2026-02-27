@@ -1,10 +1,10 @@
 [gd_scene format=3 uid="uid://dovabclc62im5"]
 
-[ext_resource type="Script" uid="uid://dsjkoasx5gew7" path="res://scenes/cutscenes/bossroom_entry.gd" id="1_80xuo"]
+[ext_resource type="Script" path="res://scripts/cutscenes/bossroom_entry.gd" id="1_nj0ts"]
 [ext_resource type="PackedScene" uid="uid://baj7jh2io882q" path="res://scenes/sprite_scenes/player_sprite_scene.tscn" id="1_tjrmh"]
 [ext_resource type="Texture2D" uid="uid://c7mtoit5h8nbo" path="res://assets/cutscenes/bossroom_entrance.png" id="2_80xuo"]
-[ext_resource type="Script" uid="uid://es58xubthk8t" path="res://scenes/cutscenes/control.gd" id="4_nj0ts"]
-[ext_resource type="Script" uid="uid://pa0hg48an04e" path="res://scenes/cutscenes/DialogBox.gd" id="4_ov154"]
+[ext_resource type="Script" path="res://scripts/cutscenes/control.gd" id="4_nj0ts"]
+[ext_resource type="Script" path="res://scripts/cutscenes/DialogBox.gd" id="5_lx5xm"]
 
 [sub_resource type="Curve2D" id="Curve2D_wwy48"]
 bake_interval = 0.01
@@ -14,7 +14,7 @@ _data = {
 point_count = 2
 
 [node name="BossroomEntry" type="Node2D" unique_id=751097517]
-script = ExtResource("1_80xuo")
+script = ExtResource("1_nj0ts")
 
 [node name="TextureRect" type="TextureRect" parent="." unique_id=1835426209]
 offset_left = -48.0
@@ -41,7 +41,7 @@ rotation = -0.009101001
 scale = Vector2(3.5499997, 3.6874979)
 animation = &"walk_right"
 autoplay = "walk_right"
-frame_progress = 0.71350706
+frame_progress = 0.7358629
 
 [node name="DialogLayer" type="CanvasLayer" parent="." unique_id=1297459684]
 layer = 4
@@ -65,7 +65,7 @@ offset_top = 440.0
 offset_bottom = 640.0
 grow_horizontal = 2
 grow_vertical = 0
-script = ExtResource("4_ov154")
+script = ExtResource("5_lx5xm")
 
 [node name="RichTextLabel" type="RichTextLabel" parent="DialogLayer/Control/DialogBox" unique_id=1817394001]
 layout_mode = 1
