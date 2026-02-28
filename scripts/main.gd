@@ -21,18 +21,6 @@ const WIN_SCENE_PACKED := preload("res://scenes/UI/won-screen.tscn")
 const SEWER_TILESET := "res://scenes/rooms/Rooms/roomtiles_2world.tres"
 const TUTORIAL_ROOM := "res://scenes/rooms/Tutorial Rooms/tutorial_room.tscn"
 const UI_MODAL_CONTROLLER := preload("res://scripts/UI/ui_modal_controller.gd")
-const FLOOR_MUSIC_BY_WORLD: Array[AudioStream] = [
-	preload("res://assets/sfx/(floor-1)Ossuary 6 - Air cut version.mp3"),
-	preload("res://assets/sfx/(floor-2)Night of Chaos.mp3"),
-	preload("res://assets/sfx/(floor-3)Road to Hell.mp3"),
-]
-const GENERIC_FIGHT_MUSIC: Array[AudioStream] = [
-	preload("res://assets/sfx/(normal-fight)Evil March.mp3"),
-	preload("res://assets/sfx/(normal-fight)Exotic Battle.mp3"),
-	preload("res://assets/sfx/(normal-fight)Nightmare Machine.mp3"),
-	preload("res://assets/sfx/(normal-fight)Unholy Knight.mp3"),
-	preload("res://assets/sfx/(normal-fight)Voltaic.mp3"),
-]
 @export var menu_scene := preload("res://scenes/UI/popup-menu.tscn")
 @export var fog_tile_id: int = 0  # set this in the inspector to the fog-tile id in your tileset
 @export var fog_dynamic: bool = true  # if true, areas that are no longer visible get fogged again
@@ -54,11 +42,9 @@ var battle: CanvasLayer = null
 var loading_screen: CanvasLayer = null
 
 var switching_world = false
-var active_battle_uses_generic_music: bool = false
 
 var boss_win: bool = false
 
-@onready var music_player: AudioStreamPlayer = get_node_or_null("MusicPlayer") as AudioStreamPlayer
 @onready var backgroundtile = $TileMapLayer
 
 @onready var minimap: TileMapLayer
@@ -98,6 +84,7 @@ func _set_load_from_save(value: bool) -> void:
 func _ready() -> void:
 	UI_MODAL_CONTROLLER.set_debug_enabled(OS.is_debug_build())
 	generators = [generator1, generator2, generator3]
+	AudioManager.configure_world_music(world_music)
 
 	# If user requested loading from save, try to pre-load save data
 	# BEFORE showing skill selection so previously selected skills are restored
@@ -361,74 +348,8 @@ func _load_tutorial_world() -> void:
 	_set_tree_paused(false)
 
 
-func _resolve_world_music(idx: int) -> AudioStream:
-	if idx >= 0 and idx < world_music.size() and world_music[idx] != null:
-		return world_music[idx]
-	if idx >= 0 and idx < FLOOR_MUSIC_BY_WORLD.size():
-		return FLOOR_MUSIC_BY_WORLD[idx]
-	return null
-
-
-func _ensure_music_player() -> AudioStreamPlayer:
-	if music_player != null and is_instance_valid(music_player):
-		music_player.process_mode = Node.PROCESS_MODE_ALWAYS
-		return music_player
-
-	music_player = AudioStreamPlayer.new()
-	music_player.name = "MusicPlayer"
-	music_player.bus = "Master"
-	music_player.process_mode = Node.PROCESS_MODE_ALWAYS
-	add_child(music_player)
-	return music_player
-
-
-func _play_music_stream(stream: AudioStream) -> void:
-	if stream == null:
-		return
-
-	if stream is AudioStreamMP3:
-		(stream as AudioStreamMP3).loop = true
-
-	var player := _ensure_music_player()
-	if player.stream == stream and player.playing:
-		return
-
-	player.stream = stream
-	player.play()
-
-
-func _play_music_for_world(idx: int) -> void:
-	var selected_track := _resolve_world_music(idx)
-	if selected_track == null:
-		push_warning("No floor music assigned for world index: %d" % idx)
-		return
-	_play_music_stream(selected_track)
-
-
-func _play_generic_fight_music() -> void:
-	if GENERIC_FIGHT_MUSIC.is_empty():
-		push_warning("No generic fight music assigned")
-		return
-
-	var rng := GlobalRNG.get_rng()
-	var selected_track: AudioStream = GENERIC_FIGHT_MUSIC[rng.randi_range(
-		0, GENERIC_FIGHT_MUSIC.size() - 1
-	)]
-	_play_music_stream(selected_track)
-
-
-func _restore_non_battle_music() -> void:
-	if world_index >= 0:
-		_play_music_for_world(world_index)
-		return
-
-	var player := _ensure_music_player()
-	if player.playing:
-		player.stop()
-
-
 func _load_world(idx: int) -> void:
-	_play_music_for_world(idx)
+	AudioManager.play_world_music(idx)
 	_set_tree_paused(true)
 	await _show_loading()
 
@@ -1781,11 +1702,7 @@ func instantiate_battle(player_node: Node, enemy: Node):
 		battle = BATTLE_SCENE.instantiate()
 		battle.player = player_node
 		battle.enemy = enemy
-		active_battle_uses_generic_music = (
-			enemy != null and is_instance_valid(enemy) and not bool(enemy.boss)
-		)
-		if active_battle_uses_generic_music:
-			_play_generic_fight_music()
+		AudioManager.enter_battle(enemy)
 
 		battle.process_mode = Node.PROCESS_MODE_WHEN_PAUSED
 		add_child(battle)
@@ -1859,9 +1776,7 @@ func enemy_defeated(enemy):
 		battle.call_deferred("queue_free")
 		battle = null
 
-	if active_battle_uses_generic_music:
-		_restore_non_battle_music()
-		active_battle_uses_generic_music = false
+	AudioManager.exit_battle()
 
 	# If the defeated enemy was a boss, record victory so level-gating can proceed
 	if enemy != null and is_instance_valid(enemy) and bool(enemy.boss):
@@ -1895,7 +1810,7 @@ func _on_battle_player_victory(enemy) -> void:
 
 
 func game_over():
-	active_battle_uses_generic_music = false
+	AudioManager.clear_battle_state()
 	_set_tree_paused(false)
 	var scene_tree = get_tree()
 	if scene_tree != null:

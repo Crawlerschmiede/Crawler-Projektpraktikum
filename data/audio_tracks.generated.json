@@ -1,0 +1,14 @@
+{
+	"floor_music_paths": [
+		"res://assets/sfx/(floor-1)Ossuary 6 - Air cut version.mp3",
+		"res://assets/sfx/(floor-2)Night of Chaos.mp3",
+		"res://assets/sfx/(floor-3)Road to Hell.mp3"
+	],
+	"generic_fight_music_paths": [
+		"res://assets/sfx/(normal-fight)Evil March.mp3",
+		"res://assets/sfx/(normal-fight)Exotic Battle.mp3",
+		"res://assets/sfx/(normal-fight)Nightmare Machine.mp3",
+		"res://assets/sfx/(normal-fight)Unholy Knight.mp3",
+		"res://assets/sfx/(normal-fight)Voltaic.mp3"
+	]
+}

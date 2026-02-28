@@ -1,7 +1,7 @@
 @tool
 extends EditorPlugin
 
-const Exporter = preload("res://addons/room_manifest_generator/room_manifest_export.gd")
+const Exporter = preload("res://addons/build_manifest_generator/build_manifest_export.gd")
 
 var _export_plugin: EditorExportPlugin
 
