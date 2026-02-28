@@ -60,6 +60,8 @@ func play_sfx_event(domain: String, event_key: String) -> bool:
 	if tracks.is_empty():
 		return false
 
+	# TODO: Preprocess SFX in Audacity/DAW (split variants + loudness normalize);
+	# keep final in-game balancing on Godot audio buses.
 	var selected_track := _pick_random_track(tracks)
 	if selected_track == null:
 		return false
