@@ -42,15 +42,39 @@ func _ready():
 func _wire_buttons() -> void:
 	if has_node("BoxContainer/VBoxContainer2/Settings"):
 		$BoxContainer/VBoxContainer2/Settings.pressed.connect(_open_settings)
+		$BoxContainer/VBoxContainer2/Settings.mouse_entered.connect(_on_settings_hovered)
 
 	if has_node("BoxContainer/VBoxContainer2/Start New"):
 		$"BoxContainer/VBoxContainer2/Start New".pressed.connect(_on_start_pressed)
+		$"BoxContainer/VBoxContainer2/Start New".mouse_entered.connect(_on_start_new_hovered)
 
 	if has_node("BoxContainer/VBoxContainer2/Continue"):
 		$BoxContainer/VBoxContainer2/Continue.pressed.connect(_on_continue_pressed)
 
 	if has_node("BoxContainer/VBoxContainer2/Exit"):
 		$BoxContainer/VBoxContainer2/Exit.pressed.connect(get_tree().quit)
+		$BoxContainer/VBoxContainer2/Exit.mouse_entered.connect(_on_exit_hovered)
+
+
+func _on_settings_hovered() -> void:
+	_play_menu_hover("hover_settings")
+
+
+func _on_start_new_hovered() -> void:
+	_play_menu_hover("hover_start_new")
+
+
+func _on_exit_hovered() -> void:
+	_play_menu_hover("hover_exit")
+
+
+func _play_menu_hover(event_key: String) -> void:
+	if (
+		typeof(AudioManager) != TYPE_NIL
+		and AudioManager != null
+		and AudioManager.has_method("play_sfx_event")
+	):
+		AudioManager.play_sfx_event("menu", event_key)
 
 
 # ==========================
@@ -72,7 +96,14 @@ func _on_start_pressed() -> void:
 
 func _on_continue_pressed() -> void:
 	# Set autoload flag so Map_Generator / main can load from save
-	SaveState.load_from_save = true
+	if typeof(SaveState) != TYPE_NIL and SaveState != null:
+		SaveState.load_from_save = true
+	else:
+		var save_state = get_tree().root.get_node_or_null("SaveState")
+		if save_state != null:
+			save_state.set("load_from_save", true)
+		else:
+			push_warning("SaveState autoload is missing; continue will start a new run")
 	# Then perform the same scene change as starting a new game
 	var scene_tree = get_tree()
 	if scene_tree != null:
