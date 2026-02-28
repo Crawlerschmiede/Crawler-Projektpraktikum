@@ -6,6 +6,10 @@ signal player_spawned
 
 const ENEMY_SCENE := preload("res://scenes/entity/enemy.tscn")
 const BATTLE_SCENE := preload("res://scenes/UI/battle.tscn")
+const BATTLE_FLOW := preload("res://scripts/flow/battle_flow.gd")
+const WORLD_FLOW := preload("res://scripts/flow/world_flow.gd")
+const SAVE_FLOW := preload("res://scripts/flow/save_flow.gd")
+const ManifestCore := preload("res://tools/manifest_generation_core.gd")
 const PLAYER_SCENE := preload("res://scenes/entity/player-character-scene.tscn")
 const LOOTBOX := preload("res://scenes/Interactables/Lootbox.tscn")
 const TRAP := preload("res://scenes/Interactables/Trap.tscn")
@@ -37,11 +41,12 @@ var saved_maps: Dictionary = {}
 
 var player: PlayerCharacter = null
 var menu_instance: CanvasLayer = null
-var battle: CanvasLayer = null
+var battle_flow: RefCounted = null
 
 var loading_screen: CanvasLayer = null
 
-var switching_world = false
+var world_flow: RefCounted = null
+var save_flow: RefCounted = null
 
 var boss_win: bool = false
 
@@ -81,10 +86,99 @@ func _set_load_from_save(value: bool) -> void:
 	save_state.set("load_from_save", value)
 
 
+func _emit_world_loaded(idx: int) -> void:
+	if (
+		typeof(GameEvents) != TYPE_NIL
+		and GameEvents != null
+		and GameEvents.has_method("emit_world_loaded")
+	):
+		GameEvents.emit_world_loaded(idx)
+		return
+
+	if typeof(AudioManager) != TYPE_NIL and AudioManager != null:
+		AudioManager.play_world_music(idx)
+
+
+func _emit_battle_started(enemy: Node) -> void:
+	var is_boss_enemy := false
+	if (
+		typeof(AudioManager) != TYPE_NIL
+		and AudioManager != null
+		and AudioManager.has_method("is_boss_enemy")
+	):
+		is_boss_enemy = bool(AudioManager.is_boss_enemy(enemy))
+
+	if (
+		typeof(GameEvents) != TYPE_NIL
+		and GameEvents != null
+		and GameEvents.has_method("emit_battle_started")
+	):
+		GameEvents.emit_battle_started(enemy, is_boss_enemy)
+		return
+
+	if typeof(AudioManager) != TYPE_NIL and AudioManager != null:
+		AudioManager.enter_battle(enemy)
+
+
+func _emit_battle_ended(victory: bool, enemy: Node) -> void:
+	var is_boss_enemy := false
+	if (
+		typeof(AudioManager) != TYPE_NIL
+		and AudioManager != null
+		and AudioManager.has_method("is_boss_enemy")
+	):
+		is_boss_enemy = bool(AudioManager.is_boss_enemy(enemy))
+
+	if (
+		typeof(GameEvents) != TYPE_NIL
+		and GameEvents != null
+		and GameEvents.has_method("emit_battle_ended")
+	):
+		GameEvents.emit_battle_ended(victory, enemy, is_boss_enemy)
+		return
+
+	if typeof(AudioManager) != TYPE_NIL and AudioManager != null:
+		AudioManager.exit_battle()
+
+
+func _emit_game_over() -> void:
+	if (
+		typeof(GameEvents) != TYPE_NIL
+		and GameEvents != null
+		and GameEvents.has_method("emit_game_over")
+	):
+		GameEvents.emit_game_over()
+		return
+
+	if typeof(AudioManager) != TYPE_NIL and AudioManager != null:
+		AudioManager.clear_battle_state()
+
+
+func _refresh_manifests_if_running_in_editor() -> void:
+	if not OS.has_feature("editor"):
+		return
+
+	if not ManifestCore.write_all_manifests_to_disk():
+		push_warning("main: failed to refresh manifests on editor run")
+
+
 func _ready() -> void:
+	_refresh_manifests_if_running_in_editor()
 	UI_MODAL_CONTROLLER.set_debug_enabled(OS.is_debug_build())
 	generators = [generator1, generator2, generator3]
 	AudioManager.configure_world_music(world_music)
+	battle_flow = BATTLE_FLOW.new()
+	battle_flow.configure(self, BATTLE_SCENE)
+	world_flow = WORLD_FLOW.new()
+	save_flow = SAVE_FLOW.new()
+
+	var battle_victory_handler := Callable(self, "_on_battle_player_victory")
+	if not battle_flow.player_victory.is_connected(battle_victory_handler):
+		battle_flow.player_victory.connect(battle_victory_handler)
+
+	var battle_loss_handler := Callable(self, "_on_battle_player_loss")
+	if not battle_flow.player_loss.is_connected(battle_loss_handler):
+		battle_flow.player_loss.connect(battle_loss_handler)
 
 	# If user requested loading from save, try to pre-load save data
 	# BEFORE showing skill selection so previously selected skills are restored
@@ -92,9 +186,12 @@ func _ready() -> void:
 		var early_loaded = load_world_from_file(0)
 		if typeof(early_loaded) == TYPE_DICTIONARY and not early_loaded.is_empty():
 			# restore selected skills into SkillState autoload if available
-			SkillState.selected_skills.clear()
-			for skill in early_loaded["selected_skills"]:
-				SkillState.selected_skills.append(skill)
+			if typeof(SkillState) != TYPE_NIL and SkillState != null:
+				SkillState.selected_skills.clear()
+				var selected_skills_raw: Variant = early_loaded.get("selected_skills", [])
+				if typeof(selected_skills_raw) == TYPE_ARRAY:
+					for skill in selected_skills_raw:
+						SkillState.selected_skills.append(skill)
 			# keep the loaded maps for later use in _load_world
 			saved_maps = early_loaded
 			world_index = int(early_loaded.get("world_index", 0))
@@ -349,7 +446,7 @@ func _load_tutorial_world() -> void:
 
 
 func _load_world(idx: int) -> void:
-	AudioManager.play_world_music(idx)
+	_emit_world_loaded(idx)
 	_set_tree_paused(true)
 	await _show_loading()
 
@@ -596,6 +693,8 @@ func _on_start_new_pressed() -> void:
 		start_node.call_deferred("queue_free")
 
 	# Reset to first world and load
+	if world_flow != null and world_flow.has_method("reset_transition_state"):
+		world_flow.reset_transition_state()
 	world_index = 0
 	await _load_world(world_index)
 
@@ -777,9 +876,8 @@ func init_fog_layer() -> void:
 
 func _clear_world() -> void:
 	# battle weg
-	if battle != null and is_instance_valid(battle):
-		battle.queue_free()
-		battle = null
+	if battle_flow != null and battle_flow.has_method("clear_battle"):
+		battle_flow.clear_battle()
 
 	# menu weg (optional)
 	if menu_instance != null and is_instance_valid(menu_instance):
@@ -814,28 +912,13 @@ func _clear_world() -> void:
 
 
 func _on_player_exit_reached() -> void:
-	if switching_world:
+	if world_flow == null:
+		push_warning("_on_player_exit_reached: world_flow is null")
 		return
 
-	# Prevent progressing if a boss is still alive in the world
-	for e in get_tree().get_nodes_in_group("enemy"):
-		if e != null and is_instance_valid(e):
-			# enemies spawned by spawn_enemy have a `boss` property
-			if bool(e.boss) and e.hp > 0:
-				push_warning("You must defeat the boss before advancing!")
-				return
-
-	switching_world = true
-
-	# Prüfen: Sind wir im Tutorial? (Tutorial hat keine Minimap)
-	if world_index == -1:
-		_set_tutorial_completed()
-
-	# Normale Welten
-	world_index += 1
-	await _load_world(world_index)
-
-	switching_world = false
+	world_index = await world_flow.try_advance_world(
+		world_index, Callable(self, "_load_world"), Callable(self, "_set_tutorial_completed")
+	)
 
 
 # ---------------------------------------
@@ -1279,37 +1362,35 @@ func _obj_has_property(obj: Object, prop: String) -> bool:
 
 func save_current_world() -> void:
 	# Serialize dungeon floor and top tilemaps to user:// JSON so they can be restored later
-	var payload: Dictionary = {}
-	payload["world_index"] = world_index
-	payload["floor"] = _serialize_tilemap(dungeon_floor)
-	payload["top"] = _serialize_tilemap(dungeon_top)
-
-	# entities
-	if world_root != null and is_instance_valid(world_root):
-		payload["entities"] = _serialize_entities()
-	else:
-		payload["entities"] = []
-
-	# minimap
-	if minimap != null:
-		payload["minimap"] = _serialize_minimap(minimap)
-	else:
-		payload["minimap"] = {}
-
-	# selected skills (persist player's chosen skills)
-	if typeof(SkillState) != TYPE_NIL:
-		payload["selected_skills"] = SkillState.selected_skills
-	else:
-		payload["selected_skills"] = []
-
-	var path = "user://world_tilemap_save.json"
-	var f = FileAccess.open(path, FileAccess.WRITE)
-	if f == null:
-		push_error("save_current_world: failed to open " + path)
+	if save_flow == null:
+		push_error("save_current_world: save_flow is null")
 		return
-	f.store_string(JSON.stringify(payload, "  ", false))
-	f.close()
-	print("Saved world tilemaps + entities to: ", path)
+
+	var entities_payload: Array = []
+	if world_root != null and is_instance_valid(world_root):
+		entities_payload = _serialize_entities()
+
+	var minimap_payload: Dictionary = {}
+	if minimap != null:
+		minimap_payload = _serialize_minimap(minimap)
+
+	var selected_skills_payload: Array = []
+	if typeof(SkillState) != TYPE_NIL:
+		selected_skills_payload = SkillState.selected_skills
+
+	var payload: Dictionary = save_flow.build_save_payload(
+		world_index,
+		_serialize_tilemap(dungeon_floor),
+		_serialize_tilemap(dungeon_top),
+		entities_payload,
+		minimap_payload,
+		selected_skills_payload
+	)
+
+	if not save_flow.write_payload(payload):
+		return
+
+	print("Saved world tilemaps + entities to: ", save_flow.SAVE_PATH)
 
 
 func spawn_enemies(do_boss: bool) -> void:
@@ -1359,6 +1440,13 @@ func spawn_enemies(do_boss: bool) -> void:
 
 		d["_id"] = str(k)
 		defs.append(d)
+
+	if defs.is_empty():
+		if do_boss:
+			push_warning("spawn_enemies: no boss definitions available for world %d" % world_index)
+		else:
+			push_warning("spawn_enemies: no enemy definitions available for world %d" % world_index)
+		return
 
 	# --- Wahrscheinlichkeiten ---
 	var weights: Array[float] = []
@@ -1618,51 +1706,17 @@ func _on_player_moved() -> void:
 
 func load_world_from_file(idx: int) -> Dictionary:
 	# Load saved world JSON from user:// and return instantiated TileMapLayer nodes
-	var path = "user://world_tilemap_save.json"
-	if not FileAccess.file_exists(path):
-		push_error("load_world_from_file: save file not found: " + path)
+	if save_flow == null:
+		push_error("load_world_from_file: save_flow is null")
 		return {}
 
-	var f = FileAccess.open(path, FileAccess.READ)
-	if f == null:
-		push_error("load_world_from_file: failed to open " + path)
+	var payload: Dictionary = save_flow.read_payload()
+	if payload.is_empty():
 		return {}
 
-	var text = f.get_as_text()
-	f.close()
-
-	var parsed = JSON.parse_string(text)
-	var payload: Dictionary = {}
-	if typeof(parsed) == TYPE_DICTIONARY:
-		payload = parsed
-	else:
-		push_error("load_world_from_file: failed to parse save JSON")
-		return {}
-
-	var result: Dictionary = {}
-	result["world_index"] = int(payload.get("world_index", idx))
-
-	var floor_data = payload.get("floor", {})
-	var top_data = payload.get("top", {})
-	var entities_data = payload.get("entities", [])
-
-	var floor_tm = _deserialize_tilemap(floor_data)
-	var top_tm = _deserialize_tilemap(top_data)
-
-	var minimap_node = null
-	var minimap_data = payload.get("minimap", {})
-	if typeof(minimap_data) == TYPE_DICTIONARY and not minimap_data.is_empty():
-		minimap_node = _deserialize_minimap(minimap_data)
-
-	result["floor"] = floor_tm
-	result["top"] = top_tm
-	result["entities"] = entities_data
-	result["minimap"] = minimap_node
-
-	# restore selected skills into the returned result so caller can apply them early
-	result["selected_skills"] = payload.get("selected_skills", [])
-
-	return result
+	return save_flow.build_loaded_world_result(
+		payload, idx, Callable(self, "_deserialize_tilemap"), Callable(self, "_deserialize_minimap")
+	)
 
 
 func reveal_room_layer(room_layer: TileMapLayer) -> void:
@@ -1697,43 +1751,21 @@ func reveal_room_layer(room_layer: TileMapLayer) -> void:
 # BATTLE
 # ---------------------------------------
 func instantiate_battle(player_node: Node, enemy: Node):
-	if battle == null:
-		print("instantiate_battle: creating battle instance")
-		battle = BATTLE_SCENE.instantiate()
-		battle.player = player_node
-		battle.enemy = enemy
-		AudioManager.enter_battle(enemy)
+	if battle_flow == null:
+		push_warning("instantiate_battle: battle_flow is null")
+		return
+	if battle_flow.has_active_battle():
+		return
 
-		battle.process_mode = Node.PROCESS_MODE_WHEN_PAUSED
-		add_child(battle)
+	print("instantiate_battle: creating battle instance")
+	battle_flow.start_battle(player_node, enemy)
+	if not battle_flow.has_active_battle():
+		push_warning("instantiate_battle: failed to create battle instance")
+		return
 
-		# Connect signals and log results for debugging
-		if battle.has_signal("player_victory"):
-			# Connect to a wrapper that logs and then calls enemy_defeated
-			var victory_callable_base = Callable(self, "_on_battle_player_victory")
-			var victory_callable = victory_callable_base.bind(enemy)
-			if not battle.is_connected("player_victory", victory_callable):
-				# connect using Callable (already bound to enemy)
-				battle.connect("player_victory", victory_callable)
-				print("instantiate_battle: connected player_victory -> _on_battle_player_victory")
-			else:
-				print("instantiate_battle: player_victory already connected")
-		else:
-			print("instantiate_battle: battle has no signal player_victory")
-
-		if battle.has_signal("player_loss"):
-			# Connect to a wrapper that logs and then calls game_over
-			var loss_callable = Callable(self, "_on_battle_player_loss")
-			if not battle.is_connected("player_loss", loss_callable):
-				battle.connect("player_loss", loss_callable)
-				print("instantiate_battle: connected player_loss -> _on_battle_player_loss")
-			else:
-				print("instantiate_battle: player_loss already connected")
-		else:
-			print("instantiate_battle: battle has no signal player_loss")
-
-		print("instantiate_battle: pausing tree to run battle")
-		_set_tree_paused(true)
+	_emit_battle_started(enemy)
+	print("instantiate_battle: pausing tree to run battle")
+	_set_tree_paused(true)
 
 
 func find_merchants() -> Array[Vector2]:
@@ -1771,15 +1803,14 @@ func enemy_defeated(enemy):
 		print("enemy_defeated: unpausing tree")
 		_set_tree_paused(false)
 
-	if battle != null and is_instance_valid(battle):
+	if battle_flow != null and battle_flow.has_active_battle():
 		print("enemy_defeated: freeing battle UI")
-		battle.call_deferred("queue_free")
-		battle = null
+		battle_flow.clear_battle()
 
-	AudioManager.exit_battle()
+	_emit_battle_ended(true, enemy)
 
 	# If the defeated enemy was a boss, record victory so level-gating can proceed
-	if enemy != null and is_instance_valid(enemy) and bool(enemy.boss):
+	if enemy != null and is_instance_valid(enemy) and AudioManager.is_boss_enemy(enemy):
 		boss_win = true
 		print("enemy_defeated: boss defeated -> boss_win set to true")
 
@@ -1810,7 +1841,9 @@ func _on_battle_player_victory(enemy) -> void:
 
 
 func game_over():
-	AudioManager.clear_battle_state()
+	_emit_game_over()
+	if battle_flow != null and battle_flow.has_active_battle():
+		battle_flow.clear_battle()
 	_set_tree_paused(false)
 	var scene_tree = get_tree()
 	if scene_tree != null:

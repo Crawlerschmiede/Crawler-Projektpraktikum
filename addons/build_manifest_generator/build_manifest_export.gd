@@ -1,9 +1,7 @@
 @tool
 extends EditorExportPlugin
 
-const ManifestUtils = preload("res://scripts/Mapgenerator/helpers/room_manifest_utils.gd")
-const AUDIO_MANIFEST_PATH := "res://data/audio_tracks.generated.json"
-const SFX_DIR := "res://assets/sfx"
+const ManifestCore = preload("res://tools/manifest_generation_core.gd")
 
 var _manifest_bytes: PackedByteArray = PackedByteArray()
 var _audio_manifest_bytes: PackedByteArray = PackedByteArray()
@@ -28,85 +26,30 @@ func _get_name() -> String:
 
 
 func _generate_manifests() -> void:
-	var manifest := ManifestUtils.build_manifest()
-	var json_text := JSON.stringify(manifest, "\t")
-	_manifest_bytes = json_text.to_utf8_buffer()
-	add_file(ManifestUtils.ROOM_MANIFEST_PATH, _manifest_bytes, false)
-	print("Manifest added to export: ", ManifestUtils.ROOM_MANIFEST_PATH)
+	var room_manifest: Dictionary = ManifestCore.build_room_manifest()
+	_manifest_bytes = ManifestCore.manifest_bytes(room_manifest)
+	add_file(ManifestCore.ROOM_MANIFEST_PATH, _manifest_bytes, false)
+	print("Manifest added to export: ", ManifestCore.ROOM_MANIFEST_PATH)
 
-	_generate_audio_manifest()
+	var audio_manifest: Dictionary = ManifestCore.build_audio_manifest()
+	_audio_manifest_bytes = ManifestCore.manifest_bytes(audio_manifest)
+	add_file(ManifestCore.AUDIO_MANIFEST_PATH, _audio_manifest_bytes, false)
+	print("Audio manifest added to export: ", ManifestCore.AUDIO_MANIFEST_PATH)
 
-	var f := FileAccess.open(ManifestUtils.ROOM_MANIFEST_PATH, FileAccess.WRITE)
-	if f == null:
-		var err := FileAccess.get_open_error()
+	if not ManifestCore.write_manifest_to_disk(ManifestCore.ROOM_MANIFEST_PATH, room_manifest):
+		var room_err := FileAccess.get_open_error()
 		push_warning(
-			"Manifest write skipped (export already has embedded manifest): %s" % error_string(err)
+			(
+				"Manifest write skipped (export already has embedded manifest): %s"
+				% error_string(room_err)
+			)
 		)
-		return
-	f.store_string(json_text)
-	f.close()
 
-
-func _generate_audio_manifest() -> void:
-	var audio_manifest := _build_audio_manifest()
-	var json_text := JSON.stringify(audio_manifest, "\t")
-	_audio_manifest_bytes = json_text.to_utf8_buffer()
-	add_file(AUDIO_MANIFEST_PATH, _audio_manifest_bytes, false)
-	print("Audio manifest added to export: ", AUDIO_MANIFEST_PATH)
-
-	var f := FileAccess.open(AUDIO_MANIFEST_PATH, FileAccess.WRITE)
-	if f == null:
-		var err := FileAccess.get_open_error()
+	if not ManifestCore.write_manifest_to_disk(ManifestCore.AUDIO_MANIFEST_PATH, audio_manifest):
+		var audio_err := FileAccess.get_open_error()
 		push_warning(
 			(
 				"Audio manifest write skipped (export already has embedded manifest): %s"
-				% error_string(err)
+				% error_string(audio_err)
 			)
 		)
-		return
-	f.store_string(json_text)
-	f.close()
-
-
-func _build_audio_manifest() -> Dictionary:
-	var floor_paths: Array[String] = []
-	var generic_paths: Array[String] = []
-
-	var dir := DirAccess.open(SFX_DIR)
-	if dir == null:
-		return {
-			"floor_music_paths": floor_paths,
-			"generic_fight_music_paths": generic_paths,
-		}
-
-	dir.list_dir_begin()
-	while true:
-		var name := dir.get_next()
-		if name.is_empty():
-			break
-		if dir.current_is_dir():
-			continue
-
-		var lower := name.to_lower()
-		if not (lower.ends_with(".mp3") or lower.ends_with(".ogg") or lower.ends_with(".wav")):
-			continue
-
-		if lower.begins_with("(floor-"):
-			var close_idx := lower.find(")")
-			if close_idx > 7:
-				var floor_num_str := lower.substr(7, close_idx - 7)
-				if floor_num_str.is_valid_int():
-					var floor_idx := maxi(int(floor_num_str) - 1, 0)
-					while floor_paths.size() <= floor_idx:
-						floor_paths.append("")
-					floor_paths[floor_idx] = "%s/%s" % [SFX_DIR, name]
-		elif lower.begins_with("(normal-fight)"):
-			generic_paths.append("%s/%s" % [SFX_DIR, name])
-
-	dir.list_dir_end()
-	generic_paths.sort()
-
-	return {
-		"floor_music_paths": floor_paths,
-		"generic_fight_music_paths": generic_paths,
-	}

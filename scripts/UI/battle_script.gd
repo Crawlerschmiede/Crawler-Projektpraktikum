@@ -79,7 +79,7 @@ func _ready():
 		player.full_status_heal()
 	if enemy != null and is_instance_valid(enemy):
 		enemy.full_status_heal()
-		enemy_is_boss = enemy.boss
+		enemy_is_boss = AudioManager.is_boss_enemy(enemy)
 	enemy_sprite = create_battle_sprite(enemy)
 	player_sprite = create_battle_sprite(player)
 	player_sprite.animation = "idle_up"

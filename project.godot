@@ -18,6 +18,7 @@ config/icon="res://icon.svg"
 [autoload]
 
 SettingsManager="*uid://qh1ypufg3idr"
+GameEvents="*res://scripts/Autoloadscripts/game_events.gd"
 AudioManager="*res://scripts/Autoloadscripts/audio_manager.gd"
 JsonData="*res://scripts/Autoloadscripts/JSONData.gd"
 PlayerInventory="*res://scripts/Autoloadscripts/PlayerInventory.gd"
