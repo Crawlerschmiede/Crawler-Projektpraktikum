@@ -27,11 +27,7 @@ func try_advance_world(
 		on_tutorial_exit_callable.call()
 
 	var next_world_index := current_world_index + 1
-	var load_result: Variant = await load_world_callable.call(next_world_index)
-	if load_result == null:
-		_switching_world = false
-		push_warning("WorldFlow: load_world_callable returned null")
-		return current_world_index
+	await load_world_callable.call(next_world_index)
 	_switching_world = false
 	return next_world_index
 

@@ -446,6 +446,7 @@ func _load_tutorial_world() -> void:
 
 
 func _load_world(idx: int) -> void:
+	world_index = idx
 	_emit_world_loaded(idx)
 	_set_tree_paused(true)
 	await _show_loading()
