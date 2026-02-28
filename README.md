@@ -226,10 +226,14 @@ This project uses a map generator (`scripts/Mapgenerator/map_generator_modular.g
   Use a lightweight door node; this is typically enough:
 
 ```gdscript
-extends Marker2D
+extends Node2D
 
-@export_enum("north", "south", "east", "west") var direction: String
-var used := false
+@export var direction: String = "U"
+var used: bool = false
+
+func _ready():
+  # optional: Darstellung/Collision oder Area2D als Kind
+  pass
 ```
 
 - **Room template (example)**
