@@ -4,9 +4,9 @@ signal closed
 
 var already_leveled: bool = false
 var allowed_levels: int = 1
+var skill_scenes = []
 
 @onready var container = $SkillContainer
-var skill_scenes = []
 
 
 func _ready():

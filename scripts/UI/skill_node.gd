@@ -3,6 +3,13 @@ extends TextureButton
 
 signal tree_leveled(tree_name)
 
+const TREE_ALIASING = {
+	"LongRangedWeaponry": "Long-Ranged-Weaponry",
+	"UnarmedCombat": "Unarmed-Combat",
+	"ShortRangedWeaponry": "Short-Ranged-Weaponry",
+	"MediumRangedWeaponry": "Medium-Ranged-Weaponry"
+}
+
 var requirements: Array[SkillNode] = []
 var skilltrees = SkillState.skilltrees
 var is_unlocked: bool = false
@@ -12,13 +19,6 @@ var tooltip = tooltip_script.new()
 
 @onready var glow_shader = preload("res://shaders/glitterglowwithboarder.gdshader")
 @onready var upgrade_button: Button = $Unlock
-
-const tree_aliasing = {
-	"LongRangedWeaponry": "Long-Ranged-Weaponry",
-	"UnarmedCombat": "Unarmed-Combat",
-	"ShortRangedWeaponry": "Short-Ranged-Weaponry",
-	"MediumRangedWeaponry": "Medium-Ranged-Weaponry"
-}
 
 
 func _ready():
@@ -30,7 +30,7 @@ func _ready():
 
 
 func already_unlocked():
-	var own_tree = tree_aliasing[get_parent().get_parent().name]
+	var own_tree = TREE_ALIASING[get_parent().get_parent().name]
 	var own_required_tier = int(str(name)[-1])
 	if skilltrees.skilltrees[own_tree] >= own_required_tier:
 		return true
@@ -57,7 +57,7 @@ func _on_upgrade_button_pressed():
 	for skill in all_skills:
 		if skill is SkillNode:
 			skill.check_unlockability()
-	tree_leveled.emit(tree_aliasing[get_parent().get_parent().name])
+	tree_leveled.emit(TREE_ALIASING[get_parent().get_parent().name])
 
 
 func can_be_unlocked() -> bool:

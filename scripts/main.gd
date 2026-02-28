@@ -21,11 +21,15 @@ const WIN_SCENE_PACKED := preload("res://scenes/UI/won-screen.tscn")
 const SEWER_TILESET := "res://scenes/rooms/Rooms/roomtiles_2world.tres"
 const TUTORIAL_ROOM := "res://scenes/rooms/Tutorial Rooms/tutorial_room.tscn"
 const UI_MODAL_CONTROLLER := preload("res://scripts/UI/ui_modal_controller.gd")
+const FLOOR_MUSIC_BY_WORLD: Array[AudioStream] = [
+	preload("res://assets/sfx/(floor-1)Ossuary 6 - Air cut version.mp3"),
+	preload("res://assets/sfx/(floor-2)Night of Chaos.mp3"),
+	preload("res://assets/sfx/(floor-3)Road to Hell.mp3"),
+]
 @export var menu_scene := preload("res://scenes/UI/popup-menu.tscn")
 @export var fog_tile_id: int = 0  # set this in the inspector to the fog-tile id in your tileset
 @export var fog_dynamic: bool = true  # if true, areas that are no longer visible get fogged again
 @export var world_music: Array[AudioStream] = []
-@onready var music_player: AudioStreamPlayer = $MusicPlayer
 # --- World state ---
 var world_index: int = -1
 var generators: Array[Node2D] = []
@@ -46,6 +50,7 @@ var switching_world = false
 
 var boss_win: bool = false
 
+@onready var music_player: AudioStreamPlayer = get_node_or_null("MusicPlayer") as AudioStreamPlayer
 @onready var backgroundtile = $TileMapLayer
 
 @onready var minimap: TileMapLayer
@@ -323,23 +328,40 @@ func _load_tutorial_world() -> void:
 	_set_tree_paused(false)
 
 
-func _play_music_for_world(idx: int):
-	print("--- MUSIC DEBUG: Function called for index: ", idx)
-# 1. Safety check: does the player exist and is the array populated?
-	if music_player == null:
-		push_error("MusicPlayer node not found!")
+func _resolve_world_music(idx: int) -> AudioStream:
+	if idx >= 0 and idx < world_music.size() and world_music[idx] != null:
+		return world_music[idx]
+	if idx >= 0 and idx < FLOOR_MUSIC_BY_WORLD.size():
+		return FLOOR_MUSIC_BY_WORLD[idx]
+	return null
+
+
+func _ensure_music_player() -> AudioStreamPlayer:
+	if music_player != null and is_instance_valid(music_player):
+		return music_player
+
+	music_player = AudioStreamPlayer.new()
+	music_player.name = "MusicPlayer"
+	music_player.bus = "Master"
+	add_child(music_player)
+	return music_player
+
+
+func _play_music_for_world(idx: int) -> void:
+	var selected_track := _resolve_world_music(idx)
+	if selected_track == null:
+		push_warning("No floor music assigned for world index: %d" % idx)
 		return
 
-	if idx < 0 or idx >= world_music.size():
-		push_warning("No music assigned for world index: %d" % idx)
+	if selected_track is AudioStreamMP3:
+		(selected_track as AudioStreamMP3).loop = true
+
+	var player := _ensure_music_player()
+	if player.stream == selected_track and player.playing:
 		return
 
-	# 2. Assign and Play
-	var selected_track = world_music[idx]
-	if selected_track != null:
-		music_player.stream = selected_track
-		music_player.play()
-		print("Now playing music for World: ", idx)
+	player.stream = selected_track
+	player.play()
 
 
 func _load_world(idx: int) -> void:
