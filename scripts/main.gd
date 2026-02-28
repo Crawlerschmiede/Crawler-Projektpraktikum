@@ -1696,12 +1696,26 @@ func _on_player_moved() -> void:
 
 		# Check ob wir wirklich auf einem Tile dieses RoomLayers stehen
 		if room_layer.get_cell_source_id(local_cell) != -1:
+			if (
+				typeof(AudioManager) != TYPE_NIL
+				and AudioManager != null
+				and AudioManager.has_method("set_in_boss_room")
+			):
+				AudioManager.set_in_boss_room(bool(room_layer.get_meta("is_boss_room", false)))
+
 			# minimap reveal (Room sichtbar schalten)
 			room_layer.visible = true
 
 			# Fog reveal nur für diesen Raum
 			reveal_room_layer(room_layer)
 			return
+
+	if (
+		typeof(AudioManager) != TYPE_NIL
+		and AudioManager != null
+		and AudioManager.has_method("set_in_boss_room")
+	):
+		AudioManager.set_in_boss_room(false)
 
 
 func load_world_from_file(idx: int) -> Dictionary:

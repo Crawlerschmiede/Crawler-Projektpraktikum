@@ -40,6 +40,26 @@
 	},
 	"schema_version": 1,
 	"sfx_events": {
-
+		"menu": {
+			"hover_exit": [
+				"res://assets/sfx/Exit.mp3"
+			],
+			"hover_settings": [
+				"res://assets/sfx/Settings.mp3"
+			],
+			"hover_start_new": [
+				"res://assets/sfx/Start New.mp3"
+			]
+		},
+		"ui": {
+			"game_over": [
+				"res://assets/sfx/game_over_fv.mp3"
+			]
+		},
+		"world": {
+			"boss_room": [
+				"res://assets/sfx/(boss-floor)SCP-x2x.mp3"
+			]
+		}
 	}
 }

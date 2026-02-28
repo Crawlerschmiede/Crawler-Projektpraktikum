@@ -12,6 +12,11 @@ static func build_audio_manifest() -> Dictionary:
 	var floor_paths: Array = []
 	var generic_paths: Array[String] = []
 	var boss_music_by_type: Dictionary = {}
+	var exit_hover_path := ""
+	var settings_hover_path := ""
+	var start_new_hover_path := ""
+	var game_over_path := ""
+	var boss_room_event_paths: Array[String] = []
 
 	var dir := DirAccess.open(SFX_DIR)
 	if dir == null:
@@ -57,10 +62,20 @@ static func build_audio_manifest() -> Dictionary:
 			var boss_close_idx := lower.find(")")
 			if boss_close_idx > 6:
 				var boss_key := lower.substr(6, boss_close_idx - 6)
+				var boss_path := "%s/%s" % [SFX_DIR, name]
+				if boss_key == "floor":
+					_append_unique_string(boss_room_event_paths, boss_path)
 				if boss_key == "floor" or boss_key == "boss":
 					boss_key = "default"
-				var boss_path := "%s/%s" % [SFX_DIR, name]
 				_append_boss_track(boss_music_by_type, boss_key, boss_path)
+		elif lower == "exit.mp3":
+			exit_hover_path = "%s/%s" % [SFX_DIR, name]
+		elif lower == "settings.mp3":
+			settings_hover_path = "%s/%s" % [SFX_DIR, name]
+		elif lower == "start new.mp3":
+			start_new_hover_path = "%s/%s" % [SFX_DIR, name]
+		elif lower == "game_over_fv.mp3":
+			game_over_path = "%s/%s" % [SFX_DIR, name]
 
 	dir.list_dir_end()
 	generic_paths.sort()
@@ -72,6 +87,27 @@ static func build_audio_manifest() -> Dictionary:
 	if not boss_music_by_type.is_empty():
 		combat_music_by_type["boss"] = boss_music_by_type
 
+	var sfx_events: Dictionary = {}
+	var menu_events: Dictionary = {}
+	if not exit_hover_path.is_empty():
+		menu_events["hover_exit"] = [exit_hover_path]
+	if not settings_hover_path.is_empty():
+		menu_events["hover_settings"] = [settings_hover_path]
+	if not start_new_hover_path.is_empty():
+		menu_events["hover_start_new"] = [start_new_hover_path]
+	if not menu_events.is_empty():
+		sfx_events["menu"] = menu_events
+
+	var ui_events: Dictionary = {}
+	if not game_over_path.is_empty():
+		ui_events["game_over"] = [game_over_path]
+	if not ui_events.is_empty():
+		sfx_events["ui"] = ui_events
+
+	if not boss_room_event_paths.is_empty():
+		boss_room_event_paths.sort()
+		sfx_events["world"] = {"boss_room": boss_room_event_paths}
+
 	return {
 		"schema_version": 1,
 		"music":
@@ -79,7 +115,7 @@ static func build_audio_manifest() -> Dictionary:
 			"world_by_index": world_music_by_index,
 			"combat_by_type": combat_music_by_type,
 		},
-		"sfx_events": {},
+		"sfx_events": sfx_events,
 	}
 
 

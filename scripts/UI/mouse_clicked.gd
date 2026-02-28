@@ -42,15 +42,39 @@ func _ready():
 func _wire_buttons() -> void:
 	if has_node("BoxContainer/VBoxContainer2/Settings"):
 		$BoxContainer/VBoxContainer2/Settings.pressed.connect(_open_settings)
+		$BoxContainer/VBoxContainer2/Settings.mouse_entered.connect(_on_settings_hovered)
 
 	if has_node("BoxContainer/VBoxContainer2/Start New"):
 		$"BoxContainer/VBoxContainer2/Start New".pressed.connect(_on_start_pressed)
+		$"BoxContainer/VBoxContainer2/Start New".mouse_entered.connect(_on_start_new_hovered)
 
 	if has_node("BoxContainer/VBoxContainer2/Continue"):
 		$BoxContainer/VBoxContainer2/Continue.pressed.connect(_on_continue_pressed)
 
 	if has_node("BoxContainer/VBoxContainer2/Exit"):
 		$BoxContainer/VBoxContainer2/Exit.pressed.connect(get_tree().quit)
+		$BoxContainer/VBoxContainer2/Exit.mouse_entered.connect(_on_exit_hovered)
+
+
+func _on_settings_hovered() -> void:
+	_play_menu_hover("hover_settings")
+
+
+func _on_start_new_hovered() -> void:
+	_play_menu_hover("hover_start_new")
+
+
+func _on_exit_hovered() -> void:
+	_play_menu_hover("hover_exit")
+
+
+func _play_menu_hover(event_key: String) -> void:
+	if (
+		typeof(AudioManager) != TYPE_NIL
+		and AudioManager != null
+		and AudioManager.has_method("play_sfx_event")
+	):
+		AudioManager.play_sfx_event("menu", event_key)
 
 
 # ==========================

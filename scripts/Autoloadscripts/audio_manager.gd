@@ -10,12 +10,15 @@ var combat_music_by_type: Dictionary = {}
 var sfx_events_by_domain: Dictionary = {}
 var current_world_index: int = -1
 var active_battle_uses_generic_music: bool = false
+var in_boss_room: bool = false
 var music_player: AudioStreamPlayer = null
+var sfx_player: AudioStreamPlayer = null
 
 
 func _ready() -> void:
 	_load_track_cache()
 	_ensure_music_player()
+	_ensure_sfx_player()
 	_connect_game_events()
 
 
@@ -26,6 +29,7 @@ func configure_world_music(tracks: Array[AudioStream]) -> void:
 func play_world_music(idx: int) -> void:
 	current_world_index = idx
 	active_battle_uses_generic_music = false
+	in_boss_room = false
 
 	var selected_track := _resolve_world_music(idx)
 	if selected_track == null:
@@ -33,6 +37,37 @@ func play_world_music(idx: int) -> void:
 		return
 
 	_play_music_stream(selected_track)
+
+
+func set_in_boss_room(is_boss_room: bool) -> void:
+	if in_boss_room == is_boss_room:
+		return
+
+	in_boss_room = is_boss_room
+
+	if active_battle_uses_generic_music:
+		return
+
+	if in_boss_room:
+		_play_boss_room_music()
+		return
+
+	_restore_non_battle_music()
+
+
+func play_sfx_event(domain: String, event_key: String) -> bool:
+	var tracks := _get_sfx_event_tracks(domain, event_key)
+	if tracks.is_empty():
+		return false
+
+	var selected_track := _pick_random_track(tracks)
+	if selected_track == null:
+		return false
+
+	var player := _ensure_sfx_player()
+	player.stream = selected_track
+	player.play()
+	return true
 
 
 func enter_battle(enemy: Node) -> void:
@@ -58,6 +93,9 @@ func exit_battle() -> void:
 		return
 
 	active_battle_uses_generic_music = false
+	if in_boss_room:
+		if _play_boss_room_music():
+			return
 	_restore_non_battle_music()
 
 
@@ -114,6 +152,8 @@ func _on_battle_ended(_victory: bool, _enemy: Node, _is_boss: bool) -> void:
 
 func _on_game_over() -> void:
 	clear_battle_state()
+	in_boss_room = false
+	_play_game_over_music()
 
 
 func _resolve_world_music(idx: int) -> AudioStream:
@@ -139,6 +179,19 @@ func _ensure_music_player() -> AudioStreamPlayer:
 	music_player.process_mode = Node.PROCESS_MODE_ALWAYS
 	add_child(music_player)
 	return music_player
+
+
+func _ensure_sfx_player() -> AudioStreamPlayer:
+	if sfx_player != null and is_instance_valid(sfx_player):
+		sfx_player.process_mode = Node.PROCESS_MODE_ALWAYS
+		return sfx_player
+
+	sfx_player = AudioStreamPlayer.new()
+	sfx_player.name = "SFXPlayer"
+	sfx_player.bus = "Master"
+	sfx_player.process_mode = Node.PROCESS_MODE_ALWAYS
+	add_child(sfx_player)
+	return sfx_player
 
 
 func _play_music_stream(stream: AudioStream) -> void:
@@ -197,6 +250,9 @@ func _play_boss_fight_music(enemy: Node) -> bool:
 
 
 func _restore_non_battle_music() -> void:
+	if in_boss_room and _play_boss_room_music():
+		return
+
 	if current_world_index >= 0:
 		play_world_music(current_world_index)
 		return
@@ -204,6 +260,34 @@ func _restore_non_battle_music() -> void:
 	var player := _ensure_music_player()
 	if player.playing:
 		player.stop()
+
+
+func _play_game_over_music() -> bool:
+	var game_over_tracks := _get_sfx_event_tracks("ui", "game_over")
+	if game_over_tracks.is_empty():
+		return false
+
+	_play_music_stream(_pick_random_track(game_over_tracks))
+	return true
+
+
+func _play_boss_room_music() -> bool:
+	var room_tracks := _get_sfx_event_tracks("world", "boss_room")
+	if not room_tracks.is_empty():
+		_play_music_stream(_pick_random_track(room_tracks))
+		return true
+
+	var default_tracks := _get_combat_tracks("boss_default")
+	if not default_tracks.is_empty():
+		_play_music_stream(_pick_random_track(default_tracks))
+		return true
+
+	var fallback_tracks := _get_combat_tracks("boss")
+	if fallback_tracks.is_empty():
+		return false
+
+	_play_music_stream(_pick_random_track(fallback_tracks))
+	return true
 
 
 func _load_track_cache() -> void:
@@ -422,6 +506,27 @@ func _append_unique_streams(target: Array[AudioStream], additions: Array[AudioSt
 		if track in target:
 			continue
 		target.append(track)
+
+
+func _get_sfx_event_tracks(domain: String, event_key: String) -> Array[AudioStream]:
+	var domain_name := domain.to_lower()
+	if not sfx_events_by_domain.has(domain_name):
+		return []
+
+	var domain_raw: Variant = sfx_events_by_domain[domain_name]
+	if typeof(domain_raw) != TYPE_DICTIONARY:
+		return []
+
+	var domain_map: Dictionary = domain_raw
+	var normalized_event := event_key.to_lower()
+	if not domain_map.has(normalized_event):
+		return []
+
+	var tracks_raw: Variant = domain_map[normalized_event]
+	if tracks_raw is Array[AudioStream]:
+		return tracks_raw
+
+	return []
 
 
 func _get_combat_tracks(track_type: String) -> Array[AudioStream]:
