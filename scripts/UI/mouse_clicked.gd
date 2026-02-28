@@ -72,7 +72,14 @@ func _on_start_pressed() -> void:
 
 func _on_continue_pressed() -> void:
 	# Set autoload flag so Map_Generator / main can load from save
-	SaveState.load_from_save = true
+	if typeof(SaveState) != TYPE_NIL and SaveState != null:
+		SaveState.load_from_save = true
+	else:
+		var save_state = get_tree().root.get_node_or_null("SaveState")
+		if save_state != null:
+			save_state.set("load_from_save", true)
+		else:
+			push_warning("SaveState autoload is missing; continue will start a new run")
 	# Then perform the same scene change as starting a new game
 	var scene_tree = get_tree()
 	if scene_tree != null:

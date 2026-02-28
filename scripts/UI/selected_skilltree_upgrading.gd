@@ -44,10 +44,11 @@ func _ready():
 
 func _on_leveling():
 	allowed_levels -= 1
-	if allowed_levels <= 0:
+	if allowed_levels <= 0 and not already_leveled:
 		already_leveled = true
-		closed.emit()
-		queue_free()
+		for skill_scene in skill_scenes:
+			if is_instance_valid(skill_scene) and skill_scene.has_method("lock_levelup"):
+				skill_scene.call("lock_levelup")
 
 
 func _on_continue_pressed() -> void:

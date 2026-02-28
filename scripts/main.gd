@@ -62,13 +62,38 @@ var boss_win: bool = false
 @onready var fog_war_layer = $FogWar
 
 
+func _get_save_state() -> Node:
+	if typeof(SaveState) != TYPE_NIL and SaveState != null:
+		return SaveState
+	var root := get_tree().root
+	if root != null:
+		return root.get_node_or_null("SaveState")
+	return null
+
+
+func _should_load_from_save() -> bool:
+	var save_state := _get_save_state()
+	if save_state == null:
+		return false
+	return bool(save_state.get("load_from_save"))
+
+
+func _set_load_from_save(value: bool) -> void:
+	var save_state := _get_save_state()
+	if save_state == null:
+		if value:
+			push_warning("SaveState autoload is missing; cannot set load_from_save=true")
+		return
+	save_state.set("load_from_save", value)
+
+
 func _ready() -> void:
 	UI_MODAL_CONTROLLER.set_debug_enabled(OS.is_debug_build())
 	generators = [generator1, generator2, generator3]
 
 	# If user requested loading from save, try to pre-load save data
 	# BEFORE showing skill selection so previously selected skills are restored
-	if SaveState.load_from_save:
+	if _should_load_from_save():
 		var early_loaded = load_world_from_file(0)
 		if typeof(early_loaded) == TYPE_DICTIONARY and not early_loaded.is_empty():
 			# restore selected skills into SkillState autoload if available
@@ -87,7 +112,7 @@ func _ready() -> void:
 		await _load_tutorial_world()
 		return
 	if (
-		SaveState.load_from_save
+		_should_load_from_save()
 		and (
 			saved_maps == {}
 			or not (typeof(saved_maps) == TYPE_DICTIONARY and saved_maps.has("floor"))
@@ -104,7 +129,7 @@ func _ready() -> void:
 			saved_maps = loaded
 			world_index = int(loaded.get("world_index", 0))
 	elif (
-		not SaveState.load_from_save
+		not _should_load_from_save()
 		and (saved_maps == {} or not typeof(saved_maps) == TYPE_DICTIONARY)
 	):
 		world_index = 0
@@ -433,7 +458,7 @@ func _load_world(idx: int) -> void:
 					# Nur echte RoomLayer unsichtbar starten
 					if layer.has_meta("tile_origin") or layer.has_meta("room_rect"):
 						layer.visible = false
-	elif not SaveState.load_from_save:
+	elif not _should_load_from_save():
 		var maps: Dictionary = await gen.get_random_tilemap()
 
 		if maps.is_empty():
@@ -544,7 +569,7 @@ func _load_world(idx: int) -> void:
 	# Fertig
 	# -------------------------------------------------
 	_hide_loading()
-	SaveState.load_from_save = false
+	_set_load_from_save(false)
 	_set_tree_paused(false)
 
 

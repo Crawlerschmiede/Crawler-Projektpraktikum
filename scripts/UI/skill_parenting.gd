@@ -52,6 +52,10 @@ func lock_levelup():
 	already_leveled = true
 
 
+func is_levelup_locked() -> bool:
+	return already_leveled
+
+
 func create_line(node_a, node_b) -> Line2D:
 	var line = Line2D.new()
 	lines_container.add_child(line)
