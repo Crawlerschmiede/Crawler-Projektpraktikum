@@ -34,6 +34,10 @@ func handle_slot_gui_input(event: InputEvent, slot: Node) -> void:
 	if not mbe.pressed:
 		return
 
+	if _is_trash_slot(slot):
+		_handle_trash_slot_click(slot)
+		return
+
 	if mbe.button_index == MOUSE_BUTTON_RIGHT:
 		right_click_put_one_unit(slot)
 		return
@@ -383,3 +387,31 @@ func _call_validate(slot: Node) -> void:
 		return
 	if _validate_slot_cb.is_valid():
 		_validate_slot_cb.call(slot)
+
+
+func _is_trash_slot(slot: Node) -> bool:
+	return slot != null and str(slot.name) == "Slot12"
+
+
+func _handle_trash_slot_click(slot: Node) -> void:
+	var ui := _require_ui_with_holding()
+	if ui == null:
+		return
+
+	var holding: Node = _require_holding_node(ui)
+	if holding != null and is_instance_valid(holding):
+		holding.queue_free()
+	ui.set("holding_item", null)
+
+	var slot_item: Node = get_slot_item_node(slot)
+	if slot_item != null:
+		_remove_inventory_item_without_signals(slot)
+		if slot.has_method("clear_slot"):
+			slot.call("clear_slot")
+		elif is_instance_valid(slot_item):
+			slot_item.queue_free()
+
+	if _store != null:
+		_store.emit_changed()
+
+	_call_validate(slot)
