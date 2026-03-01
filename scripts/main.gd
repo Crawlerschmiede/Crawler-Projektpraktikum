@@ -610,32 +610,6 @@ func spawn_lootbox() -> void:
 	world_entity_spawn_flow.spawn_lootbox(dungeon_floor, world_root, LOOTBOX)
 
 
-func _disable_lootbox_blocking(loot: Node) -> void:
-	if loot == null:
-		return
-
-	# Falls Lootbox StaticBody2D / CharacterBody2D etc. hat: deaktivieren
-	var bodies = loot.find_children("*", "PhysicsBody2D", true, false)
-	for b in bodies:
-		if b != null:
-			b.set_deferred("collision_layer", 0)
-			b.set_deferred("collision_mask", 0)
-
-	# Falls Lootbox Area2D hat: darf triggern, aber nicht blocken
-	var areas = loot.find_children("*", "Area2D", true, false)
-	for a in areas:
-		if a != null:
-			# Area darf nur "triggern", aber nix blocken
-			a.set_deferred("collision_layer", 0)
-			a.set_deferred("collision_mask", 0)
-
-	# Alle CollisionShapes deaktivieren (sicherster Weg)
-	var shapes = loot.find_children("*", "CollisionShape2D", true, false)
-	for s in shapes:
-		if s != null:
-			s.set_deferred("disabled", true)
-
-
 func init_fog_layer() -> void:
 	# Fill the FogWar TileMapLayer with a fog tile so Player.update_visibility can erase cells.
 	if fog_war_layer == null or dungeon_floor == null:
@@ -1115,12 +1089,6 @@ func load_world_from_file(idx: int) -> Dictionary:
 	return save_flow.build_loaded_world_result(
 		payload, idx, Callable(self, "_deserialize_tilemap"), Callable(self, "_deserialize_minimap")
 	)
-
-
-func reveal_room_layer(room_layer: TileMapLayer) -> void:
-	if minimap_reveal_flow == null:
-		return
-	minimap_reveal_flow.reveal_room_layer(room_layer, fog_war_layer, get_tree())
 
 
 # ---------------------------------------
