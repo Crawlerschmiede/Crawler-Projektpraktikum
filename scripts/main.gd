@@ -19,6 +19,7 @@ const WORLD_LOADING_COORDINATOR := preload("res://scripts/flow/world_loading_coo
 const SPAWN_COORDINATOR := preload("res://scripts/flow/spawn_coordinator.gd")
 const SAVE_SERIALIZER := preload("res://scripts/flow/save_serializer.gd")
 const GAME_EVENT_GATEWAY := preload("res://scripts/flow/game_event_gateway.gd")
+const PERSISTENCE_COORDINATOR := preload("res://scripts/flow/persistence_coordinator.gd")
 const ManifestCore := preload("res://tools/manifest_generation_core.gd")
 const PLAYER_SCENE := preload("res://scenes/entity/player-character-scene.tscn")
 const LOOTBOX := preload("res://scenes/Interactables/Lootbox.tscn")
@@ -67,6 +68,7 @@ var world_loading_coordinator: RefCounted = null
 var spawn_coordinator: RefCounted = null
 var save_serializer: RefCounted = null
 var game_event_gateway: RefCounted = null
+var persistence_coordinator: RefCounted = null
 
 var boss_win: bool = false
 
@@ -106,34 +108,6 @@ func _set_load_from_save(value: bool) -> void:
 	save_state.set("load_from_save", value)
 
 
-func _emit_world_loaded(idx: int) -> void:
-	if game_event_gateway == null:
-		push_warning("_emit_world_loaded: game_event_gateway is null")
-		return
-	game_event_gateway.emit_world_loaded(idx)
-
-
-func _emit_battle_started(enemy: Node) -> void:
-	if game_event_gateway == null:
-		push_warning("_emit_battle_started: game_event_gateway is null")
-		return
-	game_event_gateway.emit_battle_started(enemy)
-
-
-func _emit_battle_ended(victory: bool, enemy: Node) -> void:
-	if game_event_gateway == null:
-		push_warning("_emit_battle_ended: game_event_gateway is null")
-		return
-	game_event_gateway.emit_battle_ended(victory, enemy)
-
-
-func _emit_game_over() -> void:
-	if game_event_gateway == null:
-		push_warning("_emit_game_over: game_event_gateway is null")
-		return
-	game_event_gateway.emit_game_over()
-
-
 func _refresh_manifests_if_running_in_editor() -> void:
 	if not OS.has_feature("editor"):
 		return
@@ -164,6 +138,8 @@ func _ready() -> void:
 	world_loading_coordinator.configure(self, world_load_flow)
 	save_serializer = SAVE_SERIALIZER.new()
 	game_event_gateway = GAME_EVENT_GATEWAY.new()
+	persistence_coordinator = PERSISTENCE_COORDINATOR.new()
+	persistence_coordinator.configure(self, save_flow, save_serializer, entity_persistence_flow)
 
 	var battle_victory_handler := Callable(self, "_on_battle_player_victory")
 	if not battle_flow.player_victory.is_connected(battle_victory_handler):
@@ -176,7 +152,9 @@ func _ready() -> void:
 	# If user requested loading from save, try to pre-load save data
 	# BEFORE showing skill selection so previously selected skills are restored
 	if _should_load_from_save():
-		var early_loaded = load_world_from_file(0)
+		var early_loaded: Dictionary = {}
+		if persistence_coordinator != null:
+			early_loaded = persistence_coordinator.load_world_from_file(0)
 		if typeof(early_loaded) == TYPE_DICTIONARY and not early_loaded.is_empty():
 			# restore selected skills into SkillState autoload if available
 			if typeof(SkillState) != TYPE_NIL and SkillState != null:
@@ -204,7 +182,9 @@ func _ready() -> void:
 		)
 	):
 		# No early-loaded save present -> load now
-		var loaded = load_world_from_file(0)
+		var loaded: Dictionary = {}
+		if persistence_coordinator != null:
+			loaded = persistence_coordinator.load_world_from_file(0)
 		if loaded == {}:
 			push_error(
 				"_ready: requested load_from_save but load failed; falling back to new world"
@@ -244,29 +224,6 @@ func _set_tree_paused(value: bool) -> void:
 		push_warning("_set_tree_paused: SceneTree is null; ignored")
 
 
-func _setup_fog_layer_for_current_world() -> void:
-	if world_loading_coordinator == null:
-		push_warning("_setup_fog_layer_for_current_world: world_loading_coordinator is null")
-		return
-	await world_loading_coordinator.setup_fog_layer_for_current_world()
-
-
-func _spawn_standard_world_entities(include_boss_enemy: bool) -> void:
-	if spawn_coordinator == null:
-		push_warning("_spawn_standard_world_entities: spawn_coordinator is null")
-		return
-	player = await spawn_coordinator.spawn_standard_world_entities(include_boss_enemy, self)
-
-
-func _spawn_tutorial_entities_with_reveal() -> void:
-	if spawn_coordinator == null:
-		push_warning("_spawn_tutorial_entities_with_reveal: spawn_coordinator is null")
-		return
-	player = await spawn_coordinator.spawn_tutorial_entities_with_reveal(
-		Callable(self, "_on_player_moved"), self
-	)
-
-
 func _load_tutorial_world() -> void:
 	if world_loading_coordinator == null:
 		push_warning("_load_tutorial_world: world_loading_coordinator is null")
@@ -279,19 +236,6 @@ func _load_world(idx: int) -> void:
 		push_warning("_load_world: world_loading_coordinator is null")
 		return
 	await world_loading_coordinator.load_world(idx, generators)
-
-
-func spawn_merchant_entity(cords: Vector2) -> void:
-	if spawn_coordinator == null:
-		return
-	spawn_coordinator.spawn_merchant_entity(cords, MERCHANT, world_index)
-
-
-func _show_loading() -> void:
-	if ui_overlay_coordinator == null:
-		push_error("_show_loading: ui_overlay_coordinator is null")
-		return
-	loading_screen = await ui_overlay_coordinator.show_loading(self, LOADING_SCENE)
 
 
 func _show_start() -> void:
@@ -314,37 +258,6 @@ func _on_start_new_pressed() -> void:
 		world_flow.reset_transition_state()
 	world_index = 0
 	await _load_world(world_index)
-
-
-func _hide_loading() -> void:
-	if ui_overlay_coordinator == null:
-		return
-	ui_overlay_coordinator.hide_loading()
-	loading_screen = ui_overlay_coordinator.get_loading_screen()
-
-
-func spawn_traps() -> void:
-	if spawn_coordinator == null:
-		return
-	spawn_coordinator.spawn_traps(dungeon_floor, TRAP, world_index)
-
-
-func spawn_lootbox() -> void:
-	if spawn_coordinator == null:
-		return
-	spawn_coordinator.spawn_lootbox(dungeon_floor, LOOTBOX)
-
-
-func init_fog_layer() -> void:
-	if world_loading_coordinator == null:
-		return
-	await world_loading_coordinator.init_fog_layer()
-
-
-func _clear_world() -> void:
-	if world_loading_coordinator == null:
-		return
-	world_loading_coordinator.clear_world()
 
 
 func _on_player_exit_reached() -> void:
@@ -410,7 +323,10 @@ func toggle_menu():
 
 		# Connect save_requested directly to main if the popup exposes it
 		if menu_instance.has_signal("save_requested"):
-			var cb = Callable(self, "save_current_world")
+			if persistence_coordinator == null:
+				push_error("toggle_menu: persistence_coordinator is null; save unavailable")
+				return
+			var cb = Callable(persistence_coordinator, "save_current_world")
 			if not menu_instance.is_connected("save_requested", cb):
 				menu_instance.connect("save_requested", cb)
 			# already connected -> ignore
@@ -425,101 +341,6 @@ func on_menu_closed():
 		menu_instance.queue_free()
 		menu_instance = null
 	UI_MODAL_CONTROLLER.release(self, true, true)
-
-
-func _serialize_tilemap(tm: TileMapLayer) -> Dictionary:
-	if save_serializer == null:
-		return {}
-	return save_serializer.serialize_tilemap(tm)
-
-
-func _deserialize_tilemap(data: Dictionary) -> TileMapLayer:
-	if save_serializer == null:
-		return null
-	return save_serializer.deserialize_tilemap(data)
-
-
-func _serialize_minimap(minimap_node: Node) -> Dictionary:
-	if save_serializer == null:
-		return {}
-	return save_serializer.serialize_minimap(minimap_node)
-
-
-func _deserialize_minimap(data: Dictionary) -> Node:
-	if save_serializer == null:
-		return null
-	return save_serializer.deserialize_minimap(data)
-
-
-func _serialize_entities() -> Array:
-	if entity_persistence_flow == null:
-		return []
-	return entity_persistence_flow.serialize_entities(world_root)
-
-
-func _deserialize_entities(list_data: Array) -> void:
-	if entity_persistence_flow == null:
-		return
-	if world_root == null:
-		push_error("_deserialize_entities: world_root is null")
-		return
-
-	var scenes: Dictionary = {
-		"enemy": ENEMY_SCENE,
-		"merchant": MERCHANT,
-		"lootbox": LOOTBOX,
-		"trap": TRAP,
-		"player": PLAYER_SCENE,
-	}
-	var defaults: Dictionary = {"fog_dynamic": fog_dynamic, "fog_tile_id": fog_tile_id}
-
-	var loaded_player: Node = entity_persistence_flow.deserialize_entities(
-		list_data,
-		world_root,
-		dungeon_floor,
-		dungeon_top,
-		fog_war_layer,
-		minimap,
-		scenes,
-		defaults,
-		self
-	)
-
-	if loaded_player is PlayerCharacter:
-		player = loaded_player as PlayerCharacter
-
-
-func save_current_world() -> void:
-	# Serialize dungeon floor and top tilemaps to user:// JSON so they can be restored later
-	if save_flow == null:
-		push_error("save_current_world: save_flow is null")
-		return
-
-	var entities_payload: Array = []
-	if world_root != null and is_instance_valid(world_root):
-		entities_payload = _serialize_entities()
-
-	var minimap_payload: Dictionary = {}
-	if minimap != null:
-		minimap_payload = _serialize_minimap(minimap)
-
-	var selected_skills_payload: Array = []
-	if typeof(SkillState) != TYPE_NIL:
-		selected_skills_payload = SkillState.selected_skills
-
-	var payload: Dictionary = save_flow.build_save_payload(
-		world_index,
-		_serialize_tilemap(dungeon_floor),
-		_serialize_tilemap(dungeon_top),
-		entities_payload,
-		minimap_payload,
-		selected_skills_payload
-	)
-
-	if not save_flow.write_payload(payload):
-		return
-
-	print("Saved world tilemaps + entities to: ", save_flow.SAVE_PATH)
 
 
 func spawn_enemies(do_boss: bool) -> void:
@@ -574,21 +395,6 @@ func _on_player_moved() -> void:
 	minimap_reveal_flow.on_player_moved(minimap, dungeon_floor, player, fog_war_layer, get_tree())
 
 
-func load_world_from_file(idx: int) -> Dictionary:
-	# Load saved world JSON from user:// and return instantiated TileMapLayer nodes
-	if save_flow == null:
-		push_error("load_world_from_file: save_flow is null")
-		return {}
-
-	var payload: Dictionary = save_flow.read_payload()
-	if payload.is_empty():
-		return {}
-
-	return save_flow.build_loaded_world_result(
-		payload, idx, Callable(self, "_deserialize_tilemap"), Callable(self, "_deserialize_minimap")
-	)
-
-
 # ---------------------------------------
 # BATTLE
 # ---------------------------------------
@@ -605,7 +411,8 @@ func instantiate_battle(player_node: Node, enemy: Node):
 		push_warning("instantiate_battle: failed to create battle instance")
 		return
 
-	_emit_battle_started(enemy)
+	if game_event_gateway != null:
+		game_event_gateway.emit_battle_started(enemy)
 	print("instantiate_battle: pausing tree to run battle")
 	_set_tree_paused(true)
 
@@ -629,7 +436,8 @@ func enemy_defeated(enemy):
 		print("enemy_defeated: freeing battle UI")
 		battle_flow.clear_battle()
 
-	_emit_battle_ended(true, enemy)
+	if game_event_gateway != null:
+		game_event_gateway.emit_battle_ended(true, enemy)
 
 	# If the defeated enemy was a boss, record victory so level-gating can proceed
 	if enemy != null and is_instance_valid(enemy) and AudioManager.is_boss_enemy(enemy):
@@ -663,7 +471,8 @@ func _on_battle_player_victory(enemy) -> void:
 
 
 func game_over():
-	_emit_game_over()
+	if game_event_gateway != null:
+		game_event_gateway.emit_game_over()
 	if battle_flow != null and battle_flow.has_active_battle():
 		battle_flow.clear_battle()
 	_set_tree_paused(false)

@@ -97,12 +97,27 @@ func clear_world() -> void:
 		GlobalRNG.reset()
 
 
+func _show_loading() -> void:
+	if _main == null or _main.ui_overlay_coordinator == null:
+		return
+	_main.loading_screen = await _main.ui_overlay_coordinator.show_loading(
+		_main, _main.LOADING_SCENE
+	)
+
+
+func _hide_loading() -> void:
+	if _main == null or _main.ui_overlay_coordinator == null:
+		return
+	_main.ui_overlay_coordinator.hide_loading()
+	_main.loading_screen = _main.ui_overlay_coordinator.get_loading_screen()
+
+
 func load_tutorial_world(tutorial_room_path: String) -> void:
 	if _main == null:
 		return
 
 	_main._set_tree_paused(true)
-	await _main._show_loading()
+	await _show_loading()
 
 	clear_world()
 	_main.boss_win = false
@@ -114,7 +129,7 @@ func load_tutorial_world(tutorial_room_path: String) -> void:
 	var tutorial_packed = load(tutorial_room_path)
 	if tutorial_packed == null:
 		push_error("Failed to load tutorial room scene")
-		_main._hide_loading()
+		_hide_loading()
 		_main._set_tree_paused(false)
 		return
 
@@ -142,7 +157,7 @@ func load_tutorial_world(tutorial_room_path: String) -> void:
 
 			_main.player = await _main.spawn_coordinator.spawn_standard_world_entities(true, _main)
 
-			_main._hide_loading()
+			_hide_loading()
 			_main.get_tree().paused = false
 			if is_instance_valid(tutorial_inst):
 				tutorial_inst.queue_free()
@@ -157,7 +172,7 @@ func load_tutorial_world(tutorial_room_path: String) -> void:
 
 	if extracted.is_empty() or not bool(extracted.get("ok", false)):
 		push_error(str(extracted.get("error", "Failed to extract tutorial scene")))
-		_main._hide_loading()
+		_hide_loading()
 		_main._set_tree_paused(false)
 		return
 
@@ -171,7 +186,7 @@ func load_tutorial_world(tutorial_room_path: String) -> void:
 		Callable(_main, "_on_player_moved"), _main
 	)
 
-	_main._hide_loading()
+	_hide_loading()
 	_main._set_tree_paused(false)
 
 
@@ -180,16 +195,17 @@ func load_world(idx: int, generators: Array[Node2D]) -> void:
 		return
 
 	_main.world_index = idx
-	_main._emit_world_loaded(idx)
+	if _main.game_event_gateway != null:
+		_main.game_event_gateway.emit_world_loaded(idx)
 	_main._set_tree_paused(true)
-	await _main._show_loading()
+	await _show_loading()
 
 	clear_world()
 
 	if idx < 0 or idx >= generators.size():
-		_main._hide_loading()
+		_hide_loading()
 		_main._set_tree_paused(false)
-		var scene_tree := _main.get_tree()
+		var scene_tree: SceneTree = _main.get_tree()
 		if scene_tree != null:
 			if typeof(_main.WIN_SCENE_PACKED) != TYPE_NIL:
 				scene_tree.change_scene_to_packed(_main.WIN_SCENE_PACKED)
@@ -228,7 +244,7 @@ func load_world(idx: int, generators: Array[Node2D]) -> void:
 
 		if maps.is_empty():
 			push_error("Generator returned empty dictionary!")
-			_main._hide_loading()
+			_hide_loading()
 			_main._set_tree_paused(false)
 			return
 		_main.dungeon_floor = maps.get("floor", null)
@@ -241,7 +257,7 @@ func load_world(idx: int, generators: Array[Node2D]) -> void:
 		var maps_fallback: Dictionary = await gen.get_random_tilemap()
 		if maps_fallback.is_empty():
 			push_error("Generator returned empty dictionary!")
-			_main._hide_loading()
+			_hide_loading()
 			_main._set_tree_paused(false)
 			return
 		_main.dungeon_floor = maps_fallback.get("floor", null)
@@ -250,7 +266,7 @@ func load_world(idx: int, generators: Array[Node2D]) -> void:
 
 	if _main.dungeon_floor == null:
 		push_error("Generator returned null floor tilemap!")
-		_main._hide_loading()
+		_hide_loading()
 		_main._set_tree_paused(false)
 		return
 
@@ -273,11 +289,12 @@ func load_world(idx: int, generators: Array[Node2D]) -> void:
 		and typeof(_main.saved_maps) == TYPE_DICTIONARY
 		and _main.saved_maps.has("entities")
 	):
-		_main._deserialize_entities(_main.saved_maps.get("entities", []))
+		if _main.persistence_coordinator != null:
+			_main.persistence_coordinator.deserialize_entities(_main.saved_maps.get("entities", []))
 		_main.saved_maps = {}
 	else:
 		_main.player = await _main.spawn_coordinator.spawn_standard_world_entities(true, _main)
 
-	_main._hide_loading()
+	_hide_loading()
 	_main._set_load_from_save(false)
 	_main._set_tree_paused(false)

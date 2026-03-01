@@ -176,7 +176,7 @@ func spawn_tutorial_entities_with_reveal(on_player_moved: Callable, owner):
 	spawn_lootbox(_main.dungeon_floor, _main.LOOTBOX)
 	spawn_traps(_main.dungeon_floor, _main.TRAP, _main.world_index)
 
-	var tree := _main.get_tree()
+	var tree: SceneTree = _main.get_tree()
 	if tree != null:
 		await tree.process_frame
 		await tree.process_frame
