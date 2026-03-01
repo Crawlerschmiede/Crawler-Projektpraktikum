@@ -9,6 +9,8 @@ const BATTLE_SCENE := preload("res://scenes/UI/battle.tscn")
 const BATTLE_FLOW := preload("res://scripts/flow/battle_flow.gd")
 const WORLD_FLOW := preload("res://scripts/flow/world_flow.gd")
 const WORLD_LOAD_FLOW := preload("res://scripts/flow/world_load_flow.gd")
+const WORLD_ENTITY_SPAWN_FLOW := preload("res://scripts/flow/world_entity_spawn_flow.gd")
+const MINIMAP_REVEAL_FLOW := preload("res://scripts/flow/minimap_reveal_flow.gd")
 const SAVE_FLOW := preload("res://scripts/flow/save_flow.gd")
 const ENTITY_PERSISTENCE_FLOW := preload("res://scripts/flow/entity_persistence_flow.gd")
 const ENEMY_SPAWN_FLOW := preload("res://scripts/flow/enemy_spawn_flow.gd")
@@ -50,6 +52,8 @@ var loading_screen: CanvasLayer = null
 
 var world_flow: RefCounted = null
 var world_load_flow: RefCounted = null
+var world_entity_spawn_flow: RefCounted = null
+var minimap_reveal_flow: RefCounted = null
 var save_flow: RefCounted = null
 var entity_persistence_flow: RefCounted = null
 var enemy_spawn_flow: RefCounted = null
@@ -177,6 +181,8 @@ func _ready() -> void:
 	battle_flow.configure(self, BATTLE_SCENE)
 	world_flow = WORLD_FLOW.new()
 	world_load_flow = WORLD_LOAD_FLOW.new()
+	world_entity_spawn_flow = WORLD_ENTITY_SPAWN_FLOW.new()
+	minimap_reveal_flow = MINIMAP_REVEAL_FLOW.new()
 	save_flow = SAVE_FLOW.new()
 	entity_persistence_flow = ENTITY_PERSISTENCE_FLOW.new()
 	enemy_spawn_flow = ENEMY_SPAWN_FLOW.new()
@@ -533,24 +539,9 @@ func _load_world(idx: int) -> void:
 
 
 func spawn_merchant_entity(cords: Vector2) -> void:
-	var e = MERCHANT.instantiate()
-	e.add_to_group("merchant_entity")
-
-	e.global_position = cords
-
-	# assign a stable merchant id based on spawn coordinates and world index
-	# so the in-memory registry can distinguish merchants reliably
-	if e.has_method("set"):
-		var id = "merchant_%d_%d_world%d" % [int(cords.x), int(cords.y), int(world_index)]
-		# set merchant_id via set() (safe even if exported property is empty)
-		e.set("merchant_id", id)
-		# set merchant_room key as requested
-		e.set("merchant_room", "merchant_room")
-
-	if world_root != null:
-		world_root.add_child(e)
-	else:
-		add_child(e)
+	if world_entity_spawn_flow == null:
+		return
+	world_entity_spawn_flow.spawn_merchant_entity(cords, MERCHANT, world_root, self, world_index)
 
 
 func _show_loading() -> void:
@@ -608,100 +599,15 @@ func _hide_loading() -> void:
 
 
 func spawn_traps() -> void:
-	if dungeon_floor == null or world_root == null:
+	if world_entity_spawn_flow == null:
 		return
-
-	var tile_set = dungeon_floor.tile_set
-	if tile_set == null:
-		return
-
-	if not _has_custom_data_layer(tile_set, "trap_spawnable"):
-		push_warning("TileSet has no custom data layer 'trap_spawnable'. Skipping trap spawns.")
-		return
-
-	# alte Lootboxen entfernen
-	for c in world_root.get_children():
-		if c != null and c.name.begins_with("Trap"):
-			c.queue_free()
-
-	# alle möglichen Lootbox-Spawns sammeln
-	var candidates: Array[Vector2i] = []
-	for cell in dungeon_floor.get_used_cells():
-		var td = dungeon_floor.get_cell_tile_data(cell)
-		if td == null:
-			continue
-
-		# Tileset Custom Data Bool
-		if td.get_custom_data("trap_spawnable") == true:
-			candidates.append(cell)
-
-	if candidates.is_empty():
-		return
-
-	# maximal 20 Lootboxen
-	GlobalRNG.shuffle_array(candidates)
-	var amount = min(20, candidates.size())
-
-	for i in range(amount):
-		var spawn_cell = candidates[i]
-		var world_pos = dungeon_floor.to_global(dungeon_floor.map_to_local(spawn_cell))
-
-		var loot = TRAP.instantiate() as Node2D
-		loot.name = "Trap_%s" % i
-		# assign current world index so the trap knows which world it belongs to
-		if loot.has_method("set"):
-			loot.set("world_index", world_index)
-		world_root.add_child(loot)
-		loot.global_position = world_pos
+	world_entity_spawn_flow.spawn_traps(dungeon_floor, world_root, TRAP, world_index)
 
 
 func spawn_lootbox() -> void:
-	if dungeon_floor == null or world_root == null:
+	if world_entity_spawn_flow == null:
 		return
-
-	var tile_set = dungeon_floor.tile_set
-	if tile_set == null:
-		return
-
-	if not _has_custom_data_layer(tile_set, "lootbox_spawnable"):
-		push_warning(
-			"TileSet has no custom data layer 'lootbox_spawnable'. Skipping lootbox spawns."
-		)
-		return
-
-	# alte Lootboxen entfernen
-	for c in world_root.get_children():
-		if c != null and c.name.begins_with("Lootbox"):
-			c.queue_free()
-
-	# alle möglichen Lootbox-Spawns sammeln
-	var candidates: Array[Vector2i] = []
-	for cell in dungeon_floor.get_used_cells():
-		var td = dungeon_floor.get_cell_tile_data(cell)
-		if td == null:
-			continue
-
-		# Tileset Custom Data Bool
-		if td.get_custom_data("lootbox_spawnable") == true:
-			candidates.append(cell)
-
-	if candidates.is_empty():
-		return
-
-	# maximal 20 Lootboxen
-	GlobalRNG.shuffle_array(candidates)
-	var amount = min(20, candidates.size())
-
-	for i in range(amount):
-		var spawn_cell = candidates[i]
-		var world_pos = dungeon_floor.to_global(dungeon_floor.map_to_local(spawn_cell))
-
-		var loot = LOOTBOX.instantiate() as Node2D
-		loot.name = "Lootbox_%s" % i
-		if loot.has_method("set"):
-			loot.set("lootbox_id", "lootbox_%s" % i)
-		world_root.add_child(loot)
-		loot.global_position = world_pos
+	world_entity_spawn_flow.spawn_lootbox(dungeon_floor, world_root, LOOTBOX)
 
 
 func _disable_lootbox_blocking(loot: Node) -> void:
@@ -728,18 +634,6 @@ func _disable_lootbox_blocking(loot: Node) -> void:
 	for s in shapes:
 		if s != null:
 			s.set_deferred("disabled", true)
-
-
-func _has_custom_data_layer(tile_set: TileSet, layer_name: String) -> bool:
-	if tile_set == null:
-		return false
-
-	var layer_count = tile_set.get_custom_data_layers_count()
-	for i in range(layer_count):
-		if tile_set.get_custom_data_layer_name(i) == layer_name:
-			return true
-
-	return false
 
 
 func init_fog_layer() -> void:
@@ -1203,66 +1097,9 @@ func get_world_tilemaps() -> Dictionary:
 
 
 func _on_player_moved() -> void:
-	if minimap == null or dungeon_floor == null or player == null:
+	if minimap_reveal_flow == null:
 		return
-
-	# 1) Player -> Cell in FLOOR Tilemap
-	var world_cell: Vector2i = dungeon_floor.local_to_map(
-		dungeon_floor.to_local(player.global_position)
-	)
-
-	# 2) Nur echte Room-Layer checken (und Background/Full Layers skippen)
-	for child in minimap.get_children():
-		if not (child is TileMapLayer):
-			continue
-
-		var room_layer := child as TileMapLayer
-
-		# --- HARD SKIP: Background / helper layers ---
-		if room_layer.name == "MinimapBackground":
-			continue
-
-		# --- Optional: wenn du RoomLayer explizit markierst ---
-		# Wenn du irgendwo room_layer.set_meta("is_room_layer", true) setzt,
-		# kannst du diese Zeilen aktivieren und die Meta-Checks darunter entfernen.
-		# if not room_layer.get_meta("is_room_layer", false):
-		#     continue
-
-		# --- Robust: ein RoomLayer hat normalerweise tile_origin oder room_rect Meta ---
-		var has_origin := room_layer.has_meta("tile_origin")
-		var has_rect := room_layer.has_meta("room_rect")
-		if not has_origin and not has_rect:
-			# kein RoomLayer -> skip (verhindert "alles revealed" bei Full-Layern)
-			continue
-
-		# RoomOrigin aus Meta (wie bei dir)
-		var origin: Vector2i = room_layer.get_meta("tile_origin", Vector2i.ZERO)
-
-		# Player Cell relativ zum RoomLayer
-		var local_cell := world_cell - origin
-
-		# Check ob wir wirklich auf einem Tile dieses RoomLayers stehen
-		if room_layer.get_cell_source_id(local_cell) != -1:
-			if (
-				typeof(AudioManager) != TYPE_NIL
-				and AudioManager != null
-				and AudioManager.has_method("set_in_boss_room")
-			):
-				AudioManager.set_in_boss_room(bool(room_layer.get_meta("is_boss_room", false)))
-
-			# minimap reveal (Room sichtbar schalten)
-			room_layer.visible = true
-
-			# Fog reveal nur für diesen Raum
-			reveal_room_layer(room_layer)
-			return
-
-	if (
-		typeof(AudioManager) != TYPE_NIL
-		and AudioManager != null
-		and AudioManager.has_method("set_in_boss_room")
-	):
-		AudioManager.set_in_boss_room(false)
+	minimap_reveal_flow.on_player_moved(minimap, dungeon_floor, player, fog_war_layer, get_tree())
 
 
 func load_world_from_file(idx: int) -> Dictionary:
@@ -1281,31 +1118,9 @@ func load_world_from_file(idx: int) -> Dictionary:
 
 
 func reveal_room_layer(room_layer: TileMapLayer) -> void:
-	if fog_war_layer == null:
+	if minimap_reveal_flow == null:
 		return
-
-	var origin: Vector2i = room_layer.get_meta("tile_origin", Vector2i.ZERO)
-	var rect = room_layer.get_meta("room_rect", Rect2i(Vector2i.ZERO, Vector2i.ZERO))
-	if rect.size == Vector2i.ZERO:
-		# fallback: iterate used cells of the room layer
-		for cell in room_layer.get_used_cells():
-			var world_cell = origin + cell
-			fog_war_layer.erase_cell(world_cell)
-		return
-
-	var counter = 0
-	var yield_every = 300
-	for x in range(rect.position.x, rect.position.x + rect.size.x):
-		for y in range(rect.position.y, rect.position.y + rect.size.y):
-			var local_cell = Vector2i(x, y)
-			# skip empty tiles in the room
-			if room_layer.get_cell_source_id(local_cell) == -1:
-				continue
-			var world_cell = origin + local_cell
-			fog_war_layer.erase_cell(world_cell)
-			counter += 1
-			if counter % yield_every == 0:
-				await get_tree().process_frame
+	minimap_reveal_flow.reveal_room_layer(room_layer, fog_war_layer, get_tree())
 
 
 # ---------------------------------------
@@ -1330,29 +1145,9 @@ func instantiate_battle(player_node: Node, enemy: Node):
 
 
 func find_merchants() -> Array[Vector2]:
-	var merchants: Array[Vector2] = []
-
-	var cells = dungeon_floor.get_used_cells()
-
-	for cell in cells:
-		var data = dungeon_floor.get_cell_tile_data(cell)
-
-		if data == null:
-			continue
-
-		if not data.get_custom_data("merchant"):
-			continue
-
-		var right = cell + Vector2i(1, 0)
-		var right_data = dungeon_floor.get_cell_tile_data(right)
-
-		if right_data and right_data.get_custom_data("merchant"):
-			var a = dungeon_floor.map_to_local(cell)
-			var b = dungeon_floor.map_to_local(right)
-
-			merchants.append((a + b) * 0.5)
-
-	return merchants
+	if world_entity_spawn_flow == null:
+		return []
+	return world_entity_spawn_flow.find_merchants(dungeon_floor)
 
 
 func enemy_defeated(enemy):
