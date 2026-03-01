@@ -14,6 +14,9 @@ const MINIMAP_REVEAL_FLOW := preload("res://scripts/flow/minimap_reveal_flow.gd"
 const SAVE_FLOW := preload("res://scripts/flow/save_flow.gd")
 const ENTITY_PERSISTENCE_FLOW := preload("res://scripts/flow/entity_persistence_flow.gd")
 const ENEMY_SPAWN_FLOW := preload("res://scripts/flow/enemy_spawn_flow.gd")
+const UI_OVERLAY_COORDINATOR := preload("res://scripts/flow/ui_overlay_coordinator.gd")
+const WORLD_LOADING_COORDINATOR := preload("res://scripts/flow/world_loading_coordinator.gd")
+const SPAWN_COORDINATOR := preload("res://scripts/flow/spawn_coordinator.gd")
 const ManifestCore := preload("res://tools/manifest_generation_core.gd")
 const PLAYER_SCENE := preload("res://scenes/entity/player-character-scene.tscn")
 const LOOTBOX := preload("res://scenes/Interactables/Lootbox.tscn")
@@ -57,6 +60,9 @@ var minimap_reveal_flow: RefCounted = null
 var save_flow: RefCounted = null
 var entity_persistence_flow: RefCounted = null
 var enemy_spawn_flow: RefCounted = null
+var ui_overlay_coordinator: RefCounted = null
+var world_loading_coordinator: RefCounted = null
+var spawn_coordinator: RefCounted = null
 
 var boss_win: bool = false
 
@@ -187,6 +193,11 @@ func _ready() -> void:
 	entity_persistence_flow = ENTITY_PERSISTENCE_FLOW.new()
 	enemy_spawn_flow = ENEMY_SPAWN_FLOW.new()
 	enemy_spawn_flow.configure(ENEMY_SCENE)
+	ui_overlay_coordinator = UI_OVERLAY_COORDINATOR.new()
+	spawn_coordinator = SPAWN_COORDINATOR.new()
+	spawn_coordinator.configure(self, world_entity_spawn_flow, enemy_spawn_flow)
+	world_loading_coordinator = WORLD_LOADING_COORDINATOR.new()
+	world_loading_coordinator.configure(self, world_load_flow)
 
 	var battle_victory_handler := Callable(self, "_on_battle_player_victory")
 	if not battle_flow.player_victory.is_connected(battle_victory_handler):
@@ -246,57 +257,17 @@ func _ready() -> void:
 
 
 func _show_skilltree_select_menu() -> void:
-	var skilltree_select = SKILLTREE_SELECT_SCENE.instantiate()
-	if skilltree_select == null:
-		push_warning(
-			"Failed to instantiate skilltree select menu; continuing startup without selection"
-		)
+	if ui_overlay_coordinator == null:
+		push_warning("_show_skilltree_select_menu: ui_overlay_coordinator is null")
 		return
-
-	var ui_layer := CanvasLayer.new()
-	ui_layer.name = "SkilltreeSelectOverlay"
-	ui_layer.layer = 100
-	add_child(ui_layer)
-	ui_layer.add_child(skilltree_select)
-
-	if skilltree_select is Control:
-		skilltree_select.set_anchors_preset(Control.PRESET_FULL_RECT)
-		skilltree_select.offset_left = 0
-		skilltree_select.offset_top = 0
-		skilltree_select.offset_right = 0
-		skilltree_select.offset_bottom = 0
-
-	if skilltree_select.has_signal("selection_confirmed"):
-		await skilltree_select.selection_confirmed
-
-	if is_instance_valid(ui_layer):
-		ui_layer.queue_free()
+	await ui_overlay_coordinator.show_skilltree_select_menu(self, SKILLTREE_SELECT_SCENE)
 
 
 func _show_skilltree_upgrading_menu() -> void:
-	var skilltree_upgrading = SKILLTREE_UPGRADING_SCENE.instantiate()
-	if skilltree_upgrading == null:
-		push_warning("Failed to instantiate skilltree upgrading menu; continuing startup")
+	if ui_overlay_coordinator == null:
+		push_warning("_show_skilltree_upgrading_menu: ui_overlay_coordinator is null")
 		return
-
-	var ui_layer := CanvasLayer.new()
-	ui_layer.name = "SkilltreeUpgradingOverlay"
-	ui_layer.layer = 100
-	add_child(ui_layer)
-	ui_layer.add_child(skilltree_upgrading)
-
-	if skilltree_upgrading is Control:
-		skilltree_upgrading.set_anchors_preset(Control.PRESET_FULL_RECT)
-		skilltree_upgrading.offset_left = 0
-		skilltree_upgrading.offset_top = 0
-		skilltree_upgrading.offset_right = 0
-		skilltree_upgrading.offset_bottom = 0
-
-	if skilltree_upgrading.has_signal("closed"):
-		await skilltree_upgrading.closed
-
-	if is_instance_valid(ui_layer):
-		ui_layer.queue_free()
+	await ui_overlay_coordinator.show_skilltree_upgrading_menu(self, SKILLTREE_UPGRADING_SCENE)
 
 
 func _set_tree_paused(value: bool) -> void:
@@ -308,276 +279,62 @@ func _set_tree_paused(value: bool) -> void:
 
 
 func _setup_fog_layer_for_current_world() -> void:
-	if fog_war_layer == null or dungeon_floor == null or world_root == null:
+	if world_loading_coordinator == null:
+		push_warning("_setup_fog_layer_for_current_world: world_loading_coordinator is null")
 		return
-
-	if fog_war_layer.get_parent() != world_root:
-		var old_parent = fog_war_layer.get_parent()
-		if old_parent != null:
-			old_parent.remove_child(fog_war_layer)
-		world_root.add_child(fog_war_layer)
-		fog_war_layer.position = dungeon_floor.position
-
-	var base_z := 0
-	if dungeon_top != null:
-		base_z = dungeon_top.z_index
-	elif dungeon_floor != null:
-		base_z = dungeon_floor.z_index
-	fog_war_layer.z_index = base_z + 10
-	await init_fog_layer()
+	await world_loading_coordinator.setup_fog_layer_for_current_world()
 
 
 func _spawn_standard_world_entities(include_boss_enemy: bool) -> void:
-	spawn_player()
-	spawn_enemies(false)
-	spawn_lootbox()
-	spawn_traps()
-	if include_boss_enemy:
-		spawn_enemies(true)
-
-	var merchants = find_merchants()
-	for i in merchants:
-		spawn_merchant_entity(i)
+	if spawn_coordinator == null:
+		push_warning("_spawn_standard_world_entities: spawn_coordinator is null")
+		return
+	player = await spawn_coordinator.spawn_standard_world_entities(include_boss_enemy, self)
 
 
 func _spawn_tutorial_entities_with_reveal() -> void:
-	spawn_player()
-	spawn_enemies(false)
-	spawn_lootbox()
-	spawn_traps()
-	await get_tree().process_frame
-	await get_tree().process_frame
-	_on_player_moved()
-
-	var merchants = find_merchants()
-	for i in merchants:
-		spawn_merchant_entity(i)
+	if spawn_coordinator == null:
+		push_warning("_spawn_tutorial_entities_with_reveal: spawn_coordinator is null")
+		return
+	player = await spawn_coordinator.spawn_tutorial_entities_with_reveal(
+		Callable(self, "_on_player_moved"), self
+	)
 
 
 func _load_tutorial_world() -> void:
-	_set_tree_paused(true)
-	await _show_loading()
-
-	_clear_world()
-
-	# Reset boss flag when loading a world so previous boss state doesn't leak
-	boss_win = false
-
-	world_root = Node2D.new()
-	world_root.name = "WorldRoot"
-	add_child(world_root)
-
-	# Versuche zuerst, die Tutorial-Szene als Generator zu behandeln
-	var TutorialPacked = preload(TUTORIAL_ROOM)
-	var tutorial_inst = TutorialPacked.instantiate()
-
-	if tutorial_inst != null and tutorial_inst.has_method("get_random_tilemap"):
-		# Generator-API vorhanden -> wie bei _load_world verwenden
-		var maps: Dictionary = await tutorial_inst.get_random_tilemap()
-
-		if maps.is_empty():
-			push_warning("Tutorial generator returned empty maps, falling back to scene extraction")
-		else:
-			dungeon_floor = maps.get("floor", null)
-			dungeon_top = maps.get("top", null)
-			minimap = maps.get("minimap", null)
-
-			# attach maps to world_root if not parented
-			if dungeon_floor != null and dungeon_floor.get_parent() == null:
-				world_root.add_child(dungeon_floor)
-			if dungeon_top != null and dungeon_top.get_parent() == null:
-				world_root.add_child(dungeon_top)
-
-			await _setup_fog_layer_for_current_world()
-
-			if dungeon_floor != null:
-				dungeon_floor.visibility_layer = 1
-
-			_spawn_standard_world_entities(true)
-
-			_hide_loading()
-			get_tree().paused = false
-			if is_instance_valid(tutorial_inst):
-				tutorial_inst.queue_free()
-			return
-
-	# Fallback: Tutorial-Szene wie bisher parsen (TileMapLayer / Area2D etc.)
-	var tutorial_scene = tutorial_inst as Node2D
-	var extracted: Dictionary = {}
-	if world_load_flow != null:
-		extracted = world_load_flow.extract_tutorial_scene_to_world_root(tutorial_scene, world_root)
-
-	if extracted.is_empty() or not bool(extracted.get("ok", false)):
-		push_error(str(extracted.get("error", "Failed to extract tutorial scene")))
-		_hide_loading()
-		_set_tree_paused(false)
+	if world_loading_coordinator == null:
+		push_warning("_load_tutorial_world: world_loading_coordinator is null")
 		return
-
-	dungeon_floor = extracted.get("floor", null)
-	dungeon_top = extracted.get("top", dungeon_floor)
-
-	await _setup_fog_layer_for_current_world()
-
-	dungeon_floor.visibility_layer = 1
-	await _spawn_tutorial_entities_with_reveal()
-
-	_hide_loading()
-	_set_tree_paused(false)
+	await world_loading_coordinator.load_tutorial_world(TUTORIAL_ROOM)
 
 
 func _load_world(idx: int) -> void:
-	world_index = idx
-	_emit_world_loaded(idx)
-	_set_tree_paused(true)
-	await _show_loading()
-
-	_clear_world()
-
-	if idx < 0 or idx >= generators.size():
-		# No more worlds left -> show win screen (similar to game_over behavior)
-
-		_hide_loading()
-		_set_tree_paused(false)
-		var scene_tree := get_tree()
-		if scene_tree != null:
-			if typeof(WIN_SCENE_PACKED) != TYPE_NIL:
-				scene_tree.change_scene_to_packed(WIN_SCENE_PACKED)
-			else:
-				scene_tree.change_scene_to_file(WIN_SCENE)
-		else:
-			push_error("No more worlds left and SceneTree is null")
+	if world_loading_coordinator == null:
+		push_warning("_load_world: world_loading_coordinator is null")
 		return
-
-	var gen = generators[idx]
-
-	# Loading screen mit Generator verbinden
-	if loading_screen != null and is_instance_valid(loading_screen) and gen != null:
-		if loading_screen.has_method("bind_to_generator"):
-			loading_screen.call("bind_to_generator", gen)
-
-	# -------------------------------------------------
-	# WorldRoot + Entity Container erstellen
-	# -------------------------------------------------
-	world_root = Node2D.new()
-	world_root.name = "WorldRoot"
-	add_child(world_root)
-
-	var entity_container = Node2D.new()
-	entity_container.name = "Entities"
-	world_root.add_child(entity_container)
-	entity_container.z_index = 3
-
-	# -------------------------------------------------
-	# Maps vom Generator oder aus Save laden
-	# -------------------------------------------------+
-	if saved_maps and typeof(saved_maps) == TYPE_DICTIONARY and saved_maps.has("floor"):
-		dungeon_floor = saved_maps.get("floor", null)
-		dungeon_top = saved_maps.get("top", null)
-		minimap = saved_maps.get("minimap", null)
-		if world_load_flow != null:
-			world_load_flow.configure_saved_minimap(minimap, world_root, dungeon_floor)
-	elif not _should_load_from_save():
-		var maps: Dictionary = await gen.get_random_tilemap()
-
-		if maps.is_empty():
-			push_error("Generator returned empty dictionary!")
-			_hide_loading()
-			_set_tree_paused(false)
-			return
-		dungeon_floor = maps.get("floor", null)
-		dungeon_top = maps.get("top", null)
-		minimap = maps.get("minimap", null)
-	else:
-		push_error(
-			"_load_world: requested load_from_save but no saved_maps available; falling back to generator"
-		)
-		var maps_fallback: Dictionary = await gen.get_random_tilemap()
-		if maps_fallback.is_empty():
-			push_error("Generator returned empty dictionary!")
-			_hide_loading()
-			_set_tree_paused(false)
-			return
-		dungeon_floor = maps_fallback.get("floor", null)
-		dungeon_top = maps_fallback.get("top", null)
-		minimap = maps_fallback.get("minimap", null)
-
-	if dungeon_floor == null:
-		push_error("Generator returned null floor tilemap!")
-		_hide_loading()
-		_set_tree_paused(false)
-		return
-
-	if world_load_flow != null:
-		world_load_flow.apply_world_tileset_override(idx, SEWER_TILESET, dungeon_floor, dungeon_top)
-		world_load_flow.attach_world_tilemaps(world_root, dungeon_floor, dungeon_top)
-
-	await _setup_fog_layer_for_current_world()
-
-	# -------------------------------------------------
-	# Minimap Background
-	# -------------------------------------------------
-	if world_load_flow != null:
-		world_load_flow.add_minimap_background(minimap, backgroundtile)
-
-	dungeon_floor.visibility_layer = 1
-	# -------------------------------------------------
-	# Spawns / restore from save
-	# -------------------------------------------------
-	if saved_maps != null and typeof(saved_maps) == TYPE_DICTIONARY and saved_maps.has("entities"):
-		_deserialize_entities(saved_maps.get("entities", []))
-		# clear saved_maps so subsequent loads are fresh
-		saved_maps = {}
-	else:
-		_spawn_standard_world_entities(true)
-
-	# -------------------------------------------------
-	# Fertig
-	# -------------------------------------------------
-	_hide_loading()
-	_set_load_from_save(false)
-	_set_tree_paused(false)
+	await world_loading_coordinator.load_world(idx, generators)
 
 
 func spawn_merchant_entity(cords: Vector2) -> void:
-	if world_entity_spawn_flow == null:
+	if spawn_coordinator == null:
 		return
-	world_entity_spawn_flow.spawn_merchant_entity(cords, MERCHANT, world_root, self, world_index)
+	spawn_coordinator.spawn_merchant_entity(cords, MERCHANT, world_index)
 
 
 func _show_loading() -> void:
-	loading_screen = LOADING_SCENE.instantiate() as CanvasLayer
-	add_child(loading_screen)
-
-	if loading_screen != null:
-		loading_screen.layer = 100
-	else:
-		push_error("_show_loading: loading_screen instance is null")
-	loading_screen.visible = true
-	loading_screen.process_mode = Node.PROCESS_MODE_ALWAYS
-
-	move_child(loading_screen, get_child_count() - 1)
-
-	await get_tree().process_frame
-	await get_tree().process_frame
+	if ui_overlay_coordinator == null:
+		push_error("_show_loading: ui_overlay_coordinator is null")
+		return
+	loading_screen = await ui_overlay_coordinator.show_loading(self, LOADING_SCENE)
 
 
 func _show_start() -> void:
-	var start_screen = preload(START_SCENE).instantiate() as CanvasLayer
-	add_child(start_screen)
-
-	start_screen.layer = 1000
-
-	start_screen.visible = true
-	start_screen.process_mode = Node.PROCESS_MODE_ALWAYS
-
-	move_child(start_screen, get_child_count() - 1)
-
-	# Connect Start New signal so clicking the button starts a new game (loads a new map)
-	if start_screen.has_signal("start_new_pressed"):
-		start_screen.start_new_pressed.connect(_on_start_new_pressed)
-
-	await get_tree().process_frame
-	await get_tree().process_frame
+	if ui_overlay_coordinator == null:
+		push_warning("_show_start: ui_overlay_coordinator is null")
+		return
+	await ui_overlay_coordinator.show_start(
+		self, START_SCENE, Callable(self, "_on_start_new_pressed")
+	)
 
 
 func _on_start_new_pressed() -> void:
@@ -594,92 +351,34 @@ func _on_start_new_pressed() -> void:
 
 
 func _hide_loading() -> void:
-	if loading_screen != null and is_instance_valid(loading_screen):
-		loading_screen.visible = false
+	if ui_overlay_coordinator == null:
+		return
+	ui_overlay_coordinator.hide_loading()
+	loading_screen = ui_overlay_coordinator.get_loading_screen()
 
 
 func spawn_traps() -> void:
-	if world_entity_spawn_flow == null:
+	if spawn_coordinator == null:
 		return
-	world_entity_spawn_flow.spawn_traps(dungeon_floor, world_root, TRAP, world_index)
+	spawn_coordinator.spawn_traps(dungeon_floor, TRAP, world_index)
 
 
 func spawn_lootbox() -> void:
-	if world_entity_spawn_flow == null:
+	if spawn_coordinator == null:
 		return
-	world_entity_spawn_flow.spawn_lootbox(dungeon_floor, world_root, LOOTBOX)
+	spawn_coordinator.spawn_lootbox(dungeon_floor, LOOTBOX)
 
 
 func init_fog_layer() -> void:
-	# Fill the FogWar TileMapLayer with a fog tile so Player.update_visibility can erase cells.
-	if fog_war_layer == null or dungeon_floor == null:
+	if world_loading_coordinator == null:
 		return
-
-	# align tileset + transform so coordinates match
-	fog_war_layer.clear()
-	fog_war_layer.tile_set = dungeon_floor.tile_set
-	# align position/visibility/z so it overlays the floor
-	fog_war_layer.position = dungeon_floor.position
-	fog_war_layer.visibility_layer = dungeon_floor.visibility_layer
-	# Ensure fog layer is above the dungeon_top layer (if present) or above the floor otherwise
-	var base_z = 0
-	if dungeon_top != null:
-		base_z = dungeon_top.z_index
-	elif dungeon_floor != null:
-		base_z = dungeon_floor.z_index
-	fog_war_layer.z_index = base_z + 10
-
-	# Debug info: print parent and z indices so we can observe ordering at runtime
-	var counter = 0
-	var used_rect = dungeon_floor.get_used_rect()
-	var yield_every = 300
-	for x in range(used_rect.position.x, used_rect.position.x + used_rect.size.x):
-		for y in range(used_rect.position.y, used_rect.position.y + used_rect.size.y):
-			var cell = Vector2i(x, y)
-			# skip empty cells
-			if dungeon_floor.get_cell_source_id(cell) == -1:
-				continue
-			fog_war_layer.set_cell(cell, 2, Vector2(2, 4), 0)
-			counter += 1
-			if counter % yield_every == 0:
-				await get_tree().process_frame
+	await world_loading_coordinator.init_fog_layer()
 
 
 func _clear_world() -> void:
-	# battle weg
-	if battle_flow != null and battle_flow.has_method("clear_battle"):
-		battle_flow.clear_battle()
-
-	# menu weg (optional)
-	if menu_instance != null and is_instance_valid(menu_instance):
-		menu_instance.queue_free()
-		menu_instance = null
-
-	# player weg
-	if player != null and is_instance_valid(player):
-		player.queue_free()
-		player = null
-
-	if world_root != null and is_instance_valid(world_root):
-		# Preserve fog_war_layer if it was reparented into world_root so it is not freed
-		if fog_war_layer != null and is_instance_valid(fog_war_layer):
-			if fog_war_layer.get_parent() == world_root:
-				world_root.remove_child(fog_war_layer)
-				add_child(fog_war_layer)
-
-		world_root.queue_free()
-		world_root = null
-
-	dungeon_floor = null
-	dungeon_top = null
-
-	# Reset entity spawn reservations so next world can reuse positions
-	if EntityAutoload != null and EntityAutoload.has_method("reset"):
-		EntityAutoload.reset()
-
-	# Reset global RNG to base seed so new-world generation is deterministic
-	if typeof(GlobalRNG) != TYPE_NIL and GlobalRNG != null and GlobalRNG.has_method("reset"):
-		GlobalRNG.reset()
+	if world_loading_coordinator == null:
+		return
+	world_loading_coordinator.clear_world()
 
 
 func _on_player_exit_reached() -> void:
@@ -981,13 +680,9 @@ func save_current_world() -> void:
 
 
 func spawn_enemies(do_boss: bool) -> void:
-	if enemy_spawn_flow == null:
+	if spawn_coordinator == null:
 		return
-
-	var data: Dictionary = EntityAutoload.item_data
-	enemy_spawn_flow.spawn_enemies(
-		do_boss, world_index, data, dungeon_floor, dungeon_top, world_root, self
-	)
+	spawn_coordinator.spawn_enemies(do_boss, world_index, dungeon_floor, dungeon_top, self)
 
 
 func spawn_enemy(
@@ -998,67 +693,27 @@ func spawn_enemy(
 	xp: int,
 	boss: bool = false
 ) -> void:
-	if enemy_spawn_flow == null:
+	if spawn_coordinator == null:
 		return
-	enemy_spawn_flow.spawn_enemy(
-		sprite_type,
-		behaviour,
-		skills,
-		stats,
-		xp,
-		dungeon_floor,
-		dungeon_top,
-		world_root,
-		self,
-		boss
+	spawn_coordinator.spawn_enemy(
+		sprite_type, behaviour, skills, stats, xp, dungeon_floor, dungeon_top, self, boss
 	)
 
 
 func spawn_player() -> void:
-	# alte Player entfernen
-	for n in get_tree().get_nodes_in_group("player"):
-		if n != null and is_instance_valid(n):
-			n.queue_free()
-
-	var e: PlayerCharacter = PLAYER_SCENE.instantiate()
-	e.name = "Player"
-	# Floor setzen (einmal!)
-	e.setup(dungeon_floor, dungeon_top, 10, 3, 0, {})
-	e.fog_layer = fog_war_layer
-	# pass dynamic flag and fog tile id to player for re-fogging
-	if e.has_method("set"):
-		e.set("dynamic_fog", fog_dynamic)
-		e.set("fog_tile_id", fog_tile_id)
-	# in WorldRoot hängen
-	world_root.add_child(e)
-	player = e
-
-	# Ensure player is drawn above fog layer so player is visible
-	if fog_war_layer != null:
-		player.z_index = fog_war_layer.z_index + 10000000
-
-	# minimap rein
-	player.set_minimap(minimap)
-
-	# Spawn Position
-	var start_pos = Vector2i(2, 2)
-
-	# Tutorial world: spawn at different position
-	if minimap == null:
-		start_pos = Vector2i(-18, 15)
-
-	# erst tilemap, dann gridpos, dann position
-	player.grid_pos = start_pos
-	player.global_position = dungeon_floor.to_global(dungeon_floor.map_to_local(start_pos))
-	player.add_to_group("player")
-
-	if entity_persistence_flow != null:
-		entity_persistence_flow.connect_player_signals(self, player, true)
-
-	# WICHTIG: einmal initial Fog aufdecken
-	if player.has_method("update_visibility") and entity_persistence_flow != null:
-		entity_persistence_flow.update_player_visibility(player)
-		emit_signal("player_spawned", player)
+	if spawn_coordinator == null:
+		return
+	player = spawn_coordinator.spawn_player(
+		PLAYER_SCENE,
+		dungeon_floor,
+		dungeon_top,
+		fog_war_layer,
+		minimap,
+		fog_dynamic,
+		fog_tile_id,
+		entity_persistence_flow,
+		self
+	)
 
 
 func get_world_tilemaps() -> Dictionary:
@@ -1113,9 +768,9 @@ func instantiate_battle(player_node: Node, enemy: Node):
 
 
 func find_merchants() -> Array[Vector2]:
-	if world_entity_spawn_flow == null:
+	if spawn_coordinator == null:
 		return []
-	return world_entity_spawn_flow.find_merchants(dungeon_floor)
+	return spawn_coordinator.find_merchants(dungeon_floor)
 
 
 func enemy_defeated(enemy):
