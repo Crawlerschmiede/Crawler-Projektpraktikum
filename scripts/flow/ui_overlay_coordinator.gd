@@ -1,66 +1,87 @@
 extends RefCounted
 
+const OVERLAY_LAYER := 100
 var _loading_screen: CanvasLayer = null
 
 
-func show_skilltree_select_menu(host: Node, scene: PackedScene) -> void:
-	if host == null or scene == null:
+func _configure_fullscreen_control(node: Node) -> void:
+	if not (node is Control):
 		return
 
-	var skilltree_select = scene.instantiate()
-	if skilltree_select == null:
-		push_warning(
-			"Failed to instantiate skilltree select menu; continuing startup without selection"
-		)
-		return
+	var control_node := node as Control
+	control_node.set_anchors_preset(Control.PRESET_FULL_RECT)
+	control_node.offset_left = 0
+	control_node.offset_top = 0
+	control_node.offset_right = 0
+	control_node.offset_bottom = 0
+
+
+func _instantiate_modal_overlay(
+	host: Node, scene: PackedScene, overlay_name: String, warning_text: String
+) -> Dictionary:
+	if host == null or scene == null:
+		return {}
+
+	var overlay_content = scene.instantiate()
+	if overlay_content == null:
+		if warning_text != "":
+			push_warning(warning_text)
+		return {}
 
 	var ui_layer := CanvasLayer.new()
-	ui_layer.name = "SkilltreeSelectOverlay"
-	ui_layer.layer = 100
+	ui_layer.name = overlay_name
+	ui_layer.layer = OVERLAY_LAYER
 	host.add_child(ui_layer)
-	ui_layer.add_child(skilltree_select)
+	ui_layer.add_child(overlay_content)
+	_configure_fullscreen_control(overlay_content)
 
-	if skilltree_select is Control:
-		skilltree_select.set_anchors_preset(Control.PRESET_FULL_RECT)
-		skilltree_select.offset_left = 0
-		skilltree_select.offset_top = 0
-		skilltree_select.offset_right = 0
-		skilltree_select.offset_bottom = 0
+	return {
+		"layer": ui_layer,
+		"content": overlay_content,
+	}
+
+
+func _cleanup_overlay(ui_layer: CanvasLayer) -> void:
+	if ui_layer != null and is_instance_valid(ui_layer):
+		ui_layer.queue_free()
+
+
+func show_skilltree_select_menu(host: Node, scene: PackedScene) -> void:
+	var overlay_data := _instantiate_modal_overlay(
+		host,
+		scene,
+		"SkilltreeSelectOverlay",
+		"Failed to instantiate skilltree select menu; continuing startup without selection"
+	)
+	if overlay_data.is_empty():
+		return
+
+	var ui_layer: CanvasLayer = overlay_data["layer"]
+	var skilltree_select: Node = overlay_data["content"]
 
 	if skilltree_select.has_signal("selection_confirmed"):
 		await skilltree_select.selection_confirmed
 
-	if is_instance_valid(ui_layer):
-		ui_layer.queue_free()
+	_cleanup_overlay(ui_layer)
 
 
 func show_skilltree_upgrading_menu(host: Node, scene: PackedScene) -> void:
-	if host == null or scene == null:
+	var overlay_data := _instantiate_modal_overlay(
+		host,
+		scene,
+		"SkilltreeUpgradingOverlay",
+		"Failed to instantiate skilltree upgrading menu; continuing startup"
+	)
+	if overlay_data.is_empty():
 		return
 
-	var skilltree_upgrading = scene.instantiate()
-	if skilltree_upgrading == null:
-		push_warning("Failed to instantiate skilltree upgrading menu; continuing startup")
-		return
-
-	var ui_layer := CanvasLayer.new()
-	ui_layer.name = "SkilltreeUpgradingOverlay"
-	ui_layer.layer = 100
-	host.add_child(ui_layer)
-	ui_layer.add_child(skilltree_upgrading)
-
-	if skilltree_upgrading is Control:
-		skilltree_upgrading.set_anchors_preset(Control.PRESET_FULL_RECT)
-		skilltree_upgrading.offset_left = 0
-		skilltree_upgrading.offset_top = 0
-		skilltree_upgrading.offset_right = 0
-		skilltree_upgrading.offset_bottom = 0
+	var ui_layer: CanvasLayer = overlay_data["layer"]
+	var skilltree_upgrading: Node = overlay_data["content"]
 
 	if skilltree_upgrading.has_signal("closed"):
 		await skilltree_upgrading.closed
 
-	if is_instance_valid(ui_layer):
-		ui_layer.queue_free()
+	_cleanup_overlay(ui_layer)
 
 
 func show_loading(host: Node, loading_scene: PackedScene) -> CanvasLayer:
@@ -71,7 +92,7 @@ func show_loading(host: Node, loading_scene: PackedScene) -> CanvasLayer:
 	host.add_child(_loading_screen)
 
 	if _loading_screen != null:
-		_loading_screen.layer = 100
+		_loading_screen.layer = OVERLAY_LAYER
 	else:
 		push_error("_show_loading: loading_screen instance is null")
 		return null

@@ -1,5 +1,6 @@
 extends RefCounted
 
+const MAX_SPAWN_SELECTION_ITERATIONS := 100
 var _enemy_scene: PackedScene = null
 
 
@@ -118,7 +119,7 @@ func spawn_enemies(
 		print("Spawned boss!")
 		return
 
-	for _i in range(100):
+	for _i in range(MAX_SPAWN_SELECTION_ITERATIONS):
 		if current_weight >= max_weight:
 			break
 

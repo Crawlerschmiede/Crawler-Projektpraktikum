@@ -1,7 +1,5 @@
 extends Node2D
 
-# gdlint: disable=max-file-lines
-
 signal player_spawned
 
 const ENEMY_SCENE := preload("res://scenes/entity/enemy.tscn")

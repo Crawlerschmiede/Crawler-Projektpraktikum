@@ -1,5 +1,7 @@
 extends RefCounted
 
+const PLAYER_Z_INDEX_OFFSET := 10000000
+
 var _main = null
 var _world_entity_spawn_flow: RefCounted = null
 var _enemy_spawn_flow: RefCounted = null
@@ -100,7 +102,7 @@ func spawn_player(
 	_main.world_root.add_child(e)
 
 	if fog_war_layer != null:
-		e.z_index = fog_war_layer.z_index + 10000000
+		e.z_index = fog_war_layer.z_index + PLAYER_Z_INDEX_OFFSET
 
 	e.set_minimap(minimap)
 

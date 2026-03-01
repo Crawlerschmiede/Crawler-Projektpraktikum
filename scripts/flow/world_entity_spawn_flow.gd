@@ -1,5 +1,67 @@
 extends RefCounted
 
+const MAX_WORLD_SPAWNS_PER_TYPE := 20
+
+
+func _clear_existing_spawns(world_root: Node, name_prefix: String) -> void:
+	if world_root == null:
+		return
+	for child in world_root.get_children():
+		if child != null and child.name.begins_with(name_prefix):
+			child.queue_free()
+
+
+func _collect_spawn_candidates(
+	dungeon_floor: TileMapLayer, custom_data_key: String, missing_layer_warning: String
+) -> Array[Vector2i]:
+	var candidates: Array[Vector2i] = []
+	if dungeon_floor == null:
+		return candidates
+
+	var tile_set = dungeon_floor.tile_set
+	if tile_set == null:
+		return candidates
+
+	if not _has_custom_data_layer(tile_set, custom_data_key):
+		push_warning(missing_layer_warning)
+		return candidates
+
+	for cell in dungeon_floor.get_used_cells():
+		var tile_data = dungeon_floor.get_cell_tile_data(cell)
+		if tile_data == null:
+			continue
+		if tile_data.get_custom_data(custom_data_key) == true:
+			candidates.append(cell)
+
+	return candidates
+
+
+func _spawn_from_candidates(
+	candidates: Array[Vector2i],
+	dungeon_floor: TileMapLayer,
+	world_root: Node,
+	scene: PackedScene,
+	name_prefix: String,
+	configure_spawn: Callable
+) -> void:
+	if candidates.is_empty() or dungeon_floor == null or world_root == null or scene == null:
+		return
+
+	GlobalRNG.shuffle_array(candidates)
+	var amount = min(MAX_WORLD_SPAWNS_PER_TYPE, candidates.size())
+
+	for i in range(amount):
+		var spawn_cell = candidates[i]
+		var world_pos = dungeon_floor.to_global(dungeon_floor.map_to_local(spawn_cell))
+
+		var spawned_node = scene.instantiate() as Node2D
+		spawned_node.name = "%s_%s" % [name_prefix, i]
+		world_root.add_child(spawned_node)
+		spawned_node.global_position = world_pos
+
+		if configure_spawn.is_valid():
+			configure_spawn.call(spawned_node, i)
+
 
 func _has_custom_data_layer(tile_set: TileSet, layer_name: String) -> bool:
 	if tile_set == null:
@@ -51,42 +113,24 @@ func spawn_traps(
 	if dungeon_floor == null or world_root == null or trap_scene == null:
 		return
 
-	var tile_set = dungeon_floor.tile_set
-	if tile_set == null:
-		return
+	_clear_existing_spawns(world_root, "Trap")
 
-	if not _has_custom_data_layer(tile_set, "trap_spawnable"):
-		push_warning("TileSet has no custom data layer 'trap_spawnable'. Skipping trap spawns.")
-		return
+	var candidates := _collect_spawn_candidates(
+		dungeon_floor,
+		"trap_spawnable",
+		"TileSet has no custom data layer 'trap_spawnable'. Skipping trap spawns."
+	)
 
-	for child in world_root.get_children():
-		if child != null and child.name.begins_with("Trap"):
-			child.queue_free()
-
-	var candidates: Array[Vector2i] = []
-	for cell in dungeon_floor.get_used_cells():
-		var tile_data = dungeon_floor.get_cell_tile_data(cell)
-		if tile_data == null:
-			continue
-		if tile_data.get_custom_data("trap_spawnable") == true:
-			candidates.append(cell)
-
-	if candidates.is_empty():
-		return
-
-	GlobalRNG.shuffle_array(candidates)
-	var amount = min(20, candidates.size())
-
-	for i in range(amount):
-		var spawn_cell = candidates[i]
-		var world_pos = dungeon_floor.to_global(dungeon_floor.map_to_local(spawn_cell))
-
-		var trap = trap_scene.instantiate() as Node2D
-		trap.name = "Trap_%s" % i
-		if trap.has_method("set"):
-			trap.set("world_index", world_index)
-		world_root.add_child(trap)
-		trap.global_position = world_pos
+	_spawn_from_candidates(
+		candidates,
+		dungeon_floor,
+		world_root,
+		trap_scene,
+		"Trap",
+		func(spawned_node: Node2D, _index: int):
+			if spawned_node.has_method("set"):
+				spawned_node.set("world_index", world_index)
+	)
 
 
 func spawn_lootbox(
@@ -95,44 +139,24 @@ func spawn_lootbox(
 	if dungeon_floor == null or world_root == null or lootbox_scene == null:
 		return
 
-	var tile_set = dungeon_floor.tile_set
-	if tile_set == null:
-		return
+	_clear_existing_spawns(world_root, "Lootbox")
 
-	if not _has_custom_data_layer(tile_set, "lootbox_spawnable"):
-		push_warning(
-			"TileSet has no custom data layer 'lootbox_spawnable'. Skipping lootbox spawns."
-		)
-		return
+	var candidates := _collect_spawn_candidates(
+		dungeon_floor,
+		"lootbox_spawnable",
+		"TileSet has no custom data layer 'lootbox_spawnable'. Skipping lootbox spawns."
+	)
 
-	for child in world_root.get_children():
-		if child != null and child.name.begins_with("Lootbox"):
-			child.queue_free()
-
-	var candidates: Array[Vector2i] = []
-	for cell in dungeon_floor.get_used_cells():
-		var tile_data = dungeon_floor.get_cell_tile_data(cell)
-		if tile_data == null:
-			continue
-		if tile_data.get_custom_data("lootbox_spawnable") == true:
-			candidates.append(cell)
-
-	if candidates.is_empty():
-		return
-
-	GlobalRNG.shuffle_array(candidates)
-	var amount = min(20, candidates.size())
-
-	for i in range(amount):
-		var spawn_cell = candidates[i]
-		var world_pos = dungeon_floor.to_global(dungeon_floor.map_to_local(spawn_cell))
-
-		var loot = lootbox_scene.instantiate() as Node2D
-		loot.name = "Lootbox_%s" % i
-		if loot.has_method("set"):
-			loot.set("lootbox_id", "lootbox_%s" % i)
-		world_root.add_child(loot)
-		loot.global_position = world_pos
+	_spawn_from_candidates(
+		candidates,
+		dungeon_floor,
+		world_root,
+		lootbox_scene,
+		"Lootbox",
+		func(spawned_node: Node2D, index: int):
+			if spawned_node.has_method("set"):
+				spawned_node.set("lootbox_id", "lootbox_%s" % index)
+	)
 
 
 func find_merchants(dungeon_floor: TileMapLayer) -> Array[Vector2]:

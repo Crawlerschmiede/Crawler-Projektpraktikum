@@ -1,5 +1,7 @@
 extends RefCounted
 
+const FOG_FILL_YIELD_EVERY := 300
+
 var _main = null
 var _world_load_flow: RefCounted = null
 
@@ -51,7 +53,7 @@ func init_fog_layer() -> void:
 
 	var counter = 0
 	var used_rect = _main.dungeon_floor.get_used_rect()
-	var yield_every = 300
+	var yield_every = FOG_FILL_YIELD_EVERY
 	for x in range(used_rect.position.x, used_rect.position.x + used_rect.size.x):
 		for y in range(used_rect.position.y, used_rect.position.y + used_rect.size.y):
 			var cell = Vector2i(x, y)
@@ -110,6 +112,21 @@ func _hide_loading() -> void:
 		return
 	_main.ui_overlay_coordinator.hide_loading()
 	_main.loading_screen = _main.ui_overlay_coordinator.get_loading_screen()
+
+
+func _load_and_apply_generator_maps(generator: Node) -> bool:
+	if generator == null:
+		return false
+
+	var maps: Dictionary = await generator.get_random_tilemap()
+	if maps.is_empty():
+		push_error("Generator returned empty dictionary!")
+		return false
+
+	_main.dungeon_floor = maps.get("floor", null)
+	_main.dungeon_top = maps.get("top", null)
+	_main.minimap = maps.get("minimap", null)
+	return true
 
 
 func load_tutorial_world(tutorial_room_path: String) -> void:
@@ -222,11 +239,6 @@ func load_world(idx: int, generators: Array[Node2D]) -> void:
 	_main.world_root.name = "WorldRoot"
 	_main.add_child(_main.world_root)
 
-	var entity_container = Node2D.new()
-	entity_container.name = "Entities"
-	_main.world_root.add_child(entity_container)
-	entity_container.z_index = 3
-
 	if (
 		_main.saved_maps
 		and typeof(_main.saved_maps) == TYPE_DICTIONARY
@@ -240,29 +252,18 @@ func load_world(idx: int, generators: Array[Node2D]) -> void:
 				_main.minimap, _main.world_root, _main.dungeon_floor
 			)
 	elif not _main._should_load_from_save():
-		var maps: Dictionary = await gen.get_random_tilemap()
-
-		if maps.is_empty():
-			push_error("Generator returned empty dictionary!")
+		if not await _load_and_apply_generator_maps(gen):
 			_hide_loading()
 			_main._set_tree_paused(false)
 			return
-		_main.dungeon_floor = maps.get("floor", null)
-		_main.dungeon_top = maps.get("top", null)
-		_main.minimap = maps.get("minimap", null)
 	else:
 		push_error(
 			"_load_world: requested load_from_save but no saved_maps available; falling back to generator"
 		)
-		var maps_fallback: Dictionary = await gen.get_random_tilemap()
-		if maps_fallback.is_empty():
-			push_error("Generator returned empty dictionary!")
+		if not await _load_and_apply_generator_maps(gen):
 			_hide_loading()
 			_main._set_tree_paused(false)
 			return
-		_main.dungeon_floor = maps_fallback.get("floor", null)
-		_main.dungeon_top = maps_fallback.get("top", null)
-		_main.minimap = maps_fallback.get("minimap", null)
 
 	if _main.dungeon_floor == null:
 		push_error("Generator returned null floor tilemap!")
