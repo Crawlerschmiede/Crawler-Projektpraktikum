@@ -1,21 +1,31 @@
 # InventoryUI.gd (Godot 4.x, vollständig typisiert & compile-safe)
-# gdlint: disable=max-file-lines
 
 extends Control
 
 signal inventory_changed
 
-const DEBUG: bool = true
+const DEBUG: bool = false
 
 # Slot Script (Pfad prüfen!)
 const SlotScript: GDScript = preload("res://scripts/UI/Slot.gd")
 const ITEM_SCENE: PackedScene = preload("res://scenes/Item/item.tscn")
+const InventoryStoreAdapterScript: GDScript = preload("res://scripts/UI/inventory_store_adapter.gd")
+const InventoryRendererScript: GDScript = preload("res://scripts/UI/inventory_renderer.gd")
+const InventoryInteractionScript: GDScript = preload("res://scripts/UI/inventory_interaction.gd")
+const InventorySelectionScript: GDScript = preload("res://scripts/UI/inventory_selection.gd")
+const InventorySelectionCallbacksScript: GDScript = preload(
+	"res://scripts/UI/inventory_selection_callbacks.gd"
+)
 
 var _ui: Node = null
 var _slot_callables: Dictionary = {}  # key: Node (slot), value: Callable
 var _cached_inv_slots: Array = []
 var _cached_inv_slots_valid: bool = false
 var _inv_slot_nodes_by_index: Dictionary = {}
+var _store_adapter: InventoryStoreAdapter = null
+var _inventory_renderer: InventoryRenderer = null
+var _interaction: InventoryInteraction = null
+var _selection: InventorySelection = null
 
 @onready var inv_grid: GridContainer = $Inner/Equiptment
 @onready var equip_grid: GridContainer = $Inner/GridContainer
@@ -65,19 +75,6 @@ func _get_all_slots() -> Array[Node]:
 	return out
 
 
-# -------------------------
-# Helpers: Property Check (Godot 4)
-# -------------------------
-func _has_property(obj: Object, prop: StringName) -> bool:
-	if obj == null:
-		return false
-	var plist: Array[Dictionary] = obj.get_property_list()
-	for p: Dictionary in plist:
-		if p.has("name") and StringName(p["name"]) == prop:
-			return true
-	return false
-
-
 func _get_ui() -> Node:
 	if _ui != null and is_instance_valid(_ui):
 		return _ui
@@ -99,10 +96,7 @@ func _get_slots() -> Array[Node]:
 func _get_equipment_slots():
 	var slots: Array[Node] = []
 	_collect_slots_recursive(inv_grid, slots)
-	var equipment_slots = []
-	for slot in slots:
-		equipment_slots.append(slot)
-	return equipment_slots
+	return slots
 
 
 func get_equipment_skills():
@@ -111,7 +105,7 @@ func get_equipment_skills():
 	for slot in equipment_slots:
 		var item_in_slot = slot.get_item()
 		if item_in_slot != null:
-			var bound = slot.get_item().get_bound_skills()
+			var bound = item_in_slot.get_bound_skills()
 			for skill in bound:
 				if skill not in gotten_skills:
 					gotten_skills.append(skill)
@@ -124,7 +118,7 @@ func get_equipment_range():
 	for slot in equipment_slots:
 		var item_in_slot = slot.get_item()
 		if item_in_slot != null:
-			gotten_range = slot.get_item().get_range()
+			gotten_range = item_in_slot.get_range()
 	return gotten_range
 
 
@@ -133,6 +127,7 @@ func get_equipment_range():
 # -------------------------
 func _ready() -> void:
 	#dgb("_ready() gestartet")
+	_initialize_dependencies()
 
 	var slots: Array[Node] = _get_slots()
 	#dgb("Slots im GridContainer gefunden: %d" % slots.size())
@@ -153,6 +148,53 @@ func _ready() -> void:
 	call_deferred("_ensure_inventory_selection")
 
 
+func _initialize_dependencies() -> void:
+	if _store_adapter == null:
+		_store_adapter = InventoryStoreAdapterScript.new(PlayerInventory, JsonData)
+
+	if _inventory_renderer == null:
+		_inventory_renderer = InventoryRendererScript.new(
+			_store_adapter,
+			Callable(self, "_get_slots"),
+			Callable(self, "_get_holding_item_for_render"),
+			Callable(self, "_ensure_inventory_selection")
+		)
+
+	if _interaction == null:
+		_interaction = InventoryInteractionScript.new(
+			_store_adapter,
+			PlayerInventory,
+			JsonData,
+			ITEM_SCENE,
+			DEBUG,
+			Callable(self, "_get_ui"),
+			Callable(self, "get_global_mouse_position"),
+			Callable(self, "_validate_slot")
+		)
+
+	if _selection == null:
+		var callbacks: InventorySelectionCallbacks = InventorySelectionCallbacksScript.new()
+		callbacks.get_inventory_slots = Callable(self, "_get_inventory_slot_nodes_sorted")
+		callbacks.refresh_slot_style = Callable(self, "_refresh_slot_style")
+		callbacks.refresh_all_styles = Callable(self, "_refresh_all_slot_styles")
+		callbacks.swap_slots = Callable(self, "_swap_slots_by_index")
+		callbacks.get_hotbar_slots = Callable(self, "_get_hotbar_slot_nodes_sorted")
+		callbacks.get_slots = Callable(self, "_get_slots")
+		callbacks.is_equip_blocked = Callable(self, "_is_equip_blocked")
+
+		_selection = InventorySelectionScript.new(_store_adapter, callbacks)
+
+
+func _get_holding_item_for_render() -> Node:
+	var ui := _get_ui()
+	if ui == null or not InventoryUtils.has_property(ui, &"holding_item"):
+		return null
+	var hv: Variant = ui.get("holding_item")
+	if hv is Node and is_instance_valid(hv as Node):
+		return hv as Node
+	return null
+
+
 func _setup_slots(slots: Array[Node]) -> void:
 	for i: int in range(slots.size()):
 		var s: Node = slots[i]
@@ -166,7 +208,10 @@ func _setup_slots(slots: Array[Node]) -> void:
 			push_error("Slot %d hat keine Methode initialize_item(). Slot.gd fehlt/anders?" % i)
 
 		var groups: Array[StringName] = (s as Node).get_groups()
-		PlayerInventory.register_slot_index(i, groups)
+		if _store_adapter != null:
+			_store_adapter.register_slot_index(i, groups)
+		else:
+			PlayerInventory.register_slot_index(i, groups)
 
 		# Signal connect (Callable speichern, sonst is_connected() sinnlos)
 		var call: Callable = Callable(self, "slot_gui_input").bind(s)
@@ -185,7 +230,7 @@ func _setup_slots(slots: Array[Node]) -> void:
 		# Debug info for this slot
 
 		# Slot properties setzen
-		if _has_property(s, &"slot_index"):
+		if InventoryUtils.has_property(s, &"slot_index"):
 			s.set("slot_index", i)
 			# keep quick reference to inventory slot nodes by their index
 			# for fast lookup
@@ -199,9 +244,9 @@ func _setup_slots(slots: Array[Node]) -> void:
 				)
 			)
 
-		if _has_property(s, &"slot_type"):
+		if InventoryUtils.has_property(s, &"slot_type"):
 			# Respect designer-configured slot_type when present — do not overwrite.
-			var cur_type := int(s.get("slot_type"))
+			pass
 
 		else:
 			# Determine slot_type from groups or parent container when property is missing
@@ -219,10 +264,14 @@ func _setup_slots(slots: Array[Node]) -> void:
 
 
 func _connect_inventory_signal() -> void:
+	if (
+		_store_adapter != null
+		and _store_adapter.connect_inventory_changed(self, &"_on_inventory_changed")
+	):
+		return
+
 	if PlayerInventory != null and PlayerInventory.has_signal("inventory_changed"):
 		var cb: Callable = Callable(self, "_on_inventory_changed")
-		# connect using Callable (Godot 4 compatible)
-		# and avoid double-connections
 		if not PlayerInventory.inventory_changed.is_connected(cb):
 			PlayerInventory.inventory_changed.connect(cb)
 
@@ -246,7 +295,7 @@ func _rebuild_cached_inventory_slots() -> void:
 				s is Node
 				and s.is_in_group("Inventory")
 				and is_instance_valid(s)
-				and _has_property(s, &"slot_index")
+				and InventoryUtils.has_property(s, &"slot_index")
 			):
 				var idx := int(s.get("slot_index"))
 				_inv_slot_nodes_by_index[idx] = s
@@ -283,468 +332,73 @@ func _on_inventory_changed() -> void:
 # Inventory -> UI Render
 # -------------------------
 func initialize_inventory() -> void:
-	var ui := _get_ui()
-	var holding: Node = null
-	if ui != null and _has_property(ui, &"holding_item"):
-		var hv: Node = ui.get("holding_item")
-		if hv is Node:
-			holding = hv as Node
+	if _inventory_renderer == null:
+		_initialize_dependencies()
 
-	#dgb("initialize_inventory()")
-
-	if PlayerInventory == null:
-		push_error("PlayerInventory ist null – Autoload fehlt?")
+	if _inventory_renderer != null:
+		_inventory_renderer.render()
 		return
 
-	if not _has_property(PlayerInventory, &"inventory"):
-		push_error("PlayerInventory hat keine Variable 'inventory'")
-		return
-
-	var slots: Array[Node] = _get_slots()
-
-	# 1) Slots leeren + style refresh
-	for i: int in range(slots.size()):
-		var s: Node = slots[i]
-
-		if s.has_method("clear_slot"):
-			s.call("clear_slot")
-		else:
-			# fallback: item property freigeben
-			if _has_property(s, &"item"):
-				var it: Variant = s.get("item")
-				if it != null and it is Node and is_instance_valid(it):
-					if not (holding != null and it == holding):
-						(it as Node).queue_free()
-				s.set("item", null)
-
-		if s.has_method("refresh_style"):
-			s.call("refresh_style")
-
-	# 2) Inventory Daten neu reinbauen
-	var inv: Dictionary = PlayerInventory.get("inventory")
-	var keys: Array = inv.keys()
-	#dgb("PlayerInventory.inventory keys: %s" % str(keys))
-
-	for k in keys:
-		var idx: int = int(k)
-		print("Slot size: ", slots.size())
-		if idx < 0 or idx >= slots.size():
-			push_error(
-				"Inventory enthält slot_index %s, aber UI hat nur %d Slots" % [str(k), slots.size()]
-			)
-			continue
-
-		var slot: Node = slots[idx]
-		var data: Variant = inv[k]
-
-		if typeof(data) != TYPE_ARRAY:
-			push_error("Ungültige Inventory Daten in Slot %d: %s" % [idx, str(data)])
-			continue
-
-		var arr: Array = data as Array
-		if arr.size() < 2:
-			push_error("Ungültige Inventory Daten in Slot %d: %s" % [idx, str(arr)])
-			continue
-
-		var item_name: String = str(arr[0])
-		var item_qty: int = int(arr[1])
-
-		#dgb("Slot %d <- %s x%d" % [idx, item_name, item_qty])
-
-		if slot.has_method("initialize_item"):
-			slot.call("initialize_item", item_name, item_qty)
-		else:
-			push_error(
-				"Slot %d hat initialize_item() nicht – Item kann nicht angezeigt werden" % idx
-			)
-
-	# Ensure selected slot is visible / styled after rebuild
-	_ensure_inventory_selection()
+	push_error("InventoryRenderer konnte nicht initialisiert werden")
 
 
 # -------------------------
 # INPUT / DRAG HANDLING
 # -------------------------
 func slot_gui_input(event: InputEvent, slot: Node) -> void:
-	#dgb("CLICK on slot " + str(slot.get("slot_index")))
-	if not (event is InputEventMouseButton):
-		return
-
-	var mbe: InputEventMouseButton = event as InputEventMouseButton
-	# only care about pressed mouse button events
-	if not mbe.pressed:
-		return
-
-	# Right-click special: if player is holding an item, allow placing it into the slot
-	if mbe.button_index == MOUSE_BUTTON_RIGHT:
-		# place a single unit on right-click (or fallback to existing swap behavior)
-		right_click_put_one_unit(slot)
-		return
-
-	#dgb("Knopf erkannt")
-	var ui: Node = _get_ui()
-	if ui == null:
-		push_error("UserInterface Parent nicht gefunden. Node muss so heißen.")
-		return
-
-	if not _has_property(ui, &"holding_item"):
-		push_error("UserInterface hat keine Variable 'holding_item'")
-		return
-
-	var holding: Variant = ui.get("holding_item")
-
-	var slot_item: Variant = null
-	if _has_property(slot, &"item"):
-		slot_item = slot.get("item")
-	#dgb("holding startet?")
-
-	# Wir halten was
-	if holding != null:
-		#dgb("holding not empty")
-		if slot_item == null:
-			#dgb("slot_item not empty")
-			left_click_empty_slot(slot)
-		else:
-			var holding_name: String = str((holding as Node).get("item_name"))
-			var slot_name: String = str((slot_item as Node).get("item_name"))
-
-			if holding_name != slot_name:
-				left_click_different_item(slot)
-			else:
-				left_click_same_item(slot)
-
-	# Wir halten nix, Slot hat Item
-	elif slot_item != null:
-		left_click_not_holding(slot)
+	if _interaction == null:
+		_initialize_dependencies()
+	if _interaction != null:
+		_interaction.handle_slot_gui_input(event, slot)
 
 
 func _process(_delta: float) -> void:
 	var ui: Node = _get_ui()
 	if ui == null:
 		return
-	if not _has_property(ui, &"holding_item"):
+	if not InventoryUtils.has_property(ui, &"holding_item"):
 		return
 
 	var holding: Variant = ui.get("holding_item")
 	if holding == null:
 		return
-
-	# noop
-
-	PlayerInventory.inventory.erase(17)
 
 	if holding is Node and is_instance_valid(holding as Node):
 		var hn := holding as Node
 		hn.global_position = get_global_mouse_position()
 
 
-func able_to_put_into_slot(_slot: Node) -> bool:
-	return true
+func _refresh_slot_style(slot: Node) -> void:
+	if _inventory_renderer == null:
+		_initialize_dependencies()
+	if _inventory_renderer != null:
+		_inventory_renderer.refresh_slot_style(slot)
 
 
-func _get_holding_node(ui: Node) -> Node:
-	if ui == null or not _has_property(ui, &"holding_item"):
-		return null
-	var holding: Variant = ui.get("holding_item")
-	if holding is Node and is_instance_valid(holding as Node):
-		return holding as Node
-	return null
-
-
-func _get_slot_item_node(slot: Node) -> Node:
-	if not _has_property(slot, &"item"):
-		return null
-	var slot_item: Variant = slot.get("item")
-	if slot_item is Node and is_instance_valid(slot_item as Node):
-		return slot_item as Node
-	return null
-
-
-func _put_item_into_slot(slot: Node, item: Node) -> bool:
-	if slot.has_method("put_into_slot"):
-		slot.call("put_into_slot", item)
-		return true
-	push_error("Slot hat keine put_into_slot()")
-	return false
-
-
-func _decrease_holding_quantity(ui: Node, hnode: Node, amount: int) -> void:
-	if ui == null or hnode == null or amount <= 0:
-		return
-
-	if hnode.has_method("decrease_item_quantity"):
-		hnode.call("decrease_item_quantity", amount)
-	else:
-		var cur_qty := int(hnode.get("item_quantity"))
-		hnode.set("item_quantity", max(0, cur_qty - amount))
-
-	if int(hnode.get("item_quantity")) <= 0:
-		if is_instance_valid(hnode):
-			hnode.queue_free()
-		ui.set("holding_item", null)
-
-
-func _create_single_item_node(item_name: String) -> Node:
-	var new_item = ITEM_SCENE.instantiate()
-	if new_item == null:
-		push_error("Failed to instantiate ITEM_SCENE")
-		return null
-
-	if not new_item.has_method("set_item"):
-		push_error("Instantiated item has no set_item()")
-		if is_instance_valid(new_item):
-			new_item.queue_free()
-		return null
-
-	new_item.call("set_item", item_name, 1)
-	return new_item
-
-
-func left_click_empty_slot(slot: Node) -> void:
-	#dgb("left_click_empty_slot")
-	var ui: Node = _get_ui()
-	if ui == null:
-		return
-
-	var holding: Node = _get_holding_node(ui)
-	if holding == null:
-		return
-
-	var ok: bool = PlayerInventory.add_item_to_empty_slot(holding, slot)
-
-	if not ok:
-		#dgb("DROP denied -> item bleibt in Hand")
-		return
-
-	if not _put_item_into_slot(slot, holding):
-		return
-	ui.set("holding_item", null)
-
-	var idx: int = int(slot.get("slot_index"))
-	#print("I", idx)
-	if idx == 17:
-		PlayerInventory.inventory.erase(17)  # <-- richtig löschen, kein null setzen!
-		PlayerInventory._emit_changed()  # UI refresh / signal
-		#dgb("Slot 17 erased from inventory ✅")
-
-	if DEBUG:
-		_validate_slot(slot)
-
-
-func left_click_different_item(slot: Node) -> void:
-	var ui: Node = _get_ui()
-	if ui == null:
-		return
-
-	var holding: Node = _get_holding_node(ui)
-	if holding == null:
-		return
-
-	if able_to_put_into_slot(slot):
-		PlayerInventory.set_block_signals(true)
-		PlayerInventory.remove_item(slot)
-		PlayerInventory.set_block_signals(false)
-		PlayerInventory.add_item_to_empty_slot(holding, slot)
-
-		var temp_item: Node = _get_slot_item_node(slot)
-
-		if slot.has_method("pick_from_slot"):
-			#dgb("pick_from_slot")
-			slot.call("pick_from_slot")
-		else:
-			push_error("Slot hat keine pick_from_slot()")
-			return
-
-		if temp_item != null:
-			temp_item.global_position = get_global_mouse_position()
-
-		if not _put_item_into_slot(slot, holding):
-			return
-
-		ui.set("holding_item", temp_item)
-		if DEBUG:
-			_validate_slot(slot)
-
-
-# gdlint: disable=max-returns
-func left_click_same_item(slot: Node) -> void:
-	var ui: Node = _get_ui()
-	if ui == null:
-		return
-
-	# noop
-
-	var holding: Node = _get_holding_node(ui)
-	if holding == null:
-		return
-
-	if not _has_property(slot, &"item"):
-		push_error("Slot hat keine Property 'item'")
-		return
-
-	var slot_item: Node = _get_slot_item_node(slot)
-	if slot_item == null:
-		return
-
-	if able_to_put_into_slot(slot):
-		if JsonData == null or not _has_property(JsonData, &"item_data"):
-			push_error("JsonData.item_data fehlt, StackSize kann nicht gelesen werden!")
-			return
-
-		var item_data: Dictionary = JsonData.get("item_data")
-		var name: String = str(slot_item.get("item_name"))
-
-		if not item_data.has(name):
-			push_error("JsonData.item_data hat kein Item '%s'" % name)
-			return
-		if (
-			not (item_data[name] is Dictionary)
-			or not (item_data[name] as Dictionary).has("StackSize")
-		):
-			push_error("Item '%s' hat keinen StackSize Eintrag" % name)
-			return
-
-		var stack_size: int = int((item_data[name] as Dictionary)["StackSize"])
-		var slot_qty: int = int(slot_item.get("item_quantity"))
-		var holding_qty: int = int(holding.get("item_quantity"))
-
-		var able_to_add: int = stack_size - slot_qty
-		if able_to_add <= 0:
-			return
-
-		if able_to_add >= holding_qty:
-			PlayerInventory.add_item_quantity(slot, holding_qty)
-			if slot_item.has_method("add_item_quantity"):
-				slot_item.call("add_item_quantity", holding_qty)
-
-			_decrease_holding_quantity(ui, holding, holding_qty)
-		else:
-			PlayerInventory.add_item_quantity(slot, able_to_add)
-			if slot_item.has_method("add_item_quantity"):
-				slot_item.call("add_item_quantity", able_to_add)
-			_decrease_holding_quantity(ui, holding, able_to_add)
-
-		if DEBUG:
-			_validate_slot(slot)
-
-
-# gdlint: enable=max-returns
-
-
-func left_click_not_holding(slot: Node) -> void:
-	var ui: Node = _get_ui()
-	if ui == null:
-		push_error("UI ist null")
-		return
-
-	if not _has_property(slot, &"item"):
-		push_error("Slot hat keine Property 'item'")
-		return
-
-	var slot_item: Node = _get_slot_item_node(slot)
-	if slot_item == null:
-		return
-
-	# Inventory-State
-	# Inventory-State (wichtig: während Pick Signal blocken)
-	PlayerInventory.set_block_signals(true)
-	PlayerInventory.remove_item(slot)
-	PlayerInventory.set_block_signals(false)
-
-	# UI-State
-	ui.set("holding_item", slot_item)
-
-	# Slot pick
-	if slot.has_method("pick_from_slot"):
-		slot.call("pick_from_slot")
-	else:
-		push_error("Slot hat keine pick_from_slot()")
-		return
-
-	# Direkt unter Maus setzen
-	if is_instance_valid(slot_item):
-		slot_item.global_position = get_global_mouse_position()
-
-	if DEBUG:
-		_validate_slot(slot)
-
-
-func right_click_put_one_unit(slot: Node) -> void:
-	var ui: Node = _get_ui()
-	if ui == null:
-		return
-	var hnode: Node = _get_holding_node(ui)
-	if hnode == null:
-		return
-	var holding_name: String = str(hnode.get("item_name"))
-	var holding_qty: int = int(hnode.get("item_quantity"))
-
-	var slot_item: Node = _get_slot_item_node(slot)
-
-	if slot_item == null:
-		if holding_qty <= 1:
-			left_click_empty_slot(slot)
-		else:
-			var new_item: Node = _create_single_item_node(holding_name)
-			if new_item == null:
-				return
-
-			var ok: bool = false
-			if (
-				typeof(PlayerInventory) != TYPE_NIL
-				and PlayerInventory != null
-				and PlayerInventory.has_method("add_item_to_empty_slot")
-			):
-				ok = PlayerInventory.add_item_to_empty_slot(new_item, slot)
-			if not ok:
-				if is_instance_valid(new_item):
-					new_item.queue_free()
-				return
-
-			if not _put_item_into_slot(slot, new_item):
-				if is_instance_valid(new_item):
-					new_item.queue_free()
-				return
-
-			_decrease_holding_quantity(ui, hnode, 1)
-			if DEBUG:
-				_validate_slot(slot)
-	elif slot_item != null:
-		var sitem := slot_item
-		var slot_name := str(sitem.get("item_name"))
-		if slot_name == holding_name:
-			if (
-				typeof(PlayerInventory) != TYPE_NIL
-				and PlayerInventory != null
-				and PlayerInventory.has_method("add_item_quantity")
-			):
-				PlayerInventory.add_item_quantity(slot, 1)
-			if sitem.has_method("add_item_quantity"):
-				sitem.call("add_item_quantity", 1)
-			_decrease_holding_quantity(ui, hnode, 1)
-			if DEBUG:
-				_validate_slot(slot)
-		else:
-			left_click_different_item(slot)
+func _refresh_all_slot_styles() -> void:
+	if _inventory_renderer == null:
+		_initialize_dependencies()
+	if _inventory_renderer != null:
+		_inventory_renderer.refresh_all_slot_styles(_get_slots())
 
 
 # -------------------------
 # DEBUG VALIDATION HELPERS
 # -------------------------
 func _validate_slot(slot: Node) -> void:
-	if not _has_property(slot, &"slot_index"):
+	if not InventoryUtils.has_property(slot, &"slot_index"):
 		push_error("Slot ohne slot_index")
 		return
 
 	var idx: int = int(slot.get("slot_index"))
 
 	var inv_has: bool = false
-	if PlayerInventory != null and _has_property(PlayerInventory, &"inventory"):
+	if PlayerInventory != null and InventoryUtils.has_property(PlayerInventory, &"inventory"):
 		var inv: Dictionary = PlayerInventory.get("inventory")
 		inv_has = inv.has(idx)
 
 	var ui_has: bool = false
-	if _has_property(slot, &"item"):
+	if InventoryUtils.has_property(slot, &"item"):
 		ui_has = (slot.get("item") != null)
 
 	#dgb("VALIDATE Slot %d: ui_has_item=%s inv_has_item=%s" % [idx, str(ui_has), str(inv_has)])
@@ -760,12 +414,12 @@ func verify_equipment_slots() -> Array:
 		var info := {}
 		info["node_name"] = s.name
 		# slot_index
-		if _has_property(s, &"slot_index"):
+		if InventoryUtils.has_property(s, &"slot_index"):
 			info["slot_index"] = int(s.get("slot_index"))
 		else:
 			info["slot_index"] = null
 		# slot_type
-		if _has_property(s, &"slot_type"):
+		if InventoryUtils.has_property(s, &"slot_type"):
 			info["slot_type"] = int(s.get("slot_type"))
 		else:
 			info["slot_type"] = null
@@ -778,9 +432,9 @@ func verify_equipment_slots() -> Array:
 		# item presence (if PlayerInventory has inventory data)
 		var item_present := false
 		if (
-			_has_property(s, &"slot_index")
+			InventoryUtils.has_property(s, &"slot_index")
 			and PlayerInventory != null
-			and _has_property(PlayerInventory, &"inventory")
+			and InventoryUtils.has_property(PlayerInventory, &"inventory")
 		):
 			var idx := int(s.get("slot_index"))
 			var inv = PlayerInventory.get("inventory")
@@ -807,88 +461,10 @@ func _get_inventory_slot_nodes_sorted() -> Array:
 
 
 func _ensure_inventory_selection() -> void:
-	var inv_slots: Array = _get_inventory_slot_nodes_sorted()
-
-	if inv_slots.size() == 0:
-		return
-
-	var cur := PlayerInventory.get_selected_slot()
-	var found := false
-	for s in inv_slots:
-		if int(s.get("slot_index")) == int(cur):
-			found = true
-			break
-
-	if not found:
-		# choose first inventory slot as default
-		var def_idx := int(inv_slots[0].get("slot_index"))
-
-		if PlayerInventory.has_method("set_selectet_slot"):
-			PlayerInventory.set_selectet_slot(def_idx)
-		else:
-			PlayerInventory.selected_slot = def_idx
-
-	# refresh styles so selected state shows
-	for s in _get_slots():
-		if s.has_method("refresh_style"):
-			s.call("refresh_style")
-
-
-func _move_inventory_selection(delta: int) -> void:
-	var t0 := 0
-	var inv_slots: Array = _get_inventory_slot_nodes_sorted()
-	if inv_slots.size() == 0:
-		return
-
-	# Filter out any freed/null nodes so we don't call methods on them.
-	var slots: Array = []
-	for s in inv_slots:
-		if s != null and is_instance_valid(s) and _has_property(s, &"slot_index"):
-			slots.append(s)
-
-	if slots.size() == 0:
-		return
-
-	var cur := int(PlayerInventory.get_selected_slot())
-
-	var idx := -1
-	for i in range(slots.size()):
-		if int(slots[i].get("slot_index")) == cur:
-			idx = i
-			break
-
-	if idx == -1:
-		# not found -> place at either end depending on direction
-		if delta > 0:
-			idx = 0
-		else:
-			idx = slots.size() - 1
-
-	var new_idx = clamp(idx + delta, 0, slots.size() - 1)
-
-	var new_slot_node: Node = slots[new_idx]
-	var new_slot_index: int = int(new_slot_node.get("slot_index"))
-
-	# determine previous node (if any) so we can refresh only the two affected slots
-	var prev_node: Node = null
-	if idx >= 0 and idx < slots.size():
-		prev_node = slots[idx]
-
-	if PlayerInventory.has_method("set_selectet_slot"):
-		PlayerInventory.set_selectet_slot(new_slot_index)
-	else:
-		PlayerInventory.selected_slot = new_slot_index
-
-	# refresh visuals only for previous and new slot to reduce cost
-	if is_instance_valid(prev_node) and prev_node.has_method("refresh_style"):
-		prev_node.call("refresh_style")
-
-	if is_instance_valid(new_slot_node) and new_slot_node.has_method("refresh_style"):
-		new_slot_node.call("refresh_style")
-
-	# try to give focus to the newly selected control so keyboard nav is visible
-	if new_slot_node is Control:
-		(new_slot_node as Control).grab_focus()
+	if _selection == null:
+		_initialize_dependencies()
+	if _selection != null:
+		_selection.ensure_inventory_selection()
 
 
 func _get_hotbar_slot_nodes_sorted() -> Array:
@@ -913,156 +489,59 @@ func _get_hotbar_slot_nodes_sorted() -> Array:
 	return out
 
 
-func _swap_inventory_with_hotbar(hotbar_number: int) -> void:
-	# hotbar_number is 1-based index (1..n)
-	var hotbar_nodes: Array = _get_hotbar_slot_nodes_sorted()
-	if hotbar_number < 1 or hotbar_number > hotbar_nodes.size():
-		return
-
-	var hot_node: Node = hotbar_nodes[hotbar_number - 1]
-	if hot_node == null:
-		return
-
-	var inv_idx: int = int(PlayerInventory.get_selected_slot())
-	var hot_idx: int = -1
-	if hot_node.has_method("get"):
-		hot_idx = int(hot_node.get("slot_index"))
-	else:
-		return
-
-	if inv_idx < 0 or hot_idx < 0:
-		return
-
-	_swap_slots_by_index(inv_idx, hot_idx)
-
-
 func _swap_slots_by_index(a_idx: int, b_idx: int) -> void:
-	if PlayerInventory == null or not _has_property(PlayerInventory, &"inventory"):
-		return
-	var inv: Dictionary = PlayerInventory.get("inventory")
-	var a = inv.get(a_idx, null)
-	var b = inv.get(b_idx, null)
-
-	# Nothing to do
-	if a == null and b == null:
-		return
-
-	# Swap logic
-	if b == null:
-		inv[b_idx] = a
-		inv.erase(a_idx)
-	elif a == null:
-		inv[a_idx] = b
-		inv.erase(b_idx)
+	var changed := false
+	if _store_adapter != null:
+		changed = _store_adapter.swap_slots_by_index(a_idx, b_idx)
 	else:
-		inv[a_idx] = b
-		inv[b_idx] = a
+		if (
+			PlayerInventory == null
+			or not InventoryUtils.has_property(PlayerInventory, &"inventory")
+		):
+			return
+		var inv: Dictionary = PlayerInventory.get("inventory")
+		var a = inv.get(a_idx, null)
+		var b = inv.get(b_idx, null)
 
-	# Notify PlayerInventory to refresh UI
-	if PlayerInventory.has_method("_emit_changed"):
-		PlayerInventory._emit_changed()
-	else:
-		PlayerInventory.inventory = PlayerInventory.get("inventory")
+		if a == null and b == null:
+			return
 
-	# Refresh visuals
-	for s in _get_slots():
-		if s.has_method("refresh_style"):
-			s.call("refresh_style")
+		if b == null:
+			inv[b_idx] = a
+			inv.erase(a_idx)
+		elif a == null:
+			inv[a_idx] = b
+			inv.erase(b_idx)
+		else:
+			inv[a_idx] = b
+			inv[b_idx] = a
+
+		if PlayerInventory.has_method("_emit_changed"):
+			PlayerInventory._emit_changed()
+		else:
+			PlayerInventory.inventory = PlayerInventory.get("inventory")
+		changed = true
+
+	if changed:
+		_refresh_all_slot_styles()
 
 	# invalidate cached inventory slots so selection/sorting uses fresh data
 	_invalidate_cached_inventory_slots()
 
 
+func _is_equip_blocked() -> bool:
+	var cl2 := $"../../CanvasLayer2"
+	return cl2 != null and cl2.visible
+
+
 func _unhandled_input(event: InputEvent) -> void:
-	if not (event is InputEventKey and event.pressed):
-		return
+	if _selection == null:
+		_initialize_dependencies()
 
-	var key := event as InputEventKey
-
+	var cols: int = inv_grid.columns if inv_grid != null else 0
 	var handled := false
-
-	# -------------------
-	# Hotbar swap (1..5)
-	# -------------------
-	if key.unicode >= 49 and key.unicode <= 53:
-		var num := key.unicode - 48
-		var hotbar_count := _get_hotbar_slot_nodes_sorted().size()
-		var mapped = clamp(hotbar_count - num + 1, 1, hotbar_count)
-		_swap_inventory_with_hotbar(mapped)
-		handled = true
-	elif key.is_action_pressed("ui_left"):
-		# -------------------
-		# Inventory navigation
-		# -------------------
-		_move_inventory_selection(1)
-		handled = true
-	elif key.is_action_pressed("ui_right"):
-		_move_inventory_selection(-1)
-		handled = true
-	elif key.is_action_pressed("ui_up"):
-		var cols: int = inv_grid.columns if inv_grid != null else 0
-		_move_inventory_selection(cols if cols > 0 else 1)
-		handled = true
-	elif key.is_action_pressed("ui_down"):
-		var cols: int = inv_grid.columns if inv_grid != null else 0
-		_move_inventory_selection(-cols if cols > 0 else -1)
-		handled = true
-	elif key.is_action_pressed("ui_accept"):
-		# -------------------
-		# Equip with Enter
-		# -------------------
-		var can_equip := true
-		var cl2 := $"../../CanvasLayer2"
-		if cl2 != null and cl2.visible:
-			can_equip = false
-
-		var sel_idx := int(PlayerInventory.get_selected_slot())
-		if sel_idx < 0:
-			can_equip = false
-
-		var inv: Dictionary = PlayerInventory.inventory
-		var data = inv.get(sel_idx)
-		if data == null:
-			can_equip = false
-
-		var item_name: String = ""
-		if can_equip:
-			item_name = data[0]
-
-		var item_group = (
-			PlayerInventory._get_item_group(item_name)
-			if PlayerInventory.has_method("_get_item_group")
-			else null
-		)
-		if item_group == null:
-			can_equip = false
-
-		if can_equip:
-			var chosen_idx := -1
-			for s in _get_slots():
-				if not _has_property(s, &"slot_index"):
-					continue
-
-				var tidx := int(s.get("slot_index"))
-
-				# equipment range only
-				if tidx < 0 or tidx > 6:
-					continue
-
-				# group match only
-				if not s.is_in_group(item_group):
-					continue
-
-				if not inv.has(tidx):
-					chosen_idx = tidx
-					break
-
-				if chosen_idx == -1:
-					chosen_idx = tidx
-
-			if chosen_idx >= 0:
-				_swap_slots_by_index(sel_idx, chosen_idx)
-				handled = true
+	if _selection != null:
+		handled = _selection.handle_unhandled_input(event, cols)
 
 	if handled:
 		accept_event()
