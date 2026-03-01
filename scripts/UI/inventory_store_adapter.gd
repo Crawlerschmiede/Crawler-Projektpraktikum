@@ -84,7 +84,7 @@ func add_item_quantity(slot: Node, amount: int) -> void:
 		_inventory_autoload.add_item_quantity(slot, amount)
 
 
-func set_block_signals(value: bool) -> void:
+func set_inventory_block_signals(value: bool) -> void:
 	if _inventory_autoload == null:
 		return
 	if _inventory_autoload.has_method("set_block_signals"):

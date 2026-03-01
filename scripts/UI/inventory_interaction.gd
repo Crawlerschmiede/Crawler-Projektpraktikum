@@ -344,9 +344,9 @@ func _remove_inventory_item_without_signals(slot: Node) -> void:
 		push_error("InventoryInteraction: Store ist null")
 		return
 
-	_store.set_block_signals(true)
+	_store.set_inventory_block_signals(true)
 	_store.remove_item(slot)
-	_store.set_block_signals(false)
+	_store.set_inventory_block_signals(false)
 
 
 func _add_item_to_empty_slot(item: Node, slot: Node) -> bool:
