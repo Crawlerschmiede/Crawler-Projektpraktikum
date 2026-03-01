@@ -9,6 +9,8 @@ const BATTLE_SCENE := preload("res://scenes/UI/battle.tscn")
 const BATTLE_FLOW := preload("res://scripts/flow/battle_flow.gd")
 const WORLD_FLOW := preload("res://scripts/flow/world_flow.gd")
 const SAVE_FLOW := preload("res://scripts/flow/save_flow.gd")
+const ENTITY_PERSISTENCE_FLOW := preload("res://scripts/flow/entity_persistence_flow.gd")
+const ENEMY_SPAWN_FLOW := preload("res://scripts/flow/enemy_spawn_flow.gd")
 const ManifestCore := preload("res://tools/manifest_generation_core.gd")
 const PLAYER_SCENE := preload("res://scenes/entity/player-character-scene.tscn")
 const LOOTBOX := preload("res://scenes/Interactables/Lootbox.tscn")
@@ -47,6 +49,8 @@ var loading_screen: CanvasLayer = null
 
 var world_flow: RefCounted = null
 var save_flow: RefCounted = null
+var entity_persistence_flow: RefCounted = null
+var enemy_spawn_flow: RefCounted = null
 
 var boss_win: bool = false
 
@@ -171,6 +175,9 @@ func _ready() -> void:
 	battle_flow.configure(self, BATTLE_SCENE)
 	world_flow = WORLD_FLOW.new()
 	save_flow = SAVE_FLOW.new()
+	entity_persistence_flow = ENTITY_PERSISTENCE_FLOW.new()
+	enemy_spawn_flow = ENEMY_SPAWN_FLOW.new()
+	enemy_spawn_flow.configure(ENEMY_SCENE)
 
 	var battle_victory_handler := Callable(self, "_on_battle_player_victory")
 	if not battle_flow.player_victory.is_connected(battle_victory_handler):
@@ -291,6 +298,53 @@ func _set_tree_paused(value: bool) -> void:
 		push_warning("_set_tree_paused: SceneTree is null; ignored")
 
 
+func _setup_fog_layer_for_current_world() -> void:
+	if fog_war_layer == null or dungeon_floor == null or world_root == null:
+		return
+
+	if fog_war_layer.get_parent() != world_root:
+		var old_parent = fog_war_layer.get_parent()
+		if old_parent != null:
+			old_parent.remove_child(fog_war_layer)
+		world_root.add_child(fog_war_layer)
+		fog_war_layer.position = dungeon_floor.position
+
+	var base_z := 0
+	if dungeon_top != null:
+		base_z = dungeon_top.z_index
+	elif dungeon_floor != null:
+		base_z = dungeon_floor.z_index
+	fog_war_layer.z_index = base_z + 10
+	await init_fog_layer()
+
+
+func _spawn_standard_world_entities(include_boss_enemy: bool) -> void:
+	spawn_player()
+	spawn_enemies(false)
+	spawn_lootbox()
+	spawn_traps()
+	if include_boss_enemy:
+		spawn_enemies(true)
+
+	var merchants = find_merchants()
+	for i in merchants:
+		spawn_merchant_entity(i)
+
+
+func _spawn_tutorial_entities_with_reveal() -> void:
+	spawn_player()
+	spawn_enemies(false)
+	spawn_lootbox()
+	spawn_traps()
+	await get_tree().process_frame
+	await get_tree().process_frame
+	_on_player_moved()
+
+	var merchants = find_merchants()
+	for i in merchants:
+		spawn_merchant_entity(i)
+
+
 func _load_tutorial_world() -> void:
 	_set_tree_paused(true)
 	await _show_loading()
@@ -325,21 +379,12 @@ func _load_tutorial_world() -> void:
 			if dungeon_top != null and dungeon_top.get_parent() == null:
 				world_root.add_child(dungeon_top)
 
-			if fog_war_layer != null and dungeon_floor != null:
-				init_fog_layer()
+			await _setup_fog_layer_for_current_world()
 
 			if dungeon_floor != null:
 				dungeon_floor.visibility_layer = 1
 
-			spawn_player()
-			spawn_enemies(false)
-			spawn_lootbox()
-			spawn_traps()
-			spawn_enemies(true)
-
-			var merchants = find_merchants()
-			for i in merchants:
-				spawn_merchant_entity(i)
+			_spawn_standard_world_entities(true)
 
 			_hide_loading()
 			get_tree().paused = false
@@ -408,38 +453,10 @@ func _load_tutorial_world() -> void:
 	# Die restliche Tutorial-Szene kann gelöscht werden
 	tutorial_scene.queue_free()
 
-	# Initialize fog layer
-	if fog_war_layer != null and dungeon_floor != null:
-		# Reparent fog layer into world_root so z_index ordering works across the same parent
-		if fog_war_layer.get_parent() != world_root:
-			var old_parent = fog_war_layer.get_parent()
-			if old_parent != null:
-				old_parent.remove_child(fog_war_layer)
-			world_root.add_child(fog_war_layer)
-			# align position after reparenting
-			fog_war_layer.position = dungeon_floor.position
-		# Set fog z to be above dungeon_top (or dungeon_floor)
-		var base_z = 0
-		if dungeon_top != null:
-			base_z = dungeon_top.z_index
-		elif dungeon_floor != null:
-			base_z = dungeon_floor.z_index
-		fog_war_layer.z_index = base_z + 10
-		await init_fog_layer()
+	await _setup_fog_layer_for_current_world()
 
 	dungeon_floor.visibility_layer = 1
-	# Spawne alle Entities wie in normalen Welten
-	spawn_player()
-	spawn_enemies(false)
-	spawn_lootbox()
-	spawn_traps()
-	await get_tree().process_frame
-	await get_tree().process_frame
-	_on_player_moved()
-
-	var merchants = find_merchants()
-	for i in merchants:
-		spawn_merchant_entity(i)
+	await _spawn_tutorial_entities_with_reveal()
 
 	_hide_loading()
 	_set_tree_paused(false)
@@ -572,23 +589,7 @@ func _load_world(idx: int) -> void:
 			world_root.add_child(dungeon_top)
 		dungeon_top.z_index = 1  # über Entities, unter Fog
 
-	# Fog über alles (sicherstellen, dass Fog über dungeon_top liegt)
-	if fog_war_layer != null:
-		# Reparent fog layer into world_root so its z_index compares with dungeon_top (same parent)
-		if fog_war_layer.get_parent() != world_root:
-			var old_parent = fog_war_layer.get_parent()
-			if old_parent != null:
-				old_parent.remove_child(fog_war_layer)
-			world_root.add_child(fog_war_layer)
-			fog_war_layer.position = dungeon_floor.position
-		# compute base z from dungeon_top if available
-		var base_z = 0
-		if dungeon_top != null:
-			base_z = dungeon_top.z_index
-		elif dungeon_floor != null:
-			base_z = dungeon_floor.z_index
-		fog_war_layer.z_index = base_z + 10
-		await init_fog_layer()
+	await _setup_fog_layer_for_current_world()
 
 	# -------------------------------------------------
 	# Minimap Background
@@ -612,15 +613,7 @@ func _load_world(idx: int) -> void:
 		# clear saved_maps so subsequent loads are fresh
 		saved_maps = {}
 	else:
-		spawn_player()
-		spawn_enemies(false)
-		spawn_lootbox()
-		spawn_traps()
-		spawn_enemies(true)
-
-		var merchants = find_merchants()
-		for i in merchants:
-			spawn_merchant_entity(i)
+		_spawn_standard_world_entities(true)
 
 	# -------------------------------------------------
 	# Fertig
@@ -1140,229 +1133,41 @@ func _deserialize_minimap(data: Dictionary) -> Node:
 
 
 func _serialize_entities() -> Array:
-	var out: Array = []
-	if world_root == null:
-		return out
-
-	var nodes = world_root.get_children()
-	for c in nodes:
-		if c == null or not is_instance_valid(c):
-			continue
-
-		var t: String = ""
-		if c.is_in_group("player") or str(c.name) == "Player":
-			t = "player"
-		elif c.is_in_group("enemy"):
-			t = "enemy"
-		elif c.is_in_group("merchant_entity"):
-			t = "merchant"
-		elif str(c.name).begins_with("Lootbox"):
-			t = "lootbox"
-		elif str(c.name).begins_with("Trap"):
-			t = "trap"
-		else:
-			continue
-
-		var item: Dictionary = {"type": t, "name": str(c.name)}
-
-		# prefer grid_pos if available
-		if _obj_has_property(c, "grid_pos"):
-			var gp = c.get("grid_pos")
-			item["grid_pos"] = [int(gp.x), int(gp.y)]
-		else:
-			item["global_position"] = [float(c.global_position.x), float(c.global_position.y)]
-
-		# type-specific data
-		if t == "enemy":
-			if _obj_has_property(c, "sprite_type"):
-				item["sprite_type"] = str(c.get("sprite_type"))
-			if _obj_has_property(c, "types"):
-				item["behaviour"] = c.get("types")
-			if _obj_has_property(c, "abilities_this_has"):
-				item["skills"] = c.get("abilities_this_has")
-			if _obj_has_property(c, "stats"):
-				item["stats"] = c.get("stats")
-
-		elif t == "merchant":
-			if _obj_has_property(c, "merchant_id"):
-				item["merchant_id"] = str(c.get("merchant_id"))
-			if _obj_has_property(c, "merchant_room"):
-				item["merchant_room"] = str(c.get("merchant_room"))
-
-		elif t == "lootbox":
-			if _obj_has_property(c, "lootbox_id"):
-				item["lootbox_id"] = str(c.get("lootbox_id"))
-
-		elif t == "trap":
-			if _obj_has_property(c, "world_index"):
-				item["world_index"] = int(c.get("world_index"))
-
-		elif t == "player":
-			if _obj_has_property(c, "hp"):
-				item["hp"] = int(c.get("hp"))
-			if _obj_has_property(c, "level"):
-				item["level"] = int(c.get("level"))
-			if _obj_has_property(c, "dynamic_fog"):
-				item["dynamic_fog"] = bool(c.get("dynamic_fog"))
-			if _obj_has_property(c, "fog_tile_id"):
-				item["fog_tile_id"] = int(c.get("fog_tile_id"))
-
-			item["inventory"] = PlayerInventory.inventory
-
-		out.append(item)
-
-	return out
-
-
-func _apply_saved_position(target: Node, item: Dictionary) -> void:
-	if target == null or dungeon_floor == null:
-		return
-	if typeof(item) != TYPE_DICTIONARY:
-		return
-	if not (target is Node2D):
-		return
-
-	var n2d := target as Node2D
-
-	if item.has("grid_pos"):
-		var grid_pos_raw = item.get("grid_pos")
-		if typeof(grid_pos_raw) == TYPE_ARRAY and grid_pos_raw.size() >= 2:
-			var grid_pos := Vector2i(int(grid_pos_raw[0]), int(grid_pos_raw[1]))
-			n2d.global_position = dungeon_floor.to_global(dungeon_floor.map_to_local(grid_pos))
-			if _obj_has_property(target, "grid_pos"):
-				target.set("grid_pos", grid_pos)
-			return
-
-	if item.has("global_position"):
-		var global_pos_raw = item.get("global_position")
-		if typeof(global_pos_raw) == TYPE_ARRAY and global_pos_raw.size() >= 2:
-			n2d.global_position = Vector2(float(global_pos_raw[0]), float(global_pos_raw[1]))
-
-
-func _connect_player_signals(player_node: Node, warn_missing_exit_signal: bool = false) -> void:
-	if player_node == null:
-		return
-
-	var exit_cb := Callable(self, "_on_player_exit_reached")
-	if player_node.has_signal("exit_reached"):
-		if not player_node.is_connected("exit_reached", exit_cb):
-			player_node.connect("exit_reached", exit_cb)
-	elif warn_missing_exit_signal:
-		push_warning("player has no exit_reached signal")
-
-	var moved_cb := Callable(self, "_on_player_moved")
-	if player_node.has_signal("player_moved"):
-		if not player_node.is_connected("player_moved", moved_cb):
-			player_node.connect("player_moved", moved_cb)
-
-
-func _update_player_visibility(player_node: Node) -> void:
-	if player_node == null:
-		return
-	if player_node.has_method("update_visibility"):
-		player_node.call("update_visibility")
-		player_node.call_deferred("_reveal_on_spawn")
+	if entity_persistence_flow == null:
+		return []
+	return entity_persistence_flow.serialize_entities(world_root)
 
 
 func _deserialize_entities(list_data: Array) -> void:
-	if list_data == null or typeof(list_data) != TYPE_ARRAY:
+	if entity_persistence_flow == null:
 		return
-
 	if world_root == null:
 		push_error("_deserialize_entities: world_root is null")
 		return
 
-	var container = world_root
+	var scenes: Dictionary = {
+		"enemy": ENEMY_SCENE,
+		"merchant": MERCHANT,
+		"lootbox": LOOTBOX,
+		"trap": TRAP,
+		"player": PLAYER_SCENE,
+	}
+	var defaults: Dictionary = {"fog_dynamic": fog_dynamic, "fog_tile_id": fog_tile_id}
 
-	for item in list_data:
-		if typeof(item) != TYPE_DICTIONARY:
-			continue
-		var t = str(item.get("type", ""))
+	var loaded_player: Node = entity_persistence_flow.deserialize_entities(
+		list_data,
+		world_root,
+		dungeon_floor,
+		dungeon_top,
+		fog_war_layer,
+		minimap,
+		scenes,
+		defaults,
+		self
+	)
 
-		if t == "enemy":
-			var e = ENEMY_SCENE.instantiate()
-			if _obj_has_property(e, "sprite_type"):
-				e.set("sprite_type", str(item.get("sprite_type", "")))
-			if _obj_has_property(e, "types"):
-				e.set("types", item.get("behaviour", []))
-			if _obj_has_property(e, "abilities_this_has"):
-				e.set("abilities_this_has", item.get("skills", []))
-
-			var stats = item.get("stats", {})
-			var hp = int(stats.get("hp", 1))
-			var strv = int(stats.get("str", 1))
-			var defv = int(stats.get("def", 1))
-			e.setup(dungeon_floor, dungeon_top, hp, strv, defv, stats)
-			e.add_to_group("enemy")
-			e.add_to_group("vision_objects")
-			container.add_child(e)
-			_apply_saved_position(e, item)
-
-		elif t == "merchant":
-			var m = MERCHANT.instantiate()
-			if _obj_has_property(m, "merchant_id") and item.has("merchant_id"):
-				m.set("merchant_id", str(item.get("merchant_id")))
-			if _obj_has_property(m, "merchant_room") and item.has("merchant_room"):
-				m.set("merchant_room", str(item.get("merchant_room")))
-			container.add_child(m)
-			m.add_to_group("vision_objects")
-			_apply_saved_position(m, item)
-
-		elif t == "lootbox":
-			var l = LOOTBOX.instantiate()
-			if _obj_has_property(l, "lootbox_id") and item.has("lootbox_id"):
-				l.set("lootbox_id", str(item.get("lootbox_id")))
-			l.add_to_group("vision_objects")
-			container.add_child(l)
-			_apply_saved_position(l, item)
-
-		elif t == "trap":
-			var tr = TRAP.instantiate()
-			if _obj_has_property(tr, "world_index") and item.has("world_index"):
-				tr.set("world_index", int(item.get("world_index")))
-			container.add_child(tr)
-			tr.add_to_group("vision_objects")
-			_apply_saved_position(tr, item)
-
-		elif t == "player":
-			var p = PLAYER_SCENE.instantiate()
-			p.name = "Player"
-			if _obj_has_property(p, "dynamic_fog"):
-				p.set("dynamic_fog", bool(item.get("dynamic_fog", fog_dynamic)))
-			if _obj_has_property(p, "fog_tile_id"):
-				p.set("fog_tile_id", int(item.get("fog_tile_id", fog_tile_id)))
-			var php = int(item.get("hp", 10))
-			p.setup(dungeon_floor, dungeon_top, php, 3, 0, {})
-			p.fog_layer = fog_war_layer
-			container.add_child(p)
-			player = p
-			player.set_minimap(minimap)
-			_apply_saved_position(player, item)
-			_connect_player_signals(player)
-			_update_player_visibility(player)
-			emit_signal("player_spawned", player)
-
-			# restore inventory if present
-			if item.has("inventory"):
-				var inv = item.get("inventory")
-				var fixed_inv: Dictionary = {}
-
-				for k in inv.keys():
-					fixed_inv[int(k)] = inv[k]
-
-				PlayerInventory.inventory = fixed_inv
-				PlayerInventory._emit_changed()
-
-
-func _obj_has_property(obj: Object, prop: String) -> bool:
-	if obj == null:
-		return false
-	if not obj.has_method("get_property_list"):
-		return false
-	for p in obj.get_property_list():
-		if str(p.get("name", "")) == prop:
-			return true
-	return false
+	if loaded_player is PlayerCharacter:
+		player = loaded_player as PlayerCharacter
 
 
 func save_current_world() -> void:
@@ -1399,167 +1204,13 @@ func save_current_world() -> void:
 
 
 func spawn_enemies(do_boss: bool) -> void:
+	if enemy_spawn_flow == null:
+		return
+
 	var data: Dictionary = EntityAutoload.item_data
-	var settings: Dictionary = data.get("_settings", {})
-
-	var max_weights = settings.get("max_total_weight_per_level", [])
-	var max_weight: int = settings.get("default_max_total_weight", 30)
-
-	if world_index < max_weights.size():
-		max_weight = max_weights[world_index]
-
-	# Tutorial override: immer 3
-	#if world_index == -1:
-	#max_weight = 2
-
-	# --- Enemy Definitions sammeln ---
-	var defs: Array[Dictionary] = []
-
-	for k in data.keys():
-		if str(k).begins_with("_"):
-			continue
-
-		var d: Dictionary = data[k]
-		if d.get("entityCategory") != "enemy" and not do_boss:
-			continue
-		elif d.get("entityCategory") != "boss" and do_boss:
-			continue
-
-		# Tutorial-Welt: nur tutorial-Gegner spawnen
-		# Normale Welten: keine tutorial-Gegner spawnen
-		var is_tutorial_enemy = "tutorial" in d.get("behaviour", [])
-		var is_tutorial_world = world_index == -1
-
-		if is_tutorial_world and not is_tutorial_enemy:
-			continue
-		elif not is_tutorial_world and is_tutorial_enemy:
-			continue
-
-		# Alias auflösen
-		if d.has("alias_of"):
-			var base = data[d["alias_of"]]
-			var merged = base.duplicate(true)
-			for x in d.keys():
-				merged[x] = d[x]
-			d = merged
-
-		d["_id"] = str(k)
-		defs.append(d)
-
-	if defs.is_empty():
-		if do_boss:
-			push_warning("spawn_enemies: no boss definitions available for world %d" % world_index)
-		else:
-			push_warning("spawn_enemies: no enemy definitions available for world %d" % world_index)
-		return
-
-	# --- Wahrscheinlichkeiten ---
-	var weights: Array[float] = []
-	var total = 0.0
-
-	for d in defs:
-		var sr_raw = d.get("spawnrate", {})
-		var sr = {}
-		if sr_raw.has(str(world_index)):
-			sr = sr_raw[str(world_index)]
-		elif sr_raw.has("min"):
-			sr = sr_raw
-
-		var avg := (float(sr.get("min", 0)) + float(sr.get("max", 0))) * 0.5
-		weights.append(avg)
-		total += avg
-
-	if total <= 0:
-		for i in range(weights.size()):
-			weights[i] = 1.0
-		total = float(weights.size())
-
-	# --- Spawn-Plan erstellen ---
-	# Use a fresh RNG from GlobalRNG (get_rng already seeds with next_seed())
-	var rng := GlobalRNG.get_rng()
-
-	var current_weight = 0
-	var spawn_plan = {}
-
-	var roll: float
-	var acc: float
-	var chosen: int
-
-	if do_boss:
-		print("Should spawn boss")
-		roll = rng.randf() * total
-		acc = 0.0
-		chosen = 0
-		for j in range(defs.size()):
-			acc += weights[j]
-			if roll <= acc:
-				chosen = j
-				break
-		var def = defs[chosen]
-		spawn_enemy(
-			def.get("sprite_type", "what"),
-			def.get("behaviour", []),
-			def.get("skills", []),
-			def.get("stats", {}),
-			def.get("weight", 1),
-			true
-		)
-		print("Spawned boss!")
-		return
-
-	for _i in range(100):
-		if current_weight >= max_weight:
-			break
-
-		# weighted pick
-		roll = rng.randf() * total
-		acc = 0.0
-		chosen = 0
-
-		for j in range(defs.size()):
-			acc += weights[j]
-			if roll <= acc:
-				chosen = j
-				break
-
-		var def = defs[chosen]
-
-		var sc_raw = def.get("spawncount", {})
-		var sc = {}
-		if sc_raw.has(str(world_index)):
-			sc = sc_raw[str(world_index)]
-		elif sc_raw.has("min"):
-			sc = sc_raw
-
-		var count := rng.randi_range(int(sc.get("min", 0)), int(sc.get("max", 1)))
-
-		var w = int(def.get("weight", 1))
-		var id = def["_id"]
-
-		for _j in range(count):
-			if current_weight + w > max_weight:
-				break
-
-			spawn_plan[id] = spawn_plan.get(id, 0) + 1
-			current_weight += w
-
-	# --- Enemies wirklich spawnen ---
-	for id in spawn_plan.keys():
-		var def = data[id]
-
-		# Alias nochmal auflösen (für behaviour/sprite)
-		if def.has("alias_of"):
-			def = data[def["alias_of"]]
-
-		for i in range(spawn_plan[id]):
-			spawn_enemy(
-				def.get("sprite_type", id),
-				def.get("behaviour", []),
-				def.get("skills", []),
-				def.get("stats", {}),
-				def.get("weight", 1)
-			)
-			print("spawn: ", def.get("sprite_type", id))
+	enemy_spawn_flow.spawn_enemies(
+		do_boss, world_index, data, dungeon_floor, dungeon_top, world_root, self
+	)
 
 
 func spawn_enemy(
@@ -1570,28 +1221,20 @@ func spawn_enemy(
 	xp: int,
 	boss: bool = false
 ) -> void:
-	# default: spawn normal enemy
-	var e = ENEMY_SCENE.instantiate()
-	e.add_to_group("enemy")
-	e.add_to_group("vision_objects")
-
-	e.types = behaviour
-	e.sprite_type = sprite_type
-	e.abilities_this_has = skills
-	e.boss = boss
-	e.xp = xp
-	var hp = stats.get("hp", 1)
-	var str = stats.get("str", 1)
-	var def = stats.get("def", 1)
-
-	# setup with Floor Tilemap
-	e.setup(dungeon_floor, dungeon_top, hp, str, def, stats)
-
-	# Enemies always in WorldRoot
-	if world_root != null:
-		world_root.add_child(e)
-	else:
-		add_child(e)
+	if enemy_spawn_flow == null:
+		return
+	enemy_spawn_flow.spawn_enemy(
+		sprite_type,
+		behaviour,
+		skills,
+		stats,
+		xp,
+		dungeon_floor,
+		dungeon_top,
+		world_root,
+		self,
+		boss
+	)
 
 
 func spawn_player() -> void:
@@ -1632,11 +1275,12 @@ func spawn_player() -> void:
 	player.global_position = dungeon_floor.to_global(dungeon_floor.map_to_local(start_pos))
 	player.add_to_group("player")
 
-	_connect_player_signals(player, true)
+	if entity_persistence_flow != null:
+		entity_persistence_flow.connect_player_signals(self, player, true)
 
 	# WICHTIG: einmal initial Fog aufdecken
-	if player.has_method("update_visibility"):
-		_update_player_visibility(player)
+	if player.has_method("update_visibility") and entity_persistence_flow != null:
+		entity_persistence_flow.update_player_visibility(player)
 		emit_signal("player_spawned", player)
 
 
