@@ -1214,6 +1214,56 @@ func _serialize_entities() -> Array:
 	return out
 
 
+func _apply_saved_position(target: Node, item: Dictionary) -> void:
+	if target == null or dungeon_floor == null:
+		return
+	if typeof(item) != TYPE_DICTIONARY:
+		return
+	if not (target is Node2D):
+		return
+
+	var n2d := target as Node2D
+
+	if item.has("grid_pos"):
+		var grid_pos_raw = item.get("grid_pos")
+		if typeof(grid_pos_raw) == TYPE_ARRAY and grid_pos_raw.size() >= 2:
+			var grid_pos := Vector2i(int(grid_pos_raw[0]), int(grid_pos_raw[1]))
+			n2d.global_position = dungeon_floor.to_global(dungeon_floor.map_to_local(grid_pos))
+			if _obj_has_property(target, "grid_pos"):
+				target.set("grid_pos", grid_pos)
+			return
+
+	if item.has("global_position"):
+		var global_pos_raw = item.get("global_position")
+		if typeof(global_pos_raw) == TYPE_ARRAY and global_pos_raw.size() >= 2:
+			n2d.global_position = Vector2(float(global_pos_raw[0]), float(global_pos_raw[1]))
+
+
+func _connect_player_signals(player_node: Node, warn_missing_exit_signal: bool = false) -> void:
+	if player_node == null:
+		return
+
+	var exit_cb := Callable(self, "_on_player_exit_reached")
+	if player_node.has_signal("exit_reached"):
+		if not player_node.is_connected("exit_reached", exit_cb):
+			player_node.connect("exit_reached", exit_cb)
+	elif warn_missing_exit_signal:
+		push_warning("player has no exit_reached signal")
+
+	var moved_cb := Callable(self, "_on_player_moved")
+	if player_node.has_signal("player_moved"):
+		if not player_node.is_connected("player_moved", moved_cb):
+			player_node.connect("player_moved", moved_cb)
+
+
+func _update_player_visibility(player_node: Node) -> void:
+	if player_node == null:
+		return
+	if player_node.has_method("update_visibility"):
+		player_node.call("update_visibility")
+		player_node.call_deferred("_reveal_on_spawn")
+
+
 func _deserialize_entities(list_data: Array) -> void:
 	if list_data == null or typeof(list_data) != TYPE_ARRAY:
 		return
@@ -1246,15 +1296,7 @@ func _deserialize_entities(list_data: Array) -> void:
 			e.add_to_group("enemy")
 			e.add_to_group("vision_objects")
 			container.add_child(e)
-			# position
-			if item.has("grid_pos"):
-				var gp = item.get("grid_pos")
-				var gpi = Vector2i(int(gp[0]), int(gp[1]))
-				e.global_position = dungeon_floor.to_global(dungeon_floor.map_to_local(gpi))
-				e.grid_pos = gpi
-			elif item.has("global_position"):
-				var gp2 = item.get("global_position")
-				e.global_position = Vector2(float(gp2[0]), float(gp2[1]))
+			_apply_saved_position(e, item)
 
 		elif t == "merchant":
 			var m = MERCHANT.instantiate()
@@ -1264,14 +1306,7 @@ func _deserialize_entities(list_data: Array) -> void:
 				m.set("merchant_room", str(item.get("merchant_room")))
 			container.add_child(m)
 			m.add_to_group("vision_objects")
-			if item.has("grid_pos"):
-				var gp3 = item.get("grid_pos")
-				m.global_position = dungeon_floor.to_global(
-					dungeon_floor.map_to_local(Vector2i(int(gp3[0]), int(gp3[1])))
-				)
-			elif item.has("global_position"):
-				var gp4 = item.get("global_position")
-				m.global_position = Vector2(float(gp4[0]), float(gp4[1]))
+			_apply_saved_position(m, item)
 
 		elif t == "lootbox":
 			var l = LOOTBOX.instantiate()
@@ -1279,14 +1314,7 @@ func _deserialize_entities(list_data: Array) -> void:
 				l.set("lootbox_id", str(item.get("lootbox_id")))
 			l.add_to_group("vision_objects")
 			container.add_child(l)
-			if item.has("grid_pos"):
-				var gp5 = item.get("grid_pos")
-				l.global_position = dungeon_floor.to_global(
-					dungeon_floor.map_to_local(Vector2i(int(gp5[0]), int(gp5[1])))
-				)
-			elif item.has("global_position"):
-				var gp6 = item.get("global_position")
-				l.global_position = Vector2(float(gp6[0]), float(gp6[1]))
+			_apply_saved_position(l, item)
 
 		elif t == "trap":
 			var tr = TRAP.instantiate()
@@ -1294,14 +1322,7 @@ func _deserialize_entities(list_data: Array) -> void:
 				tr.set("world_index", int(item.get("world_index")))
 			container.add_child(tr)
 			tr.add_to_group("vision_objects")
-			if item.has("grid_pos"):
-				var gp7 = item.get("grid_pos")
-				tr.global_position = dungeon_floor.to_global(
-					dungeon_floor.map_to_local(Vector2i(int(gp7[0]), int(gp7[1])))
-				)
-			elif item.has("global_position"):
-				var gp8 = item.get("global_position")
-				tr.global_position = Vector2(float(gp8[0]), float(gp8[1]))
+			_apply_saved_position(tr, item)
 
 		elif t == "player":
 			var p = PLAYER_SCENE.instantiate()
@@ -1316,26 +1337,9 @@ func _deserialize_entities(list_data: Array) -> void:
 			container.add_child(p)
 			player = p
 			player.set_minimap(minimap)
-			if item.has("grid_pos"):
-				var gp9 = item.get("grid_pos")
-				player.grid_pos = Vector2i(int(gp9[0]), int(gp9[1]))
-				player.global_position = dungeon_floor.to_global(
-					dungeon_floor.map_to_local(player.grid_pos)
-				)
-			elif item.has("global_position"):
-				var gp10 = item.get("global_position")
-				player.global_position = Vector2(float(gp10[0]), float(gp10[1]))
-
-			# connect signals
-			if player.has_signal("exit_reached"):
-				if not player.exit_reached.is_connected(_on_player_exit_reached):
-					player.exit_reached.connect(_on_player_exit_reached)
-			if player.has_signal("player_moved"):
-				if not player.player_moved.is_connected(_on_player_moved):
-					player.player_moved.connect(_on_player_moved)
-			if player.has_method("update_visibility"):
-				player.update_visibility()
-				player.call_deferred("_reveal_on_spawn")
+			_apply_saved_position(player, item)
+			_connect_player_signals(player)
+			_update_player_visibility(player)
 			emit_signal("player_spawned", player)
 
 			# restore inventory if present
@@ -1628,22 +1632,11 @@ func spawn_player() -> void:
 	player.global_position = dungeon_floor.to_global(dungeon_floor.map_to_local(start_pos))
 	player.add_to_group("player")
 
-	# Signale verbinden
-	if player.has_signal("exit_reached"):
-		if not player.exit_reached.is_connected(_on_player_exit_reached):
-			player.exit_reached.connect(_on_player_exit_reached)
-	else:
-		push_warning("player has no exit_reached signal")
-
-	if player.has_signal("player_moved"):
-		if not player.player_moved.is_connected(_on_player_moved):
-			player.player_moved.connect(_on_player_moved)
+	_connect_player_signals(player, true)
 
 	# WICHTIG: einmal initial Fog aufdecken
 	if player.has_method("update_visibility"):
-		player.update_visibility()
-		# ensure reveal runs after any reparenting/initialization in this frame
-		player.call_deferred("_reveal_on_spawn")
+		_update_player_visibility(player)
 		emit_signal("player_spawned", player)
 
 

@@ -442,13 +442,71 @@ func able_to_put_into_slot(_slot: Node) -> bool:
 	return true
 
 
+func _get_holding_node(ui: Node) -> Node:
+	if ui == null or not _has_property(ui, &"holding_item"):
+		return null
+	var holding: Variant = ui.get("holding_item")
+	if holding is Node and is_instance_valid(holding as Node):
+		return holding as Node
+	return null
+
+
+func _get_slot_item_node(slot: Node) -> Node:
+	if not _has_property(slot, &"item"):
+		return null
+	var slot_item: Variant = slot.get("item")
+	if slot_item is Node and is_instance_valid(slot_item as Node):
+		return slot_item as Node
+	return null
+
+
+func _put_item_into_slot(slot: Node, item: Node) -> bool:
+	if slot.has_method("put_into_slot"):
+		slot.call("put_into_slot", item)
+		return true
+	push_error("Slot hat keine put_into_slot()")
+	return false
+
+
+func _decrease_holding_quantity(ui: Node, hnode: Node, amount: int) -> void:
+	if ui == null or hnode == null or amount <= 0:
+		return
+
+	if hnode.has_method("decrease_item_quantity"):
+		hnode.call("decrease_item_quantity", amount)
+	else:
+		var cur_qty := int(hnode.get("item_quantity"))
+		hnode.set("item_quantity", max(0, cur_qty - amount))
+
+	if int(hnode.get("item_quantity")) <= 0:
+		if is_instance_valid(hnode):
+			hnode.queue_free()
+		ui.set("holding_item", null)
+
+
+func _create_single_item_node(item_name: String) -> Node:
+	var new_item = ITEM_SCENE.instantiate()
+	if new_item == null:
+		push_error("Failed to instantiate ITEM_SCENE")
+		return null
+
+	if not new_item.has_method("set_item"):
+		push_error("Instantiated item has no set_item()")
+		if is_instance_valid(new_item):
+			new_item.queue_free()
+		return null
+
+	new_item.call("set_item", item_name, 1)
+	return new_item
+
+
 func left_click_empty_slot(slot: Node) -> void:
 	#dgb("left_click_empty_slot")
 	var ui: Node = _get_ui()
 	if ui == null:
 		return
 
-	var holding: Node = ui.get("holding_item")
+	var holding: Node = _get_holding_node(ui)
 	if holding == null:
 		return
 
@@ -458,7 +516,8 @@ func left_click_empty_slot(slot: Node) -> void:
 		#dgb("DROP denied -> item bleibt in Hand")
 		return
 
-	slot.call("put_into_slot", holding)
+	if not _put_item_into_slot(slot, holding):
+		return
 	ui.set("holding_item", null)
 
 	var idx: int = int(slot.get("slot_index"))
@@ -477,7 +536,7 @@ func left_click_different_item(slot: Node) -> void:
 	if ui == null:
 		return
 
-	var holding: Variant = ui.get("holding_item")
+	var holding: Node = _get_holding_node(ui)
 	if holding == null:
 		return
 
@@ -487,9 +546,7 @@ func left_click_different_item(slot: Node) -> void:
 		PlayerInventory.set_block_signals(false)
 		PlayerInventory.add_item_to_empty_slot(holding, slot)
 
-		var temp_item: Variant = null
-		if _has_property(slot, &"item"):
-			temp_item = slot.get("item")
+		var temp_item: Node = _get_slot_item_node(slot)
 
 		if slot.has_method("pick_from_slot"):
 			#dgb("pick_from_slot")
@@ -498,13 +555,10 @@ func left_click_different_item(slot: Node) -> void:
 			push_error("Slot hat keine pick_from_slot()")
 			return
 
-		if temp_item != null and temp_item is Node and is_instance_valid(temp_item as Node):
-			(temp_item as Node).global_position = get_global_mouse_position()
+		if temp_item != null:
+			temp_item.global_position = get_global_mouse_position()
 
-		if slot.has_method("put_into_slot"):
-			slot.call("put_into_slot", holding)
-		else:
-			push_error("Slot hat keine put_into_slot()")
+		if not _put_item_into_slot(slot, holding):
 			return
 
 		ui.set("holding_item", temp_item)
@@ -520,7 +574,7 @@ func left_click_same_item(slot: Node) -> void:
 
 	# noop
 
-	var holding: Variant = ui.get("holding_item")
+	var holding: Node = _get_holding_node(ui)
 	if holding == null:
 		return
 
@@ -528,7 +582,7 @@ func left_click_same_item(slot: Node) -> void:
 		push_error("Slot hat keine Property 'item'")
 		return
 
-	var slot_item: Variant = slot.get("item")
+	var slot_item: Node = _get_slot_item_node(slot)
 	if slot_item == null:
 		return
 
@@ -538,7 +592,7 @@ func left_click_same_item(slot: Node) -> void:
 			return
 
 		var item_data: Dictionary = JsonData.get("item_data")
-		var name: String = str((slot_item as Node).get("item_name"))
+		var name: String = str(slot_item.get("item_name"))
 
 		if not item_data.has(name):
 			push_error("JsonData.item_data hat kein Item '%s'" % name)
@@ -551,8 +605,8 @@ func left_click_same_item(slot: Node) -> void:
 			return
 
 		var stack_size: int = int((item_data[name] as Dictionary)["StackSize"])
-		var slot_qty: int = int((slot_item as Node).get("item_quantity"))
-		var holding_qty: int = int((holding as Node).get("item_quantity"))
+		var slot_qty: int = int(slot_item.get("item_quantity"))
+		var holding_qty: int = int(holding.get("item_quantity"))
 
 		var able_to_add: int = stack_size - slot_qty
 		if able_to_add <= 0:
@@ -560,17 +614,15 @@ func left_click_same_item(slot: Node) -> void:
 
 		if able_to_add >= holding_qty:
 			PlayerInventory.add_item_quantity(slot, holding_qty)
-			if (slot_item as Node).has_method("add_item_quantity"):
-				(slot_item as Node).call("add_item_quantity", holding_qty)
+			if slot_item.has_method("add_item_quantity"):
+				slot_item.call("add_item_quantity", holding_qty)
 
-			(holding as Node).queue_free()
-			ui.set("holding_item", null)
+			_decrease_holding_quantity(ui, holding, holding_qty)
 		else:
 			PlayerInventory.add_item_quantity(slot, able_to_add)
-			if (slot_item as Node).has_method("add_item_quantity"):
-				(slot_item as Node).call("add_item_quantity", able_to_add)
-			if (holding as Node).has_method("decrease_item_quantity"):
-				(holding as Node).call("decrease_item_quantity", able_to_add)
+			if slot_item.has_method("add_item_quantity"):
+				slot_item.call("add_item_quantity", able_to_add)
+			_decrease_holding_quantity(ui, holding, able_to_add)
 
 		if DEBUG:
 			_validate_slot(slot)
@@ -589,27 +641,8 @@ func left_click_not_holding(slot: Node) -> void:
 		push_error("Slot hat keine Property 'item'")
 		return
 
-	var slot_item: Variant = slot.get("item")
+	var slot_item: Node = _get_slot_item_node(slot)
 	if slot_item == null:
-		#dgb("Pick: slot_item ist null")
-		return
-
-	#dgb("=== PICK START ===")
-	#dgb("Slot index: " + str(slot.get("slot_index")))
-	#dgb("Slot item: " + str(slot_item))
-	if slot_item is Node:
-		var n := slot_item as Node
-		#dgb("Item name: " + str(n.get("item_name")))
-		#dgb("Item qty : " + str(n.get("item_quantity")))
-		#dgb("Item parent BEFORE: " + str(n.get_parent()))
-		#dgb("Item in tree BEFORE: " + str(n.is_inside_tree()))
-		if n is CanvasItem:
-			var ci := n as CanvasItem
-			#dgb("Canvas visible BEFORE: " + str(ci.visible))
-			#dgb("Canvas z_index BEFORE: " + str(ci.z_index))
-			#dgb("Canvas top_level BEFORE: " + str(ci.top_level))
-	else:
-		push_error("slot_item ist kein Node?? -> " + str(typeof(slot_item)))
 		return
 
 	# Inventory-State
@@ -620,143 +653,78 @@ func left_click_not_holding(slot: Node) -> void:
 
 	# UI-State
 	ui.set("holding_item", slot_item)
-	#dgb("UI holding_item gesetzt: " + str(ui.get("holding_item")))
 
 	# Slot pick
 	if slot.has_method("pick_from_slot"):
 		slot.call("pick_from_slot")
-		#dgb("pick_from_slot() ausgeführt")
 	else:
 		push_error("Slot hat keine pick_from_slot()")
 		return
 
-	# Nach pick prüfen
-	if ui.get("holding_item") is Node:
-		var hn := ui.get("holding_item") as Node
-		#dgb("Holding parent AFTER: " + str(hn.get_parent()))
-		#dgb("Holding in tree AFTER: " + str(hn.is_inside_tree()))
-		if hn is CanvasItem:
-			var hci := hn as CanvasItem
-			#dgb("Holding visible AFTER: " + str(hci.visible))
-			#dgb("Holding z_index AFTER: " + str(hci.z_index))
-			#dgb("Holding top_level AFTER: " + str(hci.top_level))
-		#dgb("Holding global pos AFTER: " + str(hn.global_position))
-	else:
-		push_error("holding_item ist nach pick kein Node / null")
-
 	# Direkt unter Maus setzen
-	if slot_item is Node and is_instance_valid(slot_item as Node):
-		(slot_item as Node).global_position = get_global_mouse_position()
-		#dgb("Holding moved to mouse: " + str((slot_item as Node).global_position))
-
-	#dgb("=== PICK END ===")
+	if is_instance_valid(slot_item):
+		slot_item.global_position = get_global_mouse_position()
 
 	if DEBUG:
 		_validate_slot(slot)
 
 
 func right_click_put_one_unit(slot: Node) -> void:
-	# Place exactly one unit from the holding item into `slot`. If holding has only one
-	# unit we fall back to the full-place behavior so ownership of the node moves.
 	var ui: Node = _get_ui()
-	if ui == null or not _has_property(ui, &"holding_item"):
+	if ui == null:
 		return
-	var holding: Variant = ui.get("holding_item")
-	if holding == null or not (holding is Node):
+	var hnode: Node = _get_holding_node(ui)
+	if hnode == null:
 		return
-	var hnode: Node = holding as Node
 	var holding_name: String = str(hnode.get("item_name"))
 	var holding_qty: int = int(hnode.get("item_quantity"))
 
-	var slot_item: Variant = null
-	if _has_property(slot, &"item"):
-		slot_item = slot.get("item")
+	var slot_item: Node = _get_slot_item_node(slot)
 
-	# empty slot: put one unit
 	if slot_item == null:
 		if holding_qty <= 1:
-			# just put the whole item (node moves)
 			left_click_empty_slot(slot)
 		else:
-			# create a new visual item node with qty 1
-			var new_item = ITEM_SCENE.instantiate()
-			var can_place := true
+			var new_item: Node = _create_single_item_node(holding_name)
 			if new_item == null:
-				push_error("Failed to instantiate ITEM_SCENE")
-				can_place = false
-			elif not new_item.has_method("set_item"):
-				push_error("Instantiated item has no set_item()")
-				can_place = false
-			else:
-				new_item.call("set_item", holding_name, 1)
+				return
 
-			if can_place:
-				# attempt to add to backend
-				var ok: bool = false
-				if (
-					typeof(PlayerInventory) != TYPE_NIL
-					and PlayerInventory != null
-					and PlayerInventory.has_method("add_item_to_empty_slot")
-				):
-					ok = PlayerInventory.add_item_to_empty_slot(new_item, slot)
-				if not ok:
-					# cleanup and bail
-					if is_instance_valid(new_item):
-						new_item.queue_free()
-				else:
-					# attach to UI
-					if slot.has_method("put_into_slot"):
-						slot.call("put_into_slot", new_item)
-					else:
-						push_error("Slot hat keine put_into_slot()")
+			var ok: bool = false
+			if (
+				typeof(PlayerInventory) != TYPE_NIL
+				and PlayerInventory != null
+				and PlayerInventory.has_method("add_item_to_empty_slot")
+			):
+				ok = PlayerInventory.add_item_to_empty_slot(new_item, slot)
+			if not ok:
+				if is_instance_valid(new_item):
+					new_item.queue_free()
+				return
 
-					# decrease holding quantity by 1
-					if hnode.has_method("decrease_item_quantity"):
-						hnode.call("decrease_item_quantity", 1)
-					else:
-						# best-effort: adjust property
-						var curq := int(hnode.get("item_quantity"))
-						hnode.set("item_quantity", max(0, curq - 1))
+			if not _put_item_into_slot(slot, new_item):
+				if is_instance_valid(new_item):
+					new_item.queue_free()
+				return
 
-					# if holding depleted, free and clear
-					if int(hnode.get("item_quantity")) <= 0:
-						if is_instance_valid(hnode):
-							hnode.queue_free()
-						ui.set("holding_item", null)
-					if DEBUG:
-						_validate_slot(slot)
-
-	# slot contains an item
-	# same item -> add one to stack
-	elif slot_item is Node and is_instance_valid(slot_item as Node):
-		var sitem := slot_item as Node
+			_decrease_holding_quantity(ui, hnode, 1)
+			if DEBUG:
+				_validate_slot(slot)
+	elif slot_item != null:
+		var sitem := slot_item
 		var slot_name := str(sitem.get("item_name"))
 		if slot_name == holding_name:
-			# add to backend
 			if (
 				typeof(PlayerInventory) != TYPE_NIL
 				and PlayerInventory != null
 				and PlayerInventory.has_method("add_item_quantity")
 			):
 				PlayerInventory.add_item_quantity(slot, 1)
-			# update visual
 			if sitem.has_method("add_item_quantity"):
 				sitem.call("add_item_quantity", 1)
-			# decrease holding
-			if hnode.has_method("decrease_item_quantity"):
-				hnode.call("decrease_item_quantity", 1)
-			else:
-				var curq2 := int(hnode.get("item_quantity"))
-				hnode.set("item_quantity", max(0, curq2 - 1))
-			# if holding depleted, free and clear
-			if int(hnode.get("item_quantity")) <= 0:
-				if is_instance_valid(hnode):
-					hnode.queue_free()
-				ui.set("holding_item", null)
+			_decrease_holding_quantity(ui, hnode, 1)
 			if DEBUG:
 				_validate_slot(slot)
 		else:
-			# different item -> fallback to full swap behavior
 			left_click_different_item(slot)
 
 
