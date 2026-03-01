@@ -8,6 +8,7 @@ const ENEMY_SCENE := preload("res://scenes/entity/enemy.tscn")
 const BATTLE_SCENE := preload("res://scenes/UI/battle.tscn")
 const BATTLE_FLOW := preload("res://scripts/flow/battle_flow.gd")
 const WORLD_FLOW := preload("res://scripts/flow/world_flow.gd")
+const WORLD_LOAD_FLOW := preload("res://scripts/flow/world_load_flow.gd")
 const SAVE_FLOW := preload("res://scripts/flow/save_flow.gd")
 const ENTITY_PERSISTENCE_FLOW := preload("res://scripts/flow/entity_persistence_flow.gd")
 const ENEMY_SPAWN_FLOW := preload("res://scripts/flow/enemy_spawn_flow.gd")
@@ -48,6 +49,7 @@ var battle_flow: RefCounted = null
 var loading_screen: CanvasLayer = null
 
 var world_flow: RefCounted = null
+var world_load_flow: RefCounted = null
 var save_flow: RefCounted = null
 var entity_persistence_flow: RefCounted = null
 var enemy_spawn_flow: RefCounted = null
@@ -174,6 +176,7 @@ func _ready() -> void:
 	battle_flow = BATTLE_FLOW.new()
 	battle_flow.configure(self, BATTLE_SCENE)
 	world_flow = WORLD_FLOW.new()
+	world_load_flow = WORLD_LOAD_FLOW.new()
 	save_flow = SAVE_FLOW.new()
 	entity_persistence_flow = ENTITY_PERSISTENCE_FLOW.new()
 	enemy_spawn_flow = ENEMY_SPAWN_FLOW.new()
@@ -394,64 +397,18 @@ func _load_tutorial_world() -> void:
 
 	# Fallback: Tutorial-Szene wie bisher parsen (TileMapLayer / Area2D etc.)
 	var tutorial_scene = tutorial_inst as Node2D
-	if tutorial_scene == null:
-		push_error("Failed to load tutorial scene!")
+	var extracted: Dictionary = {}
+	if world_load_flow != null:
+		extracted = world_load_flow.extract_tutorial_scene_to_world_root(tutorial_scene, world_root)
+
+	if extracted.is_empty() or not bool(extracted.get("ok", false)):
+		push_error(str(extracted.get("error", "Failed to extract tutorial scene")))
 		_hide_loading()
 		_set_tree_paused(false)
 		return
 
-	# Extrahiere Tilemaps aus der Tutorial Room
-	var tilemaps = tutorial_scene.find_children("*", "TileMapLayer")
-
-	if tilemaps.is_empty():
-		push_error("Tutorial scene has no TileMapLayer!")
-		_hide_loading()
-		_set_tree_paused(false)
-		return
-
-	# Nutze die erste Tilemap als floor
-	dungeon_floor = tilemaps[0] as TileMapLayer
-
-	# Falls es mehrere gibt, nimm die mit "floor" im Namen oder die zweite als top
-	if tilemaps.size() > 1:
-		for tm in tilemaps:
-			if tm.name.to_lower().contains("tile"):
-				dungeon_floor = tm as TileMapLayer
-			elif tm.name.to_lower().contains("top"):
-				dungeon_top = tm as TileMapLayer
-
-		# Falls kein "top" gefunden, nutze die zweite Tilemap
-		if dungeon_top == null and tilemaps.size() > 1:
-			dungeon_top = tilemaps[1] as TileMapLayer
-	else:
-		# Wenn nur eine Tilemap, nutze sie auch als top
-		dungeon_top = dungeon_floor
-
-	# Verschiebe alle TileMapLayers zum world_root
-	for tm in tilemaps:
-		if tm.get_parent() != null:
-			tm.get_parent().remove_child(tm)
-		world_root.add_child(tm)
-		tm.position = Vector2.ZERO
-
-	# Extrahiere und verschiebe alle Area2D-Nodes mit ihren Kindern
-	var area2ds = tutorial_scene.find_children("*", "Area2D")
-	for area in area2ds:
-		if area.get_parent() != null:
-			area.get_parent().remove_child(area)
-		world_root.add_child(area)
-		area.position = Vector2.ZERO
-
-	# Extrahiere und verschiebe auch alle StaticBody2D und andere Physics-Bodies für Obstacles
-	var physics_bodies = tutorial_scene.find_children("*", "PhysicsBody2D")
-	for body in physics_bodies:
-		if body.get_parent() != null:
-			body.get_parent().remove_child(body)
-		world_root.add_child(body)
-		body.position = Vector2.ZERO
-
-	# Die restliche Tutorial-Szene kann gelöscht werden
-	tutorial_scene.queue_free()
+	dungeon_floor = extracted.get("floor", null)
+	dungeon_top = extracted.get("top", dungeon_floor)
 
 	await _setup_fog_layer_for_current_world()
 
@@ -511,27 +468,8 @@ func _load_world(idx: int) -> void:
 		dungeon_floor = saved_maps.get("floor", null)
 		dungeon_top = saved_maps.get("top", null)
 		minimap = saved_maps.get("minimap", null)
-		if minimap != null:
-			if minimap.get_parent() != world_root:
-				world_root.add_child(minimap)
-
-			minimap.position = dungeon_floor.position
-			minimap.z_index = -50
-			minimap.visibility_layer = 1 << 1
-
-			# Alle RoomLayer erstmal unsichtbar machen
-			for child in minimap.get_children():
-				if child is TileMapLayer:
-					var layer := child as TileMapLayer
-
-					# Background darf sichtbar bleiben
-					if layer.name == "MinimapBackground":
-						layer.visible = true
-						continue
-
-					# Nur echte RoomLayer unsichtbar starten
-					if layer.has_meta("tile_origin") or layer.has_meta("room_rect"):
-						layer.visible = false
+		if world_load_flow != null:
+			world_load_flow.configure_saved_minimap(minimap, world_root, dungeon_floor)
 	elif not _should_load_from_save():
 		var maps: Dictionary = await gen.get_random_tilemap()
 
@@ -563,46 +501,17 @@ func _load_world(idx: int) -> void:
 		_set_tree_paused(false)
 		return
 
-	dungeon_floor.owner = world_root
-	if dungeon_top != null:
-		dungeon_top.owner = world_root
-
-	# -------------------------------------------------
-	# Tileset Override für Welt 2
-	# -------------------------------------------------
-	if idx == 1:
-		var sewer_tileset = load(SEWER_TILESET) as TileSet
-		if sewer_tileset != null:
-			dungeon_floor.tile_set = sewer_tileset
-			if dungeon_top != null:
-				dungeon_top.tile_set = sewer_tileset
-
-	# -------------------------------------------------
-	# Tilemaps hinzufügen + Layering
-	# -------------------------------------------------
-	if dungeon_floor.get_parent() == null:
-		world_root.add_child(dungeon_floor)
-	dungeon_floor.z_index = 0
-
-	if dungeon_top != null:
-		if dungeon_top.get_parent() == null:
-			world_root.add_child(dungeon_top)
-		dungeon_top.z_index = 1  # über Entities, unter Fog
+	if world_load_flow != null:
+		world_load_flow.apply_world_tileset_override(idx, SEWER_TILESET, dungeon_floor, dungeon_top)
+		world_load_flow.attach_world_tilemaps(world_root, dungeon_floor, dungeon_top)
 
 	await _setup_fog_layer_for_current_world()
 
 	# -------------------------------------------------
 	# Minimap Background
 	# -------------------------------------------------
-	if minimap != null and backgroundtile != null:
-		var bg = backgroundtile.duplicate() as TileMapLayer
-		bg.set_meta("is_background", true)
-		bg.visible = true
-		bg.name = "MinimapBackground"
-		bg.visibility_layer = 1 << 1
-		bg.z_index = -100
-		minimap.add_child(bg)
-		minimap.move_child(bg, -1)
+	if world_load_flow != null:
+		world_load_flow.add_minimap_background(minimap, backgroundtile)
 
 	dungeon_floor.visibility_layer = 1
 	# -------------------------------------------------
