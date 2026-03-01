@@ -163,8 +163,6 @@ func _initialize_dependencies() -> void:
 	if _interaction == null:
 		_interaction = InventoryInteractionScript.new(
 			_store_adapter,
-			PlayerInventory,
-			JsonData,
 			ITEM_SCENE,
 			DEBUG,
 			Callable(self, "_get_ui"),
@@ -208,10 +206,10 @@ func _setup_slots(slots: Array[Node]) -> void:
 			push_error("Slot %d hat keine Methode initialize_item(). Slot.gd fehlt/anders?" % i)
 
 		var groups: Array[StringName] = (s as Node).get_groups()
-		if _store_adapter != null:
-			_store_adapter.register_slot_index(i, groups)
-		else:
-			PlayerInventory.register_slot_index(i, groups)
+		if _store_adapter == null:
+			push_error("InventoryStoreAdapter ist null")
+			continue
+		_store_adapter.register_slot_index(i, groups)
 
 		# Signal connect (Callable speichern, sonst is_connected() sinnlos)
 		var call: Callable = Callable(self, "slot_gui_input").bind(s)
@@ -264,16 +262,12 @@ func _setup_slots(slots: Array[Node]) -> void:
 
 
 func _connect_inventory_signal() -> void:
-	if (
-		_store_adapter != null
-		and _store_adapter.connect_inventory_changed(self, &"_on_inventory_changed")
-	):
+	if _store_adapter == null:
+		push_error("InventoryStoreAdapter ist null")
 		return
 
-	if PlayerInventory != null and PlayerInventory.has_signal("inventory_changed"):
-		var cb: Callable = Callable(self, "_on_inventory_changed")
-		if not PlayerInventory.inventory_changed.is_connected(cb):
-			PlayerInventory.inventory_changed.connect(cb)
+	if not _store_adapter.connect_inventory_changed(self, &"_on_inventory_changed"):
+		push_error("Inventory konnte nicht mit inventory_changed verbunden werden")
 
 
 func _invalidate_cached_inventory_slots() -> void:
@@ -490,37 +484,11 @@ func _get_hotbar_slot_nodes_sorted() -> Array:
 
 
 func _swap_slots_by_index(a_idx: int, b_idx: int) -> void:
-	var changed := false
-	if _store_adapter != null:
-		changed = _store_adapter.swap_slots_by_index(a_idx, b_idx)
-	else:
-		if (
-			PlayerInventory == null
-			or not InventoryUtils.has_property(PlayerInventory, &"inventory")
-		):
-			return
-		var inv: Dictionary = PlayerInventory.get("inventory")
-		var a = inv.get(a_idx, null)
-		var b = inv.get(b_idx, null)
+	if _store_adapter == null:
+		push_error("InventoryStoreAdapter ist null")
+		return
 
-		if a == null and b == null:
-			return
-
-		if b == null:
-			inv[b_idx] = a
-			inv.erase(a_idx)
-		elif a == null:
-			inv[a_idx] = b
-			inv.erase(b_idx)
-		else:
-			inv[a_idx] = b
-			inv[b_idx] = a
-
-		if PlayerInventory.has_method("_emit_changed"):
-			PlayerInventory._emit_changed()
-		else:
-			PlayerInventory.inventory = PlayerInventory.get("inventory")
-		changed = true
+	var changed := _store_adapter.swap_slots_by_index(a_idx, b_idx)
 
 	if changed:
 		_refresh_all_slot_styles()

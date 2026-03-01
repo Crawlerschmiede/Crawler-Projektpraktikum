@@ -2,8 +2,6 @@ class_name InventoryInteraction
 extends RefCounted
 
 var _store: InventoryStoreAdapter = null
-var _player_inventory: Node = null
-var _json_data: Node = null
 var _item_scene: PackedScene = null
 var _debug: bool = false
 
@@ -14,8 +12,6 @@ var _validate_slot_cb: Callable = Callable()
 
 func _init(
 	store: InventoryStoreAdapter,
-	player_inventory: Node,
-	json_data: Node,
 	item_scene: PackedScene,
 	debug: bool,
 	get_ui_cb: Callable,
@@ -23,8 +19,6 @@ func _init(
 	validate_slot_cb: Callable
 ) -> void:
 	_store = store
-	_player_inventory = player_inventory
-	_json_data = json_data
 	_item_scene = item_scene
 	_debug = debug
 	_get_ui_cb = get_ui_cb
@@ -346,48 +340,34 @@ func right_click_put_one_unit(slot: Node) -> void:
 
 
 func _remove_inventory_item_without_signals(slot: Node) -> void:
-	if _store != null:
-		_store.set_block_signals(true)
-		_store.remove_item(slot)
-		_store.set_block_signals(false)
+	if _store == null:
+		push_error("InventoryInteraction: Store ist null")
 		return
 
-	if _player_inventory == null:
-		return
-	if not _player_inventory.has_method("remove_item"):
-		return
-
-	if _player_inventory.has_method("set_block_signals"):
-		_player_inventory.set_block_signals(true)
-
-	_player_inventory.remove_item(slot)
-
-	if _player_inventory.has_method("set_block_signals"):
-		_player_inventory.set_block_signals(false)
+	_store.set_block_signals(true)
+	_store.remove_item(slot)
+	_store.set_block_signals(false)
 
 
 func _add_item_to_empty_slot(item: Node, slot: Node) -> bool:
-	if _store != null:
-		return _store.add_item_to_empty_slot(item, slot)
-	if _player_inventory != null and _player_inventory.has_method("add_item_to_empty_slot"):
-		return bool(_player_inventory.add_item_to_empty_slot(item, slot))
-	return false
+	if _store == null:
+		push_error("InventoryInteraction: Store ist null")
+		return false
+	return _store.add_item_to_empty_slot(item, slot)
 
 
 func _add_item_quantity(slot: Node, amount: int) -> void:
-	if _store != null:
-		_store.add_item_quantity(slot, amount)
+	if _store == null:
+		push_error("InventoryInteraction: Store ist null")
 		return
-	if _player_inventory != null and _player_inventory.has_method("add_item_quantity"):
-		_player_inventory.add_item_quantity(slot, amount)
+	_store.add_item_quantity(slot, amount)
 
 
 func _get_item_data() -> Dictionary:
-	if _store != null:
-		return _store.get_item_data()
-	if _json_data != null and InventoryUtils.has_property(_json_data, &"item_data"):
-		return _json_data.get("item_data")
-	return {}
+	if _store == null:
+		push_error("InventoryInteraction: Store ist null")
+		return {}
+	return _store.get_item_data()
 
 
 func _mouse_position() -> Vector2:
