@@ -10,6 +10,7 @@ static func build_room_manifest() -> Dictionary:
 
 static func build_audio_manifest() -> Dictionary:
 	var floor_paths: Array = []
+	var tutorial_floor_paths: Array[String] = []
 	var generic_paths: Array[String] = []
 	var boss_music_by_type: Dictionary = {}
 	var exit_hover_paths: Array[String] = []
@@ -48,7 +49,7 @@ static func build_audio_manifest() -> Dictionary:
 			if close_idx > 7:
 				var floor_num_str := lower.substr(7, close_idx - 7)
 				if floor_num_str.is_valid_int():
-					var floor_idx := maxi(int(floor_num_str) - 1, 0)
+					var floor_idx := maxi(int(floor_num_str), 0)
 					while floor_paths.size() <= floor_idx:
 						floor_paths.append([])
 					var floor_track_path := "%s/%s" % [SFX_DIR, name]
@@ -56,6 +57,8 @@ static func build_audio_manifest() -> Dictionary:
 					_append_unique_string(floor_tracks, floor_track_path)
 					floor_tracks.sort()
 					floor_paths[floor_idx] = floor_tracks
+				elif floor_num_str == "tutorial":
+					_append_unique_string(tutorial_floor_paths, "%s/%s" % [SFX_DIR, name])
 				elif floor_num_str == "boss":
 					var final_boss_room_path := "%s/%s" % [SFX_DIR, name]
 					_append_unique_string(final_boss_room_event_paths, final_boss_room_path)
@@ -107,6 +110,9 @@ static func build_audio_manifest() -> Dictionary:
 	game_over_paths.sort()
 
 	var world_music_by_index := _array_to_index_dictionary(floor_paths)
+	if not tutorial_floor_paths.is_empty():
+		tutorial_floor_paths.sort()
+		world_music_by_index["0"] = tutorial_floor_paths
 	var combat_music_by_type: Dictionary = {}
 	if not generic_paths.is_empty():
 		combat_music_by_type["generic"] = generic_paths

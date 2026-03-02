@@ -24,6 +24,7 @@ const WIN_SCENE := "res://scenes/UI/won-screen.tscn"
 const WIN_SCENE_PACKED := preload("res://scenes/UI/won-screen.tscn")
 const SEWER_TILESET := "res://scenes/rooms/Rooms/roomtiles_2world.tres"
 const TUTORIAL_ROOM := "res://scenes/rooms/Tutorial Rooms/tutorial_room.tscn"
+const TUTORIAL_WORLD_INDEX := 0
 const UI_MODAL_CONTROLLER := preload("res://scripts/UI/ui_modal_controller.gd")
 @export var menu_scene := preload("res://scenes/UI/popup-menu.tscn")
 @export var fog_tile_id: int = 0  # set this in the inspector to the fog-tile id in your tileset
@@ -292,6 +293,8 @@ func _set_tree_paused(value: bool) -> void:
 
 
 func _load_tutorial_world() -> void:
+	world_index = TUTORIAL_WORLD_INDEX
+	_emit_world_loaded(TUTORIAL_WORLD_INDEX)
 	_set_tree_paused(true)
 	await _show_loading()
 
@@ -447,7 +450,7 @@ func _load_tutorial_world() -> void:
 
 func _load_world(idx: int) -> void:
 	world_index = idx
-	_emit_world_loaded(idx)
+	_emit_world_loaded(idx + 1)
 	_set_tree_paused(true)
 	await _show_loading()
 

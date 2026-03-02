@@ -25,12 +25,15 @@
 		},
 		"world_by_index": {
 			"0": [
-				"res://assets/sfx/(floor-1)Ossuary 6 - Air cut version.mp3"
+				"res://assets/sfx/(floor-tutorial)Lord of the Rangs.mp3"
 			],
 			"1": [
-				"res://assets/sfx/(floor-2)Night of Chaos.mp3"
+				"res://assets/sfx/(floor-1)Ossuary 6 - Air cut version.mp3"
 			],
 			"2": [
+				"res://assets/sfx/(floor-2)Night of Chaos.mp3"
+			],
+			"3": [
 				"res://assets/sfx/(floor-3)Road to Hell.mp3"
 			]
 		}
