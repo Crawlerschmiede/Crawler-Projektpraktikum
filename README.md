@@ -228,11 +228,11 @@ This project uses a map generator (`scripts/Mapgenerator/map_generator_modular.g
 ```gdscript
 extends Node2D
 
-@export var direction: String = "U"
+@export var direction: String = "north"
 var used: bool = false
 
 func _ready():
-  # optional: Darstellung/Collision oder Area2D als Kind
+  # optional: visual/collision setup or Area2D as a child
   pass
 ```
 

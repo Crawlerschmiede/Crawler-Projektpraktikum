@@ -414,7 +414,7 @@ var existing_skills = {
 	},
 	"Plant your Spear":
 	{
-		"tree": "Mediumg Ranged Weaponry",
+		"tree": "Medium-Ranged-Weaponry",
 		"tier": 4,
 		"description":
 		# gdlint:ignore = max-line-length

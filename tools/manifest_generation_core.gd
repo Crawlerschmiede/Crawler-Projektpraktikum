@@ -49,7 +49,7 @@ static func build_audio_manifest() -> Dictionary:
 			if close_idx > 7:
 				var floor_num_str := lower.substr(7, close_idx - 7)
 				if floor_num_str.is_valid_int():
-					var floor_idx := maxi(int(floor_num_str), 0)
+					var floor_idx := maxi(int(floor_num_str) - 1, 0)
 					while floor_paths.size() <= floor_idx:
 						floor_paths.append([])
 					var floor_track_path := "%s/%s" % [SFX_DIR, name]
@@ -112,7 +112,7 @@ static func build_audio_manifest() -> Dictionary:
 	var world_music_by_index := _array_to_index_dictionary(floor_paths)
 	if not tutorial_floor_paths.is_empty():
 		tutorial_floor_paths.sort()
-		world_music_by_index["0"] = tutorial_floor_paths
+		world_music_by_index["-1"] = tutorial_floor_paths
 	var combat_music_by_type: Dictionary = {}
 	if not generic_paths.is_empty():
 		combat_music_by_type["generic"] = generic_paths
