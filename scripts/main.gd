@@ -54,6 +54,7 @@ var boss_win: bool = false
 
 @onready var minimap: TileMapLayer
 
+@onready var music_player: AudioStreamPlayer = $MusicPlayer
 @onready var generator1: Node2D = $World1
 @onready var generator2: Node2D = $World2
 @onready var generator3: Node2D = $World3

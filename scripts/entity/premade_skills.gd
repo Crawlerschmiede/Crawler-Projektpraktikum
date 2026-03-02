@@ -665,7 +665,7 @@ func get_detailed_description(skill_name) -> String:
 		if len(skill.conditions) == 1:
 			description += " if " + skill.conditions[0]
 	if skill.has("cooldown"):
-		description += " (Cooldown:" + str(skill.cooldown) + ")"
+		description += " (Coold:" + str(skill.cooldown) + ")"
 	# actual real description of what the skill does like "Deals 2 physical Damage"
 	return description
 
