@@ -64,7 +64,7 @@ func _populate_list(tab_idx: int) -> void:
 					elif ability.turns_until_reuse > 0:
 						var butt_label = ability.name
 						butt_label = (
-							butt_label + " (Cooldown: " + str(ability.turns_until_reuse) + ")"
+							butt_label + " (Coold: " + str(ability.turns_until_reuse) + ")"
 						)
 						_add_button_disabled(butt_label)
 		Tab.ACTIONS:
