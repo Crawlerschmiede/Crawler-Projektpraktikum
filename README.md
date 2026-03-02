@@ -249,3 +249,70 @@ func _ready():
   - Ensure `TileMapLayer` and optional `TopLayer` exist and use valid TileSets.
   - Door nodes must be positioned correctly and provide `direction`; otherwise the generator cannot connect them or find matching closed-door scenes.
   - If a room is not visible after baking, inspect `placed_rooms` and whether `visible` has been set to `false` (the generator may hide rooms after baking tilemaps).
+
+## Map Generation Algorithm
+
+The map generator (`scripts/Mapgenerator/`) works in three main phases:
+
+1. **Genetic Algorithm (GA)** — finds the best genome (parameter set) by running many trial generations and selecting for the most rooms placed.
+2. **Room Placement** — uses the best genome to place rooms in a BFS-style expansion from the start room.
+3. **Tilemap Baking** — copies all placed room tiles into a single world `TileMapLayer`, builds the minimap, and seals unused doors.
+
+### Genome parameters
+
+| Parameter | Effect |
+|---|---|
+| `door_fill_chance` | Probability that each open door is attempted (0–1) |
+| `max_corridors` | Maximum total corridor rooms on the map |
+| `max_corridor_chain` | Maximum consecutive corridor rooms in a row |
+| `corridor_bias` | Preference weight: >1 prefers corridors, <1 prefers normal rooms |
+
+### Flowchart
+
+```mermaid
+flowchart TD
+    START([get_random_tilemap]) --> LOAD[Load room scenes\nand closed-door scenes]
+    LOAD --> GA_START
+
+    subgraph GA ["① Genetic Algorithm  (mg_ga.gd)"]
+        GA_START[Create initial population\nof random Genomes] --> GEN_LOOP[For each generation]
+        GEN_LOOP --> EVAL["evaluate_genome:\nrun generate_with_genome\nin a temp container"]
+        EVAL --> SORT[Sort results by\nrooms_placed ↓]
+        SORT --> ELITE[Keep elite genomes]
+        ELITE --> BREED[Crossover + Mutation\n→ next population]
+        BREED --> MORE_GEN{More generations\nor evals left?}
+        MORE_GEN -- Yes --> GEN_LOOP
+        MORE_GEN -- No --> BEST[Return best Genome]
+    end
+
+    BEST --> PLACE_START
+
+    subgraph GEN ["② Room Placement  (mg_generation.gd)"]
+        PLACE_START[Place start room\nat origin] --> DOORS[Collect free doors\nof start room]
+        DOORS --> BFS_LOOP["BFS loop:\npop next open door"]
+        BFS_LOOP --> FILL_CHANCE{door_fill_chance\ncheck passed?}
+        FILL_CHANCE -- No --> BFS_LOOP
+        FILL_CHANCE -- Yes --> CANDIDATES[Shuffle candidate rooms\napply corridor_bias sort]
+        CANDIDATES --> CAN_SPAWN{can_spawn_room?\nspawn_chance · max_count\n· min_rooms_before_spawn}
+        CAN_SPAWN -- No → next candidate --> CANDIDATES
+        CAN_SPAWN -- Yes --> MATCH[Find matching\ndoor direction]
+        MATCH --> NO_MATCH{No matching door?}
+        NO_MATCH -- Yes → next candidate --> CANDIDATES
+        NO_MATCH -- No --> POSITION[Position new room\nvia door offset]
+        POSITION --> OVERLAP{AABB overlap\nwith placed rooms?}
+        OVERLAP -- Yes → next candidate --> CANDIDATES
+        OVERLAP -- No --> CONNECT[Mark doors used\nRecord corridor_chain]
+        CONNECT --> ADD[Add room to placed list\nCollect its free doors]
+        ADD --> MAX{max_rooms\nreached?}
+        MAX -- No --> BFS_LOOP
+        MAX -- Yes --> REQUIRED[ensure_required_rooms:\nforce-place rooms with\nrequired_min_count > 0]
+    end
+
+    REQUIRED --> BAKE_START
+
+    subgraph BAKE ["③ Tilemap Baking  (mg_bake.gd)"]
+        BAKE_START[For each placed room:\ncopy TileMapLayer → WorldFloor\ncopy TopLayer → WorldTop] --> MINIMAP[Build Minimap:\none TileMapLayer child per room]
+        MINIMAP --> CLOSED[Bake closed-door scenes\ninto unused door slots]
+        CLOSED --> DONE([Return world tilemaps\nfloor · top · minimap])
+    end
+```
