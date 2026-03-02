@@ -1,6 +1,7 @@
 [gd_scene format=4 uid="uid://d3soytfrmqapf"]
 
 [ext_resource type="TileSet" uid="uid://rc7plds60u7s" path="res://scenes/rooms/Rooms/roomtiles.tres" id="1_18wv2"]
+[ext_resource type="Script" uid="uid://bi7g51dby0wle" path="res://scripts/rooms/final_boss_room.gd" id="2_y2p53"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_2l3n6"]
 size = Vector2(176, 240)
@@ -24,6 +25,7 @@ tile_set = ExtResource("1_18wv2")
 [node name="Doors" type="Node2D" parent="." unique_id=1268261713]
 
 [node name="Area2DBoss" type="Area2D" parent="." unique_id=876002445]
+script = ExtResource("2_y2p53")
 
 [node name="CollisionShape2DBoss" type="CollisionShape2D" parent="Area2DBoss" unique_id=862725078]
 position = Vector2(24, -232)
@@ -41,3 +43,6 @@ position = Vector2(24, -48)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D2" unique_id=1724427709]
 position = Vector2(0, -360)
 shape = SubResource("RectangleShape2D_5ncsg")
+
+[connection signal="body_entered" from="Area2DBoss" to="Area2DBoss" method="_on_body_entered_boss_area"]
+[connection signal="area_entered" from="Area2DEntrance" to="Area2DBoss" method="_on_area_2d_entrance_area_entered"]
