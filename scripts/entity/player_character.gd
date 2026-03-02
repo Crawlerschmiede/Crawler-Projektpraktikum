@@ -27,6 +27,7 @@ var _binds_and_menus_layer: CanvasLayer = null
 @onready var camera: Camera2D = $Camera2D
 @onready var minimap_viewport: SubViewport = $CanvasLayer/SubViewportContainer/SubViewport
 @onready
+# gdlint:ignore = max-line-length
 var minimap_video: VideoStreamPlayer = $CanvasLayer/SubViewportContainer/SubViewport/VideoStreamPlayer
 @onready var pickup_ui = $CanvasLayer2
 @onready var inventory = $UserInterface/Inventory

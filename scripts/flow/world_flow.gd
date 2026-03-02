@@ -23,10 +23,12 @@ func try_advance_world(
 		return current_world_index
 
 	_switching_world = true
-	if current_world_index == -1 and on_tutorial_exit_callable.is_valid():
-		on_tutorial_exit_callable.call()
-
 	var next_world_index := current_world_index + 1
+	if current_world_index == -1:
+		if on_tutorial_exit_callable.is_valid():
+			on_tutorial_exit_callable.call()
+		next_world_index = 0
+
 	await load_world_callable.call(next_world_index)
 	_switching_world = false
 	return next_world_index

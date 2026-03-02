@@ -2,8 +2,12 @@ extends Node
 
 signal game_settings_changed
 
+const AudioBusHelper := preload("res://scripts/Autoloadscripts/audio_bus_helper.gd")
 const SETTINGS_PATH := "user://settings.json"
 const SCHEMA_VERSION := 1
+const AUDIO_BUS_MASTER := "Master"
+const AUDIO_BUS_MUSIC := "Music"
+const AUDIO_BUS_SFX := "SFX"
 
 const DEFAULT_ZOOM_BASE := 1.5
 const DEFAULT_ZOOM_STEP := 0.1
@@ -134,16 +138,25 @@ func _apply_exclusive_fullscreen(size: Vector2i) -> void:
 
 
 func apply_sound() -> void:
+	_ensure_audio_sound_buses()
+
 	var sound := settings.get("sound", {}) as Dictionary
 	var mute := bool(sound.get("mute", false))
-	var volume_percent := float(sound.get("master_volume", 100.0))
-	volume_percent = clampf(volume_percent, 0.0, 100.0)
+	var master_volume_percent := clampf(float(sound.get("master_volume", 100.0)), 0.0, 100.0)
+	var music_volume_percent := clampf(float(sound.get("music_volume", 100.0)), 0.0, 100.0)
+	var sfx_volume_percent := clampf(float(sound.get("sfx_volume", 100.0)), 0.0, 100.0)
 
-	var bus_idx := AudioServer.get_bus_index("Master")
+	_apply_bus_volume(AUDIO_BUS_MASTER, master_volume_percent, mute)
+	_apply_bus_volume(AUDIO_BUS_MUSIC, music_volume_percent, mute)
+	_apply_bus_volume(AUDIO_BUS_SFX, sfx_volume_percent, mute)
+
+
+func _apply_bus_volume(bus_name: String, volume_percent: float, force_mute: bool) -> void:
+	var bus_idx := AudioServer.get_bus_index(bus_name)
 	if bus_idx < 0:
 		return
 
-	if mute or volume_percent <= 0.0:
+	if force_mute or volume_percent <= 0.0:
 		AudioServer.set_bus_mute(bus_idx, true)
 		AudioServer.set_bus_volume_db(bus_idx, -80.0)
 		return
@@ -151,6 +164,11 @@ func apply_sound() -> void:
 	AudioServer.set_bus_mute(bus_idx, false)
 	var linear := maxf(volume_percent / 100.0, 0.0001)
 	AudioServer.set_bus_volume_db(bus_idx, linear_to_db(linear))
+
+
+func _ensure_audio_sound_buses() -> void:
+	AudioBusHelper.ensure_bus(AUDIO_BUS_MUSIC, AUDIO_BUS_MASTER)
+	AudioBusHelper.ensure_bus(AUDIO_BUS_SFX, AUDIO_BUS_MASTER)
 
 
 func apply_hotkeys() -> void:
@@ -231,6 +249,8 @@ func _get_defaults() -> Dictionary:
 		"sound":
 		{
 			"master_volume": 100.0,
+			"music_volume": 100.0,
+			"sfx_volume": 100.0,
 			"mute": false,
 		},
 		"hotkeys":
