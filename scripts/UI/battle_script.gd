@@ -163,7 +163,7 @@ func enemy_turn():
 		update_health_bars()
 		if extra_stuff[0]:
 			#print(enemy, " activates its Skill ", enemy.chosen.name, "!")
-			happened =  await enemy.chosen.activate_skill(enemy, player, self)
+			happened = await enemy.chosen.activate_skill(enemy, player, self)
 			enemy_action_log.append(enemy.chosen.name)
 			print(enemy_action_log)
 			if hit_anim_enemy != null:
@@ -280,7 +280,7 @@ func move_player(direction: String, distance: int):
 	var dir = ""
 	var basics = ["u", "d", "l", "r"]
 	var new_cell := player_gridpos
-	print("Moving the player in direction: ",direction)
+	print("Moving the player in direction: ", direction)
 	if player_sprite == null:
 		return "One cannot move what doesn't exist. Remember this."
 	if direction in basics:
@@ -338,7 +338,6 @@ func move_player(direction: String, distance: int):
 			log_container.state = "log"
 			log_container.changed = true
 		return await move_player(new_dir, distance)
-		
 
 	if !cell_exists(new_cell):
 		return "Attempting to move " + dir + ", the player only pushed against the wall"
@@ -346,8 +345,6 @@ func move_player(direction: String, distance: int):
 	player_sprite.position = combat_tilemap.map_to_local(player_gridpos)
 	check_curr_tile_mods()
 	return "Player moved " + dir
-
-
 
 
 func get_held_direction() -> String:
@@ -361,6 +358,7 @@ func get_held_direction() -> String:
 	elif Input.is_action_pressed("move_down"):
 		direction = "d"
 	return direction
+
 
 func is_player_in_range(y_from_to) -> bool:
 	var min_y = get_min_y()

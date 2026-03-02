@@ -16,7 +16,7 @@ var second_turn_effects: Array[Effect] = []
 var pre_prepared_effects = [
 	"danger_dmg_mult", "safety_dmg_reduc", "death_zone", "heal_zone", "damage_zone"
 ]
-var count_anything = 0 #this will be used for anything that needs counting
+var count_anything = 0  #this will be used for anything that needs counting
 
 var last_user = null
 var last_target = null
@@ -86,7 +86,7 @@ func activate_followup():
 	var stuff = null
 	for effect in second_turn_effects:
 		if !effect.type in pre_prepared_effects:
-			stuff =  await effect.apply(last_user, last_target, last_battle, self)
+			stuff = await effect.apply(last_user, last_target, last_battle, self)
 			if not is_passive:
 				if last_user.is_player:
 					last_battle.player_effect_log.append(effect.type)
@@ -129,7 +129,8 @@ func is_activateable(user = null, target = null, battle = null) -> bool:
 				activateable = false
 			print(activateable)
 	return activateable
-	
+
+
 func update_conditions(cond_name, user, battle):
 	if "effect_happened" in cond_name:
 		var effect_log = []
@@ -143,15 +144,16 @@ func update_conditions(cond_name, user, battle):
 		var count = 0
 		for effect in effect_log:
 			if effect == sought:
-				count +=1
+				count += 1
 		if "every" in splits[0]:
-			if (count-count_anything)%limit == 0 and (count-count_anything) >= limit:
-				count_anything+=limit
+			if (count - count_anything) % limit == 0 and (count - count_anything) >= limit:
+				count_anything += limit
 
 
 func tick_down():
 	if turns_until_reuse > 0:
 		turns_until_reuse = turns_until_reuse - 1
+
 
 func reset():
 	turns_until_reuse = 0
@@ -204,11 +206,11 @@ func condition_met(condition_name, user, _target, battle) -> bool:
 		var count = 0
 		for effect in effect_log:
 			if effect == sought:
-				count +=1
+				count += 1
 		if "every" in splits[0]:
-			is_met = (count-count_anything)%limit == 0 and (count-count_anything) >= limit
+			is_met = (count - count_anything) % limit == 0 and (count - count_anything) >= limit
 		else:
-			is_met = limit<=count
+			is_met = limit <= count
 	print("Condition " + condition_name + " is met? " + str(is_met))
 	return is_met
 
@@ -229,7 +231,7 @@ class Effect:
 		value = _value
 		targets_self = _targets_self
 		details = _details.to_lower()
-		
+
 	func reset():
 		pass
 
@@ -326,7 +328,9 @@ class Effect:
 				for alteration in user.alterations:
 					if user.alterations[alteration].has("dmg_buff"):
 						active_dmg *= user.alterations[alteration].dmg_buff
-						print(user.name, " has a damage buff! ", user.alterations[alteration].dmg_buff)
+						print(
+							user.name, " has a damage buff! ", user.alterations[alteration].dmg_buff
+						)
 					if user.alterations[alteration].has("dmg_null"):
 						active_dmg = 0
 					if user.alterations[alteration].has("pierce"):
@@ -393,7 +397,11 @@ class Effect:
 				if user.stunned > 0 and GlobalRNG.randi_range(0, 100) < 50:
 					considered_details = "rnd_dir"
 				if (
-					(considered_details in basic_directions or "rnd" in considered_details or "input" in considered_details)
+					(
+						considered_details in basic_directions
+						or "rnd" in considered_details
+						or "input" in considered_details
+					)
 					and can_move
 				):
 					ret = [await battle.move_player(considered_details, value)]
