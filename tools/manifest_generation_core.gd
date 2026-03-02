@@ -12,10 +12,10 @@ static func build_audio_manifest() -> Dictionary:
 	var floor_paths: Array = []
 	var generic_paths: Array[String] = []
 	var boss_music_by_type: Dictionary = {}
-	var exit_hover_path := ""
-	var settings_hover_path := ""
-	var start_new_hover_path := ""
-	var game_over_path := ""
+	var exit_hover_paths: Array[String] = []
+	var settings_hover_paths: Array[String] = []
+	var start_new_hover_paths: Array[String] = []
+	var game_over_paths: Array[String] = []
 	var boss_room_event_paths: Array[String] = []
 	var final_boss_room_event_paths: Array[String] = []
 
@@ -74,16 +74,37 @@ static func build_audio_manifest() -> Dictionary:
 					boss_key = "default"
 				_append_boss_track(boss_music_by_type, boss_key, boss_path)
 		elif lower == "exit.mp3":
-			exit_hover_path = "%s/%s" % [SFX_DIR, name]
+			_append_unique_string(exit_hover_paths, "%s/%s" % [SFX_DIR, name])
 		elif lower == "settings.mp3":
-			settings_hover_path = "%s/%s" % [SFX_DIR, name]
+			_append_unique_string(settings_hover_paths, "%s/%s" % [SFX_DIR, name])
 		elif lower == "start new.mp3":
-			start_new_hover_path = "%s/%s" % [SFX_DIR, name]
+			_append_unique_string(start_new_hover_paths, "%s/%s" % [SFX_DIR, name])
 		elif lower == "game_over_fv.mp3":
-			game_over_path = "%s/%s" % [SFX_DIR, name]
+			_append_unique_string(game_over_paths, "%s/%s" % [SFX_DIR, name])
 
 	dir.list_dir_end()
 	generic_paths.sort()
+
+	var exit_folder_paths := _collect_audio_variants_from_subdir("Exit")
+	if not exit_folder_paths.is_empty():
+		exit_hover_paths = exit_folder_paths
+
+	var settings_folder_paths := _collect_audio_variants_from_subdir("Settings")
+	if not settings_folder_paths.is_empty():
+		settings_hover_paths = settings_folder_paths
+
+	var start_new_folder_paths := _collect_audio_variants_from_subdir("Start New")
+	if not start_new_folder_paths.is_empty():
+		start_new_hover_paths = start_new_folder_paths
+
+	var game_over_folder_paths := _collect_audio_variants_from_subdir("Game Over")
+	if not game_over_folder_paths.is_empty():
+		game_over_paths = game_over_folder_paths
+
+	exit_hover_paths.sort()
+	settings_hover_paths.sort()
+	start_new_hover_paths.sort()
+	game_over_paths.sort()
 
 	var world_music_by_index := _array_to_index_dictionary(floor_paths)
 	var combat_music_by_type: Dictionary = {}
@@ -94,18 +115,18 @@ static func build_audio_manifest() -> Dictionary:
 
 	var sfx_events: Dictionary = {}
 	var menu_events: Dictionary = {}
-	if not exit_hover_path.is_empty():
-		menu_events["hover_exit"] = [exit_hover_path]
-	if not settings_hover_path.is_empty():
-		menu_events["hover_settings"] = [settings_hover_path]
-	if not start_new_hover_path.is_empty():
-		menu_events["hover_start_new"] = [start_new_hover_path]
+	if not exit_hover_paths.is_empty():
+		menu_events["hover_exit"] = exit_hover_paths
+	if not settings_hover_paths.is_empty():
+		menu_events["hover_settings"] = settings_hover_paths
+	if not start_new_hover_paths.is_empty():
+		menu_events["hover_start_new"] = start_new_hover_paths
 	if not menu_events.is_empty():
 		sfx_events["menu"] = menu_events
 
 	var ui_events: Dictionary = {}
-	if not game_over_path.is_empty():
-		ui_events["game_over"] = [game_over_path]
+	if not game_over_paths.is_empty():
+		ui_events["game_over"] = game_over_paths
 	if not ui_events.is_empty():
 		sfx_events["ui"] = ui_events
 
@@ -164,6 +185,31 @@ static func _append_unique_string(target: Array, value: String) -> void:
 	if value in target:
 		return
 	target.append(value)
+
+
+static func _collect_audio_variants_from_subdir(subdir_name: String) -> Array[String]:
+	var out: Array[String] = []
+	var dir := DirAccess.open("%s/%s" % [SFX_DIR, subdir_name])
+	if dir == null:
+		return out
+
+	dir.list_dir_begin()
+	while true:
+		var name := dir.get_next()
+		if name.is_empty():
+			break
+		if dir.current_is_dir():
+			continue
+
+		var lower := name.to_lower()
+		if not (lower.ends_with(".mp3") or lower.ends_with(".ogg") or lower.ends_with(".wav")):
+			continue
+
+		_append_unique_string(out, "%s/%s/%s" % [SFX_DIR, subdir_name, name])
+
+	dir.list_dir_end()
+	out.sort()
+	return out
 
 
 static func _array_to_index_dictionary(paths: Array) -> Dictionary:
