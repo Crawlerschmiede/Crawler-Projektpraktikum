@@ -133,6 +133,10 @@ func load_tutorial_world(tutorial_room_path: String) -> void:
 	if _main == null:
 		return
 
+	_main.world_index = _main.TUTORIAL_WORLD_INDEX
+	if _main.game_event_gateway != null:
+		_main.game_event_gateway.emit_world_loaded(_main.TUTORIAL_WORLD_INDEX)
+
 	_main._set_tree_paused(true)
 	await _show_loading()
 
