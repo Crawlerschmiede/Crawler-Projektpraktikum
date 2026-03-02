@@ -45,7 +45,7 @@ func prep_skill(user, target, battle):
 	var things_that_happened = []
 	for effect in effects:
 		if effect.type in pre_prepared_effects:
-			var stuff = effect.apply(user, target, battle, self)
+			var stuff = await effect.apply(user, target, battle, self)
 			for thing in stuff:
 				things_that_happened.append(thing)
 	return things_that_happened
@@ -61,15 +61,17 @@ func activate_skill(user, target, battle):
 	for condition in conditions:
 		update_conditions(condition, user, battle)
 	for effect in effects:
-		if !effect.type in pre_prepared_effects:
-			if not is_passive:
-				if user.is_player:
-					battle.player_effect_log.append(effect.type)
-				else:
-					battle.enemy_effect_log.append(effect.type)
-			stuff = effect.apply(user, target, battle, self)
-			for thing in stuff:
-				things_that_happened.append(thing)
+		if battle != null and is_instance_valid(battle):
+			if !effect.type in pre_prepared_effects:
+				if not is_passive:
+					if user.is_player:
+						battle.player_effect_log.append(effect.type)
+					else:
+						battle.enemy_effect_log.append(effect.type)
+				stuff = await effect.apply(user, target, battle, self)
+				for thing in stuff:
+					things_that_happened.append(thing)
+			await battle.get_tree().create_timer(0.3).timeout
 	if len(second_turn_effects) != 0:
 		last_user = user
 		last_target = target
@@ -84,7 +86,7 @@ func activate_followup():
 	var stuff = null
 	for effect in second_turn_effects:
 		if !effect.type in pre_prepared_effects:
-			stuff = effect.apply(last_user, last_target, last_battle, self)
+			stuff =  await effect.apply(last_user, last_target, last_battle, self)
 			if not is_passive:
 				if last_user.is_player:
 					last_battle.player_effect_log.append(effect.type)
@@ -99,7 +101,7 @@ func activate_immediate(user):
 	print("immediate activation")
 	if len(immediate_effects) > 0:
 		for effect in immediate_effects:
-			effect.apply(user, null, null, self)
+			await effect.apply(user, null, null, self)
 	return []
 
 
@@ -391,10 +393,10 @@ class Effect:
 				if user.stunned > 0 and GlobalRNG.randi_range(0, 100) < 50:
 					considered_details = "rnd_dir"
 				if (
-					(considered_details in basic_directions or "rnd" in considered_details)
+					(considered_details in basic_directions or "rnd" in considered_details or "input" in considered_details)
 					and can_move
 				):
-					ret = [battle.move_player(considered_details, value)]
+					ret = [await battle.move_player(considered_details, value)]
 			"danger_dmg_mult":
 				print("Activating danger")
 				var duration = 1

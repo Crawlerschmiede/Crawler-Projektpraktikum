@@ -310,22 +310,6 @@ var existing_skills = {
 		"effects": [["heal", 99, true, "No"], ["safety_dmg_reduc", 0, true, "player_pos"]],
 		"tier": 1,
 	},
-	"Right Pivot":
-	{
-		"tree": "basic",
-		"tier": 2,
-		"description": "It's a punch BUT you also take a step to the right, how novel!",
-		"effects": [["damage", 1, false, "No"], ["movement", 1, true, "R"]],
-		"cooldown": 2
-	},
-	"Left Pivot":
-	{
-		"tree": "basic",
-		"tier": 2,
-		"description": "It's a punch BUT you also take a step to the left, how exciting!",
-		"effects": [["damage", 1, false, "No"], ["movement", 1, true, "L"]],
-		"cooldown": 2
-	},
 	"Full Power Punch":
 	{
 		"tree": "basic",
@@ -530,14 +514,21 @@ var existing_skills = {
 		"effects": [["elementize", "rand", true, "No"]],
 		"passive": true
 	},
-	"Agility":
+	"Right Pivot":
 	{
 		"tree": "Rogue",
 		"tier": 1,
-		"description":
-		"Dodging the law, dodging strikes aimed at your jugular, same thing really",
-		"effects": [["dodge_chance", 0.1, true, "No"]],
-		"passive": true
+		"description": "It's a punch BUT you also take a step to the right, how novel!",
+		"effects": [["damage", 1, false, "No"], ["movement", 1, true, "R"]],
+		"cooldown": 2
+	},
+	"Left Pivot":
+	{
+		"tree": "Rogue",
+		"tier": 1,
+		"description": "It's a punch BUT you also take a step to the left, how exciting!",
+		"effects": [["damage", 1, false, "No"], ["movement", 1, true, "L"]],
+		"cooldown": 2
 	},
 	"Assassination":
 	{
@@ -563,14 +554,20 @@ var existing_skills = {
 	},
 	"Reckless Abandon":
 	{
-		"tree": "basic",
-		"tier": 1,
+		"tree": "Rogue",
+		"tier": 4,
 		"description":
 		"Some say you're 'sqishy' and 'a glass cannon', well, not after you kill them they don't!",
 		"effects": [["damage_buff", 1.5, true, "No"], ["damage_buff", 1.5, false, "No"]],
 		"passive": true
 	},
-	
+	"Reckless Acrobatics":
+	{
+		"tree": "Rogue",
+		"tier": 5,
+		"description": "Turns out, taking a second step after the first one: not as difficult as you may think!",
+		"effects": [["damage", 1, false, "No"], ["movement", 1, true, "input"], ["movement", 1, true, "input"]],
+	},
 	
 	#standard actions
 	"Move Up":

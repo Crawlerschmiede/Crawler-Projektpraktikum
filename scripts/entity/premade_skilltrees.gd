@@ -12,7 +12,8 @@ var skilltrees = {
 	"Short-Ranged-Weaponry": 0,
 	"Medium-Ranged-Weaponry": 0,
 	"Long-Ranged-Weaponry": 0,
-	"Unarmed-Combat": 0
+	"Unarmed-Combat": 0, 
+	"Rogue":0
 }
 
 

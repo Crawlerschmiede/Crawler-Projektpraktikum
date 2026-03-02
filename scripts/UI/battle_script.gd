@@ -163,7 +163,7 @@ func enemy_turn():
 		update_health_bars()
 		if extra_stuff[0]:
 			#print(enemy, " activates its Skill ", enemy.chosen.name, "!")
-			happened = enemy.chosen.activate_skill(enemy, player, self)
+			happened =  await enemy.chosen.activate_skill(enemy, player, self)
 			enemy_action_log.append(enemy.chosen.name)
 			print(enemy_action_log)
 			if hit_anim_enemy != null:
@@ -186,7 +186,7 @@ func enemy_turn():
 			log_container.add_log_event(happening)
 		if not len(next_turn) == 0:
 			for ability in next_turn:
-				ability.activate_followup()
+				await ability.activate_followup()
 		next_turn = []
 		if extra_stuff[0]:
 			player_turn()
@@ -238,9 +238,9 @@ func trigger_passives(abilities, user, target, battle, prep):
 				print("Activated the passive effect ", ability.name)
 				print_stack()
 				if prep:
-					ability.prep_skill(user, target, battle)
+					await ability.prep_skill(user, target, battle)
 				else:
-					ability.activate_skill(user, target, battle)
+					await ability.activate_skill(user, target, battle)
 			else:
 				ability.deactivate(user)
 
@@ -280,6 +280,7 @@ func move_player(direction: String, distance: int):
 	var dir = ""
 	var basics = ["u", "d", "l", "r"]
 	var new_cell := player_gridpos
+	print("Moving the player in direction: ",direction)
 	if player_sprite == null:
 		return "One cannot move what doesn't exist. Remember this."
 	if direction in basics:
@@ -324,7 +325,19 @@ func move_player(direction: String, distance: int):
 			var new_dir = basics[rng.randi_range(0, len(basics) - 1)]
 			return await move_player(new_dir, distance)
 	elif "input" in direction:
-		await get_held_direction()
+		if log_container != null:
+			log_container.tooltips = ["Info", "Press an arrow to move"]
+			log_container.state = "tooltip"
+			log_container.changed = true
+		var new_dir := "no"
+		while new_dir == "no":
+			print("still waiting...")
+			await get_tree().process_frame
+			new_dir = get_held_direction()
+		if log_container != null:
+			log_container.state = "log"
+			log_container.changed = true
+		return await move_player(new_dir, distance)
 		
 
 	if !cell_exists(new_cell):
@@ -334,22 +347,19 @@ func move_player(direction: String, distance: int):
 	check_curr_tile_mods()
 	return "Player moved " + dir
 
-func get_held_direction() -> Vector2i:
-	var picked = false
-	var direction = Vector2i.ZERO
-	while not picked:
-		if Input.is_action_pressed("ui_right"):
-			direction = Vector2i.RIGHT
-			picked=true
-		elif Input.is_action_pressed("ui_left"):
-			direction = Vector2i.LEFT
-			picked=true
-		elif Input.is_action_pressed("ui_up"):
-			direction = Vector2i.UP
-			picked=true
-		elif Input.is_action_pressed("ui_down"):
-			direction = Vector2i.DOWN
-			picked=true
+
+
+
+func get_held_direction() -> String:
+	var direction = "no"
+	if Input.is_action_pressed("move_right"):
+		direction = "r"
+	elif Input.is_action_pressed("move_left"):
+		direction = "l"
+	elif Input.is_action_pressed("move_up"):
+		direction = "u"
+	elif Input.is_action_pressed("move_down"):
+		direction = "d"
 	return direction
 
 func is_player_in_range(y_from_to) -> bool:
