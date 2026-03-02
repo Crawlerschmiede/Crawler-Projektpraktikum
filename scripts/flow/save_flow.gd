@@ -9,7 +9,8 @@ func build_save_payload(
 	top_data: Dictionary,
 	entities_data: Array,
 	minimap_data: Dictionary,
-	selected_skills: Array
+	selected_skills: Array,
+	skill_state: Dictionary = {}
 ) -> Dictionary:
 	return {
 		"world_index": world_index,
@@ -18,6 +19,7 @@ func build_save_payload(
 		"entities": entities_data,
 		"minimap": minimap_data,
 		"selected_skills": selected_skills,
+		"skill_state": skill_state,
 	}
 
 
@@ -84,4 +86,5 @@ func build_loaded_world_result(
 	result["minimap"] = minimap_node
 
 	result["selected_skills"] = payload.get("selected_skills", [])
+	result["skill_state"] = payload.get("skill_state", {})
 	return result

@@ -172,7 +172,7 @@ func load_tutorial_world(tutorial_room_path: String) -> void:
 			if _main.dungeon_floor != null:
 				_main.dungeon_floor.visibility_layer = 1
 
-			_main.player = await _main.spawn_coordinator.spawn_standard_world_entities(true, _main)
+			_main.player = await _main.spawn_coordinator.spawn_standard_world_entities(false, _main)
 
 			_hide_loading()
 			_main.get_tree().paused = false

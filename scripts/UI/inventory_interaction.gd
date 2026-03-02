@@ -187,9 +187,13 @@ func left_click_different_item(slot: Node) -> void:
 	if holding == null:
 		return
 
-	_remove_inventory_item_without_signals(slot)
-	_add_item_to_empty_slot(holding, slot)
 	var temp_item: Node = get_slot_item_node(slot)
+
+	_remove_inventory_item_without_signals(slot)
+	if not _add_item_to_empty_slot(holding, slot):
+		if temp_item != null:
+			_add_item_to_empty_slot(temp_item, slot)
+		return
 
 	if slot.has_method("pick_from_slot"):
 		slot.call("pick_from_slot")

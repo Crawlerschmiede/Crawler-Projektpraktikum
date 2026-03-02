@@ -76,8 +76,18 @@ func save_current_world() -> void:
 		minimap_payload = _save_serializer.serialize_minimap(_main.minimap)
 
 	var selected_skills_payload: Array = []
+	var skill_state_payload: Dictionary = {}
 	if typeof(SkillState) != TYPE_NIL:
 		selected_skills_payload = SkillState.selected_skills
+		if SkillState.has_method("export_state"):
+			skill_state_payload = SkillState.export_state()
+		else:
+			skill_state_payload = {
+				"selected_skills": selected_skills_payload.duplicate(),
+				"tree_levels": {},
+				"current_xp": int(SkillState.current_xp),
+				"next_necessary_xp": int(SkillState.next_necessary_xp),
+			}
 
 	var payload: Dictionary = _save_flow.build_save_payload(
 		_main.world_index,
@@ -85,7 +95,8 @@ func save_current_world() -> void:
 		_save_serializer.serialize_tilemap(_main.dungeon_top),
 		entities_payload,
 		minimap_payload,
-		selected_skills_payload
+		selected_skills_payload,
+		skill_state_payload
 	)
 
 	if not _save_flow.write_payload(payload):

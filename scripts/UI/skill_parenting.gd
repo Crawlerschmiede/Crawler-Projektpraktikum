@@ -4,7 +4,12 @@ signal leveled_up
 
 var skills_db = SkillState.skilltrees.existing_skills
 var skilltrees = SkillState.skilltrees
-var tree_aliases := {"Unarmed Combat": "Unarmed"}
+var tree_aliases := {
+	"Unarmed Combat": "Unarmed-Combat",
+	"Short Ranged Weaponry": "Short-Ranged-Weaponry",
+	"Medium Ranged Weaponry": "Medium-Ranged-Weaponry",
+	"Long Ranged Weaponry": "Long-Ranged-Weaponry"
+}
 var already_leveled: bool = false
 
 @onready var buttons_container = $Upgrades

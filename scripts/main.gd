@@ -106,6 +106,29 @@ func _set_load_from_save(value: bool) -> void:
 	save_state.set("load_from_save", value)
 
 
+func _restore_skill_state_from_loaded(loaded_data: Dictionary) -> void:
+	if typeof(SkillState) == TYPE_NIL or SkillState == null:
+		return
+
+	if SkillState.has_method("reset"):
+		SkillState.reset()
+
+	var skill_state_raw: Variant = loaded_data.get("skill_state", {})
+	if (
+		typeof(skill_state_raw) == TYPE_DICTIONARY
+		and not (skill_state_raw as Dictionary).is_empty()
+	):
+		if SkillState.has_method("import_state"):
+			SkillState.import_state(skill_state_raw)
+		return
+
+	SkillState.selected_skills.clear()
+	var selected_skills_raw: Variant = loaded_data.get("selected_skills", [])
+	if typeof(selected_skills_raw) == TYPE_ARRAY:
+		for skill in selected_skills_raw:
+			SkillState.selected_skills.append(str(skill))
+
+
 func _refresh_manifests_if_running_in_editor() -> void:
 	if not OS.has_feature("editor"):
 		return
@@ -154,13 +177,7 @@ func _ready() -> void:
 		if persistence_coordinator != null:
 			early_loaded = persistence_coordinator.load_world_from_file(0)
 		if typeof(early_loaded) == TYPE_DICTIONARY and not early_loaded.is_empty():
-			# restore selected skills into SkillState autoload if available
-			if typeof(SkillState) != TYPE_NIL and SkillState != null:
-				SkillState.selected_skills.clear()
-				var selected_skills_raw: Variant = early_loaded.get("selected_skills", [])
-				if typeof(selected_skills_raw) == TYPE_ARRAY:
-					for skill in selected_skills_raw:
-						SkillState.selected_skills.append(skill)
+			_restore_skill_state_from_loaded(early_loaded)
 			# keep the loaded maps for later use in _load_world
 			saved_maps = early_loaded
 			world_index = int(early_loaded.get("world_index", 0))
@@ -189,6 +206,7 @@ func _ready() -> void:
 			)
 			world_index = 0
 		else:
+			_restore_skill_state_from_loaded(loaded)
 			saved_maps = loaded
 			world_index = int(loaded.get("world_index", 0))
 	elif (
