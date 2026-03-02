@@ -18,6 +18,7 @@ var _settings_layer: CanvasLayer = null
 func _ready():
 	_apply_scale()
 	get_viewport().size_changed.connect(_on_viewport_size_changed)
+	_wire_hover_sfx()
 
 
 func _on_viewport_size_changed() -> void:
@@ -37,6 +38,31 @@ func _apply_scale() -> void:
 # Function for the "Continue" button
 func _on_continue_pressed():
 	menu_closed.emit()
+
+
+func _wire_hover_sfx() -> void:
+	if has_node("VBoxContainer/ButtonSettings"):
+		$VBoxContainer/ButtonSettings.mouse_entered.connect(_on_settings_hovered)
+
+	if has_node("VBoxContainer/ButtonQuit"):
+		$VBoxContainer/ButtonQuit.mouse_entered.connect(_on_exit_hovered)
+
+
+func _on_settings_hovered() -> void:
+	_play_menu_hover("hover_settings")
+
+
+func _on_exit_hovered() -> void:
+	_play_menu_hover("hover_exit")
+
+
+func _play_menu_hover(event_key: String) -> void:
+	if (
+		typeof(AudioManager) != TYPE_NIL
+		and AudioManager != null
+		and AudioManager.has_method("play_sfx_event")
+	):
+		AudioManager.play_sfx_event("menu", event_key)
 
 
 func _unhandled_input(event: InputEvent) -> void:
