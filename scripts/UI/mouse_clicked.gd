@@ -28,7 +28,7 @@ func _ready():
 		bg_music.play(13.0)
 
 		var fade_tween = create_tween()
-		fade_tween.tween_property(bg_music, "volume_db", 0.0, 2.0).set_trans(Tween.TRANS_SINE)
+		fade_tween.tween_property(bg_music, "volume_db", -10.0, 2.0).set_trans(Tween.TRANS_SINE)
 
 	_wire_buttons()
 	_setup_focus_navigation()

@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://b8myblnnvu38f" path="res://scripts/rooms/final_boss_room.gd" id="1_5ncsg"]
 [ext_resource type="TileSet" uid="uid://rc7plds60u7s" path="res://scenes/rooms/Rooms/roomtiles.tres" id="1_18wv2"]
-[ext_resource type="AudioStream" uid="uid://dotyucabv3tj3" path="res://assets/sfx/(boss-floor)SCP-x2x.mp3" id="3_o0a8g"]
+[ext_resource type="AudioStream" uid="uid://dotyucabv3tj3" path="res://assets/sfx/(floor-boss)SCP-x2x.mp3" id="3_o0a8g"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_2l3n6"]
 size = Vector2(176, 688)
