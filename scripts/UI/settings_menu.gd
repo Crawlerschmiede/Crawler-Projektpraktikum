@@ -9,6 +9,8 @@ const PATH_WINDOW_MODE := NodePath("PanelContainer/VBoxContainer/TabContainer/Di
 const PATH_RESOLUTION := NodePath("PanelContainer/VBoxContainer/TabContainer/Display/Resolution")
 const PATH_VSYNC := NodePath("PanelContainer/VBoxContainer/TabContainer/Display/VSync")
 const PATH_MASTER_VOLUME := NodePath("PanelContainer/VBoxContainer/TabContainer/Sound/MasterVolume")
+const PATH_MUSIC_VOLUME := NodePath("PanelContainer/VBoxContainer/TabContainer/Sound/MusicVolume")
+const PATH_SFX_VOLUME := NodePath("PanelContainer/VBoxContainer/TabContainer/Sound/SFXVolume")
 const PATH_MUTE := NodePath("PanelContainer/VBoxContainer/TabContainer/Sound/Mute")
 const PATH_ZOOM_LEVEL := NodePath("PanelContainer/VBoxContainer/TabContainer/Game/ZoomLevel")
 const PATH_HOTKEY_LIST := NodePath(
@@ -31,6 +33,8 @@ var _resolution_items: Array[Vector2i] = []
 
 # Sound tab
 @onready var master_volume: HSlider = get_node(PATH_MASTER_VOLUME)
+@onready var music_volume: HSlider = get_node(PATH_MUSIC_VOLUME)
+@onready var sfx_volume: HSlider = get_node(PATH_SFX_VOLUME)
 @onready var mute: CheckBox = get_node(PATH_MUTE)
 
 # Game tab
@@ -61,7 +65,9 @@ func _ready() -> void:
 	window_mode.item_selected.connect(_on_window_mode_changed)
 	resolution.item_selected.connect(_on_resolution_changed)
 	vsync.toggled.connect(_on_vsync_toggled)
-	master_volume.value_changed.connect(_on_master_volume_changed)
+	master_volume.value_changed.connect(_on_volume_changed.bind("master_volume"))
+	music_volume.value_changed.connect(_on_volume_changed.bind("music_volume"))
+	sfx_volume.value_changed.connect(_on_volume_changed.bind("sfx_volume"))
 	mute.toggled.connect(_on_mute_toggled)
 	zoom_level.value_changed.connect(_on_zoom_level_changed)
 
@@ -127,6 +133,8 @@ func _refresh_from_settings() -> void:
 
 	# Sound
 	master_volume.value = float(mgr.get_value(["sound", "master_volume"], 100.0))
+	music_volume.value = float(mgr.get_value(["sound", "music_volume"], 100.0))
+	sfx_volume.value = float(mgr.get_value(["sound", "sfx_volume"], 100.0))
 	mute.button_pressed = bool(mgr.get_value(["sound", "mute"], false))
 
 	# Game
@@ -332,11 +340,11 @@ func _on_vsync_toggled(enabled: bool) -> void:
 	mgr.save_settings()
 
 
-func _on_master_volume_changed(value: float) -> void:
+func _on_volume_changed(value: float, setting_key: String) -> void:
 	var mgr = _get_manager()
 	if mgr == null:
 		return
-	mgr.set_value(["sound", "master_volume"], value)
+	mgr.set_value(["sound", setting_key], value)
 	mgr.apply_sound()
 	mgr.save_settings()
 

@@ -1,6 +1,24 @@
 extends Node
 
 const TRACK_CACHE_PATH := "res://data/audio_tracks.generated.json"
+const AudioBusHelper := preload("res://scripts/Autoloadscripts/audio_bus_helper.gd")
+const MUSIC_BUS_NAME := "Music"
+const SFX_BUS_NAME := "SFX"
+const MASTER_BUS_NAME := "Master"
+
+const DEFAULT_MUSIC_CONTEXT_LEVEL_DB := {
+	"world": 0.0,
+	"combat_generic": 0.0,
+	"combat_boss": 0.0,
+	"boss_room": 0.0,
+	"game_over": 0.0,
+}
+
+const DEFAULT_SFX_DOMAIN_LEVEL_DB := {
+	"menu": 20.0,
+	"ui": 0.0,
+	"world": 0.0,
+}
 
 var world_music_overrides: Array[AudioStream] = []
 var floor_music_discovered: Array[AudioStream] = []
@@ -8,6 +26,10 @@ var generic_fight_music_discovered: Array[AudioStream] = []
 var world_music_by_index: Dictionary = {}
 var combat_music_by_type: Dictionary = {}
 var sfx_events_by_domain: Dictionary = {}
+var music_track_level_db_by_path: Dictionary = {}
+var sfx_track_level_db_by_path: Dictionary = {}
+var music_context_level_db: Dictionary = {}
+var sfx_domain_level_db: Dictionary = {}
 var current_world_index: int = -1
 var active_battle_uses_generic_music: bool = false
 var in_boss_room: bool = false
@@ -18,6 +40,7 @@ var sfx_player: AudioStreamPlayer = null
 
 func _ready() -> void:
 	_load_track_cache()
+	_ensure_audio_buses()
 	_ensure_music_player()
 	_ensure_sfx_player()
 	_connect_game_events()
@@ -83,6 +106,7 @@ func play_sfx_event(domain: String, event_key: String) -> bool:
 
 	var player := _ensure_sfx_player()
 	player.stream = selected_track
+	player.volume_db = _resolve_sfx_volume_db(selected_track, domain)
 	player.play()
 	return true
 
@@ -188,12 +212,13 @@ func _resolve_world_music(idx: int) -> AudioStream:
 
 func _ensure_music_player() -> AudioStreamPlayer:
 	if music_player != null and is_instance_valid(music_player):
+		music_player.bus = MUSIC_BUS_NAME
 		music_player.process_mode = Node.PROCESS_MODE_ALWAYS
 		return music_player
 
 	music_player = AudioStreamPlayer.new()
 	music_player.name = "MusicPlayer"
-	music_player.bus = "Master"
+	music_player.bus = MUSIC_BUS_NAME
 	music_player.process_mode = Node.PROCESS_MODE_ALWAYS
 	add_child(music_player)
 	return music_player
@@ -201,18 +226,19 @@ func _ensure_music_player() -> AudioStreamPlayer:
 
 func _ensure_sfx_player() -> AudioStreamPlayer:
 	if sfx_player != null and is_instance_valid(sfx_player):
+		sfx_player.bus = SFX_BUS_NAME
 		sfx_player.process_mode = Node.PROCESS_MODE_ALWAYS
 		return sfx_player
 
 	sfx_player = AudioStreamPlayer.new()
 	sfx_player.name = "SFXPlayer"
-	sfx_player.bus = "Master"
+	sfx_player.bus = SFX_BUS_NAME
 	sfx_player.process_mode = Node.PROCESS_MODE_ALWAYS
 	add_child(sfx_player)
 	return sfx_player
 
 
-func _play_music_stream(stream: AudioStream) -> void:
+func _play_music_stream(stream: AudioStream, context_key: String = "world") -> void:
 	if stream == null:
 		return
 
@@ -220,6 +246,7 @@ func _play_music_stream(stream: AudioStream) -> void:
 		(stream as AudioStreamMP3).loop = true
 
 	var player := _ensure_music_player()
+	player.volume_db = _resolve_music_volume_db(stream, context_key)
 	if player.stream == stream and player.playing:
 		return
 
@@ -230,14 +257,14 @@ func _play_music_stream(stream: AudioStream) -> void:
 func _play_generic_fight_music() -> bool:
 	var configured_tracks: Array[AudioStream] = _get_combat_tracks("generic")
 	if not configured_tracks.is_empty():
-		_play_music_stream(_pick_random_track(configured_tracks))
+		_play_music_stream(_pick_random_track(configured_tracks), "combat_generic")
 		return true
 
 	if generic_fight_music_discovered.is_empty():
 		push_warning("No generic fight music assigned")
 		return false
 
-	_play_music_stream(_pick_random_track(generic_fight_music_discovered))
+	_play_music_stream(_pick_random_track(generic_fight_music_discovered), "combat_generic")
 	return true
 
 
@@ -247,26 +274,26 @@ func _play_boss_fight_music(enemy: Node) -> bool:
 		var specific_tracks := _get_combat_tracks(boss_key)
 		if not specific_tracks.is_empty():
 			_debug_boss_music_selection("specific", boss_key, specific_tracks.size())
-			_play_music_stream(_pick_random_track(specific_tracks))
+			_play_music_stream(_pick_random_track(specific_tracks), "combat_boss")
 			return true
 
 	if in_final_boss_room:
 		var final_room_tracks := _get_sfx_event_tracks("world", "final_boss_room")
 		if not final_room_tracks.is_empty():
 			_debug_boss_music_selection("final-room-fallback", boss_key, final_room_tracks.size())
-			_play_music_stream(_pick_random_track(final_room_tracks))
+			_play_music_stream(_pick_random_track(final_room_tracks), "combat_boss")
 			return true
 
 	var normal_room_tracks := _get_sfx_event_tracks("world", "boss_room")
 	if not normal_room_tracks.is_empty():
 		_debug_boss_music_selection("boss-room-fallback", boss_key, normal_room_tracks.size())
-		_play_music_stream(_pick_random_track(normal_room_tracks))
+		_play_music_stream(_pick_random_track(normal_room_tracks), "combat_boss")
 		return true
 
 	var fallback_tracks := _get_combat_tracks("boss")
 	if not fallback_tracks.is_empty():
 		_debug_boss_music_selection("boss-fallback", boss_key, fallback_tracks.size())
-		_play_music_stream(_pick_random_track(fallback_tracks))
+		_play_music_stream(_pick_random_track(fallback_tracks), "combat_boss")
 		return true
 
 	_debug_boss_music_selection("none", boss_key, 0)
@@ -292,7 +319,7 @@ func _play_game_over_music() -> bool:
 	if game_over_tracks.is_empty():
 		return false
 
-	_play_music_stream(_pick_random_track(game_over_tracks))
+	_play_music_stream(_pick_random_track(game_over_tracks), "game_over")
 	return true
 
 
@@ -303,20 +330,20 @@ func _play_boss_room_music() -> bool:
 
 	var room_tracks := _get_sfx_event_tracks("world", room_event_key)
 	if not room_tracks.is_empty():
-		_play_music_stream(_pick_random_track(room_tracks))
+		_play_music_stream(_pick_random_track(room_tracks), "boss_room")
 		return true
 
 	if current_world_index >= 0:
 		var floor_track := _resolve_world_music(current_world_index)
 		if floor_track != null:
-			_play_music_stream(floor_track)
+			_play_music_stream(floor_track, "world")
 			return true
 
 	var fallback_tracks := _get_combat_tracks("boss")
 	if fallback_tracks.is_empty():
 		return false
 
-	_play_music_stream(_pick_random_track(fallback_tracks))
+	_play_music_stream(_pick_random_track(fallback_tracks), "combat_boss")
 	return true
 
 
@@ -326,6 +353,10 @@ func _load_track_cache() -> void:
 	world_music_by_index.clear()
 	combat_music_by_type.clear()
 	sfx_events_by_domain.clear()
+	music_track_level_db_by_path.clear()
+	sfx_track_level_db_by_path.clear()
+	music_context_level_db = DEFAULT_MUSIC_CONTEXT_LEVEL_DB.duplicate(true)
+	sfx_domain_level_db = DEFAULT_SFX_DOMAIN_LEVEL_DB.duplicate(true)
 	var used_new_schema := false
 	var used_legacy_fallback := false
 
@@ -361,6 +392,37 @@ func _load_track_cache() -> void:
 	var sfx_events_raw: Variant = parsed_dict.get("sfx_events", {})
 	if typeof(sfx_events_raw) == TYPE_DICTIONARY:
 		sfx_events_by_domain = _sfx_events_dictionary_to_streams(sfx_events_raw)
+
+	var leveling_raw: Variant = parsed_dict.get("leveling_db", {})
+	if typeof(leveling_raw) == TYPE_DICTIONARY:
+		music_track_level_db_by_path = _path_level_dictionary(leveling_raw.get("music_by_path", {}))
+		sfx_track_level_db_by_path = _path_level_dictionary(leveling_raw.get("sfx_by_path", {}))
+		music_context_level_db = _merge_level_maps(
+			music_context_level_db, _path_level_dictionary(leveling_raw.get("music_context_db", {}))
+		)
+		sfx_domain_level_db = _merge_level_maps(
+			sfx_domain_level_db, _path_level_dictionary(leveling_raw.get("sfx_domain_db", {}))
+		)
+
+	var music_levels_legacy: Variant = parsed_dict.get("music_track_level_db_by_path", {})
+	if music_track_level_db_by_path.is_empty() and typeof(music_levels_legacy) == TYPE_DICTIONARY:
+		music_track_level_db_by_path = _path_level_dictionary(music_levels_legacy)
+
+	var sfx_levels_legacy: Variant = parsed_dict.get("sfx_track_level_db_by_path", {})
+	if sfx_track_level_db_by_path.is_empty() and typeof(sfx_levels_legacy) == TYPE_DICTIONARY:
+		sfx_track_level_db_by_path = _path_level_dictionary(sfx_levels_legacy)
+
+	var music_context_legacy: Variant = parsed_dict.get("music_context_level_db", {})
+	if typeof(music_context_legacy) == TYPE_DICTIONARY:
+		music_context_level_db = _merge_level_maps(
+			music_context_level_db, _path_level_dictionary(music_context_legacy)
+		)
+
+	var sfx_domain_legacy: Variant = parsed_dict.get("sfx_domain_level_db", {})
+	if typeof(sfx_domain_legacy) == TYPE_DICTIONARY:
+		sfx_domain_level_db = _merge_level_maps(
+			sfx_domain_level_db, _path_level_dictionary(sfx_domain_legacy)
+		)
 
 	var world_music_by_index_raw: Variant = parsed_dict.get("world_music_by_index", {})
 	if typeof(world_music_by_index_raw) == TYPE_DICTIONARY:
@@ -536,6 +598,82 @@ func _append_unique_streams(target: Array[AudioStream], additions: Array[AudioSt
 		if track in target:
 			continue
 		target.append(track)
+
+
+func _path_level_dictionary(raw: Variant) -> Dictionary:
+	if typeof(raw) != TYPE_DICTIONARY:
+		return {}
+
+	var source: Dictionary = raw
+	var out: Dictionary = {}
+	for key in source.keys():
+		var path := String(key)
+		if path.is_empty():
+			continue
+
+		var value: Variant = source[key]
+		if typeof(value) == TYPE_FLOAT or typeof(value) == TYPE_INT:
+			out[path] = float(value)
+	return out
+
+
+func _resolve_music_track_level_db(stream: AudioStream) -> float:
+	return _resolve_track_level_db(stream, music_track_level_db_by_path)
+
+
+func _resolve_sfx_track_level_db(stream: AudioStream) -> float:
+	return _resolve_track_level_db(stream, sfx_track_level_db_by_path)
+
+
+func _resolve_music_volume_db(stream: AudioStream, context_key: String) -> float:
+	return (
+		_resolve_music_track_level_db(stream)
+		+ _resolve_level_for_key(music_context_level_db, context_key)
+	)
+
+
+func _resolve_sfx_volume_db(stream: AudioStream, domain: String) -> float:
+	return _resolve_sfx_track_level_db(stream) + _resolve_level_for_key(sfx_domain_level_db, domain)
+
+
+func _resolve_level_for_key(level_map: Dictionary, key: String) -> float:
+	var normalized := key.to_lower()
+	if not level_map.has(normalized):
+		return 0.0
+	var value: Variant = level_map[normalized]
+	if typeof(value) == TYPE_FLOAT or typeof(value) == TYPE_INT:
+		return float(value)
+	return 0.0
+
+
+func _merge_level_maps(base: Dictionary, overrides: Dictionary) -> Dictionary:
+	var merged := base.duplicate(true)
+	for key in overrides.keys():
+		merged[String(key).to_lower()] = float(overrides[key])
+	return merged
+
+
+func _resolve_track_level_db(stream: AudioStream, level_map: Dictionary) -> float:
+	if stream == null:
+		return 0.0
+
+	var path := stream.resource_path
+	if path.is_empty():
+		return 0.0
+
+	if not level_map.has(path):
+		return 0.0
+
+	var value: Variant = level_map[path]
+	if typeof(value) == TYPE_FLOAT or typeof(value) == TYPE_INT:
+		return float(value)
+
+	return 0.0
+
+
+func _ensure_audio_buses() -> void:
+	AudioBusHelper.ensure_bus(MUSIC_BUS_NAME, MASTER_BUS_NAME)
+	AudioBusHelper.ensure_bus(SFX_BUS_NAME, MASTER_BUS_NAME)
 
 
 func _get_sfx_event_tracks(domain: String, event_key: String) -> Array[AudioStream]:
