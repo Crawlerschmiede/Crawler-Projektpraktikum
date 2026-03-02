@@ -14,6 +14,7 @@ var sprite_type: String = "bat"
 var behaviour = "idle"
 var chase_target: PlayerCharacter
 var chasing: bool = false
+var xp: int = 0
 var expanded: bool = false
 
 @onready var sight_area: Area2D = $SightArea

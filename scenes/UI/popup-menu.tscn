@@ -97,4 +97,5 @@ icon_alignment = 1
 
 [connection signal="pressed" from="VBoxContainer/ButtonContinue" to="." method="_on_continue_pressed"]
 [connection signal="pressed" from="VBoxContainer/ButtonSettings" to="." method="_on_settings_pressed"]
+[connection signal="pressed" from="VBoxContainer/ButtonSave" to="." method="_on_save_pressed"]
 [connection signal="pressed" from="VBoxContainer/ButtonQuit" to="." method="_on_quit_pressed"]

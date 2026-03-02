@@ -133,14 +133,15 @@ size_flags_vertical = 4
 layout_mode = 2
 size_flags_vertical = 1
 theme_override_fonts/font = ExtResource("6_uqwi4")
-theme_override_font_sizes/font_size = 31
 text = "You Won!"
 horizontal_alignment = 1
 vertical_alignment = 1
+uppercase = true
 script = ExtResource("7_57isg")
 
 [node name="Label2" type="Label" parent="PanelContainer/MarginContainer/VBoxContainer" unique_id=2083732364]
 layout_mode = 2
+theme_override_fonts/font = ExtResource("6_uqwi4")
 text = "Press enter to continue"
 
 [node name="bg_music" type="AudioStreamPlayer" parent="." unique_id=1133867695]

@@ -56,6 +56,8 @@ var next_turn: Array[Skill] = []
 var turn_counter = 0
 var active: bool = true
 
+var over = false
+
 var enemy_action_log = []
 var player_action_log = []
 
@@ -77,7 +79,7 @@ func _ready():
 		player.full_status_heal()
 	if enemy != null and is_instance_valid(enemy):
 		enemy.full_status_heal()
-		enemy_is_boss = enemy.boss
+		enemy_is_boss = AudioManager.is_boss_enemy(enemy)
 	enemy_sprite = create_battle_sprite(enemy)
 	player_sprite = create_battle_sprite(player)
 	player_sprite.animation = "idle_up"
@@ -147,7 +149,7 @@ func enemy_turn():
 		return
 	turn_counter += 1
 	print("It is turn " + str(turn_counter))
-	var over = check_victory()
+	over = check_victory()
 	update_health_bars()
 	var happened = []
 	if !over:
@@ -190,7 +192,7 @@ func enemy_turn():
 			print(player_action_log)
 		else:
 			enemy_turn()
-		check_victory()
+		over = check_victory()
 		update_health_bars()
 
 
@@ -243,6 +245,8 @@ func trigger_passives(abilities, user, target, battle, depth, prep):
 
 
 func check_victory():
+	if over:
+		return true
 	# Treat missing or freed enemy/player as defeat for that side
 	if enemy == null or not is_instance_valid(enemy) or enemy.hp <= 0:
 		print("battle_script: emitting player_victory (enemy dead)")
@@ -373,7 +377,7 @@ func check_curr_tile_mods():
 				player.heal(modifier_value)
 			"heal_bad":
 				enemy.heal(modifier_value)
-	check_victory()
+	over = check_victory()
 
 
 func get_min_x():

@@ -10,7 +10,7 @@ func _ready() -> void:
 	# Button verbinden
 	if continue_button:
 		continue_button.pressed.connect(_go_to_start)
-		continue_button.grab_focus()  # optional: direkt Fokus auf Button
+		#continue_button.grab_focus()  # optional: direkt Fokus auf Button
 
 
 func _unhandled_input(event: InputEvent) -> void:
