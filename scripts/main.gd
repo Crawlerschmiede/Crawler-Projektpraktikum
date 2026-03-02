@@ -92,9 +92,12 @@ func _get_save_state() -> Node:
 
 func _should_load_from_save() -> bool:
 	var save_state := _get_save_state()
-	if save_state == null:
-		return false
-	return bool(save_state.get("load_from_save"))
+	if save_state != null:
+		if save_state.has_method("should_load_from_save"):
+			return bool(save_state.should_load_from_save())
+		if bool(save_state.get("load_from_save")):
+			return true
+	return false
 
 
 func _set_load_from_save(value: bool) -> void:
@@ -103,7 +106,11 @@ func _set_load_from_save(value: bool) -> void:
 		if value:
 			push_warning("SaveState autoload is missing; cannot set load_from_save=true")
 		return
-	save_state.set("load_from_save", value)
+
+	if save_state.has_method("set_should_load_from_save"):
+		save_state.set_should_load_from_save(value)
+	else:
+		save_state.set("load_from_save", value)
 
 
 func _restore_skill_state_from_loaded(loaded_data: Dictionary) -> void:

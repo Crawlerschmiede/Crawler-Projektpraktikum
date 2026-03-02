@@ -292,6 +292,20 @@ func load_world(idx: int, generators: Array[Node2D]) -> void:
 	):
 		if _main.persistence_coordinator != null:
 			_main.persistence_coordinator.deserialize_entities(_main.saved_maps.get("entities", []))
+		if OS.is_debug_build():
+			var inventory_slots := 0
+			var coins := -1
+			if typeof(PlayerInventory) != TYPE_NIL and PlayerInventory != null:
+				inventory_slots = (PlayerInventory.inventory as Dictionary).size()
+				coins = int(PlayerInventory.coins)
+			print(
+				"[ContinueLoad] world_index=",
+				_main.world_index,
+				" inventory_slots=",
+				inventory_slots,
+				" coins=",
+				coins
+			)
 		_main.saved_maps = {}
 	else:
 		_main.player = await _main.spawn_coordinator.spawn_standard_world_entities(true, _main)

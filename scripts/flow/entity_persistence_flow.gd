@@ -126,6 +126,7 @@ func serialize_entities(world_root: Node) -> Array:
 			if _obj_has_property(c, "fog_tile_id"):
 				item["fog_tile_id"] = int(c.get("fog_tile_id"))
 			item["inventory"] = PlayerInventory.inventory
+			item["coins"] = int(PlayerInventory.coins)
 
 		out.append(item)
 
@@ -239,12 +240,18 @@ func deserialize_entities(
 			if owner != null and owner.has_method("emit_signal"):
 				owner.emit_signal("player_spawned", loaded_player)
 
+			var did_restore_inventory_state := false
 			if item.has("inventory"):
 				var inv = item.get("inventory")
 				var fixed_inv: Dictionary = {}
 				for k in inv.keys():
 					fixed_inv[int(k)] = inv[k]
 				PlayerInventory.inventory = fixed_inv
+				did_restore_inventory_state = true
+			if item.has("coins"):
+				PlayerInventory.coins = int(item.get("coins", PlayerInventory.coins))
+				did_restore_inventory_state = true
+			if did_restore_inventory_state:
 				PlayerInventory._emit_changed()
 
 	return loaded_player
