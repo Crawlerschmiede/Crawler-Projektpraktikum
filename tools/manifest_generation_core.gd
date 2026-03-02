@@ -17,6 +17,7 @@ static func build_audio_manifest() -> Dictionary:
 	var start_new_hover_path := ""
 	var game_over_path := ""
 	var boss_room_event_paths: Array[String] = []
+	var final_boss_room_event_paths: Array[String] = []
 
 	var dir := DirAccess.open(SFX_DIR)
 	if dir == null:
@@ -55,6 +56,9 @@ static func build_audio_manifest() -> Dictionary:
 					_append_unique_string(floor_tracks, floor_track_path)
 					floor_tracks.sort()
 					floor_paths[floor_idx] = floor_tracks
+				elif floor_num_str == "boss":
+					var final_boss_room_path := "%s/%s" % [SFX_DIR, name]
+					_append_unique_string(final_boss_room_event_paths, final_boss_room_path)
 		elif lower.begins_with("(normal-fight)"):
 			var normal_path := "%s/%s" % [SFX_DIR, name]
 			_append_unique_string(generic_paths, normal_path)
@@ -63,9 +67,10 @@ static func build_audio_manifest() -> Dictionary:
 			if boss_close_idx > 6:
 				var boss_key := lower.substr(6, boss_close_idx - 6)
 				var boss_path := "%s/%s" % [SFX_DIR, name]
-				if boss_key == "floor":
+				if boss_key == "room":
 					_append_unique_string(boss_room_event_paths, boss_path)
-				if boss_key == "floor" or boss_key == "boss":
+					continue
+				if boss_key == "room" or boss_key == "boss":
 					boss_key = "default"
 				_append_boss_track(boss_music_by_type, boss_key, boss_path)
 		elif lower == "exit.mp3":
@@ -104,9 +109,15 @@ static func build_audio_manifest() -> Dictionary:
 	if not ui_events.is_empty():
 		sfx_events["ui"] = ui_events
 
+	var world_events: Dictionary = {}
 	if not boss_room_event_paths.is_empty():
 		boss_room_event_paths.sort()
-		sfx_events["world"] = {"boss_room": boss_room_event_paths}
+		world_events["boss_room"] = boss_room_event_paths
+	if not final_boss_room_event_paths.is_empty():
+		final_boss_room_event_paths.sort()
+		world_events["final_boss_room"] = final_boss_room_event_paths
+	if not world_events.is_empty():
+		sfx_events["world"] = world_events
 
 	return {
 		"schema_version": 1,

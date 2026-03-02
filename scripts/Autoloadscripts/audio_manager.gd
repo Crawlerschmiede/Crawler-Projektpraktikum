@@ -11,6 +11,7 @@ var sfx_events_by_domain: Dictionary = {}
 var current_world_index: int = -1
 var active_battle_uses_generic_music: bool = false
 var in_boss_room: bool = false
+var in_final_boss_room: bool = false
 var music_player: AudioStreamPlayer = null
 var sfx_player: AudioStreamPlayer = null
 
@@ -30,6 +31,7 @@ func play_world_music(idx: int) -> void:
 	current_world_index = idx
 	active_battle_uses_generic_music = false
 	in_boss_room = false
+	in_final_boss_room = false
 
 	var selected_track := _resolve_world_music(idx)
 	if selected_track == null:
@@ -40,6 +42,9 @@ func play_world_music(idx: int) -> void:
 
 
 func set_in_boss_room(is_boss_room: bool) -> void:
+	if not is_boss_room and in_final_boss_room:
+		in_final_boss_room = false
+
 	if in_boss_room == is_boss_room:
 		return
 
@@ -53,6 +58,16 @@ func set_in_boss_room(is_boss_room: bool) -> void:
 		return
 
 	_restore_non_battle_music()
+
+
+func set_in_final_boss_room(is_final_boss_room: bool) -> void:
+	in_final_boss_room = is_final_boss_room
+	if is_final_boss_room:
+		set_in_boss_room(true)
+		return
+
+	if not in_boss_room:
+		_restore_non_battle_music()
 
 
 func play_sfx_event(domain: String, event_key: String) -> bool:
@@ -155,6 +170,7 @@ func _on_battle_ended(_victory: bool, _enemy: Node, _is_boss: bool) -> void:
 func _on_game_over() -> void:
 	clear_battle_state()
 	in_boss_room = false
+	in_final_boss_room = false
 	_play_game_over_music()
 
 
@@ -234,10 +250,17 @@ func _play_boss_fight_music(enemy: Node) -> bool:
 			_play_music_stream(_pick_random_track(specific_tracks))
 			return true
 
-	var default_tracks := _get_combat_tracks("boss_default")
-	if not default_tracks.is_empty():
-		_debug_boss_music_selection("default-fallback", boss_key, default_tracks.size())
-		_play_music_stream(_pick_random_track(default_tracks))
+	if in_final_boss_room:
+		var final_room_tracks := _get_sfx_event_tracks("world", "final_boss_room")
+		if not final_room_tracks.is_empty():
+			_debug_boss_music_selection("final-room-fallback", boss_key, final_room_tracks.size())
+			_play_music_stream(_pick_random_track(final_room_tracks))
+			return true
+
+	var normal_room_tracks := _get_sfx_event_tracks("world", "boss_room")
+	if not normal_room_tracks.is_empty():
+		_debug_boss_music_selection("boss-room-fallback", boss_key, normal_room_tracks.size())
+		_play_music_stream(_pick_random_track(normal_room_tracks))
 		return true
 
 	var fallback_tracks := _get_combat_tracks("boss")
@@ -274,15 +297,20 @@ func _play_game_over_music() -> bool:
 
 
 func _play_boss_room_music() -> bool:
-	var room_tracks := _get_sfx_event_tracks("world", "boss_room")
+	var room_event_key := "boss_room"
+	if in_final_boss_room:
+		room_event_key = "final_boss_room"
+
+	var room_tracks := _get_sfx_event_tracks("world", room_event_key)
 	if not room_tracks.is_empty():
 		_play_music_stream(_pick_random_track(room_tracks))
 		return true
 
-	var default_tracks := _get_combat_tracks("boss_default")
-	if not default_tracks.is_empty():
-		_play_music_stream(_pick_random_track(default_tracks))
-		return true
+	if current_world_index >= 0:
+		var floor_track := _resolve_world_music(current_world_index)
+		if floor_track != null:
+			_play_music_stream(floor_track)
+			return true
 
 	var fallback_tracks := _get_combat_tracks("boss")
 	if fallback_tracks.is_empty():

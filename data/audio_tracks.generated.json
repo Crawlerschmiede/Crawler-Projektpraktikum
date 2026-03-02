@@ -2,9 +2,6 @@
 	"music": {
 		"combat_by_type": {
 			"boss": {
-				"default": [
-					"res://assets/sfx/(boss-floor)SCP-x2x.mp3"
-				],
 				"necro": [
 					"res://assets/sfx/(boss-necro)Burnt Spirit.mp3"
 				],
@@ -58,7 +55,10 @@
 		},
 		"world": {
 			"boss_room": [
-				"res://assets/sfx/(boss-floor)SCP-x2x.mp3"
+				"res://assets/sfx/(boss-room)SCP-x2x.mp3"
+			],
+			"final_boss_room": [
+				"res://assets/sfx/(floor-boss)SCP-x2x.mp3"
 			]
 		}
 	}
