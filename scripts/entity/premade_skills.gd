@@ -530,6 +530,48 @@ var existing_skills = {
 		"effects": [["elementize", "rand", true, "No"]],
 		"passive": true
 	},
+	"Agility":
+	{
+		"tree": "Rogue",
+		"tier": 1,
+		"description":
+		"Dodging the law, dodging strikes aimed at your jugular, same thing really",
+		"effects": [["dodge_chance", 0.1, true, "No"]],
+		"passive": true
+	},
+	"Assassination":
+	{
+		"tree": "Rogue",
+		"tier": 2,
+		"description":
+		"It's surprising just how much easier it is to stab people when they don't see it coming",
+		"effects": [["damage_buff", 2, true, "No"]],
+		"passive": true,
+		"conditions": ["lost_after||effect_happened-damage-1"]
+	},
+	
+	#this one happens twice for some omnissiahforsaken reason, it's fine, just halve the damage, I don't know man
+	"Run 'n Gun":
+	{
+		"tree": "Rogue",
+		"tier": 3,
+		"description":
+		"It's surprising just how much easier it is to stab people when they don't see it coming",
+		"effects": [["damage", 1, false, "No"]],
+		"passive": true,
+		"conditions": ["effect_happened_every-movement-2"]
+	},
+	"Reckless Abandon":
+	{
+		"tree": "basic",
+		"tier": 1,
+		"description":
+		"Some say you're 'sqishy' and 'a glass cannon', well, not after you kill them they don't!",
+		"effects": [["damage_buff", 1.5, true, "No"], ["damage_buff", 1.5, false, "No"]],
+		"passive": true
+	},
+	
+	
 	#standard actions
 	"Move Up":
 	{
@@ -555,6 +597,8 @@ var existing_skills = {
 		"description": "Do you really need an explanation of what walking right is?",
 		"effects": [["movement", 1, true, "R"]],
 	},
+	
+	
 	#weapon skills (first plan)
 	"Shank":
 	{

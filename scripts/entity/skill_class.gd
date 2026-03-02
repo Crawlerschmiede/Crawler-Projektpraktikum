@@ -16,8 +16,7 @@ var second_turn_effects: Array[Effect] = []
 var pre_prepared_effects = [
 	"danger_dmg_mult", "safety_dmg_reduc", "death_zone", "heal_zone", "damage_zone"
 ]
-# TODO: could do with a more sophisticated sorting system later.
-var high_prio_effects = ["movement"]
+var count_anything = 0 #this will be used for anything that needs counting
 
 var last_user = null
 var last_target = null
@@ -52,18 +51,23 @@ func prep_skill(user, target, battle):
 	return things_that_happened
 
 
-func activate_skill(user, target, battle, depth = 0):
+func activate_skill(user, target, battle):
+	var who = "enemy"
+	if user.is_player:
+		who = "player"
 	turns_until_reuse = cooldown
 	var things_that_happened = []
 	var stuff = null
+	for condition in conditions:
+		update_conditions(condition, user, battle)
 	for effect in effects:
-		if effect.type in high_prio_effects && !effect.type in pre_prepared_effects:
-			stuff = effect.apply(user, target, battle, self, depth)
-			for thing in stuff:
-				things_that_happened.append(thing)
-	for effect in effects:
-		if !effect.type in high_prio_effects && !effect.type in pre_prepared_effects:
-			stuff = effect.apply(user, target, battle, self, depth)
+		if !effect.type in pre_prepared_effects:
+			if not is_passive:
+				if user.is_player:
+					battle.player_effect_log.append(effect.type)
+				else:
+					battle.enemy_effect_log.append(effect.type)
+			stuff = effect.apply(user, target, battle, self)
 			for thing in stuff:
 				things_that_happened.append(thing)
 	if len(second_turn_effects) != 0:
@@ -75,18 +79,17 @@ func activate_skill(user, target, battle, depth = 0):
 
 
 func activate_followup():
-	var depth = 0
 	var things_that_happened = []
 	things_that_happened.append("The preparations pay off!")
 	var stuff = null
 	for effect in second_turn_effects:
-		if effect.type in high_prio_effects && !effect.type in pre_prepared_effects:
-			stuff = effect.apply(last_user, last_target, last_battle, self, depth)
-			for thing in stuff:
-				things_that_happened.append(thing)
-	for effect in second_turn_effects:
-		if !effect.type in high_prio_effects && !effect.type in pre_prepared_effects:
-			stuff = effect.apply(last_user, last_target, last_battle, self, depth)
+		if !effect.type in pre_prepared_effects:
+			stuff = effect.apply(last_user, last_target, last_battle, self)
+			if not is_passive:
+				if last_user.is_player:
+					last_battle.player_effect_log.append(effect.type)
+				else:
+					last_battle.enemy_effect_log.append(effect.type)
 			for thing in stuff:
 				things_that_happened.append(thing)
 	return things_that_happened
@@ -124,15 +127,43 @@ func is_activateable(user = null, target = null, battle = null) -> bool:
 				activateable = false
 			print(activateable)
 	return activateable
+	
+func update_conditions(cond_name, user, battle):
+	if "effect_happened" in cond_name:
+		var effect_log = []
+		if user.is_player:
+			effect_log = battle.player_effect_log
+		else:
+			effect_log = battle.enemy_effect_log
+		var splits = cond_name.split("-")
+		var sought = splits[1]
+		var limit = int(splits[2])
+		var count = 0
+		for effect in effect_log:
+			if effect == sought:
+				count +=1
+		if "every" in splits[0]:
+			if (count-count_anything)%limit == 0 and (count-count_anything) >= limit:
+				count_anything+=limit
 
 
 func tick_down():
 	if turns_until_reuse > 0:
 		turns_until_reuse = turns_until_reuse - 1
 
+func reset():
+	turns_until_reuse = 0
+	count_anything = 0
+	for effect in effects:
+		effect.reset()
+
 
 func condition_met(condition_name, user, _target, battle) -> bool:
 	var is_met = true
+	if "lost_after" in condition_name:
+		var splits = condition_name.split("||")
+		is_met = not condition_met(splits[1], user, _target, battle)
+		return is_met
 	if "range" in condition_name and user == null:
 		return false
 	match condition_name:
@@ -159,6 +190,23 @@ func condition_met(condition_name, user, _target, battle) -> bool:
 	if "every_x_turns" in condition_name:
 		var splits = condition_name.split("=")
 		is_met = battle.turn_counter % int(splits[1]) == 0
+	if "effect_happened" in condition_name:
+		var effect_log = []
+		if user.is_player:
+			effect_log = battle.player_effect_log
+		else:
+			effect_log = battle.enemy_effect_log
+		var splits = condition_name.split("-")
+		var sought = splits[1]
+		var limit = int(splits[2])
+		var count = 0
+		for effect in effect_log:
+			if effect == sought:
+				count +=1
+		if "every" in splits[0]:
+			is_met = (count-count_anything)%limit == 0 and (count-count_anything) >= limit
+		else:
+			is_met = limit<=count
 	print("Condition " + condition_name + " is met? " + str(is_met))
 	return is_met
 
@@ -179,6 +227,9 @@ class Effect:
 		value = _value
 		targets_self = _targets_self
 		details = _details.to_lower()
+		
+	func reset():
+		pass
 
 	func _safe_invoke(obj, method_name: String, args := []):
 		# Return a safe default (empty array) if the object is null/freed/missing method.
@@ -195,7 +246,7 @@ class Effect:
 		return obj.callv(method_name, args)
 
 	# gdlint: disable=max-returns
-	func apply(user, target, battle, skill, depth = 0):
+	func apply(user, target, battle, skill):
 		var messages = []
 		var ret = []
 		var considered_details = details
@@ -273,6 +324,7 @@ class Effect:
 				for alteration in user.alterations:
 					if user.alterations[alteration].has("dmg_buff"):
 						active_dmg *= user.alterations[alteration].dmg_buff
+						print(user.name, " has a damage buff! ", user.alterations[alteration].dmg_buff)
 					if user.alterations[alteration].has("dmg_null"):
 						active_dmg = 0
 					if user.alterations[alteration].has("pierce"):
@@ -469,8 +521,6 @@ class Effect:
 				var prep_msg := "The enemy seems to be preparing something big... or maybe it's just tired?"
 				var prep_hint := "Hard to tell really"
 				ret = [prep_msg, prep_hint]
-		if depth < 3 and not battle.battle_over():
-			battle.update_passives(depth + 1, false)
 		return ret
 
 	# gdlint: enable=max-returns

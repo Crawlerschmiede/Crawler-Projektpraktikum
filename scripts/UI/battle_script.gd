@@ -61,6 +61,9 @@ var over = false
 var enemy_action_log = []
 var player_action_log = []
 
+var enemy_effect_log = []
+var player_effect_log = []
+
 var enemy_is_boss = false
 @onready var hit_anim_enemy: AnimatedSprite2D = $Battle_root/PlayerPosition/enemy_attack_anim
 @onready var hit_anim_player: AnimatedSprite2D = $Battle_root/EnemyPosition/player_attack_anim
@@ -99,10 +102,8 @@ func _ready():
 		enemy_hp_bar.value = (enemy.hp * 100.0) / enemy.max_hp
 	if player != null and is_instance_valid(player):
 		player_hp_bar.value = (player.hp * 100.0) / player.max_hp
-	# We're doing this twice in case we extend a range and then end up in it
-	# because of that or something similar.
-	for i in range(2):
-		update_passives()
+	player.reset_skills()
+	update_passives()
 	enemy.decide_attack()
 	enemy_prepare_turn()
 
@@ -136,7 +137,7 @@ func enemy_prepare_turn():
 	log_container.add_log_event("The enemy prepares its Skill " + enemy.chosen.name + "!")
 	#print(enemy, " prepares its Skill ", enemy.chosen.name, "!")
 	var preps = enemy.chosen.prep_skill(enemy, player, self)
-	update_passives(0, true)
+	update_passives(true)
 	for prep in preps:
 		log_container.add_log_event(prep)
 	player.refill_actions()
@@ -223,23 +224,23 @@ func force_stop() -> void:
 		hit_anim_player.visible = false
 
 
-func update_passives(depth = 0, prep = false):
-	trigger_passives(player.abilities, player, enemy, self, depth, prep)
+func update_passives(prep = false):
+	print_stack()
+	trigger_passives(player.abilities, player, enemy, self, prep)
 	#trigger_passives(player.items, player, enemy, self)	#will items have passives?
-	trigger_passives(enemy.abilities, enemy, player, self, depth, prep)
+	trigger_passives(enemy.abilities, enemy, player, self, prep)
 
 
-func trigger_passives(abilities, user, target, battle, depth, prep):
-	print("Triggering passives at depth ", depth)
+func trigger_passives(abilities, user, target, battle, prep):
 	for ability in abilities:
 		if ability.is_passive:
 			if ability.is_activateable(user, target, self):
 				print("Activated the passive effect ", ability.name)
+				print_stack()
 				if prep:
 					ability.prep_skill(user, target, battle)
 				else:
-					ability.activate_skill(user, target, battle, depth)
-				print("Active passive effects: ", user.get_alterations())
+					ability.activate_skill(user, target, battle)
 			else:
 				ability.deactivate(user)
 
@@ -321,7 +322,10 @@ func move_player(direction: String, distance: int):
 			new_cell = possible_tiles[rng.randi_range(0, len(possible_tiles) - 1)]
 		elif area == "dir":
 			var new_dir = basics[rng.randi_range(0, len(basics) - 1)]
-			return move_player(new_dir, distance)
+			return await move_player(new_dir, distance)
+	elif "input" in direction:
+		await get_held_direction()
+		
 
 	if !cell_exists(new_cell):
 		return "Attempting to move " + dir + ", the player only pushed against the wall"
@@ -330,6 +334,23 @@ func move_player(direction: String, distance: int):
 	check_curr_tile_mods()
 	return "Player moved " + dir
 
+func get_held_direction() -> Vector2i:
+	var picked = false
+	var direction = Vector2i.ZERO
+	while not picked:
+		if Input.is_action_pressed("ui_right"):
+			direction = Vector2i.RIGHT
+			picked=true
+		elif Input.is_action_pressed("ui_left"):
+			direction = Vector2i.LEFT
+			picked=true
+		elif Input.is_action_pressed("ui_up"):
+			direction = Vector2i.UP
+			picked=true
+		elif Input.is_action_pressed("ui_down"):
+			direction = Vector2i.DOWN
+			picked=true
+	return direction
 
 func is_player_in_range(y_from_to) -> bool:
 	var min_y = get_min_y()
