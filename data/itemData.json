@@ -76,6 +76,7 @@
 		"StackSize": 1,
 		"Description": "",
 		"group": "Weapon",
+		"example_in_inventory": "Weapon",
 		"bound_skills": ["Shoot", "Reload"],
 		"range": "long",
 		"loot_stats": { "weight": 3, "chance": 1.0, "max_stack": 2 },
