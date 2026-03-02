@@ -28,6 +28,7 @@ var hammer_style: StyleBoxTexture
 
 # Item
 var item: Node = null
+var preview_item: Node = null
 
 var _ui: Node = null
 
@@ -101,14 +102,15 @@ func refresh_style() -> void:
 	#print(item)
 	if item != null and (not is_instance_valid(item) or item.get_parent() != self):
 		item = null
-
 	if has_background:
 		if PlayerInventory.get_selected_slot() == slot_index:
 			set("theme_override_styles/panel", selected_style)
 		elif item == null:
 			set("theme_override_styles/panel", empty_style)
+			_show_example_if_empty()
 		else:
 			set("theme_override_styles/panel", default_style)
+			_remove_preview()
 
 
 func pick_from_slot() -> void:
@@ -156,9 +158,9 @@ func put_into_slot(new_item: Node) -> void:
 
 	_fit_item_to_slot(new_item)
 
-	new_item.position = Vector2.ZERO
 	item = new_item
 	refresh_style()
+	_remove_preview()
 
 
 func clear_slot() -> void:
@@ -166,6 +168,7 @@ func clear_slot() -> void:
 		item.queue_free()
 	item = null
 	refresh_style()
+	_remove_preview()
 
 
 func initialize_item(item_name: String, item_quantity: int) -> void:
@@ -173,7 +176,7 @@ func initialize_item(item_name: String, item_quantity: int) -> void:
 		item = ITEM_SCENE.instantiate()
 		add_child(item)
 		_fit_item_to_slot(item)
-
+	tooltip_text = str(item_name)
 	# Erwartet dass dein Item Node eine set_item(name, qty) Methode besitzt
 	if item.has_method("set_item"):
 		item.call("set_item", item_name, item_quantity)
@@ -181,7 +184,82 @@ func initialize_item(item_name: String, item_quantity: int) -> void:
 		push_error("Item Scene hat keine Methode set_item(item_name, item_quantity)")
 
 	refresh_style()
+	_remove_preview()
 
 
 func get_item():
 	return item
+
+
+func _remove_preview() -> void:
+	if preview_item != null and is_instance_valid(preview_item):
+		preview_item.queue_free()
+	preview_item = null
+
+
+func _show_example_if_empty() -> void:
+	# Only show one preview when slot is empty
+	if item != null:
+		_remove_preview()
+		return
+	if preview_item != null and is_instance_valid(preview_item):
+		return
+
+	# Bestimme Gruppe: bevorzugt `example_...`, sonst die erste andere Gruppe
+	var gruppe: String = ""
+	var example_prefix := "example_"
+	for g in get_groups():
+		if str(g).begins_with(example_prefix):
+			gruppe = str(g).substr(example_prefix.length())
+			break
+
+	if gruppe == "":
+		for g in get_groups():
+			if str(g) != "":
+				gruppe = str(g)
+				break
+
+	if gruppe == "":
+		return
+
+	gruppe = gruppe.to_lower()
+
+	# Suche in JsonData.item_data nach einem passenden Beispiel (case-insensitive)
+	if typeof(JsonData) == TYPE_NIL or JsonData == null:
+		return
+	if not ("item_data" in JsonData):
+		return
+
+	var data: Dictionary = JsonData.item_data
+	for nm in data.keys():
+		var info = data[nm]
+		if typeof(info) == TYPE_DICTIONARY:
+			var ex_val := str(info.get("example_in_inventory", "")).to_lower()
+			if ex_val == gruppe:
+				# instantiate preview item
+				preview_item = ITEM_SCENE.instantiate()
+				add_child(preview_item)
+				_fit_item_to_slot(preview_item)
+
+				if preview_item.has_method("set_item"):
+					preview_item.call("set_item", str(nm), 0)
+
+				# Schwarz einfärben + transparent + keine Interaktion
+				_make_preview_black(preview_item)
+
+				break
+
+
+func _make_preview_black(node: Node) -> void:
+	# Macht ALLES darunter schwarz/transparent und deaktiviert Interaktion
+	# (geht rekursiv durch alle Children)
+	if node is CanvasItem:
+		# komplett schwarz, halb transparent
+		(node as CanvasItem).modulate = Color(0, 0, 0, 0.55)
+
+	# falls Controls drin sind -> Maus aus
+	if node is Control:
+		(node as Control).mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	for c in node.get_children():
+		_make_preview_black(c)

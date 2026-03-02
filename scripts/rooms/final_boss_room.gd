@@ -1,8 +1,19 @@
 extends Node2D
 
-@onready var bg_music = $bg_music
+
+func _ready() -> void:
+	if (
+		typeof(AudioManager) != TYPE_NIL
+		and AudioManager != null
+		and AudioManager.has_method("set_in_final_boss_room")
+	):
+		AudioManager.set_in_final_boss_room(true)
 
 
-func _ready():
-	if bg_music:
-		bg_music.play(2.0)
+func _exit_tree() -> void:
+	if (
+		typeof(AudioManager) != TYPE_NIL
+		and AudioManager != null
+		and AudioManager.has_method("set_in_final_boss_room")
+	):
+		AudioManager.set_in_final_boss_room(false)

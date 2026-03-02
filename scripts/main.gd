@@ -33,6 +33,9 @@ const WIN_SCENE := "res://scenes/UI/won-screen.tscn"
 const WIN_SCENE_PACKED := preload("res://scenes/UI/won-screen.tscn")
 const SEWER_TILESET := "res://scenes/rooms/Rooms/roomtiles_2world.tres"
 const TUTORIAL_ROOM := "res://scenes/rooms/Tutorial Rooms/tutorial_room.tscn"
+const TUTORIAL_WORLD_INDEX := -1
+const TUTORIAL_STATE_PATH_USER := "user://tutorialData.json"
+const TUTORIAL_STATE_PATH_RES := "res://data/tutorialData.json"
 const UI_MODAL_CONTROLLER := preload("res://scripts/UI/ui_modal_controller.gd")
 @export var menu_scene := preload("res://scenes/UI/popup-menu.tscn")
 @export var fog_tile_id: int = 0  # set this in the inspector to the fog-tile id in your tileset
@@ -74,6 +77,7 @@ var boss_win: bool = false
 
 @onready var minimap: TileMapLayer
 
+@onready var music_player: AudioStreamPlayer = $MusicPlayer
 @onready var generator1: Node2D = $World1
 @onready var generator2: Node2D = $World2
 @onready var generator3: Node2D = $World3
@@ -192,7 +196,7 @@ func _ready() -> void:
 		await _show_skilltree_select_menu()
 		await _show_skilltree_upgrading_menu()
 
-	# Tutorial prüfen (JSON: res://data/tutorialData.json)
+	# Tutorial prüfen (user://tutorialData.json, fallback: res://data/tutorialData.json)
 	if _has_completed_tutorial() == false:
 		await _load_tutorial_world()
 		return
@@ -514,13 +518,15 @@ func game_over():
 # JSON: Tutorial abgeschlossen?
 # -----------------------------------------------------
 func _has_completed_tutorial() -> bool:
-	var path = "res://data/tutorialData.json"
+	var paths := [TUTORIAL_STATE_PATH_USER, TUTORIAL_STATE_PATH_RES]
+	for path in paths:
+		if not FileAccess.file_exists(path):
+			continue
 
-	if not FileAccess.file_exists(path):
-		return false
+		var file = FileAccess.open(path, FileAccess.READ)
+		if file == null:
+			continue
 
-	var file = FileAccess.open(path, FileAccess.READ)
-	if file:
 		var json_text: String = file.get_as_text()
 		file.close()
 
@@ -537,10 +543,12 @@ func _has_completed_tutorial() -> bool:
 # JSON: Tutorial als abgeschlossen speichern
 # -----------------------------------------------------
 func _set_tutorial_completed() -> void:
-	var path = "res://data/tutorialData.json"
 	var data: Dictionary = {"tutorial_completed": true}
 
-	var file = FileAccess.open(path, FileAccess.WRITE)
-	if file:
-		file.store_string(JSON.stringify(data, "\t"))
-		file.close()
+	var file = FileAccess.open(TUTORIAL_STATE_PATH_USER, FileAccess.WRITE)
+	if file == null:
+		push_warning("Failed to persist tutorial completion state to user://")
+		return
+
+	file.store_string(JSON.stringify(data, "\t"))
+	file.close()

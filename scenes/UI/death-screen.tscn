@@ -145,3 +145,4 @@ text = "Press enter to continue"
 
 [node name="bg_music" type="AudioStreamPlayer" parent="." unique_id=1133867695]
 stream = ExtResource("9_8qsoh")
+bus = &"Music"
