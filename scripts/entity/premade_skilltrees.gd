@@ -12,8 +12,7 @@ const DEFAULT_SKILLTREES := {
 	"Short-Ranged-Weaponry": 0,
 	"Medium-Ranged-Weaponry": 0,
 	"Long-Ranged-Weaponry": 0,
-	"Unarmed-Combat": 0,
-	"Rogue": 0
+	"Unarmed-Combat": 0
 }
 var existing_skills = SKILLS.new()
 # format here is name:{tier, skills}
