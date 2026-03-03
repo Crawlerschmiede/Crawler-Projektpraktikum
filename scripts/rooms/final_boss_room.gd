@@ -1,6 +1,6 @@
 extends Area2D
 
-
+@onready var bossenterd =0;
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	pass # Replace with function body.
@@ -12,6 +12,10 @@ func _process(delta: float) -> void:
 
 
 func _on_body_entered_boss_area(body: Node2D) -> void:
+	if (bossenterd ==0):
+		print("final boss area entered the first time")
+	else:
+		print("final boss area entered the second time")
 	pass # Replace with function body.
 
 
