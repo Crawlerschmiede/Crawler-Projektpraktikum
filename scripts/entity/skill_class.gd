@@ -193,7 +193,7 @@ func condition_met(condition_name, user, _target, battle) -> bool:
 
 	if "every_x_turns" in condition_name:
 		var splits = condition_name.split("=")
-		is_met = battle.turn_counter % int(splits[1]) == 0
+		is_met = ((battle.turn_counter % int(splits[1]) == 0) and battle.turn_counter!=0)
 	if "effect_happened" in condition_name:
 		var effect_log = []
 		if user.is_player:
@@ -211,6 +211,12 @@ func condition_met(condition_name, user, _target, battle) -> bool:
 			is_met = (count - count_anything) % limit == 0 and (count - count_anything) >= limit
 		else:
 			is_met = limit <= count
+	if "on_tile" in condition_name:
+		var active_modifiers = battle.get_player_pos_modifiers()
+		print("Player is standing on ",active_modifiers)
+		var parts = condition_name.split("=")
+		is_met = parts[1] in active_modifiers.keys()
+		print("Condition ", condition_name, " is met: ", is_met)
 	print("Condition " + condition_name + " is met? " + str(is_met))
 	return is_met
 
@@ -307,6 +313,9 @@ class Effect:
 												active_dmg += 1
 											else:
 												break
+				if "dmg_boost" in considered_details:
+					var parts = considered_details.split("=")
+					active_dmg+=int(parts[1])
 				for modifier_name in active_placement_effects:
 					var modifier_value = active_placement_effects[modifier_name]
 
@@ -387,6 +396,10 @@ class Effect:
 				print("Activating movement")
 				var basic_directions = ["u", "d", "l", "r"]
 				var can_move = true
+				
+				for alteration in user.alterations:
+						if user.alterations[alteration].has("cannot_move"):
+							can_move = false
 
 				if user.is_player:
 					if user.frozen > 0:
@@ -408,7 +421,7 @@ class Effect:
 			"danger_dmg_mult":
 				print("Activating danger")
 				var duration = 1
-				ret = battle.apply_zones("dmg_mult_", value, considered_details, duration, "bad")
+				ret = do_zones("dmg_mult_", value, considered_details, duration, "bad", battle, user)
 			"poison":
 				print("Activating poison!")
 				var recipient = user if targets_self else target
@@ -427,7 +440,7 @@ class Effect:
 			"safety_dmg_reduc":
 				print("Activating safety")
 				var duration = 1
-				ret = battle.apply_zones("dmg_reduc_", value, considered_details, duration, "good")
+				ret = do_zones("dmg_reduc_", value, considered_details, duration, "good", battle, user)
 			"death_zone":
 				print("Activating death")
 				var duration = 1
@@ -436,7 +449,7 @@ class Effect:
 					direction = "bad"
 				else:
 					direction = "good"
-				ret = battle.apply_zones("death_", value, considered_details, duration, direction)
+				ret = do_zones("death_", value, considered_details, duration, direction, battle, user)
 			"damage_zone":
 				var duration = 1
 				var direction
@@ -450,8 +463,8 @@ class Effect:
 						active_dmg *= user.alterations[alteration].dmg_buff
 					if user.alterations[alteration].has("dmg_null"):
 						active_dmg = 0
-				ret = battle.apply_zones(
-					"damage_", active_dmg, considered_details, duration, direction
+				ret = do_zones(
+					"damage_", active_dmg, considered_details, duration, direction, battle, user
 				)
 			"heal_zone":
 				print("Activating death")
@@ -461,7 +474,7 @@ class Effect:
 					direction = "good"
 				else:
 					direction = "bad"
-				ret = battle.apply_zones("heal_", value, considered_details, duration, direction)
+				ret = do_zones("heal_", value, considered_details, duration, direction, battle, user)
 			"heal":
 				var recipient = user if targets_self else target
 				ret = _safe_invoke(recipient, "heal", [value])
@@ -527,10 +540,29 @@ class Effect:
 				ret = _safe_invoke(
 					recipient, "add_alteration", ["action_bonus", value, skill.name, dur]
 				)
+			"cannot_move":
+				var dur = null
+				if "duration" in considered_details:
+					var parts = considered_details.split("=")
+					dur = int(parts[1])
+				var recipient = user if targets_self else target
+				ret = _safe_invoke(
+					recipient, "add_alteration", ["cannot_move", value, skill.name, dur]
+				)
+			"add_zone_duration":
+				var recipient = user if targets_self else target
+				print("The recipient of added zone duration is player: ",recipient.is_player)
+				ret = _safe_invoke(
+					recipient, "add_zone_duration", [value]
+				)
 			"prepare":
 				var prep_msg := "The enemy seems to be preparing something big... or maybe it's just tired?"
 				var prep_hint := "Hard to tell really"
 				ret = [prep_msg, prep_hint]
 		return ret
+			
+	func do_zones(type, value, considered_details, duration, dir, battle, user):
+		duration+=user.added_zone_duration
+		return battle.apply_zones(type, value, considered_details, duration, dir)
 
 	# gdlint: enable=max-returns

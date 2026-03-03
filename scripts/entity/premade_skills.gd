@@ -365,7 +365,7 @@ var existing_skills = {
 		"description":
 		# gdlint:ignore = max-line-length
 		"If you can imagine how scary someone running at you with a knife is, imagine how much scarier it'd be if they teleported!",
-		"effects": [["movement", 1, true, "rnd_short"], ["damage", 1, false, "No"]],
+		"effects": [["movement", 1, true, "rnd|short"], ["damage", 1, false, "No"]],
 		"cooldown": 3
 	},
 	#medium ranged weaponry
@@ -393,7 +393,7 @@ var existing_skills = {
 		"tree": "Medium-Ranged-Weaponry",
 		"tier": 3,
 		"description": "Dodging only matters if your opponent has limbs to hit you with",
-		"effects": [["damage", 3, false, "No"], ["freeze", 1, true, "No"]],
+		"effects": [["damage", 5, false, "No"], ["freeze", 1, true, "No"]],
 		"cooldown": 5
 	},
 	"Plant your Spear":
@@ -492,7 +492,7 @@ var existing_skills = {
 		"description":
 		# gdlint:ignore = max-line-length
 		"God, it pains me to think about just how annoying it must be to try and hit you...",
-		"effects": [["movement", 1, true, "conditional--rnd_long||rnd_short"]],
+		"effects": [["movement", 1, true, "conditional--rnd|long||rnd|short"]],
 		"cooldown": 3,
 		"switch_condition": ["outside_short_range"]
 	},
@@ -572,6 +572,54 @@ var existing_skills = {
 			["movement", 1, true, "input"],
 			["movement", 1, true, "input"]
 		],
+	},
+	
+	#warrior skilltree
+	"Shields Up":
+	{
+		"tree": "Warrior",
+		"tier": 1,
+		"description":
+		"You have a MASSIVE shield, now, if only it wasn't so damn heavy...",
+		"effects": [["safety_dmg_reduc", 0, false, "area||rand||rand||2"]],
+		"passive": true,
+		"conditions": ["every_x_turns=5"]
+	},
+	"Buckler Bash":
+	{
+		"tree": "Warrior",
+		"tier": 2,
+		"description": "Remember that shield we talked about? Well, turns out it's actually really heavy, which makes it very painful to get hit with it",
+		"effects": [["damage", 1, false, "conditional--No||dmg_boost=3"]],
+		"cooldown": 3,
+		"switch_condition": ["on_tile=dmg_reduc_good"]
+	},
+	"Immovable Object":
+	{
+		"tree": "Warrior",
+		"tier": 3,
+		"description":
+		"Ok, good news, apparently the sheer weight of your shield is also messing up your opponents!",
+		"effects": [["cannot_move", 0, false, "No"]],
+		"passive": true
+	},
+	"Super Heavy Armour":
+	{
+		"tree": "Warrior",
+		"tier": 4,
+		"description":
+		"Listen, listen! Ok, so, armour, right? It's kinda just lika a wearable shield! Just uhh... mind the gaps...",
+		"effects": [["add_zone_duration", 1, true, "No"], ["damage_buff", 1.5, false, "No"]],
+		"passive": true
+	},
+	"Sprint to cover":
+	{
+		"tree": "Warrior",
+		"tier": 5,
+		"description":
+		"Listen, listen! Ok, so, armour, right? It's kinda just lika a wearable shield! Just uhh... mind the gaps...",
+		"effects": [["movement", 1, true, "rnd|dmg_reduc_good"]],
+		"cooldown": 5,
 	},
 	#standard actions
 	"Move Up":

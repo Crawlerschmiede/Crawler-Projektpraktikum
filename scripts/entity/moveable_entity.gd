@@ -88,6 +88,7 @@ var freeze_recovery = 1
 #should be in the format "<Source_Name>:{"<type>":<value>}"
 # something like that...
 var alterations = {}
+var added_zone_duration = 0
 
 #--- References to other stuff ---
 
@@ -509,7 +510,7 @@ func take_damage(damage, type = ""):
 	if taken_damage < 0:
 		taken_damage = 0
 	print(self.name, " should take damage")
-	print(alterations)
+	print("These are the recipeints alterations ", alterations)
 	for alteration in alterations:
 		if alterations[alteration].has("dodge_chance") and not "undodgeable" in type:
 			var dodge_chance = alterations[alteration].dodge_chance * 100
@@ -617,7 +618,10 @@ func deal_with_status_effects(battle, phase) -> Array:
 			frozen = 0
 		things_that_happened.append("Target was frozen and can't move!")
 	return [gets_a_turn, things_that_happened]
-
+	
+func add_zone_duration(amount):
+	added_zone_duration = amount
+	return []
 
 # --- helpers ---
 func has_animation(checked_sprite: AnimatedSprite2D, anim_name: String) -> bool:
