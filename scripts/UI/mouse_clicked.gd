@@ -18,6 +18,16 @@ func _ready():
 	# 👉 Reset ALL autoloads cleanly (kein new(), kein instantiate!)
 	if Engine.has_singleton("AutoloadResetRunner"):
 		AutoloadResetRunner.reset_all()
+	if (
+		typeof(SaveState) != TYPE_NIL
+		and SaveState != null
+		and SaveState.has_method("set_should_load_from_save")
+	):
+		SaveState.set_should_load_from_save(false)
+	else:
+		var root := get_tree().root
+		if root != null:
+			root.set_meta("load_from_save", false)
 
 	# Cursor setzen
 	Input.set_custom_mouse_cursor(cursor_idle)
@@ -28,7 +38,7 @@ func _ready():
 		bg_music.play(13.0)
 
 		var fade_tween = create_tween()
-		fade_tween.tween_property(bg_music, "volume_db", 0.0, 2.0).set_trans(Tween.TRANS_SINE)
+		fade_tween.tween_property(bg_music, "volume_db", -10.0, 2.0).set_trans(Tween.TRANS_SINE)
 
 	_wire_buttons()
 	_setup_focus_navigation()
@@ -96,12 +106,22 @@ func _on_start_pressed() -> void:
 
 func _on_continue_pressed() -> void:
 	# Set autoload flag so Map_Generator / main can load from save
-	if typeof(SaveState) != TYPE_NIL and SaveState != null:
-		SaveState.load_from_save = true
+	if (
+		typeof(SaveState) != TYPE_NIL
+		and SaveState != null
+		and SaveState.has_method("set_should_load_from_save")
+	):
+		SaveState.set_should_load_from_save(true)
 	else:
 		var save_state = get_tree().root.get_node_or_null("SaveState")
 		if save_state != null:
 			save_state.set("load_from_save", true)
+			if save_state.has_method("set_should_load_from_save"):
+				save_state.set_should_load_from_save(true)
+			else:
+				var root := get_tree().root
+				if root != null:
+					root.set_meta("load_from_save", true)
 		else:
 			push_warning("SaveState autoload is missing; continue will start a new run")
 	# Then perform the same scene change as starting a new game

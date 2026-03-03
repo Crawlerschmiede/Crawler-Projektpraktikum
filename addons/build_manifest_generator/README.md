@@ -10,9 +10,10 @@ This editor plugin generates build-time manifests during export and injects them
 - Optionally tries to write `res://scenes/rooms/room_manifest.json` for local use. If that write fails, it logs a warning and continues.
 - Scans `res://assets/sfx` and builds `res://data/audio_tracks.generated.json` from naming conventions:
 	- `(floor-<n>)...` -> floor music index `n-1`
+	- `(floor-boss)...` -> `sfx_events.world.final_boss_room`
 	- `(normal-fight)...` -> generic fight music pool
 	- `(boss-<type>)...` -> boss pools under `music.combat_by_type.boss.<type>`
-	- `(boss-floor)...` and `(boss-boss)...` -> mapped to `music.combat_by_type.boss.default`
+	- `(boss-room)...` -> mapped to `sfx_events.world.boss_room`
 - Injects `audio_tracks.generated.json` into the export using `EditorExportPlugin.add_file()`.
 
 ## Why this exists
@@ -41,7 +42,7 @@ In exported builds, `DirAccess` cannot enumerate packed `res://` folders. The ru
 		"combat_by_type": {
 			"generic": ["res://assets/sfx/(normal-fight)..."],
 			"boss": {
-				"default": ["res://assets/sfx/(boss-floor)..."],
+				"default": ["res://assets/sfx/(boss-room)..."],
 				"plant": ["res://assets/sfx/(boss-plant)..."],
 				"orc": ["res://assets/sfx/(boss-orc)..."],
 				"necro": ["res://assets/sfx/(boss-necro)..."],
@@ -49,13 +50,17 @@ In exported builds, `DirAccess` cannot enumerate packed `res://` folders. The ru
 			}
 		}
 	},
-	"sfx_events": {}
+	"sfx_events": {
+		"world": {
+			"boss_room": ["res://assets/sfx/(boss-room)..."],
+			"final_boss_room": ["res://assets/sfx/(floor-boss)..."]
+		}
+	}
 }
 ```
 
 Notes:
 - Tracks are deduplicated while generating the manifest.
-- `sfx_events` is intentionally an empty object for now.
 - Runtime loading in `AudioManager` still supports older manifest formats as fallback.
 
 

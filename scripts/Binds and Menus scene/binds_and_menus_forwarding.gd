@@ -164,8 +164,18 @@ func _on_save_requested() -> void:
 		return
 	if maybe_main.has_method("save_current_world"):
 		maybe_main.call("save_current_world")
+		return
+
+	var persistence = maybe_main.get("persistence_coordinator")
+	if persistence != null and persistence.has_method("save_current_world"):
+		persistence.call("save_current_world")
 	else:
-		push_error("_on_save_requested: main node has no save_current_world() method")
+		push_error(
+			(
+				"_on_save_requested: no save entrypoint found on main"
+				+ " (save_current_world/persistence_coordinator)"
+			)
+		)
 
 
 func _trigger_action(action_name: String) -> void:

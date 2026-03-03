@@ -4,6 +4,8 @@ var names: Array = [
 	"SettingsManager",
 	"JsonData",
 	"PlayerInventory",
+	"SkillState",
+	"SaveState",
 	"Setting",
 	"Logger",
 	"MerchantRegistry",
@@ -18,6 +20,8 @@ func reset_all() -> void:
 	EntityAutoload.reset()
 	Setting.reset()
 	PlayerInventory.reset()
+	SkillState.reset()
+	SaveState.reset()
 	JsonData.reset()
 	SettingsManager.reset()
 	EntityAutoload.reset()

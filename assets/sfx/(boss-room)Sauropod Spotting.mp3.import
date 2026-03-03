@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://br8n4j64jiljk"
+path="res://.godot/imported/(boss-room)Sauropod Spotting.mp3-aa70f378334d322c15d7dd95435552d2.mp3str"
+
+[deps]
+
+source_file="res://assets/sfx/(boss-room)Sauropod Spotting.mp3"
+dest_files=["res://.godot/imported/(boss-room)Sauropod Spotting.mp3-aa70f378334d322c15d7dd95435552d2.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

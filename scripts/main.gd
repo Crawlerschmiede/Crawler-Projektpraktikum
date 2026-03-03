@@ -1,14 +1,23 @@
 extends Node2D
 
-# gdlint: disable=max-file-lines
-
 signal player_spawned
 
 const ENEMY_SCENE := preload("res://scenes/entity/enemy.tscn")
 const BATTLE_SCENE := preload("res://scenes/UI/battle.tscn")
 const BATTLE_FLOW := preload("res://scripts/flow/battle_flow.gd")
 const WORLD_FLOW := preload("res://scripts/flow/world_flow.gd")
+const WORLD_LOAD_FLOW := preload("res://scripts/flow/world_load_flow.gd")
+const WORLD_ENTITY_SPAWN_FLOW := preload("res://scripts/flow/world_entity_spawn_flow.gd")
+const MINIMAP_REVEAL_FLOW := preload("res://scripts/flow/minimap_reveal_flow.gd")
 const SAVE_FLOW := preload("res://scripts/flow/save_flow.gd")
+const ENTITY_PERSISTENCE_FLOW := preload("res://scripts/flow/entity_persistence_flow.gd")
+const ENEMY_SPAWN_FLOW := preload("res://scripts/flow/enemy_spawn_flow.gd")
+const UI_OVERLAY_COORDINATOR := preload("res://scripts/flow/ui_overlay_coordinator.gd")
+const WORLD_LOADING_COORDINATOR := preload("res://scripts/flow/world_loading_coordinator.gd")
+const SPAWN_COORDINATOR := preload("res://scripts/flow/spawn_coordinator.gd")
+const SAVE_SERIALIZER := preload("res://scripts/flow/save_serializer.gd")
+const GAME_EVENT_GATEWAY := preload("res://scripts/flow/game_event_gateway.gd")
+const PERSISTENCE_COORDINATOR := preload("res://scripts/flow/persistence_coordinator.gd")
 const ManifestCore := preload("res://tools/manifest_generation_core.gd")
 const PLAYER_SCENE := preload("res://scenes/entity/player-character-scene.tscn")
 const LOOTBOX := preload("res://scenes/Interactables/Lootbox.tscn")
@@ -24,6 +33,9 @@ const WIN_SCENE := "res://scenes/UI/won-screen.tscn"
 const WIN_SCENE_PACKED := preload("res://scenes/UI/won-screen.tscn")
 const SEWER_TILESET := "res://scenes/rooms/Rooms/roomtiles_2world.tres"
 const TUTORIAL_ROOM := "res://scenes/rooms/Tutorial Rooms/tutorial_room.tscn"
+const TUTORIAL_WORLD_INDEX := -1
+const TUTORIAL_STATE_PATH_USER := "user://tutorialData.json"
+const TUTORIAL_STATE_PATH_RES := "res://data/tutorialData.json"
 const UI_MODAL_CONTROLLER := preload("res://scripts/UI/ui_modal_controller.gd")
 @export var menu_scene := preload("res://scenes/UI/popup-menu.tscn")
 @export var fog_tile_id: int = 0  # set this in the inspector to the fog-tile id in your tileset
@@ -46,7 +58,18 @@ var battle_flow: RefCounted = null
 var loading_screen: CanvasLayer = null
 
 var world_flow: RefCounted = null
+var world_load_flow: RefCounted = null
+var world_entity_spawn_flow: RefCounted = null
+var minimap_reveal_flow: RefCounted = null
 var save_flow: RefCounted = null
+var entity_persistence_flow: RefCounted = null
+var enemy_spawn_flow: RefCounted = null
+var ui_overlay_coordinator: RefCounted = null
+var world_loading_coordinator: RefCounted = null
+var spawn_coordinator: RefCounted = null
+var save_serializer: RefCounted = null
+var game_event_gateway: RefCounted = null
+var persistence_coordinator: RefCounted = null
 
 var boss_win: bool = false
 
@@ -54,6 +77,7 @@ var boss_win: bool = false
 
 @onready var minimap: TileMapLayer
 
+@onready var music_player: AudioStreamPlayer = $MusicPlayer
 @onready var generator1: Node2D = $World1
 @onready var generator2: Node2D = $World2
 @onready var generator3: Node2D = $World3
@@ -72,9 +96,12 @@ func _get_save_state() -> Node:
 
 func _should_load_from_save() -> bool:
 	var save_state := _get_save_state()
-	if save_state == null:
-		return false
-	return bool(save_state.get("load_from_save"))
+	if save_state != null:
+		if save_state.has_method("should_load_from_save"):
+			return bool(save_state.should_load_from_save())
+		if bool(save_state.get("load_from_save")):
+			return true
+	return false
 
 
 func _set_load_from_save(value: bool) -> void:
@@ -83,75 +110,34 @@ func _set_load_from_save(value: bool) -> void:
 		if value:
 			push_warning("SaveState autoload is missing; cannot set load_from_save=true")
 		return
-	save_state.set("load_from_save", value)
+
+	if save_state.has_method("set_should_load_from_save"):
+		save_state.set_should_load_from_save(value)
+	else:
+		save_state.set("load_from_save", value)
 
 
-func _emit_world_loaded(idx: int) -> void:
-	if (
-		typeof(GameEvents) != TYPE_NIL
-		and GameEvents != null
-		and GameEvents.has_method("emit_world_loaded")
-	):
-		GameEvents.emit_world_loaded(idx)
+func _restore_skill_state_from_loaded(loaded_data: Dictionary) -> void:
+	if typeof(SkillState) == TYPE_NIL or SkillState == null:
 		return
 
-	if typeof(AudioManager) != TYPE_NIL and AudioManager != null:
-		AudioManager.play_world_music(idx)
+	if SkillState.has_method("reset"):
+		SkillState.reset()
 
-
-func _emit_battle_started(enemy: Node) -> void:
-	var is_boss_enemy := false
+	var skill_state_raw: Variant = loaded_data.get("skill_state", {})
 	if (
-		typeof(AudioManager) != TYPE_NIL
-		and AudioManager != null
-		and AudioManager.has_method("is_boss_enemy")
+		typeof(skill_state_raw) == TYPE_DICTIONARY
+		and not (skill_state_raw as Dictionary).is_empty()
 	):
-		is_boss_enemy = bool(AudioManager.is_boss_enemy(enemy))
-
-	if (
-		typeof(GameEvents) != TYPE_NIL
-		and GameEvents != null
-		and GameEvents.has_method("emit_battle_started")
-	):
-		GameEvents.emit_battle_started(enemy, is_boss_enemy)
+		if SkillState.has_method("import_state"):
+			SkillState.import_state(skill_state_raw)
 		return
 
-	if typeof(AudioManager) != TYPE_NIL and AudioManager != null:
-		AudioManager.enter_battle(enemy)
-
-
-func _emit_battle_ended(victory: bool, enemy: Node) -> void:
-	var is_boss_enemy := false
-	if (
-		typeof(AudioManager) != TYPE_NIL
-		and AudioManager != null
-		and AudioManager.has_method("is_boss_enemy")
-	):
-		is_boss_enemy = bool(AudioManager.is_boss_enemy(enemy))
-
-	if (
-		typeof(GameEvents) != TYPE_NIL
-		and GameEvents != null
-		and GameEvents.has_method("emit_battle_ended")
-	):
-		GameEvents.emit_battle_ended(victory, enemy, is_boss_enemy)
-		return
-
-	if typeof(AudioManager) != TYPE_NIL and AudioManager != null:
-		AudioManager.exit_battle()
-
-
-func _emit_game_over() -> void:
-	if (
-		typeof(GameEvents) != TYPE_NIL
-		and GameEvents != null
-		and GameEvents.has_method("emit_game_over")
-	):
-		GameEvents.emit_game_over()
-		return
-
-	if typeof(AudioManager) != TYPE_NIL and AudioManager != null:
-		AudioManager.clear_battle_state()
+	SkillState.selected_skills.clear()
+	var selected_skills_raw: Variant = loaded_data.get("selected_skills", [])
+	if typeof(selected_skills_raw) == TYPE_ARRAY:
+		for skill in selected_skills_raw:
+			SkillState.selected_skills.append(str(skill))
 
 
 func _refresh_manifests_if_running_in_editor() -> void:
@@ -170,7 +156,22 @@ func _ready() -> void:
 	battle_flow = BATTLE_FLOW.new()
 	battle_flow.configure(self, BATTLE_SCENE)
 	world_flow = WORLD_FLOW.new()
+	world_load_flow = WORLD_LOAD_FLOW.new()
+	world_entity_spawn_flow = WORLD_ENTITY_SPAWN_FLOW.new()
+	minimap_reveal_flow = MINIMAP_REVEAL_FLOW.new()
 	save_flow = SAVE_FLOW.new()
+	entity_persistence_flow = ENTITY_PERSISTENCE_FLOW.new()
+	enemy_spawn_flow = ENEMY_SPAWN_FLOW.new()
+	enemy_spawn_flow.configure(ENEMY_SCENE)
+	ui_overlay_coordinator = UI_OVERLAY_COORDINATOR.new()
+	spawn_coordinator = SPAWN_COORDINATOR.new()
+	spawn_coordinator.configure(self, world_entity_spawn_flow, enemy_spawn_flow)
+	world_loading_coordinator = WORLD_LOADING_COORDINATOR.new()
+	world_loading_coordinator.configure(self, world_load_flow)
+	save_serializer = SAVE_SERIALIZER.new()
+	game_event_gateway = GAME_EVENT_GATEWAY.new()
+	persistence_coordinator = PERSISTENCE_COORDINATOR.new()
+	persistence_coordinator.configure(self, save_flow, save_serializer, entity_persistence_flow)
 
 	var battle_victory_handler := Callable(self, "_on_battle_player_victory")
 	if not battle_flow.player_victory.is_connected(battle_victory_handler):
@@ -183,15 +184,11 @@ func _ready() -> void:
 	# If user requested loading from save, try to pre-load save data
 	# BEFORE showing skill selection so previously selected skills are restored
 	if _should_load_from_save():
-		var early_loaded = load_world_from_file(0)
+		var early_loaded: Dictionary = {}
+		if persistence_coordinator != null:
+			early_loaded = persistence_coordinator.load_world_from_file(0)
 		if typeof(early_loaded) == TYPE_DICTIONARY and not early_loaded.is_empty():
-			# restore selected skills into SkillState autoload if available
-			if typeof(SkillState) != TYPE_NIL and SkillState != null:
-				SkillState.selected_skills.clear()
-				var selected_skills_raw: Variant = early_loaded.get("selected_skills", [])
-				if typeof(selected_skills_raw) == TYPE_ARRAY:
-					for skill in selected_skills_raw:
-						SkillState.selected_skills.append(skill)
+			_restore_skill_state_from_loaded(early_loaded)
 			# keep the loaded maps for later use in _load_world
 			saved_maps = early_loaded
 			world_index = int(early_loaded.get("world_index", 0))
@@ -199,7 +196,7 @@ func _ready() -> void:
 		await _show_skilltree_select_menu()
 		await _show_skilltree_upgrading_menu()
 
-	# Tutorial prüfen (JSON: res://data/tutorialData.json)
+	# Tutorial prüfen (user://tutorialData.json, fallback: res://data/tutorialData.json)
 	if _has_completed_tutorial() == false:
 		await _load_tutorial_world()
 		return
@@ -211,13 +208,16 @@ func _ready() -> void:
 		)
 	):
 		# No early-loaded save present -> load now
-		var loaded = load_world_from_file(0)
+		var loaded: Dictionary = {}
+		if persistence_coordinator != null:
+			loaded = persistence_coordinator.load_world_from_file(0)
 		if loaded == {}:
 			push_error(
 				"_ready: requested load_from_save but load failed; falling back to new world"
 			)
 			world_index = 0
 		else:
+			_restore_skill_state_from_loaded(loaded)
 			saved_maps = loaded
 			world_index = int(loaded.get("world_index", 0))
 	elif (
@@ -230,57 +230,17 @@ func _ready() -> void:
 
 
 func _show_skilltree_select_menu() -> void:
-	var skilltree_select = SKILLTREE_SELECT_SCENE.instantiate()
-	if skilltree_select == null:
-		push_warning(
-			"Failed to instantiate skilltree select menu; continuing startup without selection"
-		)
+	if ui_overlay_coordinator == null:
+		push_warning("_show_skilltree_select_menu: ui_overlay_coordinator is null")
 		return
-
-	var ui_layer := CanvasLayer.new()
-	ui_layer.name = "SkilltreeSelectOverlay"
-	ui_layer.layer = 100
-	add_child(ui_layer)
-	ui_layer.add_child(skilltree_select)
-
-	if skilltree_select is Control:
-		skilltree_select.set_anchors_preset(Control.PRESET_FULL_RECT)
-		skilltree_select.offset_left = 0
-		skilltree_select.offset_top = 0
-		skilltree_select.offset_right = 0
-		skilltree_select.offset_bottom = 0
-
-	if skilltree_select.has_signal("selection_confirmed"):
-		await skilltree_select.selection_confirmed
-
-	if is_instance_valid(ui_layer):
-		ui_layer.queue_free()
+	await ui_overlay_coordinator.show_skilltree_select_menu(self, SKILLTREE_SELECT_SCENE)
 
 
 func _show_skilltree_upgrading_menu() -> void:
-	var skilltree_upgrading = SKILLTREE_UPGRADING_SCENE.instantiate()
-	if skilltree_upgrading == null:
-		push_warning("Failed to instantiate skilltree upgrading menu; continuing startup")
+	if ui_overlay_coordinator == null:
+		push_warning("_show_skilltree_upgrading_menu: ui_overlay_coordinator is null")
 		return
-
-	var ui_layer := CanvasLayer.new()
-	ui_layer.name = "SkilltreeUpgradingOverlay"
-	ui_layer.layer = 100
-	add_child(ui_layer)
-	ui_layer.add_child(skilltree_upgrading)
-
-	if skilltree_upgrading is Control:
-		skilltree_upgrading.set_anchors_preset(Control.PRESET_FULL_RECT)
-		skilltree_upgrading.offset_left = 0
-		skilltree_upgrading.offset_top = 0
-		skilltree_upgrading.offset_right = 0
-		skilltree_upgrading.offset_bottom = 0
-
-	if skilltree_upgrading.has_signal("closed"):
-		await skilltree_upgrading.closed
-
-	if is_instance_valid(ui_layer):
-		ui_layer.queue_free()
+	await ui_overlay_coordinator.show_skilltree_upgrading_menu(self, SKILLTREE_UPGRADING_SCENE)
 
 
 func _set_tree_paused(value: bool) -> void:
@@ -292,399 +252,26 @@ func _set_tree_paused(value: bool) -> void:
 
 
 func _load_tutorial_world() -> void:
-	_set_tree_paused(true)
-	await _show_loading()
-
-	_clear_world()
-
-	# Reset boss flag when loading a world so previous boss state doesn't leak
-	boss_win = false
-
-	world_root = Node2D.new()
-	world_root.name = "WorldRoot"
-	add_child(world_root)
-
-	# Versuche zuerst, die Tutorial-Szene als Generator zu behandeln
-	var TutorialPacked = preload(TUTORIAL_ROOM)
-	var tutorial_inst = TutorialPacked.instantiate()
-
-	if tutorial_inst != null and tutorial_inst.has_method("get_random_tilemap"):
-		# Generator-API vorhanden -> wie bei _load_world verwenden
-		var maps: Dictionary = await tutorial_inst.get_random_tilemap()
-
-		if maps.is_empty():
-			push_warning("Tutorial generator returned empty maps, falling back to scene extraction")
-		else:
-			dungeon_floor = maps.get("floor", null)
-			dungeon_top = maps.get("top", null)
-			minimap = maps.get("minimap", null)
-
-			# attach maps to world_root if not parented
-			if dungeon_floor != null and dungeon_floor.get_parent() == null:
-				world_root.add_child(dungeon_floor)
-			if dungeon_top != null and dungeon_top.get_parent() == null:
-				world_root.add_child(dungeon_top)
-
-			if fog_war_layer != null and dungeon_floor != null:
-				init_fog_layer()
-
-			if dungeon_floor != null:
-				dungeon_floor.visibility_layer = 1
-
-			spawn_player()
-			spawn_enemies(false)
-			spawn_lootbox()
-			spawn_traps()
-			spawn_enemies(true)
-
-			var merchants = find_merchants()
-			for i in merchants:
-				spawn_merchant_entity(i)
-
-			_hide_loading()
-			get_tree().paused = false
-			if is_instance_valid(tutorial_inst):
-				tutorial_inst.queue_free()
-			return
-
-	# Fallback: Tutorial-Szene wie bisher parsen (TileMapLayer / Area2D etc.)
-	var tutorial_scene = tutorial_inst as Node2D
-	if tutorial_scene == null:
-		push_error("Failed to load tutorial scene!")
-		_hide_loading()
-		_set_tree_paused(false)
+	if world_loading_coordinator == null:
+		push_warning("_load_tutorial_world: world_loading_coordinator is null")
 		return
-
-	# Extrahiere Tilemaps aus der Tutorial Room
-	var tilemaps = tutorial_scene.find_children("*", "TileMapLayer")
-
-	if tilemaps.is_empty():
-		push_error("Tutorial scene has no TileMapLayer!")
-		_hide_loading()
-		_set_tree_paused(false)
-		return
-
-	# Nutze die erste Tilemap als floor
-	dungeon_floor = tilemaps[0] as TileMapLayer
-
-	# Falls es mehrere gibt, nimm die mit "floor" im Namen oder die zweite als top
-	if tilemaps.size() > 1:
-		for tm in tilemaps:
-			if tm.name.to_lower().contains("tile"):
-				dungeon_floor = tm as TileMapLayer
-			elif tm.name.to_lower().contains("top"):
-				dungeon_top = tm as TileMapLayer
-
-		# Falls kein "top" gefunden, nutze die zweite Tilemap
-		if dungeon_top == null and tilemaps.size() > 1:
-			dungeon_top = tilemaps[1] as TileMapLayer
-	else:
-		# Wenn nur eine Tilemap, nutze sie auch als top
-		dungeon_top = dungeon_floor
-
-	# Verschiebe alle TileMapLayers zum world_root
-	for tm in tilemaps:
-		if tm.get_parent() != null:
-			tm.get_parent().remove_child(tm)
-		world_root.add_child(tm)
-		tm.position = Vector2.ZERO
-
-	# Extrahiere und verschiebe alle Area2D-Nodes mit ihren Kindern
-	var area2ds = tutorial_scene.find_children("*", "Area2D")
-	for area in area2ds:
-		if area.get_parent() != null:
-			area.get_parent().remove_child(area)
-		world_root.add_child(area)
-		area.position = Vector2.ZERO
-
-	# Extrahiere und verschiebe auch alle StaticBody2D und andere Physics-Bodies für Obstacles
-	var physics_bodies = tutorial_scene.find_children("*", "PhysicsBody2D")
-	for body in physics_bodies:
-		if body.get_parent() != null:
-			body.get_parent().remove_child(body)
-		world_root.add_child(body)
-		body.position = Vector2.ZERO
-
-	# Die restliche Tutorial-Szene kann gelöscht werden
-	tutorial_scene.queue_free()
-
-	# Initialize fog layer
-	if fog_war_layer != null and dungeon_floor != null:
-		# Reparent fog layer into world_root so z_index ordering works across the same parent
-		if fog_war_layer.get_parent() != world_root:
-			var old_parent = fog_war_layer.get_parent()
-			if old_parent != null:
-				old_parent.remove_child(fog_war_layer)
-			world_root.add_child(fog_war_layer)
-			# align position after reparenting
-			fog_war_layer.position = dungeon_floor.position
-		# Set fog z to be above dungeon_top (or dungeon_floor)
-		var base_z = 0
-		if dungeon_top != null:
-			base_z = dungeon_top.z_index
-		elif dungeon_floor != null:
-			base_z = dungeon_floor.z_index
-		fog_war_layer.z_index = base_z + 10
-		await init_fog_layer()
-
-	dungeon_floor.visibility_layer = 1
-	# Spawne alle Entities wie in normalen Welten
-	spawn_player()
-	spawn_enemies(false)
-	spawn_lootbox()
-	spawn_traps()
-	await get_tree().process_frame
-	await get_tree().process_frame
-	_on_player_moved()
-
-	var merchants = find_merchants()
-	for i in merchants:
-		spawn_merchant_entity(i)
-
-	_hide_loading()
-	_set_tree_paused(false)
+	await world_loading_coordinator.load_tutorial_world(TUTORIAL_ROOM)
 
 
 func _load_world(idx: int) -> void:
-	world_index = idx
-	_emit_world_loaded(idx)
-	_set_tree_paused(true)
-	await _show_loading()
-
-	_clear_world()
-
-	if idx < 0 or idx >= generators.size():
-		# No more worlds left -> show win screen (similar to game_over behavior)
-
-		_hide_loading()
-		_set_tree_paused(false)
-		var scene_tree := get_tree()
-		if scene_tree != null:
-			if typeof(WIN_SCENE_PACKED) != TYPE_NIL:
-				scene_tree.change_scene_to_packed(WIN_SCENE_PACKED)
-			else:
-				scene_tree.change_scene_to_file(WIN_SCENE)
-		else:
-			push_error("No more worlds left and SceneTree is null")
+	if world_loading_coordinator == null:
+		push_warning("_load_world: world_loading_coordinator is null")
 		return
-
-	var gen = generators[idx]
-
-	# Loading screen mit Generator verbinden
-	if loading_screen != null and is_instance_valid(loading_screen) and gen != null:
-		if loading_screen.has_method("bind_to_generator"):
-			loading_screen.call("bind_to_generator", gen)
-
-	# -------------------------------------------------
-	# WorldRoot + Entity Container erstellen
-	# -------------------------------------------------
-	world_root = Node2D.new()
-	world_root.name = "WorldRoot"
-	add_child(world_root)
-
-	var entity_container = Node2D.new()
-	entity_container.name = "Entities"
-	world_root.add_child(entity_container)
-	entity_container.z_index = 3
-
-	# -------------------------------------------------
-	# Maps vom Generator oder aus Save laden
-	# -------------------------------------------------+
-	if saved_maps and typeof(saved_maps) == TYPE_DICTIONARY and saved_maps.has("floor"):
-		dungeon_floor = saved_maps.get("floor", null)
-		dungeon_top = saved_maps.get("top", null)
-		minimap = saved_maps.get("minimap", null)
-		if minimap != null:
-			if minimap.get_parent() != world_root:
-				world_root.add_child(minimap)
-
-			minimap.position = dungeon_floor.position
-			minimap.z_index = -50
-			minimap.visibility_layer = 1 << 1
-
-			# Alle RoomLayer erstmal unsichtbar machen
-			for child in minimap.get_children():
-				if child is TileMapLayer:
-					var layer := child as TileMapLayer
-
-					# Background darf sichtbar bleiben
-					if layer.name == "MinimapBackground":
-						layer.visible = true
-						continue
-
-					# Nur echte RoomLayer unsichtbar starten
-					if layer.has_meta("tile_origin") or layer.has_meta("room_rect"):
-						layer.visible = false
-	elif not _should_load_from_save():
-		var maps: Dictionary = await gen.get_random_tilemap()
-
-		if maps.is_empty():
-			push_error("Generator returned empty dictionary!")
-			_hide_loading()
-			_set_tree_paused(false)
-			return
-		dungeon_floor = maps.get("floor", null)
-		dungeon_top = maps.get("top", null)
-		minimap = maps.get("minimap", null)
-	else:
-		push_error(
-			"_load_world: requested load_from_save but no saved_maps available; falling back to generator"
-		)
-		var maps_fallback: Dictionary = await gen.get_random_tilemap()
-		if maps_fallback.is_empty():
-			push_error("Generator returned empty dictionary!")
-			_hide_loading()
-			_set_tree_paused(false)
-			return
-		dungeon_floor = maps_fallback.get("floor", null)
-		dungeon_top = maps_fallback.get("top", null)
-		minimap = maps_fallback.get("minimap", null)
-
-	if dungeon_floor == null:
-		push_error("Generator returned null floor tilemap!")
-		_hide_loading()
-		_set_tree_paused(false)
-		return
-
-	dungeon_floor.owner = world_root
-	if dungeon_top != null:
-		dungeon_top.owner = world_root
-
-	# -------------------------------------------------
-	# Tileset Override für Welt 2
-	# -------------------------------------------------
-	if idx == 1:
-		var sewer_tileset = load(SEWER_TILESET) as TileSet
-		if sewer_tileset != null:
-			dungeon_floor.tile_set = sewer_tileset
-			if dungeon_top != null:
-				dungeon_top.tile_set = sewer_tileset
-
-	# -------------------------------------------------
-	# Tilemaps hinzufügen + Layering
-	# -------------------------------------------------
-	if dungeon_floor.get_parent() == null:
-		world_root.add_child(dungeon_floor)
-	dungeon_floor.z_index = 0
-
-	if dungeon_top != null:
-		if dungeon_top.get_parent() == null:
-			world_root.add_child(dungeon_top)
-		dungeon_top.z_index = 1  # über Entities, unter Fog
-
-	# Fog über alles (sicherstellen, dass Fog über dungeon_top liegt)
-	if fog_war_layer != null:
-		# Reparent fog layer into world_root so its z_index compares with dungeon_top (same parent)
-		if fog_war_layer.get_parent() != world_root:
-			var old_parent = fog_war_layer.get_parent()
-			if old_parent != null:
-				old_parent.remove_child(fog_war_layer)
-			world_root.add_child(fog_war_layer)
-			fog_war_layer.position = dungeon_floor.position
-		# compute base z from dungeon_top if available
-		var base_z = 0
-		if dungeon_top != null:
-			base_z = dungeon_top.z_index
-		elif dungeon_floor != null:
-			base_z = dungeon_floor.z_index
-		fog_war_layer.z_index = base_z + 10
-		await init_fog_layer()
-
-	# -------------------------------------------------
-	# Minimap Background
-	# -------------------------------------------------
-	if minimap != null and backgroundtile != null:
-		var bg = backgroundtile.duplicate() as TileMapLayer
-		bg.set_meta("is_background", true)
-		bg.visible = true
-		bg.name = "MinimapBackground"
-		bg.visibility_layer = 1 << 1
-		bg.z_index = -100
-		minimap.add_child(bg)
-		minimap.move_child(bg, -1)
-
-	dungeon_floor.visibility_layer = 1
-	# -------------------------------------------------
-	# Spawns / restore from save
-	# -------------------------------------------------
-	if saved_maps != null and typeof(saved_maps) == TYPE_DICTIONARY and saved_maps.has("entities"):
-		_deserialize_entities(saved_maps.get("entities", []))
-		# clear saved_maps so subsequent loads are fresh
-		saved_maps = {}
-	else:
-		spawn_player()
-		spawn_enemies(false)
-		spawn_lootbox()
-		spawn_traps()
-		spawn_enemies(true)
-
-		var merchants = find_merchants()
-		for i in merchants:
-			spawn_merchant_entity(i)
-
-	# -------------------------------------------------
-	# Fertig
-	# -------------------------------------------------
-	_hide_loading()
-	_set_load_from_save(false)
-	_set_tree_paused(false)
-
-
-func spawn_merchant_entity(cords: Vector2) -> void:
-	var e = MERCHANT.instantiate()
-	e.add_to_group("merchant_entity")
-
-	e.global_position = cords
-
-	# assign a stable merchant id based on spawn coordinates and world index
-	# so the in-memory registry can distinguish merchants reliably
-	if e.has_method("set"):
-		var id = "merchant_%d_%d_world%d" % [int(cords.x), int(cords.y), int(world_index)]
-		# set merchant_id via set() (safe even if exported property is empty)
-		e.set("merchant_id", id)
-		# set merchant_room key as requested
-		e.set("merchant_room", "merchant_room")
-
-	if world_root != null:
-		world_root.add_child(e)
-	else:
-		add_child(e)
-
-
-func _show_loading() -> void:
-	loading_screen = LOADING_SCENE.instantiate() as CanvasLayer
-	add_child(loading_screen)
-
-	if loading_screen != null:
-		loading_screen.layer = 100
-	else:
-		push_error("_show_loading: loading_screen instance is null")
-	loading_screen.visible = true
-	loading_screen.process_mode = Node.PROCESS_MODE_ALWAYS
-
-	move_child(loading_screen, get_child_count() - 1)
-
-	await get_tree().process_frame
-	await get_tree().process_frame
+	await world_loading_coordinator.load_world(idx, generators)
 
 
 func _show_start() -> void:
-	var start_screen = preload(START_SCENE).instantiate() as CanvasLayer
-	add_child(start_screen)
-
-	start_screen.layer = 1000
-
-	start_screen.visible = true
-	start_screen.process_mode = Node.PROCESS_MODE_ALWAYS
-
-	move_child(start_screen, get_child_count() - 1)
-
-	# Connect Start New signal so clicking the button starts a new game (loads a new map)
-	if start_screen.has_signal("start_new_pressed"):
-		start_screen.start_new_pressed.connect(_on_start_new_pressed)
-
-	await get_tree().process_frame
-	await get_tree().process_frame
+	if ui_overlay_coordinator == null:
+		push_warning("_show_start: ui_overlay_coordinator is null")
+		return
+	await ui_overlay_coordinator.show_start(
+		self, START_SCENE, Callable(self, "_on_start_new_pressed")
+	)
 
 
 func _on_start_new_pressed() -> void:
@@ -698,218 +285,6 @@ func _on_start_new_pressed() -> void:
 		world_flow.reset_transition_state()
 	world_index = 0
 	await _load_world(world_index)
-
-
-func _hide_loading() -> void:
-	if loading_screen != null and is_instance_valid(loading_screen):
-		loading_screen.visible = false
-
-
-func spawn_traps() -> void:
-	if dungeon_floor == null or world_root == null:
-		return
-
-	var tile_set = dungeon_floor.tile_set
-	if tile_set == null:
-		return
-
-	if not _has_custom_data_layer(tile_set, "trap_spawnable"):
-		push_warning("TileSet has no custom data layer 'trap_spawnable'. Skipping trap spawns.")
-		return
-
-	# alte Lootboxen entfernen
-	for c in world_root.get_children():
-		if c != null and c.name.begins_with("Trap"):
-			c.queue_free()
-
-	# alle möglichen Lootbox-Spawns sammeln
-	var candidates: Array[Vector2i] = []
-	for cell in dungeon_floor.get_used_cells():
-		var td = dungeon_floor.get_cell_tile_data(cell)
-		if td == null:
-			continue
-
-		# Tileset Custom Data Bool
-		if td.get_custom_data("trap_spawnable") == true:
-			candidates.append(cell)
-
-	if candidates.is_empty():
-		return
-
-	# maximal 20 Lootboxen
-	GlobalRNG.shuffle_array(candidates)
-	var amount = min(20, candidates.size())
-
-	for i in range(amount):
-		var spawn_cell = candidates[i]
-		var world_pos = dungeon_floor.to_global(dungeon_floor.map_to_local(spawn_cell))
-
-		var loot = TRAP.instantiate() as Node2D
-		loot.name = "Trap_%s" % i
-		# assign current world index so the trap knows which world it belongs to
-		if loot.has_method("set"):
-			loot.set("world_index", world_index)
-		world_root.add_child(loot)
-		loot.global_position = world_pos
-
-
-func spawn_lootbox() -> void:
-	if dungeon_floor == null or world_root == null:
-		return
-
-	var tile_set = dungeon_floor.tile_set
-	if tile_set == null:
-		return
-
-	if not _has_custom_data_layer(tile_set, "lootbox_spawnable"):
-		push_warning(
-			"TileSet has no custom data layer 'lootbox_spawnable'. Skipping lootbox spawns."
-		)
-		return
-
-	# alte Lootboxen entfernen
-	for c in world_root.get_children():
-		if c != null and c.name.begins_with("Lootbox"):
-			c.queue_free()
-
-	# alle möglichen Lootbox-Spawns sammeln
-	var candidates: Array[Vector2i] = []
-	for cell in dungeon_floor.get_used_cells():
-		var td = dungeon_floor.get_cell_tile_data(cell)
-		if td == null:
-			continue
-
-		# Tileset Custom Data Bool
-		if td.get_custom_data("lootbox_spawnable") == true:
-			candidates.append(cell)
-
-	if candidates.is_empty():
-		return
-
-	# maximal 20 Lootboxen
-	GlobalRNG.shuffle_array(candidates)
-	var amount = min(20, candidates.size())
-
-	for i in range(amount):
-		var spawn_cell = candidates[i]
-		var world_pos = dungeon_floor.to_global(dungeon_floor.map_to_local(spawn_cell))
-
-		var loot = LOOTBOX.instantiate() as Node2D
-		loot.name = "Lootbox_%s" % i
-		if loot.has_method("set"):
-			loot.set("lootbox_id", "lootbox_%s" % i)
-		world_root.add_child(loot)
-		loot.global_position = world_pos
-
-
-func _disable_lootbox_blocking(loot: Node) -> void:
-	if loot == null:
-		return
-
-	# Falls Lootbox StaticBody2D / CharacterBody2D etc. hat: deaktivieren
-	var bodies = loot.find_children("*", "PhysicsBody2D", true, false)
-	for b in bodies:
-		if b != null:
-			b.set_deferred("collision_layer", 0)
-			b.set_deferred("collision_mask", 0)
-
-	# Falls Lootbox Area2D hat: darf triggern, aber nicht blocken
-	var areas = loot.find_children("*", "Area2D", true, false)
-	for a in areas:
-		if a != null:
-			# Area darf nur "triggern", aber nix blocken
-			a.set_deferred("collision_layer", 0)
-			a.set_deferred("collision_mask", 0)
-
-	# Alle CollisionShapes deaktivieren (sicherster Weg)
-	var shapes = loot.find_children("*", "CollisionShape2D", true, false)
-	for s in shapes:
-		if s != null:
-			s.set_deferred("disabled", true)
-
-
-func _has_custom_data_layer(tile_set: TileSet, layer_name: String) -> bool:
-	if tile_set == null:
-		return false
-
-	var layer_count = tile_set.get_custom_data_layers_count()
-	for i in range(layer_count):
-		if tile_set.get_custom_data_layer_name(i) == layer_name:
-			return true
-
-	return false
-
-
-func init_fog_layer() -> void:
-	# Fill the FogWar TileMapLayer with a fog tile so Player.update_visibility can erase cells.
-	if fog_war_layer == null or dungeon_floor == null:
-		return
-
-	# align tileset + transform so coordinates match
-	fog_war_layer.clear()
-	fog_war_layer.tile_set = dungeon_floor.tile_set
-	# align position/visibility/z so it overlays the floor
-	fog_war_layer.position = dungeon_floor.position
-	fog_war_layer.visibility_layer = dungeon_floor.visibility_layer
-	# Ensure fog layer is above the dungeon_top layer (if present) or above the floor otherwise
-	var base_z = 0
-	if dungeon_top != null:
-		base_z = dungeon_top.z_index
-	elif dungeon_floor != null:
-		base_z = dungeon_floor.z_index
-	fog_war_layer.z_index = base_z + 10
-
-	# Debug info: print parent and z indices so we can observe ordering at runtime
-	var counter = 0
-	var used_rect = dungeon_floor.get_used_rect()
-	var yield_every = 300
-	for x in range(used_rect.position.x, used_rect.position.x + used_rect.size.x):
-		for y in range(used_rect.position.y, used_rect.position.y + used_rect.size.y):
-			var cell = Vector2i(x, y)
-			# skip empty cells
-			if dungeon_floor.get_cell_source_id(cell) == -1:
-				continue
-			fog_war_layer.set_cell(cell, 2, Vector2(2, 4), 0)
-			counter += 1
-			if counter % yield_every == 0:
-				await get_tree().process_frame
-
-
-func _clear_world() -> void:
-	# battle weg
-	if battle_flow != null and battle_flow.has_method("clear_battle"):
-		battle_flow.clear_battle()
-
-	# menu weg (optional)
-	if menu_instance != null and is_instance_valid(menu_instance):
-		menu_instance.queue_free()
-		menu_instance = null
-
-	# player weg
-	if player != null and is_instance_valid(player):
-		player.queue_free()
-		player = null
-
-	if world_root != null and is_instance_valid(world_root):
-		# Preserve fog_war_layer if it was reparented into world_root so it is not freed
-		if fog_war_layer != null and is_instance_valid(fog_war_layer):
-			if fog_war_layer.get_parent() == world_root:
-				world_root.remove_child(fog_war_layer)
-				add_child(fog_war_layer)
-
-		world_root.queue_free()
-		world_root = null
-
-	dungeon_floor = null
-	dungeon_top = null
-
-	# Reset entity spawn reservations so next world can reuse positions
-	if EntityAutoload != null and EntityAutoload.has_method("reset"):
-		EntityAutoload.reset()
-
-	# Reset global RNG to base seed so new-world generation is deterministic
-	if typeof(GlobalRNG) != TYPE_NIL and GlobalRNG != null and GlobalRNG.has_method("reset"):
-		GlobalRNG.reset()
 
 
 func _on_player_exit_reached() -> void:
@@ -975,7 +350,10 @@ func toggle_menu():
 
 		# Connect save_requested directly to main if the popup exposes it
 		if menu_instance.has_signal("save_requested"):
-			var cb = Callable(self, "save_current_world")
+			if persistence_coordinator == null:
+				push_error("toggle_menu: persistence_coordinator is null; save unavailable")
+				return
+			var cb = Callable(persistence_coordinator, "save_current_world")
 			if not menu_instance.is_connected("save_requested", cb):
 				menu_instance.connect("save_requested", cb)
 			# already connected -> ignore
@@ -992,570 +370,10 @@ func on_menu_closed():
 	UI_MODAL_CONTROLLER.release(self, true, true)
 
 
-func _serialize_tilemap(tm: TileMapLayer) -> Dictionary:
-	if tm == null:
-		return {}
-
-	var out: Dictionary = {}
-	out["name"] = str(tm.name)
-	out["position"] = [float(tm.position.x), float(tm.position.y)]
-	out["z_index"] = int(tm.z_index)
-	out["visibility_layer"] = int(tm.visibility_layer)
-
-	out["tile_set"] = ""
-	if tm.tile_set != null and tm.tile_set.resource_path != "":
-		out["tile_set"] = str(tm.tile_set.resource_path)
-
-	# meta
-	out["meta"] = {}
-	if tm.has_meta("tile_origin"):
-		var to: Vector2i = tm.get_meta("tile_origin")
-		out["meta"]["tile_origin"] = [int(to.x), int(to.y)]
-	if tm.has_meta("room_rect"):
-		var rr: Rect2i = tm.get_meta("room_rect")
-		out["meta"]["room_rect"] = {
-			"pos": [int(rr.position.x), int(rr.position.y)],
-			"size": [int(rr.size.x), int(rr.size.y)]
-		}
-
-	# cells
-	out["cells"] = []
-	for cell in tm.get_used_cells():
-		var atlas: Vector2i = tm.get_cell_atlas_coords(cell)
-		var item = {
-			"x": int(cell.x),
-			"y": int(cell.y),
-			"source_id": int(tm.get_cell_source_id(cell)),
-			"atlas": [int(atlas.x), int(atlas.y)],  # <- WICHTIG: immer als Array speichern
-			"alt": int(tm.get_cell_alternative_tile(cell)),
-		}
-		out["cells"].append(item)
-
-	return out
-
-
-func _deserialize_tilemap(data: Dictionary) -> TileMapLayer:
-	if data == null or typeof(data) != TYPE_DICTIONARY or data.is_empty():
-		return null
-
-	var tm = TileMapLayer.new()
-	tm.clear()
-
-	# restore tileset
-	var ts_path = str(data.get("tile_set", ""))
-	if ts_path != "":
-		var ts = load(ts_path)
-		if ts != null and ts is TileSet:
-			tm.tile_set = ts
-
-	# restore basic props
-	tm.name = str(data.get("name", "TileMapLayer"))
-	var pos_arr = data.get("position", [0.0, 0.0])
-	if typeof(pos_arr) == TYPE_ARRAY and pos_arr.size() >= 2:
-		tm.position = Vector2(float(pos_arr[0]), float(pos_arr[1]))
-
-	tm.z_index = int(data.get("z_index", 0))
-	tm.visibility_layer = int(data.get("visibility_layer", 1))
-
-	# restore meta
-	var meta = data.get("meta", {})
-	if typeof(meta) == TYPE_DICTIONARY:
-		if meta.has("tile_origin"):
-			var to = meta.get("tile_origin", [0, 0])
-			if typeof(to) == TYPE_ARRAY and to.size() >= 2:
-				tm.set_meta("tile_origin", Vector2i(int(to[0]), int(to[1])))
-		if meta.has("room_rect"):
-			var rr = meta.get("room_rect", {})
-			if typeof(rr) == TYPE_DICTIONARY:
-				var p = rr.get("pos", [0, 0])
-				var s = rr.get("size", [0, 0])
-				if (
-					typeof(p) == TYPE_ARRAY
-					and p.size() >= 2
-					and typeof(s) == TYPE_ARRAY
-					and s.size() >= 2
-				):
-					tm.set_meta(
-						"room_rect",
-						Rect2i(Vector2i(int(p[0]), int(p[1])), Vector2i(int(s[0]), int(s[1])))
-					)
-
-	# restore cells
-	var cells = data.get("cells", [])
-	if typeof(cells) == TYPE_ARRAY:
-		for item in cells:
-			if typeof(item) != TYPE_DICTIONARY:
-				continue
-			var x = int(item.get("x", 0))
-			var y = int(item.get("y", 0))
-			var source_id = int(item.get("source_id", -1))
-			if source_id == -1:
-				continue
-
-			var atlas = item.get("atlas", [0, 0])
-			var atlas_vec = Vector2i(0, 0)
-			if typeof(atlas) == TYPE_ARRAY and atlas.size() >= 2:
-				atlas_vec = Vector2i(int(atlas[0]), int(atlas[1]))
-
-			var alt = int(item.get("alt", 0))
-			tm.set_cell(Vector2i(x, y), source_id, atlas_vec, alt)
-
-	return tm
-
-
-func _serialize_minimap(minimap_node: Node) -> Dictionary:
-	if minimap_node == null:
-		return {}
-
-	# If it's a TileMapLayer, serialize directly
-	if minimap_node is TileMapLayer:
-		return {"type": "single", "tilemap": _serialize_tilemap(minimap_node)}
-
-	# Otherwise serialize child TileMapLayer nodes
-	var out: Dictionary = {"type": "group", "children": []}
-	for child in minimap_node.get_children():
-		if child is TileMapLayer:
-			out["children"].append(_serialize_tilemap(child))
-
-	return out
-
-
-func _deserialize_minimap(data: Dictionary) -> Node:
-	if data == null or typeof(data) != TYPE_DICTIONARY:
-		return null
-	if str(data.get("type", "")) == "single":
-		var tm_data = data.get("tilemap", {})
-		return _deserialize_tilemap(tm_data)
-
-	# group
-	var root = Node2D.new()
-	root.name = "Minimap"
-	var children = data.get("children", [])
-	for cd in children:
-		var tm = _deserialize_tilemap(cd)
-		if tm != null:
-			root.add_child(tm)
-
-	return root
-
-
-func _serialize_entities() -> Array:
-	var out: Array = []
-	if world_root == null:
-		return out
-
-	var nodes = world_root.get_children()
-	for c in nodes:
-		if c == null or not is_instance_valid(c):
-			continue
-
-		var t: String = ""
-		if c.is_in_group("player") or str(c.name) == "Player":
-			t = "player"
-		elif c.is_in_group("enemy"):
-			t = "enemy"
-		elif c.is_in_group("merchant_entity"):
-			t = "merchant"
-		elif str(c.name).begins_with("Lootbox"):
-			t = "lootbox"
-		elif str(c.name).begins_with("Trap"):
-			t = "trap"
-		else:
-			continue
-
-		var item: Dictionary = {"type": t, "name": str(c.name)}
-
-		# prefer grid_pos if available
-		if _obj_has_property(c, "grid_pos"):
-			var gp = c.get("grid_pos")
-			item["grid_pos"] = [int(gp.x), int(gp.y)]
-		else:
-			item["global_position"] = [float(c.global_position.x), float(c.global_position.y)]
-
-		# type-specific data
-		if t == "enemy":
-			if _obj_has_property(c, "sprite_type"):
-				item["sprite_type"] = str(c.get("sprite_type"))
-			if _obj_has_property(c, "types"):
-				item["behaviour"] = c.get("types")
-			if _obj_has_property(c, "abilities_this_has"):
-				item["skills"] = c.get("abilities_this_has")
-			if _obj_has_property(c, "stats"):
-				item["stats"] = c.get("stats")
-
-		elif t == "merchant":
-			if _obj_has_property(c, "merchant_id"):
-				item["merchant_id"] = str(c.get("merchant_id"))
-			if _obj_has_property(c, "merchant_room"):
-				item["merchant_room"] = str(c.get("merchant_room"))
-
-		elif t == "lootbox":
-			if _obj_has_property(c, "lootbox_id"):
-				item["lootbox_id"] = str(c.get("lootbox_id"))
-
-		elif t == "trap":
-			if _obj_has_property(c, "world_index"):
-				item["world_index"] = int(c.get("world_index"))
-
-		elif t == "player":
-			if _obj_has_property(c, "hp"):
-				item["hp"] = int(c.get("hp"))
-			if _obj_has_property(c, "level"):
-				item["level"] = int(c.get("level"))
-			if _obj_has_property(c, "dynamic_fog"):
-				item["dynamic_fog"] = bool(c.get("dynamic_fog"))
-			if _obj_has_property(c, "fog_tile_id"):
-				item["fog_tile_id"] = int(c.get("fog_tile_id"))
-
-			item["inventory"] = PlayerInventory.inventory
-
-		out.append(item)
-
-	return out
-
-
-func _deserialize_entities(list_data: Array) -> void:
-	if list_data == null or typeof(list_data) != TYPE_ARRAY:
-		return
-
-	if world_root == null:
-		push_error("_deserialize_entities: world_root is null")
-		return
-
-	var container = world_root
-
-	for item in list_data:
-		if typeof(item) != TYPE_DICTIONARY:
-			continue
-		var t = str(item.get("type", ""))
-
-		if t == "enemy":
-			var e = ENEMY_SCENE.instantiate()
-			if _obj_has_property(e, "sprite_type"):
-				e.set("sprite_type", str(item.get("sprite_type", "")))
-			if _obj_has_property(e, "types"):
-				e.set("types", item.get("behaviour", []))
-			if _obj_has_property(e, "abilities_this_has"):
-				e.set("abilities_this_has", item.get("skills", []))
-
-			var stats = item.get("stats", {})
-			var hp = int(stats.get("hp", 1))
-			var strv = int(stats.get("str", 1))
-			var defv = int(stats.get("def", 1))
-			e.setup(dungeon_floor, dungeon_top, hp, strv, defv, stats)
-			e.add_to_group("enemy")
-			e.add_to_group("vision_objects")
-			container.add_child(e)
-			# position
-			if item.has("grid_pos"):
-				var gp = item.get("grid_pos")
-				var gpi = Vector2i(int(gp[0]), int(gp[1]))
-				e.global_position = dungeon_floor.to_global(dungeon_floor.map_to_local(gpi))
-				e.grid_pos = gpi
-			elif item.has("global_position"):
-				var gp2 = item.get("global_position")
-				e.global_position = Vector2(float(gp2[0]), float(gp2[1]))
-
-		elif t == "merchant":
-			var m = MERCHANT.instantiate()
-			if _obj_has_property(m, "merchant_id") and item.has("merchant_id"):
-				m.set("merchant_id", str(item.get("merchant_id")))
-			if _obj_has_property(m, "merchant_room") and item.has("merchant_room"):
-				m.set("merchant_room", str(item.get("merchant_room")))
-			container.add_child(m)
-			m.add_to_group("vision_objects")
-			if item.has("grid_pos"):
-				var gp3 = item.get("grid_pos")
-				m.global_position = dungeon_floor.to_global(
-					dungeon_floor.map_to_local(Vector2i(int(gp3[0]), int(gp3[1])))
-				)
-			elif item.has("global_position"):
-				var gp4 = item.get("global_position")
-				m.global_position = Vector2(float(gp4[0]), float(gp4[1]))
-
-		elif t == "lootbox":
-			var l = LOOTBOX.instantiate()
-			if _obj_has_property(l, "lootbox_id") and item.has("lootbox_id"):
-				l.set("lootbox_id", str(item.get("lootbox_id")))
-			l.add_to_group("vision_objects")
-			container.add_child(l)
-			if item.has("grid_pos"):
-				var gp5 = item.get("grid_pos")
-				l.global_position = dungeon_floor.to_global(
-					dungeon_floor.map_to_local(Vector2i(int(gp5[0]), int(gp5[1])))
-				)
-			elif item.has("global_position"):
-				var gp6 = item.get("global_position")
-				l.global_position = Vector2(float(gp6[0]), float(gp6[1]))
-
-		elif t == "trap":
-			var tr = TRAP.instantiate()
-			if _obj_has_property(tr, "world_index") and item.has("world_index"):
-				tr.set("world_index", int(item.get("world_index")))
-			container.add_child(tr)
-			tr.add_to_group("vision_objects")
-			if item.has("grid_pos"):
-				var gp7 = item.get("grid_pos")
-				tr.global_position = dungeon_floor.to_global(
-					dungeon_floor.map_to_local(Vector2i(int(gp7[0]), int(gp7[1])))
-				)
-			elif item.has("global_position"):
-				var gp8 = item.get("global_position")
-				tr.global_position = Vector2(float(gp8[0]), float(gp8[1]))
-
-		elif t == "player":
-			var p = PLAYER_SCENE.instantiate()
-			p.name = "Player"
-			if _obj_has_property(p, "dynamic_fog"):
-				p.set("dynamic_fog", bool(item.get("dynamic_fog", fog_dynamic)))
-			if _obj_has_property(p, "fog_tile_id"):
-				p.set("fog_tile_id", int(item.get("fog_tile_id", fog_tile_id)))
-			var php = int(item.get("hp", 10))
-			p.setup(dungeon_floor, dungeon_top, php, 3, 0, {})
-			p.fog_layer = fog_war_layer
-			container.add_child(p)
-			player = p
-			player.set_minimap(minimap)
-			if item.has("grid_pos"):
-				var gp9 = item.get("grid_pos")
-				player.grid_pos = Vector2i(int(gp9[0]), int(gp9[1]))
-				player.global_position = dungeon_floor.to_global(
-					dungeon_floor.map_to_local(player.grid_pos)
-				)
-			elif item.has("global_position"):
-				var gp10 = item.get("global_position")
-				player.global_position = Vector2(float(gp10[0]), float(gp10[1]))
-
-			# connect signals
-			if player.has_signal("exit_reached"):
-				if not player.exit_reached.is_connected(_on_player_exit_reached):
-					player.exit_reached.connect(_on_player_exit_reached)
-			if player.has_signal("player_moved"):
-				if not player.player_moved.is_connected(_on_player_moved):
-					player.player_moved.connect(_on_player_moved)
-			if player.has_method("update_visibility"):
-				player.update_visibility()
-				player.call_deferred("_reveal_on_spawn")
-			emit_signal("player_spawned", player)
-
-			# restore inventory if present
-			if item.has("inventory"):
-				var inv = item.get("inventory")
-				var fixed_inv: Dictionary = {}
-
-				for k in inv.keys():
-					fixed_inv[int(k)] = inv[k]
-
-				PlayerInventory.inventory = fixed_inv
-				PlayerInventory._emit_changed()
-
-
-func _obj_has_property(obj: Object, prop: String) -> bool:
-	if obj == null:
-		return false
-	if not obj.has_method("get_property_list"):
-		return false
-	for p in obj.get_property_list():
-		if str(p.get("name", "")) == prop:
-			return true
-	return false
-
-
-func save_current_world() -> void:
-	# Serialize dungeon floor and top tilemaps to user:// JSON so they can be restored later
-	if save_flow == null:
-		push_error("save_current_world: save_flow is null")
-		return
-
-	var entities_payload: Array = []
-	if world_root != null and is_instance_valid(world_root):
-		entities_payload = _serialize_entities()
-
-	var minimap_payload: Dictionary = {}
-	if minimap != null:
-		minimap_payload = _serialize_minimap(minimap)
-
-	var selected_skills_payload: Array = []
-	if typeof(SkillState) != TYPE_NIL:
-		selected_skills_payload = SkillState.selected_skills
-
-	var payload: Dictionary = save_flow.build_save_payload(
-		world_index,
-		_serialize_tilemap(dungeon_floor),
-		_serialize_tilemap(dungeon_top),
-		entities_payload,
-		minimap_payload,
-		selected_skills_payload
-	)
-
-	if not save_flow.write_payload(payload):
-		return
-
-	print("Saved world tilemaps + entities to: ", save_flow.SAVE_PATH)
-
-
 func spawn_enemies(do_boss: bool) -> void:
-	var data: Dictionary = EntityAutoload.item_data
-	var settings: Dictionary = data.get("_settings", {})
-
-	var max_weights = settings.get("max_total_weight_per_level", [])
-	var max_weight: int = settings.get("default_max_total_weight", 30)
-
-	if world_index < max_weights.size():
-		max_weight = max_weights[world_index]
-
-	# Tutorial override: immer 3
-	#if world_index == -1:
-	#max_weight = 2
-
-	# --- Enemy Definitions sammeln ---
-	var defs: Array[Dictionary] = []
-
-	for k in data.keys():
-		if str(k).begins_with("_"):
-			continue
-
-		var d: Dictionary = data[k]
-		if d.get("entityCategory") != "enemy" and not do_boss:
-			continue
-		elif d.get("entityCategory") != "boss" and do_boss:
-			continue
-
-		# Tutorial-Welt: nur tutorial-Gegner spawnen
-		# Normale Welten: keine tutorial-Gegner spawnen
-		var is_tutorial_enemy = "tutorial" in d.get("behaviour", [])
-		var is_tutorial_world = world_index == -1
-
-		if is_tutorial_world and not is_tutorial_enemy:
-			continue
-		elif not is_tutorial_world and is_tutorial_enemy:
-			continue
-
-		# Alias auflösen
-		if d.has("alias_of"):
-			var base = data[d["alias_of"]]
-			var merged = base.duplicate(true)
-			for x in d.keys():
-				merged[x] = d[x]
-			d = merged
-
-		d["_id"] = str(k)
-		defs.append(d)
-
-	if defs.is_empty():
-		if do_boss:
-			push_warning("spawn_enemies: no boss definitions available for world %d" % world_index)
-		else:
-			push_warning("spawn_enemies: no enemy definitions available for world %d" % world_index)
+	if spawn_coordinator == null:
 		return
-
-	# --- Wahrscheinlichkeiten ---
-	var weights: Array[float] = []
-	var total = 0.0
-
-	for d in defs:
-		var sr_raw = d.get("spawnrate", {})
-		var sr = {}
-		if sr_raw.has(str(world_index)):
-			sr = sr_raw[str(world_index)]
-		elif sr_raw.has("min"):
-			sr = sr_raw
-
-		var avg := (float(sr.get("min", 0)) + float(sr.get("max", 0))) * 0.5
-		weights.append(avg)
-		total += avg
-
-	if total <= 0:
-		for i in range(weights.size()):
-			weights[i] = 1.0
-		total = float(weights.size())
-
-	# --- Spawn-Plan erstellen ---
-	# Use a fresh RNG from GlobalRNG (get_rng already seeds with next_seed())
-	var rng := GlobalRNG.get_rng()
-
-	var current_weight = 0
-	var spawn_plan = {}
-
-	var roll: float
-	var acc: float
-	var chosen: int
-
-	if do_boss:
-		print("Should spawn boss")
-		roll = rng.randf() * total
-		acc = 0.0
-		chosen = 0
-		for j in range(defs.size()):
-			acc += weights[j]
-			if roll <= acc:
-				chosen = j
-				break
-		var def = defs[chosen]
-		spawn_enemy(
-			def.get("sprite_type", "what"),
-			def.get("behaviour", []),
-			def.get("skills", []),
-			def.get("stats", {}),
-			def.get("weight", 1),
-			true
-		)
-		print("Spawned boss!")
-		return
-
-	for _i in range(100):
-		if current_weight >= max_weight:
-			break
-
-		# weighted pick
-		roll = rng.randf() * total
-		acc = 0.0
-		chosen = 0
-
-		for j in range(defs.size()):
-			acc += weights[j]
-			if roll <= acc:
-				chosen = j
-				break
-
-		var def = defs[chosen]
-
-		var sc_raw = def.get("spawncount", {})
-		var sc = {}
-		if sc_raw.has(str(world_index)):
-			sc = sc_raw[str(world_index)]
-		elif sc_raw.has("min"):
-			sc = sc_raw
-
-		var count := rng.randi_range(int(sc.get("min", 0)), int(sc.get("max", 1)))
-
-		var w = int(def.get("weight", 1))
-		var id = def["_id"]
-
-		for _j in range(count):
-			if current_weight + w > max_weight:
-				break
-
-			spawn_plan[id] = spawn_plan.get(id, 0) + 1
-			current_weight += w
-
-	# --- Enemies wirklich spawnen ---
-	for id in spawn_plan.keys():
-		var def = data[id]
-
-		# Alias nochmal auflösen (für behaviour/sprite)
-		if def.has("alias_of"):
-			def = data[def["alias_of"]]
-
-		for i in range(spawn_plan[id]):
-			spawn_enemy(
-				def.get("sprite_type", id),
-				def.get("behaviour", []),
-				def.get("skills", []),
-				def.get("stats", {}),
-				def.get("weight", 1)
-			)
-			print("spawn: ", def.get("sprite_type", id))
+	spawn_coordinator.spawn_enemies(do_boss, world_index, dungeon_floor, dungeon_top, self)
 
 
 func spawn_enemy(
@@ -1566,85 +384,27 @@ func spawn_enemy(
 	xp: int,
 	boss: bool = false
 ) -> void:
-	# default: spawn normal enemy
-	var e = ENEMY_SCENE.instantiate()
-	e.add_to_group("enemy")
-	e.add_to_group("vision_objects")
-
-	e.types = behaviour
-	e.sprite_type = sprite_type
-	e.abilities_this_has = skills
-	e.boss = boss
-	e.xp = xp
-	var hp = stats.get("hp", 1)
-	var str = stats.get("str", 1)
-	var def = stats.get("def", 1)
-
-	# setup with Floor Tilemap
-	e.setup(dungeon_floor, dungeon_top, hp, str, def, stats)
-
-	# Enemies always in WorldRoot
-	if world_root != null:
-		world_root.add_child(e)
-	else:
-		add_child(e)
+	if spawn_coordinator == null:
+		return
+	spawn_coordinator.spawn_enemy(
+		sprite_type, behaviour, skills, stats, xp, dungeon_floor, dungeon_top, self, boss
+	)
 
 
 func spawn_player() -> void:
-	# alte Player entfernen
-	for n in get_tree().get_nodes_in_group("player"):
-		if n != null and is_instance_valid(n):
-			n.queue_free()
-
-	var e: PlayerCharacter = PLAYER_SCENE.instantiate()
-	e.name = "Player"
-	# Floor setzen (einmal!)
-	e.setup(dungeon_floor, dungeon_top, 10, 3, 0, {})
-	e.fog_layer = fog_war_layer
-	# pass dynamic flag and fog tile id to player for re-fogging
-	if e.has_method("set"):
-		e.set("dynamic_fog", fog_dynamic)
-		e.set("fog_tile_id", fog_tile_id)
-	# in WorldRoot hängen
-	world_root.add_child(e)
-	player = e
-
-	# Ensure player is drawn above fog layer so player is visible
-	if fog_war_layer != null:
-		player.z_index = fog_war_layer.z_index + 10000000
-
-	# minimap rein
-	player.set_minimap(minimap)
-
-	# Spawn Position
-	var start_pos = Vector2i(2, 2)
-
-	# Tutorial world: spawn at different position
-	if minimap == null:
-		start_pos = Vector2i(-18, 15)
-
-	# erst tilemap, dann gridpos, dann position
-	player.grid_pos = start_pos
-	player.global_position = dungeon_floor.to_global(dungeon_floor.map_to_local(start_pos))
-	player.add_to_group("player")
-
-	# Signale verbinden
-	if player.has_signal("exit_reached"):
-		if not player.exit_reached.is_connected(_on_player_exit_reached):
-			player.exit_reached.connect(_on_player_exit_reached)
-	else:
-		push_warning("player has no exit_reached signal")
-
-	if player.has_signal("player_moved"):
-		if not player.player_moved.is_connected(_on_player_moved):
-			player.player_moved.connect(_on_player_moved)
-
-	# WICHTIG: einmal initial Fog aufdecken
-	if player.has_method("update_visibility"):
-		player.update_visibility()
-		# ensure reveal runs after any reparenting/initialization in this frame
-		player.call_deferred("_reveal_on_spawn")
-		emit_signal("player_spawned", player)
+	if spawn_coordinator == null:
+		return
+	player = spawn_coordinator.spawn_player(
+		PLAYER_SCENE,
+		dungeon_floor,
+		dungeon_top,
+		fog_war_layer,
+		minimap,
+		fog_dynamic,
+		fog_tile_id,
+		entity_persistence_flow,
+		self
+	)
 
 
 func get_world_tilemaps() -> Dictionary:
@@ -1657,109 +417,9 @@ func get_world_tilemaps() -> Dictionary:
 
 
 func _on_player_moved() -> void:
-	if minimap == null or dungeon_floor == null or player == null:
+	if minimap_reveal_flow == null:
 		return
-
-	# 1) Player -> Cell in FLOOR Tilemap
-	var world_cell: Vector2i = dungeon_floor.local_to_map(
-		dungeon_floor.to_local(player.global_position)
-	)
-
-	# 2) Nur echte Room-Layer checken (und Background/Full Layers skippen)
-	for child in minimap.get_children():
-		if not (child is TileMapLayer):
-			continue
-
-		var room_layer := child as TileMapLayer
-
-		# --- HARD SKIP: Background / helper layers ---
-		if room_layer.name == "MinimapBackground":
-			continue
-
-		# --- Optional: wenn du RoomLayer explizit markierst ---
-		# Wenn du irgendwo room_layer.set_meta("is_room_layer", true) setzt,
-		# kannst du diese Zeilen aktivieren und die Meta-Checks darunter entfernen.
-		# if not room_layer.get_meta("is_room_layer", false):
-		#     continue
-
-		# --- Robust: ein RoomLayer hat normalerweise tile_origin oder room_rect Meta ---
-		var has_origin := room_layer.has_meta("tile_origin")
-		var has_rect := room_layer.has_meta("room_rect")
-		if not has_origin and not has_rect:
-			# kein RoomLayer -> skip (verhindert "alles revealed" bei Full-Layern)
-			continue
-
-		# RoomOrigin aus Meta (wie bei dir)
-		var origin: Vector2i = room_layer.get_meta("tile_origin", Vector2i.ZERO)
-
-		# Player Cell relativ zum RoomLayer
-		var local_cell := world_cell - origin
-
-		# Check ob wir wirklich auf einem Tile dieses RoomLayers stehen
-		if room_layer.get_cell_source_id(local_cell) != -1:
-			if (
-				typeof(AudioManager) != TYPE_NIL
-				and AudioManager != null
-				and AudioManager.has_method("set_in_boss_room")
-			):
-				AudioManager.set_in_boss_room(bool(room_layer.get_meta("is_boss_room", false)))
-
-			# minimap reveal (Room sichtbar schalten)
-			room_layer.visible = true
-
-			# Fog reveal nur für diesen Raum
-			reveal_room_layer(room_layer)
-			return
-
-	if (
-		typeof(AudioManager) != TYPE_NIL
-		and AudioManager != null
-		and AudioManager.has_method("set_in_boss_room")
-	):
-		AudioManager.set_in_boss_room(false)
-
-
-func load_world_from_file(idx: int) -> Dictionary:
-	# Load saved world JSON from user:// and return instantiated TileMapLayer nodes
-	if save_flow == null:
-		push_error("load_world_from_file: save_flow is null")
-		return {}
-
-	var payload: Dictionary = save_flow.read_payload()
-	if payload.is_empty():
-		return {}
-
-	return save_flow.build_loaded_world_result(
-		payload, idx, Callable(self, "_deserialize_tilemap"), Callable(self, "_deserialize_minimap")
-	)
-
-
-func reveal_room_layer(room_layer: TileMapLayer) -> void:
-	if fog_war_layer == null:
-		return
-
-	var origin: Vector2i = room_layer.get_meta("tile_origin", Vector2i.ZERO)
-	var rect = room_layer.get_meta("room_rect", Rect2i(Vector2i.ZERO, Vector2i.ZERO))
-	if rect.size == Vector2i.ZERO:
-		# fallback: iterate used cells of the room layer
-		for cell in room_layer.get_used_cells():
-			var world_cell = origin + cell
-			fog_war_layer.erase_cell(world_cell)
-		return
-
-	var counter = 0
-	var yield_every = 300
-	for x in range(rect.position.x, rect.position.x + rect.size.x):
-		for y in range(rect.position.y, rect.position.y + rect.size.y):
-			var local_cell = Vector2i(x, y)
-			# skip empty tiles in the room
-			if room_layer.get_cell_source_id(local_cell) == -1:
-				continue
-			var world_cell = origin + local_cell
-			fog_war_layer.erase_cell(world_cell)
-			counter += 1
-			if counter % yield_every == 0:
-				await get_tree().process_frame
+	minimap_reveal_flow.on_player_moved(minimap, dungeon_floor, player, fog_war_layer, get_tree())
 
 
 # ---------------------------------------
@@ -1778,35 +438,16 @@ func instantiate_battle(player_node: Node, enemy: Node):
 		push_warning("instantiate_battle: failed to create battle instance")
 		return
 
-	_emit_battle_started(enemy)
+	if game_event_gateway != null:
+		game_event_gateway.emit_battle_started(enemy)
 	print("instantiate_battle: pausing tree to run battle")
 	_set_tree_paused(true)
 
 
 func find_merchants() -> Array[Vector2]:
-	var merchants: Array[Vector2] = []
-
-	var cells = dungeon_floor.get_used_cells()
-
-	for cell in cells:
-		var data = dungeon_floor.get_cell_tile_data(cell)
-
-		if data == null:
-			continue
-
-		if not data.get_custom_data("merchant"):
-			continue
-
-		var right = cell + Vector2i(1, 0)
-		var right_data = dungeon_floor.get_cell_tile_data(right)
-
-		if right_data and right_data.get_custom_data("merchant"):
-			var a = dungeon_floor.map_to_local(cell)
-			var b = dungeon_floor.map_to_local(right)
-
-			merchants.append((a + b) * 0.5)
-
-	return merchants
+	if spawn_coordinator == null:
+		return []
+	return spawn_coordinator.find_merchants(dungeon_floor)
 
 
 func enemy_defeated(enemy):
@@ -1822,7 +463,8 @@ func enemy_defeated(enemy):
 		print("enemy_defeated: freeing battle UI")
 		battle_flow.clear_battle()
 
-	_emit_battle_ended(true, enemy)
+	if game_event_gateway != null:
+		game_event_gateway.emit_battle_ended(true, enemy)
 
 	# If the defeated enemy was a boss, record victory so level-gating can proceed
 	if enemy != null and is_instance_valid(enemy) and AudioManager.is_boss_enemy(enemy):
@@ -1856,7 +498,8 @@ func _on_battle_player_victory(enemy) -> void:
 
 
 func game_over():
-	_emit_game_over()
+	if game_event_gateway != null:
+		game_event_gateway.emit_game_over()
 	if battle_flow != null and battle_flow.has_active_battle():
 		battle_flow.clear_battle()
 	_set_tree_paused(false)
@@ -1875,13 +518,15 @@ func game_over():
 # JSON: Tutorial abgeschlossen?
 # -----------------------------------------------------
 func _has_completed_tutorial() -> bool:
-	var path = "res://data/tutorialData.json"
+	var paths := [TUTORIAL_STATE_PATH_USER, TUTORIAL_STATE_PATH_RES]
+	for path in paths:
+		if not FileAccess.file_exists(path):
+			continue
 
-	if not FileAccess.file_exists(path):
-		return false
+		var file = FileAccess.open(path, FileAccess.READ)
+		if file == null:
+			continue
 
-	var file = FileAccess.open(path, FileAccess.READ)
-	if file:
 		var json_text: String = file.get_as_text()
 		file.close()
 
@@ -1898,10 +543,12 @@ func _has_completed_tutorial() -> bool:
 # JSON: Tutorial als abgeschlossen speichern
 # -----------------------------------------------------
 func _set_tutorial_completed() -> void:
-	var path = "res://data/tutorialData.json"
 	var data: Dictionary = {"tutorial_completed": true}
 
-	var file = FileAccess.open(path, FileAccess.WRITE)
-	if file:
-		file.store_string(JSON.stringify(data, "\t"))
-		file.close()
+	var file = FileAccess.open(TUTORIAL_STATE_PATH_USER, FileAccess.WRITE)
+	if file == null:
+		push_warning("Failed to persist tutorial completion state to user://")
+		return
+
+	file.store_string(JSON.stringify(data, "\t"))
+	file.close()
