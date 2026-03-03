@@ -458,9 +458,11 @@ func deactivate_buff(source = "test"):
 			alterations[source].duration = int(alterations[source].duration) - 1
 	alterations.erase(source)
 
+
 func reset_skills():
 	for skill in abilities:
 		skill.reset()
+
 
 #--battle logic--
 

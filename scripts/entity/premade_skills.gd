@@ -540,7 +540,6 @@ var existing_skills = {
 		"passive": true,
 		"conditions": ["lost_after||effect_happened-damage-1"]
 	},
-	
 	#this one happens twice for some omnissiahforsaken reason, it's fine, just halve the damage, I don't know man
 	"Run 'n Gun":
 	{
@@ -565,10 +564,15 @@ var existing_skills = {
 	{
 		"tree": "Rogue",
 		"tier": 5,
-		"description": "Turns out, taking a second step after the first one: not as difficult as you may think!",
-		"effects": [["damage", 1, false, "No"], ["movement", 1, true, "input"], ["movement", 1, true, "input"]],
+		"description":
+		"Turns out, taking a second step after the first one: not as difficult as you may think!",
+		"effects":
+		[
+			["damage", 1, false, "No"],
+			["movement", 1, true, "input"],
+			["movement", 1, true, "input"]
+		],
 	},
-	
 	#standard actions
 	"Move Up":
 	{
@@ -594,8 +598,6 @@ var existing_skills = {
 		"description": "Do you really need an explanation of what walking right is?",
 		"effects": [["movement", 1, true, "R"]],
 	},
-	
-	
 	#weapon skills (first plan)
 	"Shank":
 	{
