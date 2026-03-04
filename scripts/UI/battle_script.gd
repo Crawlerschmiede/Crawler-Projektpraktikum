@@ -132,8 +132,8 @@ func enemy_prepare_turn():
 	# Anything longer-term will need something more robust.
 	print("Tile modifiers right now are: ", tile_modifiers)
 	for tile_modifier in tile_modifiers.keys():
-		tile_modifiers[tile_modifier]['duration'] -= 1
-		if tile_modifiers[tile_modifier]['duration'] <= 0:
+		tile_modifiers[tile_modifier]["duration"] -= 1
+		if tile_modifiers[tile_modifier]["duration"] <= 0:
 			tile_modifiers.erase(tile_modifier)
 	update_marker_visuals()
 	log_container.add_log_event("The enemy prepares its Skill " + enemy.chosen.name + "!")
@@ -304,7 +304,7 @@ func move_player(direction: String, distance: int):
 		new_cell = player_gridpos + delta
 	elif "rnd" in direction:
 		var ranges = ["short", "medium", "long"]
-		var move_markers =["dmg_reduc_good"]
+		var move_markers = ["dmg_reduc_good"]
 		var parts = direction.split("|")
 		var area = parts[1]
 		var from_to = []
@@ -327,15 +327,15 @@ func move_player(direction: String, distance: int):
 			return await move_player(new_dir, distance)
 		elif area in move_markers:
 			for tile in used_cells:
-				var modifier_on_tile =tile_modifiers.get(tile, null)
-				if modifier_on_tile!=null:
-					var has_modifier =area in modifier_on_tile.keys()
+				var modifier_on_tile = tile_modifiers.get(tile, null)
+				if modifier_on_tile != null:
+					var has_modifier = area in modifier_on_tile.keys()
 					if has_modifier:
 						possible_tiles.append(tile)
-			if possible_tiles.size()>0:
+			if possible_tiles.size() > 0:
 				new_cell = possible_tiles[rng.randi_range(0, len(possible_tiles) - 1)]
 			else:
-				return["But there was no cover..."]
+				return ["But there was no cover..."]
 	elif "input" in direction:
 		if log_container != null:
 			log_container.tooltips = ["Info", "Press an arrow to move"]
@@ -399,8 +399,10 @@ func get_player_range_dmg_mult():
 		dmg_mult = 0
 	return dmg_mult
 
+
 func get_player_pos_modifiers():
 	return tile_modifiers.get(player_gridpos, {})
+
 
 func check_curr_tile_mods():
 	var active_placement_effects = get_player_pos_modifiers()
@@ -448,15 +450,21 @@ func apply_zones(zone_type, mult, pos, dur, direction):
 	if pos == "player_x":
 		for tile in used_cells:
 			if tile.x == player_gridpos.x:
-				tile_modifiers[tile] = {mult_type: mult, 'duration': dur, 'type': zone_type, 'mult':mult}
+				tile_modifiers[tile] = {
+					mult_type: mult, "duration": dur, "type": zone_type, "mult": mult
+				}
 	elif pos == "player_y":
 		for tile in used_cells:
 			if tile.y == player_gridpos.y:
-				tile_modifiers[tile] = {mult_type: mult, 'duration': dur, 'type': zone_type, 'mult':mult}
+				tile_modifiers[tile] = {
+					mult_type: mult, "duration": dur, "type": zone_type, "mult": mult
+				}
 	elif pos == "player_pos":
 		for tile in used_cells:
 			if tile == player_gridpos:
-				tile_modifiers[tile] = {mult_type: mult, 'duration': dur, 'type': zone_type, 'mult':mult}
+				tile_modifiers[tile] = {
+					mult_type: mult, "duration": dur, "type": zone_type, "mult": mult
+				}
 	elif pos == "surrounding":
 		for tile in used_cells:
 			if tile == player_gridpos:
@@ -473,7 +481,9 @@ func apply_zones(zone_type, mult, pos, dur, direction):
 					or tile.y == player_gridpos.y + 1
 				)
 			):
-				tile_modifiers[tile] = {mult_type: mult, 'duration': dur, 'type': zone_type, 'mult':mult}
+				tile_modifiers[tile] = {
+					mult_type: mult, "duration": dur, "type": zone_type, "mult": mult
+				}
 	elif "area" in pos:  #expecting a string like "area||<x>||<y>||<size>"
 		var min_x = get_min_x()
 		var min_y = get_min_y()
@@ -507,20 +517,26 @@ func apply_zones(zone_type, mult, pos, dur, direction):
 						or tile.y == center_point.y + i
 					)
 				):
-					tile_modifiers[tile] = {mult_type: mult, 'duration': dur, 'type': zone_type, 'mult':mult}
+					tile_modifiers[tile] = {
+						mult_type: mult, "duration": dur, "type": zone_type, "mult": mult
+					}
 	elif "x" in pos:
 		var parts = pos.split("=")
 		var min_x = get_min_x()
 		for tile in used_cells:
 			if tile.x == min_x + int(parts[1]):
-				tile_modifiers[tile] = {mult_type: mult, 'duration': dur, 'type': zone_type, 'mult':mult}
+				tile_modifiers[tile] = {
+					mult_type: mult, "duration": dur, "type": zone_type, "mult": mult
+				}
 	elif "y" in pos:
 		var parts = pos.split("=")
 		#print("parts: ", parts)
 		var min_y = get_min_y()
 		for tile in used_cells:
 			if tile.y == min_y + int(parts[1]):
-				tile_modifiers[tile] = {mult_type: mult, 'duration': dur, 'type': zone_type, 'mult':mult}
+				tile_modifiers[tile] = {
+					mult_type: mult, "duration": dur, "type": zone_type, "mult": mult
+				}
 
 	update_marker_visuals()
 	return marker_info["log"]
@@ -531,20 +547,20 @@ func update_marker_visuals():
 		active_marker.queue_free()
 	active_markers.clear()
 	for cell: Vector2i in tile_modifiers.keys():
-		var marker_info = MARKER_FLAVOURS[tile_modifiers[cell].get('type', 'nope')]
+		var marker_info = MARKER_FLAVOURS[tile_modifiers[cell].get("type", "nope")]
 		print("Tile modifiers", tile_modifiers)
 		var marker = MARKER_PREFAB.instantiate()
 
-		var marker_visual = marker_info.get('visual', 'eugh')
-		print("visual is ",marker_visual )
-		marker.marker_type =marker_visual
+		var marker_visual = marker_info.get("visual", "eugh")
+		print("visual is ", marker_visual)
+		marker.marker_type = marker_visual
 		print("Visual is ", marker_visual)
 		print("Adding ", marker.marker_type, " marker!")
 		marker.tooltip_container = log_container
-		var text_val = tile_modifiers[cell].get('mult', 0)
-		if tile_modifiers[cell].get('type', 'nope') == "dmg_reduc_":
+		var text_val = tile_modifiers[cell].get("mult", 0)
+		if tile_modifiers[cell].get("type", "nope") == "dmg_reduc_":
 			text_val = int((1 - text_val) * 100)
-		
+
 		marker.marker_info = marker_info["info"].replace("<PUTVALUEHERE>", str(text_val))
 
 		$Battle_root.add_child(marker)

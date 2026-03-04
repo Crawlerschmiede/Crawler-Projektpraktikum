@@ -573,14 +573,12 @@ var existing_skills = {
 			["movement", 1, true, "input"]
 		],
 	},
-	
 	#warrior skilltree
 	"Shields Up":
 	{
 		"tree": "Warrior",
 		"tier": 1,
-		"description":
-		"You have a MASSIVE shield, now, if only it wasn't so damn heavy...",
+		"description": "You have a MASSIVE shield, now, if only it wasn't so damn heavy...",
 		"effects": [["safety_dmg_reduc", 0, false, "area||rand||rand||2"]],
 		"passive": true,
 		"conditions": ["every_x_turns=5"]
@@ -589,7 +587,8 @@ var existing_skills = {
 	{
 		"tree": "Warrior",
 		"tier": 2,
-		"description": "Remember that shield we talked about? Well, turns out it's actually really heavy, which makes it very painful to get hit with it",
+		"description":
+		"Remember that shield we talked about? Well, turns out it's actually really heavy, which makes it very painful to get hit with it",
 		"effects": [["damage", 1, false, "conditional--No||dmg_boost=3"]],
 		"cooldown": 3,
 		"switch_condition": ["on_tile=dmg_reduc_good"]
