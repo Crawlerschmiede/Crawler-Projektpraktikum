@@ -106,6 +106,10 @@ func _ready():
 	print("At the start, player has these: ", player.alterations)
 	enemy.decide_attack()
 	enemy_prepare_turn()
+	
+func dissuade_enemy():
+	enemy.decide_attack()
+	enemy_prepare_turn(true)
 
 
 func create_battle_sprite(from_actor: CharacterBody2D) -> AnimatedSprite2D:
@@ -127,7 +131,7 @@ func create_battle_sprite(from_actor: CharacterBody2D) -> AnimatedSprite2D:
 	return battle_sprite
 
 
-func enemy_prepare_turn():
+func enemy_prepare_turn(mid_turn=false):
 	# TODO: very low tech; clears everything (ok for 1-turn effects).
 	# Anything longer-term will need something more robust.
 	print("Tile modifiers right now are: ", tile_modifiers)
@@ -139,12 +143,13 @@ func enemy_prepare_turn():
 	log_container.add_log_event("The enemy prepares its Skill " + enemy.chosen.name + "!")
 	#print(enemy, " prepares its Skill ", enemy.chosen.name, "!")
 	var preps = enemy.chosen.prep_skill(enemy, player, self)
-	update_passives(true)
+	if not mid_turn:
+		update_passives(true)
+		player.refill_actions()
+		enemy.refill_actions()
+		update_passives()
 	for prep in preps:
 		log_container.add_log_event(prep)
-	player.refill_actions()
-	enemy.refill_actions()
-	update_passives()
 
 
 func enemy_turn():
@@ -417,7 +422,7 @@ func check_curr_tile_mods():
 			"damage_bad":
 				player.take_damage(modifier_value)
 			"damage_good":
-				enemy.hp.take_damage(modifier_value)
+				enemy.take_damage(modifier_value)
 			"heal_good":
 				player.heal(modifier_value)
 			"heal_bad":

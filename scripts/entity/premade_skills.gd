@@ -620,6 +620,54 @@ var existing_skills = {
 		"effects": [["movement", 1, true, "rnd|dmg_reduc_good"]],
 		"cooldown": 5,
 	},
+	
+	#cleric skilltree
+	"Nature's Blessing":
+	{
+		"tree": "Cleric",
+		"tier": 1,
+		"description":
+		"Divine and/or natural energies flow through you, soothing your wounds",
+		"effects": [["heal", 1, true, "No"]],
+		"passive": true,
+		"conditions": ["every_x_turns=2"]
+	},
+	"Combat Medic":
+	{
+		"tree": "Cleric",
+		"tier": 2,
+		"description":
+		"The mild soothe is no longer enough to keep some of these wounds at bay, but worry not, with a bit of effort, you too can push away the pain!",
+		"effects": [["heal", 3, true, "No"]],
+		"cooldown": 5,
+	},
+	"Confuse thy enemy":
+	{
+		"tree": "Cleric",
+		"tier": 3,
+		"description":
+		"Since medicine has kind of become your thing, you felt like it was time your enemies got a taste of theirs",
+		"effects": [["confuse", 3, false, "duration=2"]],
+		"cooldown": 5,
+	},
+	"Leech Life":
+	{
+		"tree": "Cleric",
+		"tier": 4,
+		"description":
+		"The soothing feeling is not enough, even the air feels painful now, but you've figured out a way to push the pain not just away, but unto others!",
+		"effects": [["leeching", 4, true, "No"], ["damage", 2, true, "ignoredef||undodgeable||plain"]],
+		"passive": true,
+	},
+	"Nature says NO!!!":
+	{
+		"tree": "Cleric",
+		"tier": 5,
+		"description":
+		"You have mastered pain, the sting of brambles and the sear of divine light is plenty to... dissuade your opponent from any inopportune acts",
+		"effects": [["deter", 1, false, "No"]],
+		"cooldown": 5,
+	},
 	#standard actions
 	"Move Up":
 	{

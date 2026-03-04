@@ -71,7 +71,8 @@ func activate_skill(user, target, battle):
 				stuff = await effect.apply(user, target, battle, self)
 				for thing in stuff:
 					things_that_happened.append(thing)
-			await battle.get_tree().create_timer(0.3).timeout
+			if battle.get_tree() != null and is_instance_valid(battle.get_tree()):
+				await battle.get_tree().create_timer(0.3).timeout
 	if len(second_turn_effects) != 0:
 		last_user = user
 		last_target = target
@@ -296,83 +297,91 @@ class Effect:
 		print("Active mods: ", active_placement_effects)
 		match type:
 			"damage":
+				print("Attacker has ",user.alterations)
 				print("Activating damage!")
 				var active_dmg = value
-				active_dmg += user.str_stat
 				var critted = false
-				if "ramp" in considered_details:
-					var parts = considered_details.split("||")
-					if len(parts) > 1:
-						var ramp_type = parts[1]
-						match ramp_type:
-							"consecutive":
+				if not "plain" in considered_details:
+					active_dmg += user.str_stat
+					if "ramp" in considered_details:
+						var parts = considered_details.split("||")
+						if len(parts) > 1:
+							var ramp_type = parts[1]
+							match ramp_type:
+								"consecutive":
+									if user.is_player:
+										if len(battle.player_action_log) > 0:
+											for i in range(battle.player_action_log.size() - 1, -1, -1):
+												if battle.player_action_log[i] == skill.name:
+													active_dmg += 1
+												else:
+													break
+					if "dmg_boost" in considered_details:
+						var parts = considered_details.split("=")
+						active_dmg += int(parts[1])
+					for modifier_name in active_placement_effects:
+						var modifier_value = active_placement_effects[modifier_name]
+
+						match modifier_name:
+							"dmg_mult_bad":
+								if !user.is_player:
+									critted = true
+									active_dmg *= modifier_value
+							"dmg_mult_good":
 								if user.is_player:
-									if len(battle.player_action_log) > 0:
-										for i in range(battle.player_action_log.size() - 1, -1, -1):
-											if battle.player_action_log[i] == skill.name:
-												active_dmg += 1
-											else:
-												break
-				if "dmg_boost" in considered_details:
-					var parts = considered_details.split("=")
-					active_dmg += int(parts[1])
-				for modifier_name in active_placement_effects:
-					var modifier_value = active_placement_effects[modifier_name]
+									active_dmg *= modifier_value
+							"dmg_reduc_good":
+								if !user.is_player:
+									active_dmg *= modifier_value
+							"dmg_reduc_bad":
+								if user.is_player:
+									active_dmg *= modifier_value
 
-					match modifier_name:
-						"dmg_mult_bad":
-							if !user.is_player:
-								critted = true
-								active_dmg *= modifier_value
-						"dmg_mult_good":
-							if user.is_player:
-								active_dmg *= modifier_value
-						"dmg_reduc_good":
-							if !user.is_player:
-								active_dmg *= modifier_value
-						"dmg_reduc_bad":
-							if user.is_player:
-								active_dmg *= modifier_value
-
-				for alteration in user.alterations:
-					if user.alterations[alteration].has("dmg_buff"):
-						active_dmg *= user.alterations[alteration].dmg_buff
-						print(
-							user.name, " has a damage buff! ", user.alterations[alteration].dmg_buff
-						)
-					if user.alterations[alteration].has("dmg_null"):
-						active_dmg = 0
-					if user.alterations[alteration].has("pierce"):
-						considered_details += (
-							"||pierce=" + str(user.alterations[alteration].pierce) + "||"
-						)
-					if user.alterations[alteration].has("elementize"):
-						if (
-							not "fire" in considered_details
-							and not "earth" in considered_details
-							and not "ice" in considered_details
-							and not "electric" in considered_details
-						):
-							var added_element = ""
+					for alteration in user.alterations:
+						if user.alterations[alteration].has("dmg_buff"):
+							active_dmg *= user.alterations[alteration].dmg_buff
 							print(
-								"Alteration looks like this mate... ",
-								user.alterations[alteration].elementize
+								user.name, " has a damage buff! ", user.alterations[alteration].dmg_buff
 							)
-							if user.alterations[alteration].elementize == "rand":
-								print("target's resistances ", target.resistances)
-								var min = 999
-								for element in target.resistances.keys():
-									if target.resistances[element] < min:
-										added_element = element
-										min = target.resistances[element]
-							else:
-								added_element = user.alterations[alteration].elementize
-							considered_details += "||" + added_element + "||"
-
-				if user.is_player:
-					active_dmg *= battle.get_player_range_dmg_mult()
-				if user.stunned > 0:
-					active_dmg *= 0.75
+						if user.alterations[alteration].has("dmg_null"):
+							active_dmg = 0
+						if user.alterations[alteration].has("pierce"):
+							considered_details += (
+								"||pierce=" + str(user.alterations[alteration].pierce) + "||"
+							)
+						if user.alterations[alteration].has("elementize"):
+							if (
+								not "fire" in considered_details
+								and not "earth" in considered_details
+								and not "ice" in considered_details
+								and not "electric" in considered_details
+							):
+								var added_element = ""
+								print(
+									"Alteration looks like this mate... ",
+									user.alterations[alteration].elementize
+								)
+								if user.alterations[alteration].elementize == "rand":
+									print("target's resistances ", target.resistances)
+									var min = 999
+									for element in target.resistances.keys():
+										if target.resistances[element] < min:
+											added_element = element
+											min = target.resistances[element]
+								else:
+									added_element = user.alterations[alteration].elementize
+								considered_details += "||" + added_element + "||"
+						if user.alterations[alteration].has("confused"):
+							var prob = 50
+							var happen = GlobalRNG.randi_range(0, 100)
+							if happen>prob:
+								targets_self = true
+						if user.alterations[alteration].has("leech") and not targets_self:
+							user.heal(user.alterations[alteration]["leech"])
+					if user.is_player:
+						active_dmg *= battle.get_player_range_dmg_mult()
+					if user.stunned > 0:
+						active_dmg *= 0.75
 
 				var recipient = user if targets_self else target
 				messages = _safe_invoke(recipient, "take_damage", [active_dmg, considered_details])
@@ -460,6 +469,12 @@ class Effect:
 				var duration = 1
 				var direction
 				var active_dmg = value
+				for alteration in user.alterations:
+					if user.alterations[alteration].has("confused"):
+						var prob = 50
+						var happen = GlobalRNG.randi_range(0, 100)
+						if happen>prob:
+							targets_self = true
 				if (targets_self and user.is_player) or (!targets_self and !user.is_player):
 					direction = "bad"
 				else:
@@ -557,10 +572,31 @@ class Effect:
 				ret = _safe_invoke(
 					recipient, "add_alteration", ["cannot_move", value, skill.name, dur]
 				)
+			"confuse":
+				var dur = null
+				if "duration" in considered_details:
+					var parts = considered_details.split("=")
+					dur = int(parts[1])
+				var recipient = user if targets_self else target
+				ret = _safe_invoke(
+					recipient, "add_alteration", ["confused", value, skill.name, dur]
+				)
+			"leeching":
+				var dur = null
+				if "duration" in considered_details:
+					var parts = considered_details.split("=")
+					dur = int(parts[1])
+				var recipient = user if targets_self else target
+				ret = _safe_invoke(
+					recipient, "add_alteration", ["leech", value, skill.name, dur]
+				)
 			"add_zone_duration":
 				var recipient = user if targets_self else target
 				print("The recipient of added zone duration is player: ", recipient.is_player)
 				ret = _safe_invoke(recipient, "add_zone_duration", [value])
+			"deter":
+				battle.dissuade_enemy()
+				ret = ["The enemy can no longer bring himself to executing its chosen move"]
 			"prepare":
 				var prep_msg := "The enemy seems to be preparing something big... or maybe it's just tired?"
 				var prep_hint := "Hard to tell really"
