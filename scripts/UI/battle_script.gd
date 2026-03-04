@@ -106,7 +106,8 @@ func _ready():
 	print("At the start, player has these: ", player.alterations)
 	enemy.decide_attack()
 	enemy_prepare_turn()
-	
+
+
 func dissuade_enemy():
 	enemy.decide_attack()
 	enemy_prepare_turn(true)
@@ -131,7 +132,7 @@ func create_battle_sprite(from_actor: CharacterBody2D) -> AnimatedSprite2D:
 	return battle_sprite
 
 
-func enemy_prepare_turn(mid_turn=false):
+func enemy_prepare_turn(mid_turn = false):
 	# TODO: very low tech; clears everything (ok for 1-turn effects).
 	# Anything longer-term will need something more robust.
 	print("Tile modifiers right now are: ", tile_modifiers)

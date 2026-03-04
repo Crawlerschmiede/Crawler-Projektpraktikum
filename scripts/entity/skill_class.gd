@@ -297,7 +297,7 @@ class Effect:
 		print("Active mods: ", active_placement_effects)
 		match type:
 			"damage":
-				print("Attacker has ",user.alterations)
+				print("Attacker has ", user.alterations)
 				print("Activating damage!")
 				var active_dmg = value
 				var critted = false
@@ -311,7 +311,9 @@ class Effect:
 								"consecutive":
 									if user.is_player:
 										if len(battle.player_action_log) > 0:
-											for i in range(battle.player_action_log.size() - 1, -1, -1):
+											for i in range(
+												battle.player_action_log.size() - 1, -1, -1
+											):
 												if battle.player_action_log[i] == skill.name:
 													active_dmg += 1
 												else:
@@ -341,7 +343,9 @@ class Effect:
 						if user.alterations[alteration].has("dmg_buff"):
 							active_dmg *= user.alterations[alteration].dmg_buff
 							print(
-								user.name, " has a damage buff! ", user.alterations[alteration].dmg_buff
+								user.name,
+								" has a damage buff! ",
+								user.alterations[alteration].dmg_buff
 							)
 						if user.alterations[alteration].has("dmg_null"):
 							active_dmg = 0
@@ -374,7 +378,7 @@ class Effect:
 						if user.alterations[alteration].has("confused"):
 							var prob = 50
 							var happen = GlobalRNG.randi_range(0, 100)
-							if happen>prob:
+							if happen > prob:
 								targets_self = true
 						if user.alterations[alteration].has("leech") and not targets_self:
 							user.heal(user.alterations[alteration]["leech"])
@@ -473,7 +477,7 @@ class Effect:
 					if user.alterations[alteration].has("confused"):
 						var prob = 50
 						var happen = GlobalRNG.randi_range(0, 100)
-						if happen>prob:
+						if happen > prob:
 							targets_self = true
 				if (targets_self and user.is_player) or (!targets_self and !user.is_player):
 					direction = "bad"
@@ -587,9 +591,7 @@ class Effect:
 					var parts = considered_details.split("=")
 					dur = int(parts[1])
 				var recipient = user if targets_self else target
-				ret = _safe_invoke(
-					recipient, "add_alteration", ["leech", value, skill.name, dur]
-				)
+				ret = _safe_invoke(recipient, "add_alteration", ["leech", value, skill.name, dur])
 			"add_zone_duration":
 				var recipient = user if targets_self else target
 				print("The recipient of added zone duration is player: ", recipient.is_player)

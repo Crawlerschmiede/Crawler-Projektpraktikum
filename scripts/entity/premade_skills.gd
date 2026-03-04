@@ -620,14 +620,12 @@ var existing_skills = {
 		"effects": [["movement", 1, true, "rnd|dmg_reduc_good"]],
 		"cooldown": 5,
 	},
-	
 	#cleric skilltree
 	"Nature's Blessing":
 	{
 		"tree": "Cleric",
 		"tier": 1,
-		"description":
-		"Divine and/or natural energies flow through you, soothing your wounds",
+		"description": "Divine and/or natural energies flow through you, soothing your wounds",
 		"effects": [["heal", 1, true, "No"]],
 		"passive": true,
 		"conditions": ["every_x_turns=2"]
@@ -656,7 +654,8 @@ var existing_skills = {
 		"tier": 4,
 		"description":
 		"The soothing feeling is not enough, even the air feels painful now, but you've figured out a way to push the pain not just away, but unto others!",
-		"effects": [["leeching", 4, true, "No"], ["damage", 2, true, "ignoredef||undodgeable||plain"]],
+		"effects":
+		[["leeching", 4, true, "No"], ["damage", 2, true, "ignoredef||undodgeable||plain"]],
 		"passive": true,
 	},
 	"Nature says NO!!!":
