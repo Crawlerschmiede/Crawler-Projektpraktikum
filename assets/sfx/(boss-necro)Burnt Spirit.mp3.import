@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://coqfsr1sblc45"
+path="res://.godot/imported/(boss-necro)Burnt Spirit.mp3-59189398fb1d5ba236d2fd051f5e6b25.mp3str"
+
+[deps]
+
+source_file="res://assets/sfx/(boss-necro)Burnt Spirit.mp3"
+dest_files=["res://.godot/imported/(boss-necro)Burnt Spirit.mp3-59189398fb1d5ba236d2fd051f5e6b25.mp3str"]
+
+[params]
+
+loop=true
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

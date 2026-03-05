@@ -58,7 +58,7 @@ var room_id: int = 0
 # Private
 var _closed_door_cache: Dictionary = {}
 var _corridor_cache: Dictionary = {}
-var _rng := GlobalRNG.get_rng()
+var _rng = null
 var _yield_counter := 0
 
 
@@ -132,6 +132,9 @@ func get_random_tilemap() -> Dictionary:
 	_yield_counter = 0
 	_emit_progress_mapped(0.0, 0.05, 0.0, "Preparing scenes...")
 	await get_tree().process_frame
+
+	# Ensure RNG is seeded fresh for this generation (deterministic per GlobalRNG reset)
+	_rng = GlobalRNG.get_rng()
 
 	# load/start scenes
 	start_room = load("res://scenes/rooms/Rooms/room_11x11_4.tscn")

@@ -8,10 +8,10 @@ const TILE_SIZE: int = 16
 const DIRECTIONS := [Vector2i.RIGHT, Vector2i.LEFT, Vector2i.UP, Vector2i.DOWN]
 const SKILLS := preload("res://scripts/entity/premade_skills.gd")
 const SKILLTREES := preload("res://scripts/entity/premade_skilltrees.gd")
-const ACTIVE_SKILLTREES: Array[String] = ["Short Ranged Weaponry", "basic"]
 
 var existing_skills = SKILLS.new()
-var existing_skilltrees = SKILLTREES.new()
+# skilltrees are persisted in the SkillState autoload to survive scene changes
+# use `SkillState.skilltrees` instead of a local instance
 var abilities_this_has: Array = []
 var multi_turn_action = null
 var types

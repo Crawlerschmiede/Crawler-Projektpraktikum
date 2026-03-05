@@ -133,13 +133,16 @@ bash tools/release-assistant.sh
 ```
 
 The script helps you:
+
 - inspect current release status (latest tag, latest GitHub release, branch SHAs, open `dev -> release` PR)
 - create/view and merge a `dev -> release` PR via `gh`
+  - merge mode options include normal merge, auto-merge (`--auto`), admin override (`--admin`), and `admin-after-checks` (wait for checks, then admin-merge)
 - create and push a `v<major>.<minor>.<patch>` tag on `release` (triggers `release.yml`)
 - watch release workflow runs and optionally open related pages
 - sync `dev` from `release` after publishing
 
 Behavior:
+
 - In an interactive terminal, it shows a menu.
 - In non-interactive execution (no TTY), it automatically runs the full flow with defaults (no flags required).
 
@@ -157,13 +160,13 @@ Behavior:
   "group": "Weapon",
   "weight": 3,
   "merchant": {
-    "min_count": 1,
-    "max_count": 2,
-    "min_price": 6,
-    "max_price": 9,
-    "buy_amount": 2,
-    "chance": 1.0,
-    "weight": 1
+	"min_count": 1,
+	"max_count": 2,
+	"min_price": 6,
+	"max_price": 9,
+	"buy_amount": 2,
+	"chance": 1.0,
+	"weight": 1
   },
   "bound_skills": ["Slash"],
 	"range":"short"
@@ -223,10 +226,14 @@ This project uses a map generator (`scripts/Mapgenerator/map_generator_modular.g
   Use a lightweight door node; this is typically enough:
 
 ```gdscript
-extends Marker2D
+extends Node2D
 
-@export_enum("north", "south", "east", "west") var direction: String
-var used := false
+@export var direction: String = "north"
+var used: bool = false
+
+func _ready():
+  # optional: visual/collision setup or Area2D as a child
+  pass
 ```
 
 - **Room template (example)**

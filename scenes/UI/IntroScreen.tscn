@@ -110,3 +110,4 @@ offset_bottom = 480.0
 
 [node name="tv_noise" type="AudioStreamPlayer" parent="." unique_id=586750406]
 stream = ExtResource("8_idkc3")
+bus = &"SFX"

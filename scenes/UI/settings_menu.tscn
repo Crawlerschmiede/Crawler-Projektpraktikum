@@ -238,6 +238,26 @@ text = " Master volume"
 [node name="MasterVolume" type="HSlider" parent="PanelContainer/VBoxContainer/TabContainer/Sound" unique_id=848948027]
 layout_mode = 2
 focus_mode = 0
+value = 50.0
+
+[node name="MusicVolumeLabel" type="Label" parent="PanelContainer/VBoxContainer/TabContainer/Sound" unique_id=1813083767]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("3_48ojb")
+text = " Music volume"
+
+[node name="MusicVolume" type="HSlider" parent="PanelContainer/VBoxContainer/TabContainer/Sound" unique_id=660913224]
+layout_mode = 2
+focus_mode = 0
+value = 100.0
+
+[node name="SFXVolumeLabel" type="Label" parent="PanelContainer/VBoxContainer/TabContainer/Sound" unique_id=2028849372]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("3_48ojb")
+text = " SFX volume"
+
+[node name="SFXVolume" type="HSlider" parent="PanelContainer/VBoxContainer/TabContainer/Sound" unique_id=1285890935]
+layout_mode = 2
+focus_mode = 0
 value = 100.0
 
 [node name="Mute" type="CheckBox" parent="PanelContainer/VBoxContainer/TabContainer/Sound" unique_id=1512969849]
