@@ -667,14 +667,12 @@ var existing_skills = {
 		"effects": [["deter", 1, false, "No"]],
 		"cooldown": 5,
 	},
-	
 	#mage skilltree
 	"Adaptable":
 	{
 		"tree": "Mage",
 		"tier": 1,
-		"description":
-		"Elemental power flows through your veins",
+		"description": "Elemental power flows through your veins",
 		"effects": [["element_buff", 1.25, true, "all"]],
 		"passive": true
 	},
@@ -686,12 +684,10 @@ var existing_skills = {
 	{
 		"tree": "Mage",
 		"tier": 2,
-		"description":
-		"*Tips up glasses* Fool, I have already studied all possible moves!",
+		"description": "*Tips up glasses* Fool, I have already studied all possible moves!",
 		"effects": [["random", 1, true, "any"]],
 		"cooldown": 2,
 	},
-	
 	"Mastery of time":
 	{
 		"tree": "Mage",
@@ -699,31 +695,40 @@ var existing_skills = {
 		"description":
 		"Damage over time, huh? But have we ever considered damage UNDER time? Didn't think so",
 		"effects": [["alter_recovery", 0.5, false, "No"]],
-		"passive" : true,
+		"passive": true,
 		"conditions": ["lost_after||effect_happened-alter_recovery-1"]
 	},
-	
 	"Elemental insights":
 	{
 		"tree": "Mage",
 		"tier": 4,
 		"description":
 		"You can perceive the metaphysical weaknesses of your opponents, however, merely by perceiving them, their strengths greaten",
-		"effects": [["set_resistance", -1, false, "random|elemental"], ["set_resistance", 0.5, false, "random|elemental"]],
-		"passive" : true,
+		"effects":
+		[
+			["set_resistance", -1, false, "random|elemental"],
+			["set_resistance", 0.5, false, "random|elemental"]
+		],
+		"passive": true,
 		"conditions": ["lost_after||effect_happened-alter_recovery-1"]
 	},
-	
 	"Wretched Deluge":
 	{
 		"tree": "Mage",
 		"tier": 5,
 		"description":
 		"Elemental power flows through you, and, with a mighty hurl, it can flow all over your opponent too",
-		"effects": [["damage", 1, false, "fire"], ["damage", 1, false, "earth"], ["damage", 1, false, "ice"], ["damage", 1, false, "electric"], ["poison", 2, false, "No"], ["stun", 2, false, "No"]],
+		"effects":
+		[
+			["damage", 1, false, "fire"],
+			["damage", 1, false, "earth"],
+			["damage", 1, false, "ice"],
+			["damage", 1, false, "electric"],
+			["poison", 2, false, "No"],
+			["stun", 2, false, "No"]
+		],
 		"cooldown": 8,
 	},
-		
 	#standard actions
 	"Move Up":
 	{
@@ -830,18 +835,20 @@ func get_skills_by_tree(tree_name: String):
 			continue
 	return skills_in_tree
 
-func get_skills_by_condition(conditions:Dictionary):
+
+func get_skills_by_condition(conditions: Dictionary):
 	var applicable_skills = []
 	for skill in existing_skills:
 		var tested = existing_skills[skill]
 		for condition in conditions:
 			var val = tested.get(condition, null)
-			if val!=null:
+			if val != null:
 				if val == conditions[condition]:
 					applicable_skills.append(skill)
 			else:
 				applicable_skills.append(skill)
 	return applicable_skills
+
 
 func get_tree_explanation(tree_name):
 	var skills = get_skills_by_tree(tree_name)

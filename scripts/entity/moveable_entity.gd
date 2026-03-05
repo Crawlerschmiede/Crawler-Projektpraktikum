@@ -575,10 +575,10 @@ func reset_cooldowns(number: int):
 
 
 func increase_poison(amount):
-	if poisoned + amount <=8:
+	if poisoned + amount <= 8:
 		poisoned += amount
 	else:
-		poisoned=8
+		poisoned = 8
 	return ["Poison increases to " + str(poisoned) + "!"]
 
 
@@ -596,7 +596,8 @@ func full_status_heal():
 	stunned = 0
 	poisoned = 0
 	frozen = 0
-	self.status_recovery=1
+	self.status_recovery = 1
+
 
 func deal_with_status_effects(battle, phase) -> Array:
 	var gets_a_turn = true
@@ -609,7 +610,7 @@ func deal_with_status_effects(battle, phase) -> Array:
 			battle.move_player("rnd_dir", 1)
 		things_that_happened.append("Is stunned and movement seems janky")
 	if poisoned > 0 and phase == 2:
-		var message = take_damage((self.max_hp*0.02)*poisoned, "ignoredef|undodgeable")
+		var message = take_damage((self.max_hp * 0.02) * poisoned, "ignoredef|undodgeable")
 		poisoned -= status_recovery
 		if poisoned < 0:
 			poisoned = 0
@@ -621,17 +622,19 @@ func deal_with_status_effects(battle, phase) -> Array:
 			frozen = 0
 		things_that_happened.append("Target was frozen and can't move!")
 	return [gets_a_turn, things_that_happened]
-	
+
+
 func touch_recovery(value):
-	self.status_recovery*=value
+	self.status_recovery *= value
 	print(self.name, "'s recovery was altered! Went to ", self.status_recovery)
-	if value>1:
+	if value > 1:
 		return ["Recovery rises!"]
 	if value < 1:
-		return["Recovery drops!"]
+		return ["Recovery drops!"]
 	else:
-		return["Why'd we bother doing this again?"]
-		
+		return ["Why'd we bother doing this again?"]
+
+
 func set_resistance(resistance, value):
 	var elemental_ones = ["fire", "electric", "earth", "ice"]
 	var allowed = []
@@ -643,21 +646,21 @@ func set_resistance(resistance, value):
 					allowed.append(resistance_type)
 			else:
 				allowed.append(resistance_type)
-		if len(allowed)>0:
-			resistance = allowed[GlobalRNG.randi_range(0, len(allowed)-1)]
+		if len(allowed) > 0:
+			resistance = allowed[GlobalRNG.randi_range(0, len(allowed) - 1)]
 			old = resistances[resistance]
 			resistances[resistance] = value
-		
+
 	else:
 		var exists = resistances.get(resistance, null)
-		if exists!= null:
+		if exists != null:
 			old = resistances[resistance]
 			resistances[resistance] = value
 	print(self.name, "'s resistances have been altered! Specifically, ", resistance, resistances)
-	if old<value:
-		return[resistance+" resistance has risen to "+str(value)+"!"]
-	elif old>value:
-		return[resistance+" resistance has fropped to "+str(value)+"!"]
+	if old < value:
+		return [resistance + " resistance has risen to " + str(value) + "!"]
+	elif old > value:
+		return [resistance + " resistance has fropped to " + str(value) + "!"]
 	else:
 		return ["Nothing happened"]
 
