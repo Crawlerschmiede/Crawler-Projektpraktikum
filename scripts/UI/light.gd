@@ -8,18 +8,18 @@ extends PointLight2D
 var noise = FastNoiseLite.new()
 var time_passed: float = 0.0
 
-func _ready():
 
+func _ready():
 	noise.seed = randi()
-	noise.frequency = 0.25 
+	noise.frequency = 0.25
 
 	color = Color("ffd2b3")
 
+
 func _process(delta):
 	time_passed += delta * flicker_speed
-	
+
 	var noise_val = noise.get_noise_1d(time_passed)
-	
 
 	energy = base_energy * (1.0 - (noise_val * noise_strength))
 
