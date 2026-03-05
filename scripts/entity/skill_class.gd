@@ -63,7 +63,7 @@ func activate_skill(user, target, battle):
 	for effect in effects:
 		if battle != null and is_instance_valid(battle):
 			if !effect.type in pre_prepared_effects:
-				if not is_passive:
+				if not is_passive or not effect.type =="damage":
 					if user.is_player:
 						battle.player_effect_log.append(effect.type)
 					else:
@@ -201,6 +201,7 @@ func condition_met(condition_name, user, _target, battle) -> bool:
 			effect_log = battle.player_effect_log
 		else:
 			effect_log = battle.enemy_effect_log
+		print("effect log was ", effect_log)
 		var splits = condition_name.split("-")
 		var sought = splits[1]
 		var limit = int(splits[2])
@@ -217,8 +218,8 @@ func condition_met(condition_name, user, _target, battle) -> bool:
 		print("Player is standing on ", active_modifiers)
 		var parts = condition_name.split("=")
 		is_met = parts[1] in active_modifiers.keys()
-		print("Condition ", condition_name, " is met: ", is_met)
 	print("Condition " + condition_name + " is met? " + str(is_met))
+	
 	return is_met
 
 
@@ -340,6 +341,7 @@ class Effect:
 									active_dmg *= modifier_value
 
 					for alteration in user.alterations:
+						print(user.name, " has alteration ", user.alterations[alteration])
 						if user.alterations[alteration].has("dmg_buff"):
 							active_dmg *= user.alterations[alteration].dmg_buff
 							print(
@@ -382,6 +384,11 @@ class Effect:
 								targets_self = true
 						if user.alterations[alteration].has("leech") and not targets_self:
 							user.heal(user.alterations[alteration]["leech"])
+						if user.alterations[alteration].has("element_buff"):
+							print("elements buffed!")
+							if("fire" in considered_details or "earth" in considered_details or "ice" in considered_details or "electric" in considered_details ):
+								print("dmg buffed by ",user.alterations[alteration].element_buff)
+								active_dmg *= user.alterations[alteration].element_buff
 					if user.is_player:
 						active_dmg *= battle.get_player_range_dmg_mult()
 					if user.stunned > 0:
@@ -592,6 +599,13 @@ class Effect:
 					dur = int(parts[1])
 				var recipient = user if targets_self else target
 				ret = _safe_invoke(recipient, "add_alteration", ["leech", value, skill.name, dur])
+			"element_buff":
+				var dur = null
+				if "duration" in considered_details:
+					var parts = considered_details.split("=")
+					dur = int(parts[1])
+				var recipient = user if targets_self else target
+				ret = _safe_invoke(recipient, "add_alteration", ["element_buff", value, skill.name, dur])
 			"add_zone_duration":
 				var recipient = user if targets_self else target
 				print("The recipient of added zone duration is player: ", recipient.is_player)
@@ -599,6 +613,22 @@ class Effect:
 			"deter":
 				battle.dissuade_enemy()
 				ret = ["The enemy can no longer bring himself to executing its chosen move"]
+			"random":
+				var skills_there_are = user.existing_skills
+				var copyable = skills_there_are.get_skills_by_condition({"passive":false})
+				var copied = null
+				if len(copyable)>0:
+					copied = copyable[GlobalRNG.randi_range(0, len(copyable)-1)]
+				if copied!=null:
+					var back = await skills_there_are.get_skill(copied).activate_skill(user, target, battle)
+					ret = ["Copied the effect of "+copied]
+					ret.append_array(back)
+			"alter_recovery":
+				var recipient = user if targets_self else target
+				ret = _safe_invoke(recipient, "touch_recovery", [considered_details, value])
+			"set_resistance":
+				var recipient = user if targets_self else target
+				ret = _safe_invoke(recipient, "set_resistance", [considered_details, value])
 			"prepare":
 				var prep_msg := "The enemy seems to be preparing something big... or maybe it's just tired?"
 				var prep_hint := "Hard to tell really"
