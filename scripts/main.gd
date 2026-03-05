@@ -521,12 +521,11 @@ func _has_completed_tutorial() -> bool:
 	var paths := [TUTORIAL_STATE_PATH_USER, TUTORIAL_STATE_PATH_RES]
 	for path in paths:
 		if not FileAccess.file_exists(path):
-		var data: Dictionary = {"tutorial_completed": false}
-
-		var file := FileAccess.open(path, FileAccess.WRITE)
-		if file:
-			file.store_string(JSON.stringify(data, "\t"))
-			file.close()
+			var data: Dictionary = {"tutorial_completed": false}
+			var file := FileAccess.open(path, FileAccess.WRITE)
+			if file:
+				file.store_string(JSON.stringify(data, "\t"))
+				file.close()
 			continue
 
 		var file = FileAccess.open(path, FileAccess.READ)
@@ -535,13 +534,11 @@ func _has_completed_tutorial() -> bool:
 
 		var json_text: String = file.get_as_text()
 		file.close()
-
 		var parsed: Variant = JSON.parse_string(json_text)
 
 		if typeof(parsed) == TYPE_DICTIONARY:
 			var data: Dictionary = parsed
 			return bool(data.get("tutorial_completed", false))
-
 	return false
 
 
