@@ -18,6 +18,7 @@ const DEATH_SCENE := "res://scenes/UI/death-screen.tscn"
 const DEATH_SCENE_PACKED := preload("res://scenes/UI/death-screen.tscn")
 const SEWER_TILESET := "res://scenes/rooms/Rooms/roomtiles_2world.tres"
 const TUTORIAL_ROOM := "res://scenes/rooms/Tutorial Rooms/tutorial_room.tscn"
+const FINAL_BOSS_ROOM := "res://scenes/rooms/Final Boss Room/final_boss_room.tscn"
 const UI_MODAL_CONTROLLER := preload("res://scripts/UI/ui_modal_controller.gd")
 @export var menu_scene := preload("res://scenes/UI/popup-menu.tscn")
 @export var fog_tile_id: int = 0  # set this in the inspector to the fog-tile id in your tileset
@@ -291,6 +292,11 @@ func _load_world(idx: int) -> void:
 
 	_clear_world()
 
+	# Welt 4 (index 3): Final-Boss-Room als eigene Ebene laden
+	if idx == generators.size():
+		await _load_final_boss_world()
+		return
+
 	if idx < 0 or idx >= generators.size():
 		push_error("No more worlds left!")
 		_hide_loading()
@@ -405,6 +411,97 @@ func _load_world(idx: int) -> void:
 	# -------------------------------------------------
 	# Fertig
 	# -------------------------------------------------
+	_hide_loading()
+	_set_tree_paused(false)
+
+
+func _load_final_boss_world() -> void:
+	# Reset boss flag when loading a world so previous boss state doesn't leak
+	boss_win = false
+
+	world_root = Node2D.new()
+	world_root.name = "WorldRoot"
+	add_child(world_root)
+
+	# Wie beim Tutorial: Scene-Inhalt extrahieren (TileMapLayer, Area2D, PhysicsBody2D)
+	var final_boss_packed := preload(FINAL_BOSS_ROOM)
+	var final_boss_inst := final_boss_packed.instantiate()
+	var final_boss_scene := final_boss_inst as Node2D
+
+	if final_boss_scene == null:
+		push_error("Failed to load final boss room scene!")
+		_hide_loading()
+		_set_tree_paused(false)
+		return
+
+	var tilemaps = final_boss_scene.find_children("*", "TileMapLayer")
+	if tilemaps.is_empty():
+		push_error("Final boss room has no TileMapLayer!")
+		_hide_loading()
+		_set_tree_paused(false)
+		return
+
+	dungeon_floor = tilemaps[0] as TileMapLayer
+
+	if tilemaps.size() > 1:
+		for tm in tilemaps:
+			if tm.name.to_lower().contains("tile"):
+				dungeon_floor = tm as TileMapLayer
+			elif tm.name.to_lower().contains("top"):
+				dungeon_top = tm as TileMapLayer
+
+		if dungeon_top == null:
+			dungeon_top = tilemaps[1] as TileMapLayer
+	else:
+		dungeon_top = dungeon_floor
+
+	for tm in tilemaps:
+		if tm.get_parent() != null:
+			tm.get_parent().remove_child(tm)
+		world_root.add_child(tm)
+		tm.position = Vector2.ZERO
+
+	# Area2D wie im Tutorial in die WorldRoot übernehmen
+	var area2ds = final_boss_scene.find_children("*", "Area2D")
+	for area in area2ds:
+		if area.get_parent() != null:
+			area.get_parent().remove_child(area)
+		world_root.add_child(area)
+		area.position = Vector2.ZERO
+
+	var physics_bodies = final_boss_scene.find_children("*", "PhysicsBody2D")
+	for body in physics_bodies:
+		if body.get_parent() != null:
+			body.get_parent().remove_child(body)
+		world_root.add_child(body)
+		body.position = Vector2.ZERO
+
+	final_boss_scene.queue_free()
+	minimap = null
+
+	if fog_war_layer != null and dungeon_floor != null:
+		if fog_war_layer.get_parent() != world_root:
+			var old_parent := fog_war_layer.get_parent()
+			if old_parent != null:
+				old_parent.remove_child(fog_war_layer)
+			world_root.add_child(fog_war_layer)
+			fog_war_layer.position = dungeon_floor.position
+
+		var base_z := 0
+		if dungeon_top != null:
+			base_z = dungeon_top.z_index
+		elif dungeon_floor != null:
+			base_z = dungeon_floor.z_index
+		fog_war_layer.z_index = base_z + 10
+		await init_fog_layer()
+
+	dungeon_floor.visibility_layer = 1
+
+	# Final-Boss-Welt: kein Merchant, keine Fallen, keine Lootboxen
+	spawn_player()
+	spawn_enemies(false)
+	spawn_enemies(true)
+
 	_hide_loading()
 	_set_tree_paused(false)
 
@@ -692,7 +789,7 @@ func _on_player_exit_reached() -> void:
 	for e in get_tree().get_nodes_in_group("enemy"):
 		if e != null and is_instance_valid(e):
 			# enemies spawned by spawn_enemy have a `boss` property
-			if bool(e.boss) and e.hp > 0:
+			if bool(e.boss) and e.hp > 0 and not boss_win:
 				push_warning("You must defeat the boss before advancing!")
 				return
 
@@ -779,6 +876,10 @@ func spawn_enemies(do_boss: bool) -> void:
 
 	if world_index < max_weights.size():
 		max_weight = max_weights[world_index]
+
+	# Final-Boss-Welt (Welt 4/index 3) nutzt fixes Spawnweight 2
+	if _is_final_boss_world():
+		max_weight = 2
 
 	# Tutorial override: immer 3
 	#if world_index == -1:
@@ -968,8 +1069,12 @@ func spawn_player() -> void:
 	# Spawn Position
 	var start_pos := Vector2i(2, 2)
 
+	# Final-Boss-Welt: Spawnpunkt fix auf (1, 0)
+	if _is_final_boss_world():
+		start_pos = Vector2i(1, 0)
+
 	# Tutorial world: spawn at different position
-	if minimap == null:
+	elif minimap == null:
 		start_pos = Vector2i(-18, 15)
 
 	# erst tilemap, dann gridpos, dann position
@@ -994,6 +1099,10 @@ func spawn_player() -> void:
 		# ensure reveal runs after any reparenting/initialization in this frame
 		player.call_deferred("_reveal_on_spawn")
 		emit_signal("player_spawned", player)
+
+
+func _is_final_boss_world() -> bool:
+	return world_index == generators.size()
 
 
 func _on_player_moved() -> void:
