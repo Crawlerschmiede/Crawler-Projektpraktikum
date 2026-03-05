@@ -720,7 +720,8 @@ var existing_skills = {
 		"tier": 5,
 		"description":
 		"Elemental power flows through you, and, with a mighty hurl, it can flow all over your opponent too",
-		"effects": [["damage", 1, false, "fire"], ["damage", 1, false, "earth"], ["damage", 1, false, "ice"], ["damage", 1, false, "electric"], ["poison", 2, false, "No"]]
+		"effects": [["damage", 1, false, "fire"], ["damage", 1, false, "earth"], ["damage", 1, false, "ice"], ["damage", 1, false, "electric"], ["poison", 2, false, "No"], ["stun", 2, false, "No"]],
+		"cooldown": 8,
 	},
 		
 	#standard actions
