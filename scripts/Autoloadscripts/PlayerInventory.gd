@@ -132,7 +132,11 @@ func add_item(item_name: String, item_quantity: int = 1) -> void:
 	if item_quantity <= 0:
 		return
 
+	print("[PlayerInventory] add_item called:", item_name, item_quantity)
+	if JsonData == null or not ("item_data" in JsonData):
+		print("[PlayerInventory] WARNING: JsonData.item_data missing at add_item")
 	var stack_size: int = _get_stack_size(item_name)
+	print("[PlayerInventory] resolved stack_size=", stack_size)
 	item_picked_up.emit(item_name, item_quantity)
 
 	# 1) vorhandene Stacks auffüllen
@@ -191,6 +195,19 @@ func add_item(item_name: String, item_quantity: int = 1) -> void:
 
 		if item_quantity <= 0:
 			return
+
+	# wenn wir hier sind: kein passender Slot gefunden -> versuche irgendeinen freien Slot
+	for i in range(NUM_INVENTORY_SLOTS):
+		if i == 17:
+			continue
+		if not inventory.has(i):
+			print("[PlayerInventory] placing into fallback free slot:", i, item_name)
+			var put_now: int = min(stack_size, item_quantity)
+			inventory[i] = [item_name, put_now]
+			item_quantity -= put_now
+			_emit_changed()
+			if item_quantity <= 0:
+				return
 
 	# wenn wir hier sind: kein Platz
 	_emit_changed()
