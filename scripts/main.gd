@@ -392,7 +392,64 @@ func spawn_enemy(
 
 
 func spawn_player() -> void:
-	if spawn_coordinator == null:
+	# alte Player entfernen
+	for n in get_tree().get_nodes_in_group("player"):
+		if n != null and is_instance_valid(n):
+			n.queue_free()
+
+	var e: PlayerCharacter = PLAYER_SCENE.instantiate()
+	e.name = "Player"
+	# Floor setzen (einmal!)
+	e.setup(dungeon_floor, dungeon_top, 10, 3, 0, {})
+	e.fog_layer = fog_war_layer
+	# pass dynamic flag and fog tile id to player for re-fogging
+	if e.has_method("set"):
+		e.set("dynamic_fog", fog_dynamic)
+		e.set("fog_tile_id", fog_tile_id)
+	# in WorldRoot hängen
+	world_root.add_child(e)
+	player = e
+
+	# Ensure player is drawn above fog layer so player is visible
+	if fog_war_layer != null:
+		player.z_index = fog_war_layer.z_index + 10000000
+
+	# minimap rein
+	player.set_minimap(minimap)
+
+	# Spawn Position
+	var start_pos := Vector2i(2, 2)
+
+	# Tutorial world: spawn at different position
+	if minimap == null:
+		start_pos = Vector2i(-18, 15)
+
+	# erst tilemap, dann gridpos, dann position
+	player.grid_pos = start_pos
+	player.global_position = dungeon_floor.to_global(dungeon_floor.map_to_local(start_pos))
+	player.add_to_group("player")
+
+	# Signale verbinden
+	if player.has_signal("exit_reached"):
+		if not player.exit_reached.is_connected(_on_player_exit_reached):
+			player.exit_reached.connect(_on_player_exit_reached)
+	else:
+		push_warning("player has no exit_reached signal")
+
+	if player.has_signal("player_moved"):
+		if not player.player_moved.is_connected(_on_player_moved):
+			player.player_moved.connect(_on_player_moved)
+
+	# WICHTIG: einmal initial Fog aufdecken
+	if player.has_method("update_visibility"):
+		player.update_visibility()
+		# ensure reveal runs after any reparenting/initialization in this frame
+		player.call_deferred("_reveal_on_spawn")
+		emit_signal("player_spawned", player)
+
+
+func _on_player_moved() -> void:
+	if minimap == null or dungeon_floor == null or player == null:
 		return
 	player = spawn_coordinator.spawn_player(
 		PLAYER_SCENE,
