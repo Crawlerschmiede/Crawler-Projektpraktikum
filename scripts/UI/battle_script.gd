@@ -40,12 +40,7 @@ const MARKER_FLAVOURS = {
 		"info": "Standing here will heal you for <PUTVALUEHERE>!",
 		"log": ["Seems like you can grab some healing here"]
 	},
-	"good_range":
-	{	
-		"visual": "good_range",
-		"info": "This is the preferred range for you",
-		"log":[]
-	}
+	"good_range": {"visual": "good_range", "info": "This is the preferred range for you", "log": []}
 }
 @export var player: Node
 @export var enemy: Node
@@ -388,7 +383,8 @@ func get_held_direction() -> String:
 func is_player_in_range(y_from_to) -> bool:
 	var min_y = get_min_y()
 	return player_gridpos.y >= min_y + y_from_to[0] and player_gridpos.y <= min_y + y_from_to[1]
-	
+
+
 func add_range_indicators():
 	var range = player.get_used_range()
 	match range:
@@ -398,19 +394,19 @@ func add_range_indicators():
 			range = player.ranges[1]
 		"long":
 			range = player.ranges[2]
-	var valid_ys =[]
+	var valid_ys = []
 	print("Valid Range is: ", range)
-	if range[0]==range[1]:
+	if range[0] == range[1]:
 		valid_ys.append(int(range[0]))
 	else:
 		valid_ys.append(int(range[0]))
 		valid_ys.append(int(range[1]))
-	
+
 	var valid_cells = []
 	for tile in used_cells:
 		var min_y = get_min_y()
 		print("Is cell ", tile, " valid in ranges ", range, "?")
-		if tile.y-min_y in valid_ys:
+		if tile.y - min_y in valid_ys:
 			valid_cells.append(tile)
 	print("The valid cells are ", valid_cells)
 	for cell in valid_cells:
