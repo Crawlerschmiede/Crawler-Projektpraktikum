@@ -74,15 +74,15 @@ var resistances: Dictionary = {"physical": 0, "fire": 0, "electric": 0, "earth":
 
 #--- status effects (not sure if this is the best way... it'll be fine!) ---
 #--- update it won't be, this is [not very good] and I'll fix it... someday
-var status_recovery = 1
+var status_recovery:float = 1.0
 
-var stunned = 0
+var stunned = 0.0
 
-var poisoned = 0
+var poisoned = 0.0
 
-var frozen = 0
+var frozen = 0.0
 
-var burned = 0
+var burned = 0.0
 
 #--- buffs/debuffs... status effects someday
 #should be in the format "<Source_Name>:{"<type>":<value>}"
@@ -590,6 +590,10 @@ func increase_stun(amount):
 func increase_freeze(amount):
 	frozen += amount
 	return ["Freeze increases to " + str(frozen) + "!"]
+	
+func increase_burn(amount):
+	burned += amount
+	return ["Burn increases to " + str(frozen) + "!"]
 
 
 func full_status_heal():
@@ -621,6 +625,11 @@ func deal_with_status_effects(battle, phase) -> Array:
 		if frozen < 0:
 			frozen = 0
 		things_that_happened.append("Target was frozen and can't move!")
+	if burned>0 and phase ==2:
+		var message = take_damage((self.max_hp * 0.01) * burned, "ignoredef|undodgeable")
+		burned +=3
+		print("Burn went to ", burned)
+		things_that_happened.append("Target" + message[0] + " from Fire! Target" + message[1] + "Target's burn increased to "+str(burned)+"!")
 	return [gets_a_turn, things_that_happened]
 
 

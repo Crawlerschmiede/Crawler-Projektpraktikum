@@ -234,7 +234,7 @@ var existing_skills = {
 		"description": "Green flames engulf the room",
 		"effects":
 		[
-			["Burn", 2, false, "No"],
+			["burn", 2, false, "No"],
 			["damage_zone", 2, false, "y=0"],
 			["damage_zone", 2, false, "y=2"],
 			["damage_zone", 2, false, "y=4"],
@@ -753,6 +753,17 @@ var existing_skills = {
 		"tree": "standard",
 		"description": "Do you really need an explanation of what walking right is?",
 		"effects": [["movement", 1, true, "R"]],
+	},
+	"Extinguish":
+	{
+		"tree": "basic",
+		"tier":1,
+		"description": "This is fine",
+		"effects": [["extinguish", 1, true, "conditional--0.5||1"]],
+		"conditions": ["burning"],
+		#the switch condition doesn't fucking work if used on a second skill
+		#speed over perfection people!
+		"switch_condition": ["skill_happened_consecutive-Extinguish-1"]
 	},
 	#weapon skills (first plan)
 	"Shank":

@@ -9,7 +9,7 @@ var burrowed = false
 var chased_pos: Vector2i
 var chased_direction: Vector2i
 var boss: bool = false
-var chosen: Skill
+var chosen: Skill = null
 var sprite_type: String = "bat"
 var behaviour = "idle"
 var chase_target: PlayerCharacter
@@ -264,6 +264,12 @@ func check_sight() -> bool:
 
 
 func decide_attack() -> void:
+	var a = chosen
+	if chosen!=null:
+		a=chosen.name
+	print("Enemy's freeze is currently ", frozen, " and chosen is ", a)
+	if frozen>0 and chosen!=null:
+		return
 	var activateable_abilities = []
 	var valid_pick = false
 	var chosen_index = 0
