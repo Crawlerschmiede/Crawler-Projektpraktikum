@@ -452,12 +452,10 @@ class Effect:
 					if user.alterations[alteration].has("cannot_move"):
 						can_move = false
 
-				if user.is_player:
-					if user.frozen > 0:
-						can_move = false
-				else:
-					if target.frozen > 0:
-						can_move = false
+				
+				if user.frozen > 0:
+					can_move = false
+					print(user.name+" cannot move right now!")
 				if user.stunned > 0 and GlobalRNG.randi_range(0, 100) < 50:
 					considered_details = "rnd_dir"
 				if (

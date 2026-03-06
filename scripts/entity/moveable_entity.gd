@@ -79,7 +79,7 @@ var status_recovery:float = 1.0
 var stunned = 0.0
 
 var poisoned = 0.0
-
+var pre_freeze = 0
 var frozen = 0.0
 
 var burned = 0.0
@@ -588,6 +588,9 @@ func increase_stun(amount):
 
 
 func increase_freeze(amount):
+	if is_player:
+		pre_freeze=1
+		return["You will be frozen next turn!"]
 	frozen += amount
 	return ["Freeze increases to " + str(frozen) + "!"]
 	
@@ -600,6 +603,8 @@ func full_status_heal():
 	stunned = 0
 	poisoned = 0
 	frozen = 0
+	pre_freeze=0
+	burned=0
 	self.status_recovery = 1
 
 
@@ -619,6 +624,11 @@ func deal_with_status_effects(battle, phase) -> Array:
 		if poisoned < 0:
 			poisoned = 0
 		things_that_happened.append("Target" + message[0] + " from poison! Target" + message[1])
+	if pre_freeze > 0 and phase == 2:
+		pre_freeze=0
+		frozen =4
+		print("Player pre-freeze turns into freeze!")
+		things_that_happened.append("Target was frozen and can't move!")
 	if frozen > 0 and phase == 2:
 		print("Freeze is currently ", frozen)
 		frozen -= status_recovery
