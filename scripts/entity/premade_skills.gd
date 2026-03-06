@@ -310,22 +310,6 @@ var existing_skills = {
 		"effects": [["heal", 99, true, "No"], ["safety_dmg_reduc", 0, true, "player_pos"]],
 		"tier": 1,
 	},
-	"Right Pivot":
-	{
-		"tree": "basic",
-		"tier": 2,
-		"description": "It's a punch BUT you also take a step to the right, how novel!",
-		"effects": [["damage", 1, false, "No"], ["movement", 1, true, "R"]],
-		"cooldown": 2
-	},
-	"Left Pivot":
-	{
-		"tree": "basic",
-		"tier": 2,
-		"description": "It's a punch BUT you also take a step to the left, how exciting!",
-		"effects": [["damage", 1, false, "No"], ["movement", 1, true, "L"]],
-		"cooldown": 2
-	},
 	"Full Power Punch":
 	{
 		"tree": "basic",
@@ -381,7 +365,7 @@ var existing_skills = {
 		"description":
 		# gdlint:ignore = max-line-length
 		"If you can imagine how scary someone running at you with a knife is, imagine how much scarier it'd be if they teleported!",
-		"effects": [["movement", 1, true, "rnd_short"], ["damage", 1, false, "No"]],
+		"effects": [["movement", 1, true, "rnd|short"], ["damage", 1, false, "No"]],
 		"cooldown": 3
 	},
 	#medium ranged weaponry
@@ -409,7 +393,7 @@ var existing_skills = {
 		"tree": "Medium-Ranged-Weaponry",
 		"tier": 3,
 		"description": "Dodging only matters if your opponent has limbs to hit you with",
-		"effects": [["damage", 3, false, "No"], ["freeze", 1, true, "No"]],
+		"effects": [["damage", 5, false, "No"], ["freeze", 1, true, "No"]],
 		"cooldown": 5
 	},
 	"Plant your Spear":
@@ -508,7 +492,7 @@ var existing_skills = {
 		"description":
 		# gdlint:ignore = max-line-length
 		"God, it pains me to think about just how annoying it must be to try and hit you...",
-		"effects": [["movement", 1, true, "conditional--rnd_long||rnd_short"]],
+		"effects": [["movement", 1, true, "conditional--rnd|long||rnd|short"]],
 		"cooldown": 3,
 		"switch_condition": ["outside_short_range"]
 	},
@@ -529,6 +513,221 @@ var existing_skills = {
 		"They do say punching your opponent square in the face is an elementary technique",
 		"effects": [["elementize", "rand", true, "No"]],
 		"passive": true
+	},
+	"Right Pivot":
+	{
+		"tree": "Rogue",
+		"tier": 1,
+		"description": "It's a punch BUT you also take a step to the right, how novel!",
+		"effects": [["damage", 1, false, "No"], ["movement", 1, true, "R"]],
+		"cooldown": 2
+	},
+	"Left Pivot":
+	{
+		"tree": "Rogue",
+		"tier": 1,
+		"description": "It's a punch BUT you also take a step to the left, how exciting!",
+		"effects": [["damage", 1, false, "No"], ["movement", 1, true, "L"]],
+		"cooldown": 2
+	},
+	"Assassination":
+	{
+		"tree": "Rogue",
+		"tier": 2,
+		"description":
+		"It's surprising just how much easier it is to stab people when they don't see it coming",
+		"effects": [["damage_buff", 2, true, "No"]],
+		"passive": true,
+		"conditions": ["lost_after||effect_happened-damage-1"]
+	},
+	#this one happens twice for some omnissiahforsaken reason, it's fine, just halve the damage, I don't know man
+	"Run 'n Gun":
+	{
+		"tree": "Rogue",
+		"tier": 3,
+		"description":
+		"It's surprising just how much easier it is to stab people when they don't see it coming",
+		"effects": [["damage", 1, false, "No"]],
+		"passive": true,
+		"conditions": ["effect_happened_every-movement-2"]
+	},
+	"Reckless Abandon":
+	{
+		"tree": "Rogue",
+		"tier": 4,
+		"description":
+		"Some say you're 'sqishy' and 'a glass cannon', well, not after you kill them they don't!",
+		"effects": [["damage_buff", 1.5, true, "No"], ["damage_buff", 1.5, false, "No"]],
+		"passive": true
+	},
+	"Reckless Acrobatics":
+	{
+		"tree": "Rogue",
+		"tier": 5,
+		"description":
+		"Turns out, taking a second step after the first one: not as difficult as you may think!",
+		"effects":
+		[
+			["damage", 1, false, "No"],
+			["movement", 1, true, "input"],
+			["movement", 1, true, "input"]
+		],
+	},
+	#warrior skilltree
+	"Shields Up":
+	{
+		"tree": "Warrior",
+		"tier": 1,
+		"description": "You have a MASSIVE shield, now, if only it wasn't so damn heavy...",
+		"effects": [["safety_dmg_reduc", 0, false, "area||rand||rand||2"]],
+		"passive": true,
+		"conditions": ["every_x_turns=5"]
+	},
+	"Buckler Bash":
+	{
+		"tree": "Warrior",
+		"tier": 2,
+		"description":
+		"Remember that shield we talked about? Well, turns out it's actually really heavy, which makes it very painful to get hit with it",
+		"effects": [["damage", 1, false, "conditional--No||dmg_boost=3"]],
+		"cooldown": 3,
+		"switch_condition": ["on_tile=dmg_reduc_good"]
+	},
+	"Immovable Object":
+	{
+		"tree": "Warrior",
+		"tier": 3,
+		"description":
+		"Ok, good news, apparently the sheer weight of your shield is also messing up your opponents!",
+		"effects": [["cannot_move", 0, false, "No"]],
+		"passive": true
+	},
+	"Super Heavy Armour":
+	{
+		"tree": "Warrior",
+		"tier": 4,
+		"description":
+		"Listen, listen! Ok, so, armour, right? It's kinda just lika a wearable shield! Just uhh... mind the gaps...",
+		"effects": [["add_zone_duration", 1, true, "No"], ["damage_buff", 1.5, false, "No"]],
+		"passive": true
+	},
+	"Sprint to cover":
+	{
+		"tree": "Warrior",
+		"tier": 5,
+		"description":
+		"Listen, listen! Ok, so, armour, right? It's kinda just lika a wearable shield! Just uhh... mind the gaps...",
+		"effects": [["movement", 1, true, "rnd|dmg_reduc_good"]],
+		"cooldown": 5,
+	},
+	#cleric skilltree
+	"Nature's Blessing":
+	{
+		"tree": "Cleric",
+		"tier": 1,
+		"description": "Divine and/or natural energies flow through you, soothing your wounds",
+		"effects": [["heal", 1, true, "No"]],
+		"passive": true,
+		"conditions": ["every_x_turns=2"]
+	},
+	"Combat Medic":
+	{
+		"tree": "Cleric",
+		"tier": 2,
+		"description":
+		"The mild soothe is no longer enough to keep some of these wounds at bay, but worry not, with a bit of effort, you too can push away the pain!",
+		"effects": [["heal", 3, true, "No"]],
+		"cooldown": 5,
+	},
+	"Confuse thy enemy":
+	{
+		"tree": "Cleric",
+		"tier": 3,
+		"description":
+		"Since medicine has kind of become your thing, you felt like it was time your enemies got a taste of theirs",
+		"effects": [["confuse", 3, false, "duration=2"]],
+		"cooldown": 5,
+	},
+	"Leech Life":
+	{
+		"tree": "Cleric",
+		"tier": 4,
+		"description":
+		"The soothing feeling is not enough, even the air feels painful now, but you've figured out a way to push the pain not just away, but unto others!",
+		"effects":
+		[["leeching", 4, true, "No"], ["damage", 2, true, "ignoredef||undodgeable||plain"]],
+		"passive": true,
+	},
+	"Nature says NO!!!":
+	{
+		"tree": "Cleric",
+		"tier": 5,
+		"description":
+		"You have mastered pain, the sting of brambles and the sear of divine light is plenty to... dissuade your opponent from any inopportune acts",
+		"effects": [["deter", 1, false, "No"]],
+		"cooldown": 5,
+	},
+	#mage skilltree
+	"Adaptable":
+	{
+		"tree": "Mage",
+		"tier": 1,
+		"description": "Elemental power flows through your veins",
+		"effects": [["element_buff", 1.25, true, "all"]],
+		"passive": true
+	},
+	#yes, as it stands this skill is literally just gambling
+	#don't tell me that's not peak
+	#(can also copy enemy skills, which is cool but might also crash things(maybe)
+	#(I'll keep it as is for now, but it's an easy fix if it causes trouble)
+	"Your powers are mine!":
+	{
+		"tree": "Mage",
+		"tier": 2,
+		"description": "*Tips up glasses* Fool, I have already studied all possible moves!",
+		"effects": [["random", 1, true, "any"]],
+		"cooldown": 2,
+	},
+	"Mastery of time":
+	{
+		"tree": "Mage",
+		"tier": 3,
+		"description":
+		"Damage over time, huh? But have we ever considered damage UNDER time? Didn't think so",
+		"effects": [["alter_recovery", 0.5, false, "No"]],
+		"passive": true,
+		"conditions": ["lost_after||effect_happened-alter_recovery-1"]
+	},
+	"Elemental insights":
+	{
+		"tree": "Mage",
+		"tier": 4,
+		"description":
+		"You can perceive the metaphysical weaknesses of your opponents, however, merely by perceiving them, their strengths greaten",
+		"effects":
+		[
+			["set_resistance", -1, false, "random|elemental"],
+			["set_resistance", 0.5, false, "random|elemental"]
+		],
+		"passive": true,
+		"conditions": ["lost_after||effect_happened-alter_recovery-1"]
+	},
+	"Wretched Deluge":
+	{
+		"tree": "Mage",
+		"tier": 5,
+		"description":
+		"Elemental power flows through you, and, with a mighty hurl, it can flow all over your opponent too",
+		"effects":
+		[
+			["damage", 1, false, "fire"],
+			["damage", 1, false, "earth"],
+			["damage", 1, false, "ice"],
+			["damage", 1, false, "electric"],
+			["poison", 2, false, "No"],
+			["stun", 2, false, "No"]
+		],
+		"cooldown": 8,
 	},
 	#standard actions
 	"Move Up":
@@ -635,6 +834,20 @@ func get_skills_by_tree(tree_name: String):
 		else:
 			continue
 	return skills_in_tree
+
+
+func get_skills_by_condition(conditions: Dictionary):
+	var applicable_skills = []
+	for skill in existing_skills:
+		var tested = existing_skills[skill]
+		for condition in conditions:
+			var val = tested.get(condition, null)
+			if val != null:
+				if val == conditions[condition]:
+					applicable_skills.append(skill)
+			else:
+				applicable_skills.append(skill)
+	return applicable_skills
 
 
 func get_tree_explanation(tree_name):

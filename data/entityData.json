@@ -152,7 +152,7 @@
 		},
 		"weight": 4,
 		"stats": {
-			"hp": 4,
+			"hp": 10,
 			"str": 2,
 			"def": 0,
 			"phyres": 0,

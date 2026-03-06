@@ -61,6 +61,9 @@ var over = false
 var enemy_action_log = []
 var player_action_log = []
 
+var enemy_effect_log = []
+var player_effect_log = []
+
 var enemy_is_boss = false
 @onready var hit_anim_enemy: AnimatedSprite2D = $Battle_root/PlayerPosition/enemy_attack_anim
 @onready var hit_anim_player: AnimatedSprite2D = $Battle_root/EnemyPosition/player_attack_anim
@@ -99,12 +102,15 @@ func _ready():
 		enemy_hp_bar.value = (enemy.hp * 100.0) / enemy.max_hp
 	if player != null and is_instance_valid(player):
 		player_hp_bar.value = (player.hp * 100.0) / player.max_hp
-	# We're doing this twice in case we extend a range and then end up in it
-	# because of that or something similar.
-	for i in range(2):
-		update_passives()
+	player.reset_skills()
+	print("At the start, player has these: ", player.alterations)
 	enemy.decide_attack()
 	enemy_prepare_turn()
+
+
+func dissuade_enemy():
+	enemy.decide_attack()
+	enemy_prepare_turn(true)
 
 
 func create_battle_sprite(from_actor: CharacterBody2D) -> AnimatedSprite2D:
@@ -126,22 +132,25 @@ func create_battle_sprite(from_actor: CharacterBody2D) -> AnimatedSprite2D:
 	return battle_sprite
 
 
-func enemy_prepare_turn():
+func enemy_prepare_turn(mid_turn = false):
 	# TODO: very low tech; clears everything (ok for 1-turn effects).
 	# Anything longer-term will need something more robust.
-	tile_modifiers.clear()
-	for active_marker in active_markers:
-		active_marker.queue_free()
-	active_markers.clear()
+	print("Tile modifiers right now are: ", tile_modifiers)
+	for tile_modifier in tile_modifiers.keys():
+		tile_modifiers[tile_modifier]["duration"] -= 1
+		if tile_modifiers[tile_modifier]["duration"] <= 0:
+			tile_modifiers.erase(tile_modifier)
+	update_marker_visuals()
 	log_container.add_log_event("The enemy prepares its Skill " + enemy.chosen.name + "!")
 	#print(enemy, " prepares its Skill ", enemy.chosen.name, "!")
 	var preps = enemy.chosen.prep_skill(enemy, player, self)
-	update_passives(0, true)
+	if not mid_turn:
+		update_passives(true)
+		player.refill_actions()
+		enemy.refill_actions()
+		update_passives()
 	for prep in preps:
 		log_container.add_log_event(prep)
-	player.refill_actions()
-	enemy.refill_actions()
-	update_passives()
 
 
 func enemy_turn():
@@ -162,7 +171,7 @@ func enemy_turn():
 		update_health_bars()
 		if extra_stuff[0]:
 			#print(enemy, " activates its Skill ", enemy.chosen.name, "!")
-			happened = enemy.chosen.activate_skill(enemy, player, self)
+			happened = await enemy.chosen.activate_skill(enemy, player, self)
 			enemy_action_log.append(enemy.chosen.name)
 			print(enemy_action_log)
 			if hit_anim_enemy != null:
@@ -185,7 +194,7 @@ func enemy_turn():
 			log_container.add_log_event(happening)
 		if not len(next_turn) == 0:
 			for ability in next_turn:
-				ability.activate_followup()
+				await ability.activate_followup()
 		next_turn = []
 		if extra_stuff[0]:
 			player_turn()
@@ -223,23 +232,21 @@ func force_stop() -> void:
 		hit_anim_player.visible = false
 
 
-func update_passives(depth = 0, prep = false):
-	trigger_passives(player.abilities, player, enemy, self, depth, prep)
-	#trigger_passives(player.items, player, enemy, self)	#will items have passives?
-	trigger_passives(enemy.abilities, enemy, player, self, depth, prep)
+func update_passives(prep = false):
+	trigger_passives(player.abilities, player, enemy, self, prep)
+	trigger_passives(enemy.abilities, enemy, player, self, prep)
 
 
-func trigger_passives(abilities, user, target, battle, depth, prep):
-	print("Triggering passives at depth ", depth)
+func trigger_passives(abilities, user, target, battle, prep):
 	for ability in abilities:
 		if ability.is_passive:
 			if ability.is_activateable(user, target, self):
 				print("Activated the passive effect ", ability.name)
+				print_stack()
 				if prep:
-					ability.prep_skill(user, target, battle)
+					await ability.prep_skill(user, target, battle)
 				else:
-					ability.activate_skill(user, target, battle, depth)
-				print("Active passive effects: ", user.get_alterations())
+					await ability.activate_skill(user, target, battle)
 			else:
 				ability.deactivate(user)
 
@@ -279,6 +286,7 @@ func move_player(direction: String, distance: int):
 	var dir = ""
 	var basics = ["u", "d", "l", "r"]
 	var new_cell := player_gridpos
+	print("Moving the player in direction: ", direction)
 	if player_sprite == null:
 		return "One cannot move what doesn't exist. Remember this."
 	if direction in basics:
@@ -302,7 +310,8 @@ func move_player(direction: String, distance: int):
 		new_cell = player_gridpos + delta
 	elif "rnd" in direction:
 		var ranges = ["short", "medium", "long"]
-		var parts = direction.split("_")
+		var move_markers = ["dmg_reduc_good"]
+		var parts = direction.split("|")
 		var area = parts[1]
 		var from_to = []
 		var min_y = get_min_y()
@@ -321,7 +330,32 @@ func move_player(direction: String, distance: int):
 			new_cell = possible_tiles[rng.randi_range(0, len(possible_tiles) - 1)]
 		elif area == "dir":
 			var new_dir = basics[rng.randi_range(0, len(basics) - 1)]
-			return move_player(new_dir, distance)
+			return await move_player(new_dir, distance)
+		elif area in move_markers:
+			for tile in used_cells:
+				var modifier_on_tile = tile_modifiers.get(tile, null)
+				if modifier_on_tile != null:
+					var has_modifier = area in modifier_on_tile.keys()
+					if has_modifier:
+						possible_tiles.append(tile)
+			if possible_tiles.size() > 0:
+				new_cell = possible_tiles[rng.randi_range(0, len(possible_tiles) - 1)]
+			else:
+				return ["But there was no cover..."]
+	elif "input" in direction:
+		if log_container != null:
+			log_container.tooltips = ["Info", "Press an arrow to move"]
+			log_container.state = "tooltip"
+			log_container.changed = true
+		var new_dir := "no"
+		while new_dir == "no":
+			print("still waiting...")
+			await get_tree().process_frame
+			new_dir = get_held_direction()
+		if log_container != null:
+			log_container.state = "log"
+			log_container.changed = true
+		return await move_player(new_dir, distance)
 
 	if !cell_exists(new_cell):
 		return "Attempting to move " + dir + ", the player only pushed against the wall"
@@ -329,6 +363,19 @@ func move_player(direction: String, distance: int):
 	player_sprite.position = combat_tilemap.map_to_local(player_gridpos)
 	check_curr_tile_mods()
 	return "Player moved " + dir
+
+
+func get_held_direction() -> String:
+	var direction = "no"
+	if Input.is_action_pressed("move_right"):
+		direction = "r"
+	elif Input.is_action_pressed("move_left"):
+		direction = "l"
+	elif Input.is_action_pressed("move_up"):
+		direction = "u"
+	elif Input.is_action_pressed("move_down"):
+		direction = "d"
+	return direction
 
 
 func is_player_in_range(y_from_to) -> bool:
@@ -359,8 +406,12 @@ func get_player_range_dmg_mult():
 	return dmg_mult
 
 
+func get_player_pos_modifiers():
+	return tile_modifiers.get(player_gridpos, {})
+
+
 func check_curr_tile_mods():
-	var active_placement_effects = tile_modifiers.get(player_gridpos, {})
+	var active_placement_effects = get_player_pos_modifiers()
 	for modifier_name in active_placement_effects:
 		var modifier_value = active_placement_effects[modifier_name]
 
@@ -372,7 +423,7 @@ func check_curr_tile_mods():
 			"damage_bad":
 				player.take_damage(modifier_value)
 			"damage_good":
-				enemy.hp.take_damage(modifier_value)
+				enemy.take_damage(modifier_value)
 			"heal_good":
 				player.heal(modifier_value)
 			"heal_bad":
@@ -396,7 +447,7 @@ func get_min_y():
 	return min_y
 
 
-func apply_zones(zone_type, mult, pos, _dur, direction):
+func apply_zones(zone_type, mult, pos, dur, direction):
 	print("Applying ", zone_type, " zones at ", pos)
 	# NOTE: duration currently unused (effects are 1-turn only).
 	var mult_type = zone_type + direction
@@ -405,15 +456,21 @@ func apply_zones(zone_type, mult, pos, _dur, direction):
 	if pos == "player_x":
 		for tile in used_cells:
 			if tile.x == player_gridpos.x:
-				tile_modifiers[tile] = {mult_type: mult}
+				tile_modifiers[tile] = {
+					mult_type: mult, "duration": dur, "type": zone_type, "mult": mult
+				}
 	elif pos == "player_y":
 		for tile in used_cells:
 			if tile.y == player_gridpos.y:
-				tile_modifiers[tile] = {mult_type: mult}
+				tile_modifiers[tile] = {
+					mult_type: mult, "duration": dur, "type": zone_type, "mult": mult
+				}
 	elif pos == "player_pos":
 		for tile in used_cells:
 			if tile == player_gridpos:
-				tile_modifiers[tile] = {mult_type: mult}
+				tile_modifiers[tile] = {
+					mult_type: mult, "duration": dur, "type": zone_type, "mult": mult
+				}
 	elif pos == "surrounding":
 		for tile in used_cells:
 			if tile == player_gridpos:
@@ -430,7 +487,9 @@ func apply_zones(zone_type, mult, pos, _dur, direction):
 					or tile.y == player_gridpos.y + 1
 				)
 			):
-				tile_modifiers[tile] = {mult_type: mult}
+				tile_modifiers[tile] = {
+					mult_type: mult, "duration": dur, "type": zone_type, "mult": mult
+				}
 	elif "area" in pos:  #expecting a string like "area||<x>||<y>||<size>"
 		var min_x = get_min_x()
 		var min_y = get_min_y()
@@ -464,42 +523,53 @@ func apply_zones(zone_type, mult, pos, _dur, direction):
 						or tile.y == center_point.y + i
 					)
 				):
-					tile_modifiers[tile] = {mult_type: mult}
+					tile_modifiers[tile] = {
+						mult_type: mult, "duration": dur, "type": zone_type, "mult": mult
+					}
 	elif "x" in pos:
 		var parts = pos.split("=")
 		var min_x = get_min_x()
 		for tile in used_cells:
 			if tile.x == min_x + int(parts[1]):
-				tile_modifiers[tile] = {mult_type: mult}
+				tile_modifiers[tile] = {
+					mult_type: mult, "duration": dur, "type": zone_type, "mult": mult
+				}
 	elif "y" in pos:
 		var parts = pos.split("=")
 		#print("parts: ", parts)
 		var min_y = get_min_y()
 		for tile in used_cells:
 			if tile.y == min_y + int(parts[1]):
-				tile_modifiers[tile] = {mult_type: mult}
+				tile_modifiers[tile] = {
+					mult_type: mult, "duration": dur, "type": zone_type, "mult": mult
+				}
 
+	update_marker_visuals()
+	return marker_info["log"]
+
+
+func update_marker_visuals():
+	for active_marker in active_markers:
+		active_marker.queue_free()
+	active_markers.clear()
 	for cell: Vector2i in tile_modifiers.keys():
+		var marker_info = MARKER_FLAVOURS[tile_modifiers[cell].get("type", "nope")]
 		print("Tile modifiers", tile_modifiers)
 		var marker = MARKER_PREFAB.instantiate()
-		var correct = false
-		for key in tile_modifiers[cell].keys():
-			if zone_type in key:
-				correct = true
-		if not correct:
-			continue
 
+		var marker_visual = marker_info.get("visual", "eugh")
+		print("visual is ", marker_visual)
 		marker.marker_type = marker_visual
 		print("Visual is ", marker_visual)
 		print("Adding ", marker.marker_type, " marker!")
 		marker.tooltip_container = log_container
-		var text_val = mult
-		if zone_type == "dmg_reduc_":
-			text_val = int((1 - mult) * 100)
+		var text_val = tile_modifiers[cell].get("mult", 0)
+		if tile_modifiers[cell].get("type", "nope") == "dmg_reduc_":
+			text_val = int((1 - text_val) * 100)
+
 		marker.marker_info = marker_info["info"].replace("<PUTVALUEHERE>", str(text_val))
 
 		$Battle_root.add_child(marker)
 		active_markers.append(marker)
 		var world_pos: Vector2 = combat_tilemap.map_to_local(cell)
 		marker.global_position = combat_tilemap.to_global(world_pos)
-	return marker_info["log"]

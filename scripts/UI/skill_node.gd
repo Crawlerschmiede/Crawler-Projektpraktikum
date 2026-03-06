@@ -7,7 +7,8 @@ const TREE_ALIASING = {
 	"LongRangedWeaponry": "Long-Ranged-Weaponry",
 	"UnarmedCombat": "Unarmed-Combat",
 	"ShortRangedWeaponry": "Short-Ranged-Weaponry",
-	"MediumRangedWeaponry": "Medium-Ranged-Weaponry"
+	"MediumRangedWeaponry": "Medium-Ranged-Weaponry",
+	"Rogue": "Rogue"
 }
 
 var requirements: Array[SkillNode] = []
