@@ -176,7 +176,7 @@ func initialize_item(item_name: String, item_quantity: int) -> void:
 		item = ITEM_SCENE.instantiate()
 		add_child(item)
 		_fit_item_to_slot(item)
-	tooltip_text = str(item_name)
+	tooltip_text = str(item_name.split("_")[0])
 	# Erwartet dass dein Item Node eine set_item(name, qty) Methode besitzt
 	if item.has_method("set_item"):
 		item.call("set_item", item_name, item_quantity)

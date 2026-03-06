@@ -88,7 +88,9 @@ func _on_reached_player() -> void:
 
 
 func _collect_loot() -> void:
+	print("[LootBox] collecting loot:", loot_table)
 	for item_name in loot_table.keys():
+		print("[LootBox] giving item:", item_name, loot_table[item_name])
 		PlayerInventory.add_item(item_name, int(loot_table[item_name]))
 
 
@@ -112,10 +114,15 @@ func _generate_random_loot(min_weight: int, max_weight: int) -> Dictionary:
 		var info = data[item_name]
 		if typeof(info) != TYPE_DICTIONARY:
 			continue
+		# skip level-specific variants that don't match current level
+		if not _item_allowed_on_level(str(item_name)):
+			print("[LootBox] skip by level filter:", item_name)
+			continue
+
 		if not info.has("loot_stats"):
 			continue
 
-		var ls = info["loot_stats"]
+		var ls = _resolve_level_config(info["loot_stats"])
 		if typeof(ls) != TYPE_DICTIONARY:
 			continue
 		if not ls.has("weight"):
@@ -132,7 +139,7 @@ func _generate_random_loot(min_weight: int, max_weight: int) -> Dictionary:
 	while weight_limit > 0 and tries < 200:
 		tries += 1
 		var item = GlobalRNG.pick_random(candidates)
-		var ls = data[item]["loot_stats"]
+		var ls = _resolve_level_config(data[item]["loot_stats"])
 
 		var w = int(ls.get("weight", 1))
 		if w <= 0:
@@ -152,6 +159,82 @@ func _generate_random_loot(min_weight: int, max_weight: int) -> Dictionary:
 		weight_limit -= w
 
 	return loot
+
+
+func _resolve_level_config(conf: Variant) -> Variant:
+	# If conf is not a dictionary, return as-is.
+	if typeof(conf) != TYPE_DICTIONARY:
+		return conf
+
+	# Determine current world index from the active scene if possible,
+	# fallback to root node name if active scene does not expose it.
+	var lvl = 0
+	var cs = get_tree().get_current_scene()
+	if cs != null and "world_index" in cs:
+		lvl = int(cs.world_index)
+	else:
+		var main_node = null
+		if get_tree().root.has_node("MAIN Pet Dungeon"):
+			main_node = get_tree().root.get_node("MAIN Pet Dungeon")
+		if main_node != null and "world_index" in main_node:
+			lvl = int(main_node.world_index)
+
+	var key = str(lvl)
+	if conf.has(key):
+		return conf[key]
+
+	# fallback: if conf already contains the expected keys, return it
+	if conf.has("weight") or conf.has("chance") or conf.has("max_stack"):
+		return conf
+
+	# else try '0' or first numeric key
+	if conf.has("0"):
+		return conf["0"]
+
+	for k in conf.keys():
+		# return first dict entry as fallback
+		if typeof(conf[k]) == TYPE_DICTIONARY:
+			return conf[k]
+	return conf
+
+
+func _item_allowed_on_level(item_name: String) -> bool:
+	# Items with suffix `_aN` are only allowed on level N. Others are global.
+	var lvl = 0
+	var cs = get_tree().get_current_scene()
+	if cs != null and "world_index" in cs:
+		lvl = int(cs.world_index)
+	else:
+		var main_node = null
+		if get_tree().root.has_node("MAIN Pet Dungeon"):
+			main_node = get_tree().root.get_node("MAIN Pet Dungeon")
+		if main_node != null and "world_index" in main_node:
+			lvl = int(main_node.world_index)
+
+	var rex := RegEx.new()
+	var err := rex.compile("_a(\\d+)$")
+	if err != OK:
+		print("[LootBox] RegEx compile failed")
+		return true
+	var match := rex.search(item_name)
+	if match == null:
+		print("[LootBox] item has no _aN suffix, allowed:", item_name, "lvl=", lvl)
+		return true
+	var parsed = int(match.get_string(1))
+	# Mapping: asset suffix `_a1` corresponds to world_index 0 (offset -1)
+	var ok = parsed == (lvl + 1)
+	print(
+		"[LootBox] level-check:",
+		item_name,
+		"parsed=",
+		parsed,
+		"world_index=",
+		lvl,
+		"allowed=",
+		ok,
+		"(expects _a%d for this world)" % [lvl + 1]
+	)
+	return ok
 
 
 func _clean_loot(input: Dictionary) -> Dictionary:

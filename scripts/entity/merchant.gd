@@ -199,9 +199,16 @@ func _generate_merchant_data() -> void:
 		if not data.has("merchant"):
 			continue
 
-		var m = data.merchant
+		# skip level-specific item variants that don't match current level
+		if not _item_allowed_on_level(str(item_key)):
+			print("[Merchant] skip by level filter:", item_key)
+			continue
+
+		var m = _resolve_level_config(data.merchant)
 
 		# chance
+		if typeof(m) != TYPE_DICTIONARY:
+			continue
 		if m.has("chance") and rng.randf() > float(m.chance):
 			continue
 
@@ -238,3 +245,73 @@ func _generate_merchant_data() -> void:
 		)
 
 		current_weight += item_weight
+
+
+func _resolve_level_config(conf: Variant) -> Variant:
+	# If conf is not a dictionary, return as-is.
+	if typeof(conf) != TYPE_DICTIONARY:
+		return conf
+
+	var lvl = 0
+	var cs = get_tree().get_current_scene()
+	if cs != null and "world_index" in cs:
+		lvl = int(cs.world_index)
+	else:
+		var main_node = null
+		if get_tree().root.has_node("MAIN Pet Dungeon"):
+			main_node = get_tree().root.get_node("MAIN Pet Dungeon")
+		if main_node != null and "world_index" in main_node:
+			lvl = int(main_node.world_index)
+
+	var key = str(lvl)
+	if conf.has(key):
+		return conf[key]
+
+	if conf.has("min_count") or conf.has("chance") or conf.has("weight"):
+		return conf
+
+	if conf.has("0"):
+		return conf["0"]
+
+	for k in conf.keys():
+		if typeof(conf[k]) == TYPE_DICTIONARY:
+			return conf[k]
+	return conf
+
+
+func _item_allowed_on_level(item_name: String) -> bool:
+	var lvl = 0
+	var cs = get_tree().get_current_scene()
+	if cs != null and "world_index" in cs:
+		lvl = int(cs.world_index)
+	else:
+		var main_node = null
+		if get_tree().root.has_node("MAIN Pet Dungeon"):
+			main_node = get_tree().root.get_node("MAIN Pet Dungeon")
+		if main_node != null and "world_index" in main_node:
+			lvl = int(main_node.world_index)
+
+	var rex := RegEx.new()
+	var err := rex.compile("_a(\\d+)$")
+	if err != OK:
+		print("[Merchant] RegEx compile failed")
+		return true
+	var match := rex.search(item_name)
+	if match == null:
+		print("[Merchant] item has no _aN suffix, allowed:", item_name, "lvl=", lvl)
+		return true
+	var parsed = int(match.get_string(1))
+	# Mapping: asset suffix `_a1` corresponds to world_index 0 (offset -1)
+	var ok = parsed == (lvl + 1)
+	print(
+		"[Merchant] level-check:",
+		item_name,
+		"parsed=",
+		parsed,
+		"world_index=",
+		lvl,
+		"allowed=",
+		ok,
+		"(expects _a%d for this world)" % [lvl + 1]
+	)
+	return ok

@@ -56,6 +56,10 @@ func _refresh() -> void:
 
 	_set_icon()
 
+	# set a tooltip / accessible display name without the _aN suffix
+	var disp := _get_display_name()
+	tooltip_text = disp
+
 	var stack_size: int = _get_stack_size(item_name)
 	_update_label(stack_size)
 
@@ -116,15 +120,27 @@ func _set_icon() -> void:
 	if item_name == "":
 		return
 
+	# Try exact icon first (e.g. arm_a2 -> res://assets/item_icons/arm_a2.png)
 	var path: String = "res://assets/item_icons/%s.png" % item_name
-	var tex: Resource = load(path)
+	var tex: Resource = ResourceLoader.load(path)
 
+	# If not found, try base name without _aN suffix (e.g. arm)
 	if tex == null:
-		push_warning("Icon nicht gefunden: " + path)
-		# if we expected an icon node, clear it safely
-		if icon != null:
-			icon.texture = null
-		return
+		var base := _strip_variant_suffix(item_name)
+		if base != item_name:
+			var base_path := "res://assets/item_icons/%s.png" % base
+			tex = ResourceLoader.load(base_path)
+			if tex != null:
+				print("[InventoryItem] using base icon for", item_name, "->", base_path)
+			else:
+				push_warning("Icon nicht gefunden (exact+base): %s, %s" % [path, base_path])
+		else:
+			push_warning("Icon nicht gefunden: " + path)
+		# if still null, clear icon and exit
+		if tex == null:
+			if icon != null:
+				icon.texture = null
+			return
 
 	if tex is Texture2D:
 		if icon != null:
@@ -193,3 +209,24 @@ func _debug_randomize_if_empty() -> void:
 			item_quantity = (GlobalRNG.randi() % stack_size) + 1
 		else:
 			push_error("JsonData.item_data ist leer oder fehlt!")
+
+
+func _strip_variant_suffix(nm: String) -> String:
+	# removes trailing _aN suffix (e.g. arm_a2 -> arm)
+	if nm == null:
+		return ""
+	var rex := RegEx.new()
+	if rex.compile("_a(\\d+)$") != OK:
+		return nm
+	var m = rex.search(nm)
+	if m == null:
+		return nm
+	# remove matched suffix
+	var suf = m.get_string(0)
+	return nm.substr(0, nm.length() - suf.length())
+
+
+func _get_display_name() -> String:
+	# Return a user-friendly name without variant suffix
+	var nm := str(item_name)
+	return _strip_variant_suffix(nm)
