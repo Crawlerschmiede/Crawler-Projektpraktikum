@@ -682,6 +682,20 @@ class Effect:
 
 	func do_zones(type, value, considered_details, duration, dir, battle, user):
 		duration += user.added_zone_duration
+		var rng = GlobalRNG
+		var randNum =0
+		if user.stunned>0:
+			match  considered_details:
+				"player_x":
+					randNum =rng.randi_range(0, 4)
+					considered_details="x="+randNum
+				"player_y":
+					randNum =rng.randi_range(0, 4)
+					considered_details="y="+randNum
+				"player_pos":
+					considered_details="area||rand||rand||1"
+				"surrounding":
+					considered_details="area||rand||rand||2"
 		return battle.apply_zones(type, value, considered_details, duration, dir)
 
 	# gdlint: enable=max-returns
