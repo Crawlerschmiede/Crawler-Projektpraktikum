@@ -74,20 +74,21 @@ var resistances: Dictionary = {"physical": 0, "fire": 0, "electric": 0, "earth":
 
 #--- status effects (not sure if this is the best way... it'll be fine!) ---
 #--- update it won't be, this is [not very good] and I'll fix it... someday
+var status_recovery = 1
 
 var stunned = 0
-var stun_recovery = 1
 
 var poisoned = 0
-var poison_recovery = 1
 
 var frozen = 0
-var freeze_recovery = 1
+
+var burned = 0
 
 #--- buffs/debuffs... status effects someday
 #should be in the format "<Source_Name>:{"<type>":<value>}"
 # something like that...
 var alterations = {}
+var added_zone_duration = 0
 
 #--- References to other stuff ---
 
@@ -453,11 +454,15 @@ func get_alterations():
 
 
 func deactivate_buff(source = "test"):
-	print("alterations ", alterations)
 	if alterations.has(source):
 		if alterations[source].has("duration") and alterations[source].duration > 0:
 			alterations[source].duration = int(alterations[source].duration) - 1
 	alterations.erase(source)
+
+
+func reset_skills():
+	for skill in abilities:
+		skill.reset()
 
 
 #--battle logic--
@@ -505,7 +510,7 @@ func take_damage(damage, type = ""):
 	if taken_damage < 0:
 		taken_damage = 0
 	print(self.name, " should take damage")
-	print(alterations)
+	print("These are the recipeints alterations ", alterations)
 	for alteration in alterations:
 		if alterations[alteration].has("dodge_chance") and not "undodgeable" in type:
 			var dodge_chance = alterations[alteration].dodge_chance * 100
@@ -570,7 +575,10 @@ func reset_cooldowns(number: int):
 
 
 func increase_poison(amount):
-	poisoned += amount
+	if poisoned + amount <= 8:
+		poisoned += amount
+	else:
+		poisoned = 8
 	return ["Poison increases to " + str(poisoned) + "!"]
 
 
@@ -588,31 +596,78 @@ func full_status_heal():
 	stunned = 0
 	poisoned = 0
 	frozen = 0
+	self.status_recovery = 1
 
 
 func deal_with_status_effects(battle, phase) -> Array:
 	var gets_a_turn = true
 	var things_that_happened = []
 	if stunned > 0 and phase == 1:
-		stunned -= stun_recovery
+		stunned -= status_recovery
 		if stunned < 0:
 			stunned = 0
 		if randi_range(0, 100) <= 25:
 			battle.move_player("rnd_dir", 1)
 		things_that_happened.append("Is stunned and movement seems janky")
 	if poisoned > 0 and phase == 2:
-		var message = take_damage(poisoned, "ignoredef|undodgeable")
-		poisoned -= poison_recovery
+		var message = take_damage((self.max_hp * 0.02) * poisoned, "ignoredef|undodgeable")
+		poisoned -= status_recovery
 		if poisoned < 0:
 			poisoned = 0
 		things_that_happened.append("Target" + message[0] + " from poison! Target" + message[1])
 	if frozen > 0 and phase == 2:
 		print("Freeze is currently ", frozen)
-		frozen -= freeze_recovery
+		frozen -= status_recovery
 		if frozen < 0:
 			frozen = 0
 		things_that_happened.append("Target was frozen and can't move!")
 	return [gets_a_turn, things_that_happened]
+
+
+func touch_recovery(value):
+	self.status_recovery *= value
+	print(self.name, "'s recovery was altered! Went to ", self.status_recovery)
+	if value > 1:
+		return ["Recovery rises!"]
+	if value < 1:
+		return ["Recovery drops!"]
+	else:
+		return ["Why'd we bother doing this again?"]
+
+
+func set_resistance(resistance, value):
+	var elemental_ones = ["fire", "electric", "earth", "ice"]
+	var allowed = []
+	var old = 0
+	if "random" in resistance:
+		for resistance_type in resistances:
+			if "elemental" in resistance:
+				if resistance_type in elemental_ones:
+					allowed.append(resistance_type)
+			else:
+				allowed.append(resistance_type)
+		if len(allowed) > 0:
+			resistance = allowed[GlobalRNG.randi_range(0, len(allowed) - 1)]
+			old = resistances[resistance]
+			resistances[resistance] = value
+
+	else:
+		var exists = resistances.get(resistance, null)
+		if exists != null:
+			old = resistances[resistance]
+			resistances[resistance] = value
+	print(self.name, "'s resistances have been altered! Specifically, ", resistance, resistances)
+	if old < value:
+		return [resistance + " resistance has risen to " + str(value) + "!"]
+	elif old > value:
+		return [resistance + " resistance has fropped to " + str(value) + "!"]
+	else:
+		return ["Nothing happened"]
+
+
+func add_zone_duration(amount):
+	added_zone_duration = amount
+	return []
 
 
 # --- helpers ---
