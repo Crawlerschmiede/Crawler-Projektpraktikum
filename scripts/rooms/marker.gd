@@ -21,6 +21,8 @@ func _ready() -> void:
 			texture = preload("res://assets/markers/death_marker.png")
 		"safety":
 			texture = preload("res://assets/markers/safe_marker.png")
+		"good_range":
+			texture = preload("res://assets/markers/preferred_range_marker.png")
 
 	sprite.texture = texture
 	add_child(sprite)
