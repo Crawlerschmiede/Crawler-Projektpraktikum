@@ -1,4 +1,3 @@
-# gdlint: disable=max-public-methods
 class_name MoveableEntity
 extends CharacterBody2D
 
@@ -123,7 +122,7 @@ func setup(
 	print("Ended up with ", resistances)
 
 
-func super_ready(sprite_type: String, entity_type: Array):
+func _super_ready(sprite_type: String, entity_type: Array):
 	if tilemap == null:
 		push_error("MoveableEntity hat keine TileMap! setup(tilemap) vergessen?")
 		return
@@ -220,7 +219,7 @@ func super_ready(sprite_type: String, entity_type: Array):
 				var is_blocked = tile_data.get_custom_data("non_walkable")
 				if not is_blocked:
 					if "wallbound" in entity_type:
-						if is_next_to_wall(cell):
+						if _is_next_to_wall(cell):
 							# only add if EntityAutoload says the pos is free
 							if EntityAutoload.has_method("can_reserve_pos"):
 								if EntityAutoload.can_reserve_pos(cell, tilemap):
@@ -276,7 +275,7 @@ func super_ready(sprite_type: String, entity_type: Array):
 
 
 # --- Movement Logic ---
-func is_next_to_wall(cell: Vector2i):
+func _is_next_to_wall(cell: Vector2i):
 	var next_to_wall = false
 	for i in range(3):
 		for j in range(3):
@@ -289,11 +288,11 @@ func is_next_to_wall(cell: Vector2i):
 	return next_to_wall
 
 
-func can_burrow_through(target_cell, direction):
+func _can_burrow_through(target_cell, direction):
 	var new_target = target_cell
 	for i in range(3):
 		new_target = new_target + direction
-		if is_cell_walkable(new_target, direction):
+		if _is_cell_walkable(new_target, direction):
 			return [true, new_target]
 	return [false]
 
@@ -302,11 +301,11 @@ func move_to_tile(direction: Vector2i):
 	if is_moving:
 		return
 	var target_cell = grid_pos + direction
-	if not is_cell_walkable(target_cell, direction):
+	if not _is_cell_walkable(target_cell, direction):
 		if "burrowing" in types:
-			var burrow = can_burrow_through(target_cell, direction)
+			var burrow = _can_burrow_through(target_cell, direction)
 			if burrow[0]:
-				if has_animation(sprite, "dig_down"):
+				if _has_animation(sprite, "dig_down"):
 					sprite.play("dig_down")
 				multi_turn_action = {"name": "dig_to", "target": burrow[1], "countdown": 2}
 				return
@@ -323,8 +322,8 @@ func move_to_tile(direction: Vector2i):
 	return true
 
 
-func teleport_to_tile(coordinates: Vector2i, animation = null) -> void:
-	if not is_cell_walkable(coordinates):
+func _teleport_to_tile(coordinates: Vector2i, animation = null) -> void:
+	if not _is_cell_walkable(coordinates):
 		sprite.play("default")
 		return
 	self.grid_pos = coordinates
@@ -336,7 +335,7 @@ func teleport_to_tile(coordinates: Vector2i, animation = null) -> void:
 	return
 
 
-func check_collisions() -> void:
+func _check_collisions() -> void:
 	for body in collision_area.get_overlapping_bodies():
 		# Nur andere Entities prüfen
 		if not body is MoveableEntity:
@@ -353,17 +352,17 @@ func check_collisions() -> void:
 				if (grid_pos + tile) == (body.grid_pos + other_tile):
 					if self.hp > 0 and body.hp > 0:
 						if self.is_player:
-							initiate_battle(self, body)
+							_initiate_battle(self, body)
 						elif body.is_player:
-							initiate_battle(body, self)
+							_initiate_battle(body, self)
 
 
 func _on_move_finished():
 	is_moving = false
-	check_collisions()
+	_check_collisions()
 
 
-func is_cell_walkable(cell: Vector2i, direction: Vector2i = Vector2i.ZERO) -> bool:
+func _is_cell_walkable(cell: Vector2i, direction: Vector2i = Vector2i.ZERO) -> bool:
 	# Get the tile data from the TileMapLayer at the given cell
 	var tile_data = tilemap.get_cell_tile_data(cell)
 	if tile_data == null:
@@ -374,7 +373,7 @@ func is_cell_walkable(cell: Vector2i, direction: Vector2i = Vector2i.ZERO) -> bo
 		print("That tile ain't walkable pal!")
 		return false
 
-	if is_cell_blocked(cell, direction):
+	if _is_cell_blocked(cell, direction):
 		print("That tile's blocked pal!")
 		return false
 
@@ -406,7 +405,7 @@ func is_cell_walkable(cell: Vector2i, direction: Vector2i = Vector2i.ZERO) -> bo
 	return true
 
 
-func is_cell_blocked(cell: Vector2i, direction: Vector2i = Vector2i.ZERO):
+func _is_cell_blocked(cell: Vector2i, direction: Vector2i = Vector2i.ZERO):
 	var top_cell_coord = tilemap.map_to_local(cell)
 	cell = top_layer.local_to_map(top_cell_coord)
 	var tile_data = top_layer.get_cell_tile_data(cell)
@@ -435,7 +434,7 @@ func add_skill(skill_name):
 		acquired_abilities.append(skill_name)
 
 
-func activate_passives(user, target, battle):
+func _activate_passives(user, target, battle):
 	for ability in abilities:
 		if ability.is_passive:
 			ability.activate_skill(user, target, battle)
@@ -449,7 +448,7 @@ func add_alteration(type, value, source = "test", duration = null):
 	return []
 
 
-func get_alterations():
+func _get_alterations():
 	return alterations
 
 
@@ -468,7 +467,7 @@ func reset_skills():
 #--battle logic--
 
 
-func initiate_battle(player: Node, enemy: Node) -> bool:
+func _initiate_battle(player: Node, enemy: Node) -> bool:
 	var main = get_tree().root.get_node("MAIN Pet Dungeon")
 	main.instantiate_battle(player, enemy)
 	return true
@@ -669,29 +668,29 @@ func add_zone_duration(amount):
 
 
 # --- helpers ---
-func has_animation(checked_sprite: AnimatedSprite2D, anim_name: String) -> bool:
+func _has_animation(checked_sprite: AnimatedSprite2D, anim_name: String) -> bool:
 	return checked_sprite.sprite_frames.has_animation(anim_name)
 
 
-func update_visibility():
+func _update_visibility():
 	var objects = get_tree().get_nodes_in_group("vision_objects")
 
 	for obj in objects:
-		if can_see(obj.global_position):
+		if _can_see(obj.global_position):
 			obj.visible = true
 			print("Updating visibility")
 		else:
 			obj.visible = false
 
 
-func can_see(target_pos: Vector2) -> bool:
+func _can_see(target_pos: Vector2) -> bool:
 	if tilemap == null:
 		return true
 
 	var start_cell = tilemap.local_to_map(global_position)
 	var end_cell = tilemap.local_to_map(target_pos)
 
-	var cells = get_line_cells(start_cell, end_cell)
+	var cells = _get_line_cells(start_cell, end_cell)
 
 	# Start- und Ziel-Tile ignorieren!
 	for i in range(1, cells.size() - 1):
@@ -705,7 +704,7 @@ func can_see(target_pos: Vector2) -> bool:
 	return true
 
 
-func get_line_cells(start: Vector2i, end: Vector2i) -> Array:
+func _get_line_cells(start: Vector2i, end: Vector2i) -> Array:
 	var points := []
 
 	var x0 = start.x

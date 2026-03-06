@@ -99,7 +99,7 @@ func _ready() -> void:
 	inventory.inventory_changed.connect(update_unlocked_skills)
 
 	camera.make_current()
-	super_ready("pc", ["pc"])
+	_super_ready("pc", ["pc"])
 	self.is_player = true
 	for action in base_actions:
 		add_action(action)

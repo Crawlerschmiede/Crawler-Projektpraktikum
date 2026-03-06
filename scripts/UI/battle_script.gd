@@ -1,4 +1,3 @@
-# gdlint: disable=max-public-methods
 extends CanvasLayer
 
 signal player_loss
@@ -85,8 +84,8 @@ func _ready():
 	if enemy != null and is_instance_valid(enemy):
 		enemy.full_status_heal()
 		enemy_is_boss = AudioManager.is_boss_enemy(enemy)
-	enemy_sprite = create_battle_sprite(enemy)
-	player_sprite = create_battle_sprite(player)
+	enemy_sprite = _create_battle_sprite(enemy)
+	player_sprite = _create_battle_sprite(player)
 	player_sprite.animation = "idle_up"
 	enemy_marker.add_child(enemy_sprite)
 	player_gridpos = combat_tilemap.local_to_map(player_marker.position)
@@ -106,17 +105,17 @@ func _ready():
 		player_hp_bar.value = (player.hp * 100.0) / player.max_hp
 	player.reset_skills()
 	print("At the start, player has these: ", player.alterations)
-	add_range_indicators()
+	_add_range_indicators()
 	enemy.decide_attack()
-	enemy_prepare_turn()
+	_enemy_prepare_turn()
 
 
 func dissuade_enemy():
 	enemy.decide_attack()
-	enemy_prepare_turn(true)
+	_enemy_prepare_turn(true)
 
 
-func create_battle_sprite(from_actor: CharacterBody2D) -> AnimatedSprite2D:
+func _create_battle_sprite(from_actor: CharacterBody2D) -> AnimatedSprite2D:
 	var source_sprite := from_actor.get_node("AnimatedSprite2D") as AnimatedSprite2D
 	assert(source_sprite)
 
@@ -135,7 +134,7 @@ func create_battle_sprite(from_actor: CharacterBody2D) -> AnimatedSprite2D:
 	return battle_sprite
 
 
-func enemy_prepare_turn(mid_turn = false):
+func _enemy_prepare_turn(mid_turn = false):
 	# TODO: very low tech; clears everything (ok for 1-turn effects).
 	# Anything longer-term will need something more robust.
 	print("Tile modifiers right now are: ", tile_modifiers)
@@ -143,15 +142,15 @@ func enemy_prepare_turn(mid_turn = false):
 		tile_modifiers[tile_modifier]["duration"] -= 1
 		if tile_modifiers[tile_modifier]["duration"] <= 0:
 			tile_modifiers.erase(tile_modifier)
-	update_marker_visuals()
+	_update_marker_visuals()
 	log_container.add_log_event("The enemy prepares its Skill " + enemy.chosen.name + "!")
 	#print(enemy, " prepares its Skill ", enemy.chosen.name, "!")
 	var preps = enemy.chosen.prep_skill(enemy, player, self)
 	if not mid_turn:
-		update_passives(true)
+		_update_passives(true)
 		player.refill_actions()
 		enemy.refill_actions()
-		update_passives()
+		_update_passives()
 	for prep in preps:
 		log_container.add_log_event(prep)
 
@@ -185,7 +184,7 @@ func enemy_turn():
 			for happening in happened:
 				log_container.add_log_event(happening)
 			enemy.decide_attack()
-			enemy_prepare_turn()
+			_enemy_prepare_turn()
 			extra_stuff = enemy.deal_with_status_effects(self, 2)
 			happened = extra_stuff[1]
 			for happening in happened:
@@ -200,7 +199,7 @@ func enemy_turn():
 				await ability.activate_followup()
 		next_turn = []
 		if extra_stuff[0]:
-			player_turn()
+			_player_turn()
 			print(player_action_log)
 		else:
 			enemy_turn()
@@ -215,14 +214,14 @@ func update_health_bars():
 		enemy_hp_bar.value = (enemy.hp * 100.0) / enemy.max_hp
 
 
-func player_turn():
+func _player_turn():
 	if not active:
 		return
 	skill_ui.update()
 	skill_ui.player_turn = true
 
 
-func force_stop() -> void:
+func _force_stop() -> void:
 	# Immediately stop any further processing inside this battle
 	active = false
 	# try to disable UI updates
@@ -235,12 +234,12 @@ func force_stop() -> void:
 		hit_anim_player.visible = false
 
 
-func update_passives(prep = false):
-	trigger_passives(player.abilities, player, enemy, self, prep)
-	trigger_passives(enemy.abilities, enemy, player, self, prep)
+func _update_passives(prep = false):
+	_trigger_passives(player.abilities, player, enemy, self, prep)
+	_trigger_passives(enemy.abilities, enemy, player, self, prep)
 
 
-func trigger_passives(abilities, user, target, battle, prep):
+func _trigger_passives(abilities, user, target, battle, prep):
 	for ability in abilities:
 		if ability.is_passive:
 			if ability.is_activateable(user, target, self):
@@ -269,7 +268,7 @@ func check_victory():
 	return false
 
 
-func battle_over():
+func _battle_over():
 	if enemy == null or not is_instance_valid(enemy) or enemy.hp <= 0:
 		return true
 	if player == null or not is_instance_valid(player) or player.hp <= 0:
@@ -277,7 +276,7 @@ func battle_over():
 	return false
 
 
-func cell_exists(cell: Vector2i) -> bool:
+func _cell_exists(cell: Vector2i) -> bool:
 	# Get the tile data from the TileMapLayer at the given cell
 	var tile_data = combat_tilemap.get_cell_tile_data(cell)
 	if tile_data == null:
@@ -285,7 +284,6 @@ func cell_exists(cell: Vector2i) -> bool:
 	return true
 
 
-# gdlint: disable=max-returns
 func move_player(direction: String, distance: int):
 	var dir = ""
 	var basics = ["u", "d", "l", "r"]
@@ -309,7 +307,7 @@ func move_player(direction: String, distance: int):
 				delta = Vector2i(0, distance)
 				dir = "down"
 			_:
-				return []
+				delta = Vector2i.ZERO
 
 		new_cell = player_gridpos + delta
 	elif "rnd" in direction:
@@ -318,7 +316,7 @@ func move_player(direction: String, distance: int):
 		var parts = direction.split("|")
 		var area = parts[1]
 		var from_to = []
-		var min_y = get_min_y()
+		var min_y = _get_min_y()
 		var possible_tiles = []
 		match area:
 			"short":
@@ -355,24 +353,21 @@ func move_player(direction: String, distance: int):
 		while new_dir == "no":
 			print("still waiting...")
 			await get_tree().process_frame
-			new_dir = get_held_direction()
+			new_dir = _get_held_direction()
 		if log_container != null:
 			log_container.state = "log"
 			log_container.changed = true
 		return await move_player(new_dir, distance)
 
-	if !cell_exists(new_cell):
+	if !_cell_exists(new_cell):
 		return "Attempting to move " + dir + ", the player only pushed against the wall"
 	player_gridpos = new_cell
 	player_sprite.position = combat_tilemap.map_to_local(player_gridpos)
-	check_curr_tile_mods()
+	_check_curr_tile_mods()
 	return "Player moved " + dir
 
 
-# gdlint: enable=max-returns
-
-
-func get_held_direction() -> String:
+func _get_held_direction() -> String:
 	var direction = "no"
 	if Input.is_action_pressed("move_right"):
 		direction = "r"
@@ -386,19 +381,12 @@ func get_held_direction() -> String:
 
 
 func is_player_in_range(y_from_to) -> bool:
-	var min_y = get_min_y()
+	var min_y = _get_min_y()
 	return player_gridpos.y >= min_y + y_from_to[0] and player_gridpos.y <= min_y + y_from_to[1]
 
 
-func add_range_indicators():
-	var range = player.get_used_range()
-	match range:
-		"short":
-			range = player.ranges[0]
-		"medium":
-			range = player.ranges[1]
-		"long":
-			range = player.ranges[2]
+func _add_range_indicators():
+	var range = _resolve_player_range_bounds(player.get_used_range())
 	var valid_ys = []
 	print("Valid Range is: ", range)
 	if range[0] == range[1]:
@@ -409,7 +397,7 @@ func add_range_indicators():
 
 	var valid_cells = []
 	for tile in used_cells:
-		var min_y = get_min_y()
+		var min_y = _get_min_y()
 		print("Is cell ", tile, " valid in ranges ", range, "?")
 		if tile.y - min_y in valid_ys:
 			valid_cells.append(tile)
@@ -430,11 +418,27 @@ func add_range_indicators():
 		marker.global_position = combat_tilemap.to_global(world_pos)
 
 
+func _resolve_player_range_bounds(used_range) -> Array:
+	if used_range is Array and used_range.size() >= 2:
+		return [int(used_range[0]), int(used_range[1])]
+
+	match str(used_range):
+		"short":
+			return [int(player.ranges[0][0]), int(player.ranges[0][1])]
+		"medium":
+			return [int(player.ranges[1][0]), int(player.ranges[1][1])]
+		"long":
+			return [int(player.ranges[2][0]), int(player.ranges[2][1])]
+		_:
+			# Unknown range names fall back to short to avoid runtime errors.
+			return [int(player.ranges[0][0]), int(player.ranges[0][1])]
+
+
 func get_player_range_dmg_mult():
 	var dmg_mult: float = 1.0
 	var calculated_range = player.get_used_range()
 	var base_tiles = [0, 0]
-	var player_y = player_gridpos.y - get_min_y()
+	var player_y = player_gridpos.y - _get_min_y()
 	match calculated_range:
 		"short":
 			base_tiles = player.ranges[0]
@@ -457,7 +461,7 @@ func get_player_pos_modifiers():
 	return tile_modifiers.get(player_gridpos, {})
 
 
-func check_curr_tile_mods():
+func _check_curr_tile_mods():
 	var active_placement_effects = get_player_pos_modifiers()
 	for modifier_name in active_placement_effects:
 		var modifier_value = active_placement_effects[modifier_name]
@@ -478,7 +482,7 @@ func check_curr_tile_mods():
 	over = check_victory()
 
 
-func get_min_x():
+func _get_min_x():
 	var min_x = 99999999999999
 	for tile in used_cells:
 		if tile.x < min_x:
@@ -486,7 +490,7 @@ func get_min_x():
 	return min_x
 
 
-func get_min_y():
+func _get_min_y():
 	var min_y = 99999999999999
 	for tile in used_cells:
 		if tile.y < min_y:
@@ -538,8 +542,8 @@ func apply_zones(zone_type, mult, pos, dur, direction):
 					mult_type: mult, "duration": dur, "type": zone_type, "mult": mult
 				}
 	elif "area" in pos:  #expecting a string like "area||<x>||<y>||<size>"
-		var min_x = get_min_x()
-		var min_y = get_min_y()
+		var min_x = _get_min_x()
+		var min_y = _get_min_y()
 		var splits = pos.split("||")
 		var targ_x = splits[1]
 		var targ_y = splits[2]
@@ -575,7 +579,7 @@ func apply_zones(zone_type, mult, pos, dur, direction):
 					}
 	elif "x" in pos:
 		var parts = pos.split("=")
-		var min_x = get_min_x()
+		var min_x = _get_min_x()
 		for tile in used_cells:
 			if tile.x == min_x + int(parts[1]):
 				tile_modifiers[tile] = {
@@ -584,18 +588,18 @@ func apply_zones(zone_type, mult, pos, dur, direction):
 	elif "y" in pos:
 		var parts = pos.split("=")
 		#print("parts: ", parts)
-		var min_y = get_min_y()
+		var min_y = _get_min_y()
 		for tile in used_cells:
 			if tile.y == min_y + int(parts[1]):
 				tile_modifiers[tile] = {
 					mult_type: mult, "duration": dur, "type": zone_type, "mult": mult
 				}
 
-	update_marker_visuals()
+	_update_marker_visuals()
 	return marker_info["log"]
 
 
-func update_marker_visuals():
+func _update_marker_visuals():
 	for active_marker in active_markers:
 		active_marker.queue_free()
 	active_markers.clear()

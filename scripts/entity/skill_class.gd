@@ -257,7 +257,6 @@ class Effect:
 			return []
 		return obj.callv(method_name, args)
 
-	# gdlint: disable=max-returns
 	func apply(user, target, battle, skill):
 		var messages = []
 		var ret = []
@@ -647,5 +646,3 @@ class Effect:
 	func do_zones(type, value, considered_details, duration, dir, battle, user):
 		duration += user.added_zone_duration
 		return battle.apply_zones(type, value, considered_details, duration, dir)
-
-	# gdlint: enable=max-returns

@@ -448,22 +448,6 @@ func spawn_player() -> void:
 		emit_signal("player_spawned", player)
 
 
-func _on_player_moved() -> void:
-	if minimap == null or dungeon_floor == null or player == null:
-		return
-	player = spawn_coordinator.spawn_player(
-		PLAYER_SCENE,
-		dungeon_floor,
-		dungeon_top,
-		fog_war_layer,
-		minimap,
-		fog_dynamic,
-		fog_tile_id,
-		entity_persistence_flow,
-		self
-	)
-
-
 func get_world_tilemaps() -> Dictionary:
 	var result: Dictionary = {
 		"world_index": world_index,
