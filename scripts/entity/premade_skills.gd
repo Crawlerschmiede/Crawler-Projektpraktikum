@@ -540,7 +540,8 @@ var existing_skills = {
 		"passive": true,
 		"conditions": ["lost_after||effect_happened-damage-1"]
 	},
-	#this one happens twice for some omnissiahforsaken reason, it's fine, just halve the damage, I don't know man
+	# This one triggers twice for some reason.
+	# Damage is halved here as a practical workaround.
 	"Run 'n Gun":
 	{
 		"tree": "Rogue",
@@ -587,8 +588,7 @@ var existing_skills = {
 	{
 		"tree": "Warrior",
 		"tier": 2,
-		"description":
-		"Remember that shield we talked about? Well, turns out it's actually really heavy, which makes it very painful to get hit with it",
+		"description": "That heavy shield hurts more than expected when it hits.",
 		"effects": [["damage", 1, false, "conditional--No||dmg_boost=3"]],
 		"cooldown": 3,
 		"switch_condition": ["on_tile=dmg_reduc_good"]
@@ -606,8 +606,7 @@ var existing_skills = {
 	{
 		"tree": "Warrior",
 		"tier": 4,
-		"description":
-		"Listen, listen! Ok, so, armour, right? It's kinda just lika a wearable shield! Just uhh... mind the gaps...",
+		"description": "Armor is basically a wearable shield, if you mind the gaps.",
 		"effects": [["add_zone_duration", 1, true, "No"], ["damage_buff", 1.5, false, "No"]],
 		"passive": true
 	},
@@ -615,8 +614,7 @@ var existing_skills = {
 	{
 		"tree": "Warrior",
 		"tier": 5,
-		"description":
-		"Listen, listen! Ok, so, armour, right? It's kinda just lika a wearable shield! Just uhh... mind the gaps...",
+		"description": "Armor can protect you, but only if you reach cover in time.",
 		"effects": [["movement", 1, true, "rnd|dmg_reduc_good"]],
 		"cooldown": 5,
 	},
@@ -634,8 +632,7 @@ var existing_skills = {
 	{
 		"tree": "Cleric",
 		"tier": 2,
-		"description":
-		"The mild soothe is no longer enough to keep some of these wounds at bay, but worry not, with a bit of effort, you too can push away the pain!",
+		"description": "Simple soothing is not enough anymore, so you push the pain away directly.",
 		"effects": [["heal", 3, true, "No"]],
 		"cooldown": 5,
 	},
@@ -643,8 +640,7 @@ var existing_skills = {
 	{
 		"tree": "Cleric",
 		"tier": 3,
-		"description":
-		"Since medicine has kind of become your thing, you felt like it was time your enemies got a taste of theirs",
+		"description": "Medicine is your thing now, so your enemies get a taste of it too.",
 		"effects": [["confuse", 3, false, "duration=2"]],
 		"cooldown": 5,
 	},
@@ -652,8 +648,7 @@ var existing_skills = {
 	{
 		"tree": "Cleric",
 		"tier": 4,
-		"description":
-		"The soothing feeling is not enough, even the air feels painful now, but you've figured out a way to push the pain not just away, but unto others!",
+		"description": "Relief is not enough anymore, so you redirect your pain onto others.",
 		"effects":
 		[["leeching", 4, true, "No"], ["damage", 2, true, "ignoredef||undodgeable||plain"]],
 		"passive": true,
@@ -662,8 +657,7 @@ var existing_skills = {
 	{
 		"tree": "Cleric",
 		"tier": 5,
-		"description":
-		"You have mastered pain, the sting of brambles and the sear of divine light is plenty to... dissuade your opponent from any inopportune acts",
+		"description": "You mastered pain and weaponize it to stop your opponent's bad ideas.",
 		"effects": [["deter", 1, false, "No"]],
 		"cooldown": 5,
 	},
@@ -702,8 +696,7 @@ var existing_skills = {
 	{
 		"tree": "Mage",
 		"tier": 4,
-		"description":
-		"You can perceive the metaphysical weaknesses of your opponents, however, merely by perceiving them, their strengths greaten",
+		"description": "You perceive enemy elemental flaws, but your focus also empowers them.",
 		"effects":
 		[
 			["set_resistance", -1, false, "random|elemental"],
@@ -716,8 +709,7 @@ var existing_skills = {
 	{
 		"tree": "Mage",
 		"tier": 5,
-		"description":
-		"Elemental power flows through you, and, with a mighty hurl, it can flow all over your opponent too",
+		"description": "You unleash a wave of mixed elements and drown your target in chaos.",
 		"effects":
 		[
 			["damage", 1, false, "fire"],

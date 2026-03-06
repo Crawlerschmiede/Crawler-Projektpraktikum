@@ -14,20 +14,19 @@ func _ready() -> void:
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta: float) -> void:
-	pass
+func _process(_delta: float) -> void:
+	return
 
 
-func _on_body_entered_boss_area(body: Node2D) -> void:
+func _on_body_entered_boss_area(_body: Node2D) -> void:
 	if bossenterd == 0:
 		print("final boss area entered the first time")
 	else:
 		print("final boss area entered the second time")
-	pass  # Replace with function body.
 
 
-func _on_area_2d_entrance_area_entered(area: Area2D) -> void:
-	pass  # Replace with function body.
+func _on_area_2d_entrance_area_entered(_area: Area2D) -> void:
+	return
 
 
 func _exit_tree() -> void:

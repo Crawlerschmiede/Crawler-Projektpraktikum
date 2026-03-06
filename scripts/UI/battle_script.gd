@@ -1,3 +1,4 @@
+# gdlint: disable=max-public-methods
 extends CanvasLayer
 
 signal player_loss
@@ -284,6 +285,7 @@ func cell_exists(cell: Vector2i) -> bool:
 	return true
 
 
+# gdlint: disable=max-returns
 func move_player(direction: String, distance: int):
 	var dir = ""
 	var basics = ["u", "d", "l", "r"]
@@ -365,6 +367,9 @@ func move_player(direction: String, distance: int):
 	player_sprite.position = combat_tilemap.map_to_local(player_gridpos)
 	check_curr_tile_mods()
 	return "Player moved " + dir
+
+
+# gdlint: enable=max-returns
 
 
 func get_held_direction() -> String:

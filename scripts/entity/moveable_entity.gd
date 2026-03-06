@@ -631,8 +631,7 @@ func touch_recovery(value):
 		return ["Recovery rises!"]
 	if value < 1:
 		return ["Recovery drops!"]
-	else:
-		return ["Why'd we bother doing this again?"]
+	return ["Why'd we bother doing this again?"]
 
 
 func set_resistance(resistance, value):
@@ -659,10 +658,9 @@ func set_resistance(resistance, value):
 	print(self.name, "'s resistances have been altered! Specifically, ", resistance, resistances)
 	if old < value:
 		return [resistance + " resistance has risen to " + str(value) + "!"]
-	elif old > value:
+	if old > value:
 		return [resistance + " resistance has fropped to " + str(value) + "!"]
-	else:
-		return ["Nothing happened"]
+	return ["Nothing happened"]
 
 
 func add_zone_duration(amount):
