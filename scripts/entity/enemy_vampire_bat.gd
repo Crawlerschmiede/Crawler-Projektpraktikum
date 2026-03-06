@@ -265,10 +265,10 @@ func check_sight() -> bool:
 
 func decide_attack() -> void:
 	var a = chosen
-	if chosen!=null:
-		a=chosen.name
+	if chosen != null:
+		a = chosen.name
 	print("Enemy's freeze is currently ", frozen, " and chosen is ", a)
-	if frozen>0 and chosen!=null:
+	if frozen > 0 and chosen != null:
 		return
 	var activateable_abilities = []
 	var valid_pick = false

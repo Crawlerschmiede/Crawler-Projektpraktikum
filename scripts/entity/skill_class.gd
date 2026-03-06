@@ -213,7 +213,10 @@ func condition_met(condition_name, user, _target, battle) -> bool:
 			is_met = (count - count_anything) % limit == 0 and (count - count_anything) >= limit
 		elif "consecutive" in splits[0]:
 			print("Effect log was (burn(so I can see this in the filter)) ", effect_log)
-			is_met = ((effect_log[len(effect_log)-1]== effect_log[len(effect_log)-2]) and (effect_log[len(effect_log)-1] == sought))
+			is_met = (
+				(effect_log[len(effect_log) - 1] == effect_log[len(effect_log) - 2])
+				and (effect_log[len(effect_log) - 1] == sought)
+			)
 		else:
 			is_met = limit <= count
 	if "skill_happened" in condition_name:
@@ -234,7 +237,7 @@ func condition_met(condition_name, user, _target, battle) -> bool:
 			is_met = (count - count_anything) % limit == 0 and (count - count_anything) >= limit
 		elif "consecutive" in splits[0]:
 			print("Effect log was (burn(so I can see this in the filter)) ", effect_log)
-			is_met = (effect_log[len(effect_log)-1] == sought)
+			is_met = (effect_log[len(effect_log) - 1] == sought)
 		else:
 			is_met = limit <= count
 	if "on_tile" in condition_name:
@@ -243,7 +246,7 @@ func condition_met(condition_name, user, _target, battle) -> bool:
 		var parts = condition_name.split("=")
 		is_met = parts[1] in active_modifiers.keys()
 	if "burning" in condition_name:
-		return user.burned >0
+		return user.burned > 0
 	print("Condition " + condition_name + " is met? " + str(is_met))
 
 	return is_met
@@ -452,10 +455,9 @@ class Effect:
 					if user.alterations[alteration].has("cannot_move"):
 						can_move = false
 
-				
 				if user.frozen > 0:
 					can_move = false
-					print(user.name+" cannot move right now!")
+					print(user.name + " cannot move right now!")
 				if user.stunned > 0 and GlobalRNG.randi_range(0, 100) < 50:
 					considered_details = "rnd_dir"
 				if (
@@ -668,9 +670,9 @@ class Effect:
 				var recipient = user if targets_self else target
 				ret = _safe_invoke(recipient, "set_resistance", [considered_details, value])
 			"extinguish":
-				print("Extinguishing: Burn was ",user.burned)
-				var used_extinguishement =float(considered_details)
-				user.burned = user.burned - (user.burned * used_extinguishement) 
+				print("Extinguishing: Burn was ", user.burned)
+				var used_extinguishement = float(considered_details)
+				user.burned = user.burned - (user.burned * used_extinguishement)
 				print("Burn went to ", user.burned)
 			"prepare":
 				var prep_msg := "The enemy seems to be preparing something big... or maybe it's just tired?"
@@ -681,19 +683,19 @@ class Effect:
 	func do_zones(type, value, considered_details, duration, dir, battle, user):
 		duration += user.added_zone_duration
 		var rng = GlobalRNG
-		var randNum =0
-		if user.stunned>0:
-			match  considered_details:
+		var randNum = 0
+		if user.stunned > 0:
+			match considered_details:
 				"player_x":
-					randNum =rng.randi_range(0, 4)
-					considered_details="x="+randNum
+					randNum = rng.randi_range(0, 4)
+					considered_details = "x=" + randNum
 				"player_y":
-					randNum =rng.randi_range(0, 4)
-					considered_details="y="+randNum
+					randNum = rng.randi_range(0, 4)
+					considered_details = "y=" + randNum
 				"player_pos":
-					considered_details="area||rand||rand||1"
+					considered_details = "area||rand||rand||1"
 				"surrounding":
-					considered_details="area||rand||rand||2"
+					considered_details = "area||rand||rand||2"
 		return battle.apply_zones(type, value, considered_details, duration, dir)
 
 	# gdlint: enable=max-returns

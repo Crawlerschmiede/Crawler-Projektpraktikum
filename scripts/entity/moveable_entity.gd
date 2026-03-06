@@ -74,7 +74,7 @@ var resistances: Dictionary = {"physical": 0, "fire": 0, "electric": 0, "earth":
 
 #--- status effects (not sure if this is the best way... it'll be fine!) ---
 #--- update it won't be, this is [not very good] and I'll fix it... someday
-var status_recovery:float = 1.0
+var status_recovery: float = 1.0
 
 var stunned = 0.0
 
@@ -589,11 +589,12 @@ func increase_stun(amount):
 
 func increase_freeze(amount):
 	if is_player:
-		pre_freeze=1
-		return["You will be frozen next turn!"]
+		pre_freeze = 1
+		return ["You will be frozen next turn!"]
 	frozen += amount
 	return ["Freeze increases to " + str(frozen) + "!"]
-	
+
+
 func increase_burn(amount):
 	burned += amount
 	return ["Burn increases to " + str(frozen) + "!"]
@@ -603,8 +604,8 @@ func full_status_heal():
 	stunned = 0
 	poisoned = 0
 	frozen = 0
-	pre_freeze=0
-	burned=0
+	pre_freeze = 0
+	burned = 0
 	self.status_recovery = 1
 
 
@@ -625,8 +626,8 @@ func deal_with_status_effects(battle, phase) -> Array:
 			poisoned = 0
 		things_that_happened.append("Target" + message[0] + " from poison! Target" + message[1])
 	if pre_freeze > 0 and phase == 2:
-		pre_freeze=0
-		frozen =4
+		pre_freeze = 0
+		frozen = 4
 		print("Player pre-freeze turns into freeze!")
 		things_that_happened.append("Target was frozen and can't move!")
 	if frozen > 0 and phase == 2:
@@ -635,11 +636,21 @@ func deal_with_status_effects(battle, phase) -> Array:
 		if frozen < 0:
 			frozen = 0
 		things_that_happened.append("Target was frozen and can't move!")
-	if burned>0 and phase ==2:
+	if burned > 0 and phase == 2:
 		var message = take_damage((self.max_hp * 0.01) * burned, "ignoredef|undodgeable")
-		burned +=3
+		burned += 3
 		print("Burn went to ", burned)
-		things_that_happened.append("Target" + message[0] + " from Fire! Target" + message[1] + "Target's burn increased to "+str(burned)+"!")
+		things_that_happened.append(
+			(
+				"Target"
+				+ message[0]
+				+ " from Fire! Target"
+				+ message[1]
+				+ "Target's burn increased to "
+				+ str(burned)
+				+ "!"
+			)
+		)
 	return [gets_a_turn, things_that_happened]
 
 

@@ -757,7 +757,7 @@ var existing_skills = {
 	"Extinguish":
 	{
 		"tree": "basic",
-		"tier":1,
+		"tier": 1,
 		"description": "This is fine",
 		"effects": [["extinguish", 1, true, "conditional--0.5||1"]],
 		"conditions": ["burning"],
