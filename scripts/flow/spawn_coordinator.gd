@@ -60,6 +60,7 @@ func spawn_enemy(
 ) -> void:
 	if _enemy_spawn_flow == null or _main == null:
 		return
+	skills.append("Extinguish")
 	_enemy_spawn_flow.spawn_enemy(
 		sprite_type,
 		behaviour,
