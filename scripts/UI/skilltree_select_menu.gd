@@ -40,16 +40,16 @@ func _on_card_clicked(event: InputEvent, card):
 		if skill_id in selected_local:
 			# DESELECTTT
 			selected_local.erase(skill_id)
-			pass # print("Removed: ", skill_id)
+			pass  # print("Removed: ", skill_id)
 		else:
 			if selected_local.size() < MAX_SELECTIONS:
 				selected_local.append(skill_id)
-				pass # print("Added: ", skill_id)
+				pass  # print("Added: ", skill_id)
 			else:
-				pass # print("Cannot add: Max selections (3) reached.")
+				pass  # print("Cannot add: Max selections (3) reached.")
 
 		_sync_card_visuals()
-		pass # print("Current List: ", selected_local, " | Count: ", selected_local.size())
+		pass  # print("Current List: ", selected_local, " | Count: ", selected_local.size())
 
 
 func _sync_card_visuals() -> void:
@@ -66,11 +66,11 @@ func _sync_card_visuals() -> void:
 func _on_ConfirmButton_pressed():
 	if selected_local.size() == MAX_SELECTIONS:
 		SkillState.selected_skills = selected_local.duplicate()
-		pass # print("Finalizing Selections: ", SkillState.selected_skills)
+		pass  # print("Finalizing Selections: ", SkillState.selected_skills)
 		if get_tree().current_scene == self:
 			get_tree().change_scene_to_file("res://scenes/UI/skilltree-upgrading.tscn")
 		else:
 			emit_signal("selection_confirmed", SkillState.selected_skills)
 			queue_free()
 	else:
-		pass # print("Refusing to confirm. Current count is: ", selected_local.size())
+		pass  # print("Refusing to confirm. Current count is: ", selected_local.size())

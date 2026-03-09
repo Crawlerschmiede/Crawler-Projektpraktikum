@@ -22,5 +22,5 @@ func _gui_input(event: InputEvent) -> void:
 
 	if event is InputEventMouseButton:
 		if event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-			pass # print("Clicked")
+			pass  # print("Clicked")
 			container._try_buy()

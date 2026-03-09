@@ -54,7 +54,7 @@ func _ready():
 		if typeof(MerchantRegistry) != TYPE_NIL and MerchantRegistry != null:
 			MerchantRegistry.set_items(reg_key, merchant_items)
 
-	pass # print("merchant_items:", merchant_items)
+	pass  # print("merchant_items:", merchant_items)
 	$Area2D.body_entered.connect(_on_body_entered)
 	$Area2D.body_exited.connect(_on_body_exited)
 
@@ -65,16 +65,16 @@ func _on_body_entered(body):
 		if MerchantRegistry != null:
 			merchant_items = MerchantRegistry.get_items(rk)
 
-		pass # print("Merchant items on enter:", merchant_items)
+		pass  # print("Merchant items on enter:", merchant_items)
 		emit_signal("player_entered_merchant", self, _get_data())
 
 
 func _on_body_exited(body):
 	if body == null:
 		return
-	pass # print("BODY EXIT:", body)
+	pass  # print("BODY EXIT:", body)
 	if body.is_in_group("player"):
-		pass # print("PLAYER LEFT MERCHANT")
+		pass  # print("PLAYER LEFT MERCHANT")
 		emit_signal("player_left_merchant", self)
 
 
@@ -201,7 +201,7 @@ func _generate_merchant_data() -> void:
 
 		# skip level-specific item variants that don't match current level
 		if not _item_allowed_on_level(str(item_key)):
-			pass # print("[Merchant] skip by level filter:", item_key)
+			pass  # print("[Merchant] skip by level filter:", item_key)
 			continue
 
 		var m = _resolve_level_config(data.merchant)
@@ -294,11 +294,11 @@ func _item_allowed_on_level(item_name: String) -> bool:
 	var rex := RegEx.new()
 	var err := rex.compile("_a(\\d+)$")
 	if err != OK:
-		pass # print("[Merchant] RegEx compile failed")
+		pass  # print("[Merchant] RegEx compile failed")
 		return true
 	var match := rex.search(item_name)
 	if match == null:
-		pass # print("[Merchant] item has no _aN suffix, allowed:", item_name, "lvl=", lvl)
+		pass  # print("[Merchant] item has no _aN suffix, allowed:", item_name, "lvl=", lvl)
 		return true
 	var parsed = int(match.get_string(1))
 	# Mapping: asset suffix `_a1` corresponds to world_index 0 (offset -1)

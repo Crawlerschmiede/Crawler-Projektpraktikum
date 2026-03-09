@@ -51,7 +51,7 @@ func _register_sell_slot() -> void:
 		)
 		if int(idx) < 0:
 			sell_item_input_slot.set("slot_index", 23)
-			pass # print("[SellSlot] set slot_index -> 23")
+			pass  # print("[SellSlot] set slot_index -> 23")
 
 	# wait for PlayerInventory to be available
 	if (
@@ -73,14 +73,14 @@ func _register_sell_slot() -> void:
 		groups = sell_item_input_slot.get_groups()
 
 	PlayerInventory.register_slot_index(23, groups)
-	pass # print("[SellSlot] registered slot 23 with groups:", groups)
+	pass  # print("[SellSlot] registered slot 23 with groups:", groups)
 
 	# Connect inner slot gui_input so drops/clicks are handled
 	if sell_item_input_slot.has_method("gui_input"):
 		var cb_sell: Callable = Callable(self, "_on_sell_slot_gui_input")
 		if not sell_item_input_slot.gui_input.is_connected(cb_sell):
 			sell_item_input_slot.gui_input.connect(cb_sell)
-			pass # print("[SellSlot] connected gui_input on inner sell slot")
+			pass  # print("[SellSlot] connected gui_input on inner sell slot")
 
 
 func _has_property(obj: Object, prop: StringName) -> bool:
@@ -201,7 +201,7 @@ func _on_sell_slot_gui_input(event: InputEvent) -> void:
 				and PlayerInventory.has_method("add_item_to_empty_slot")
 			):
 				var ok: bool = PlayerInventory.add_item_to_empty_slot(holding, sell_item_input_slot)
-				pass # print("[SellSlot] add_item_to_empty_slot ->", ok)
+				pass  # print("[SellSlot] add_item_to_empty_slot ->", ok)
 				if ok:
 					# put visual item into slot and clear holding
 					if sell_item_input_slot.has_method("put_into_slot"):

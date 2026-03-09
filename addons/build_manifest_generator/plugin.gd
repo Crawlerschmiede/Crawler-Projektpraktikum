@@ -21,6 +21,6 @@ func _exit_tree() -> void:
 
 func _refresh_manifests_on_editor_load() -> void:
 	if ManifestCore.write_all_manifests_to_disk():
-		pass # print("BuildManifestGenerator: manifests updated on editor load")
+		pass  # print("BuildManifestGenerator: manifests updated on editor load")
 		return
-	pass # printerr("BuildManifestGenerator: failed to update manifests on editor load")
+	pass  # printerr("BuildManifestGenerator: failed to update manifests on editor load")

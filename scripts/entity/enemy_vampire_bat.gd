@@ -64,7 +64,7 @@ func chase():
 	if !chasing:
 		if "burrowing" in types:
 			if !burrowed:
-				pass # print("Animations is ", animations)
+				pass  # print("Animations is ", animations)
 				if animations != null and animations.has("teleport_start"):
 					sprite.play(animations["teleport_start"])
 				else:
@@ -263,7 +263,7 @@ func decide_attack() -> void:
 	var a = chosen
 	if chosen != null:
 		a = chosen.name
-	pass # print("Enemy's freeze is currently ", frozen, " and chosen is ", a)
+	pass  # print("Enemy's freeze is currently ", frozen, " and chosen is ", a)
 	if frozen > 0 and chosen != null:
 		return
 	var activateable_abilities = []
@@ -273,7 +273,7 @@ func decide_attack() -> void:
 		if ability.is_activateable():
 			activateable_abilities.append(ability)
 	while not valid_pick:
-		pass # print(activateable_abilities)
+		pass  # print(activateable_abilities)
 		chosen_index = rng.randi_range(0, len(activateable_abilities) - 1)
 		var current_name = ""
 		if chosen != null:
@@ -284,7 +284,7 @@ func decide_attack() -> void:
 		):
 			valid_pick = true
 	chosen = activateable_abilities[chosen_index]
-	pass # print("Next ability is ", chosen.name)
+	pass  # print("Next ability is ", chosen.name)
 
 
 #x and y offset in tiles

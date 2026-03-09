@@ -50,12 +50,12 @@ func _ready() -> void:
 		anim.stop()
 		anim.frame = 0
 
-	pass # print("TrapTile ready | dmg:", damage, "| cooldown:", cooldown)
+	pass  # print("TrapTile ready | dmg:", damage, "| cooldown:", cooldown)
 
 
 func _on_body_entered(body: Node) -> void:
 	if not _ready_to_trigger:
-		pass # print("Trap trigger blocked (cooldown)")
+		pass  # print("Trap trigger blocked (cooldown)")
 		return
 
 	if body == null:
@@ -63,10 +63,10 @@ func _on_body_entered(body: Node) -> void:
 
 	# Nur Player triggern
 	if not body.is_in_group("player"):
-		pass # print("Trap ignored:", body.name)
+		pass  # print("Trap ignored:", body.name)
 		return
 
-	pass # print("TRAP TRIGGERED by:", body.name)
+	pass  # print("TRAP TRIGGERED by:", body.name)
 
 	_ready_to_trigger = false
 

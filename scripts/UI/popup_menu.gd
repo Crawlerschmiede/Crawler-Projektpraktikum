@@ -107,7 +107,7 @@ func _on_settings_closed() -> void:
 
 
 func _on_save_pressed() -> void:
-	pass # print("SAVE")
+	pass  # print("SAVE")
 	# Emit a signal so an external controller can perform the actual save
 	save_requested.emit()
 

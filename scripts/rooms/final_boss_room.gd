@@ -20,9 +20,9 @@ func _process(_delta: float) -> void:
 
 func _on_body_entered_boss_area(_body: Node2D) -> void:
 	if bossenterd == 0:
-		pass # print("final boss area entered the first time")
+		pass  # print("final boss area entered the first time")
 	else:
-		pass # print("final boss area entered the second time")
+		pass  # print("final boss area entered the second time")
 
 
 func _on_area_2d_entrance_area_entered(_area: Area2D) -> void:

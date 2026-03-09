@@ -31,7 +31,7 @@ func get_active_skills():
 			active_trees.append(wanted_tree)
 	for active_tree in active_trees:
 		var skills_in_tree = existing_skills.get_skills_by_tree(active_tree)
-		pass # print("skills in tree: ", skills_in_tree)
+		pass  # print("skills in tree: ", skills_in_tree)
 		for skill_in_tree in skills_in_tree:
 			if skill_in_tree[1].has("tier"):
 				if skill_in_tree[1].tier <= skilltrees[active_tree]:
@@ -45,7 +45,7 @@ func increase_tree_level(tree_name: String):
 		push_warning("Unknown skilltree: %s" % tree_name)
 		return
 	skilltrees[tree_name] = int(skilltrees[tree_name]) + 1
-	pass # print("Leveled successfully: ", tree_name)
+	pass  # print("Leveled successfully: ", tree_name)
 
 
 func activate(tree_name: String):
@@ -54,7 +54,7 @@ func activate(tree_name: String):
 		return
 	if int(skilltrees[tree_name]) < 1:
 		skilltrees[tree_name] = int(skilltrees[tree_name]) + 1
-		pass # print("Activated successfully: ", tree_name)
+		pass  # print("Activated successfully: ", tree_name)
 
 
 func get_all_explanations():

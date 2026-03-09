@@ -11,7 +11,7 @@ func _ready():
 func load_data(file_path: String) -> Dictionary:
 	var file = FileAccess.open(file_path, FileAccess.READ)
 	if file == null:
-		pass # print("Datei konnte nicht geöffnet werden: ", file_path)
+		pass  # print("Datei konnte nicht geöffnet werden: ", file_path)
 		return {}
 
 	var text := file.get_as_text()
@@ -19,7 +19,7 @@ func load_data(file_path: String) -> Dictionary:
 	var err := json.parse(text)
 
 	if err != OK:
-		pass # print("JSON Parse Fehler: ", json.get_error_message())
+		pass  # print("JSON Parse Fehler: ", json.get_error_message())
 		return {}
 
 	return json.get_data()

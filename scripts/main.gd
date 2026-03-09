@@ -473,7 +473,7 @@ func instantiate_battle(player_node: Node, enemy: Node):
 	if battle_flow.has_active_battle():
 		return
 
-	pass # print("instantiate_battle: creating battle instance")
+	pass  # print("instantiate_battle: creating battle instance")
 	battle_flow.start_battle(player_node, enemy)
 	if not battle_flow.has_active_battle():
 		push_warning("instantiate_battle: failed to create battle instance")
@@ -481,7 +481,7 @@ func instantiate_battle(player_node: Node, enemy: Node):
 
 	if game_event_gateway != null:
 		game_event_gateway.emit_battle_started(enemy)
-	pass # print("instantiate_battle: pausing tree to run battle")
+	pass  # print("instantiate_battle: pausing tree to run battle")
 	_set_tree_paused(true)
 
 
@@ -492,16 +492,16 @@ func find_merchants() -> Array[Vector2]:
 
 
 func enemy_defeated(enemy):
-	pass # print("enemy_defeated: The battle is won - handler called")
+	pass  # print("enemy_defeated: The battle is won - handler called")
 	# Make sure game is unpaused first so UI can update
 	var scene_tree := get_tree()
 	var gained_xp = 0
 	if scene_tree != null and scene_tree.paused:
-		pass # print("enemy_defeated: unpausing tree")
+		pass  # print("enemy_defeated: unpausing tree")
 		_set_tree_paused(false)
 
 	if battle_flow != null and battle_flow.has_active_battle():
-		pass # print("enemy_defeated: freeing battle UI")
+		pass  # print("enemy_defeated: freeing battle UI")
 		battle_flow.clear_battle()
 
 	if game_event_gateway != null:
@@ -510,16 +510,16 @@ func enemy_defeated(enemy):
 	# If the defeated enemy was a boss, record victory so level-gating can proceed
 	if enemy != null and is_instance_valid(enemy) and AudioManager.is_boss_enemy(enemy):
 		boss_win = true
-		pass # print("enemy_defeated: boss defeated -> boss_win set to true")
+		pass  # print("enemy_defeated: boss defeated -> boss_win set to true")
 
 	if enemy != null and is_instance_valid(enemy):
 		gained_xp = enemy.xp
-		pass # print("enemy_defeated: freeing enemy node")
+		pass  # print("enemy_defeated: freeing enemy node")
 		enemy.call_deferred("queue_free")
 
 	if player != null and is_instance_valid(player):
-		pass # print("enemy_defeated: leveling up player")
-		pass # print("player shall gain xp: ", gained_xp)
+		pass  # print("enemy_defeated: leveling up player")
+		pass  # print("player shall gain xp: ", gained_xp)
 		SkillState.current_xp += gained_xp
 		if SkillState.next_necessary_xp < SkillState.current_xp:
 			SkillState.current_xp = SkillState.current_xp - SkillState.next_necessary_xp
@@ -534,7 +534,7 @@ func _on_battle_player_loss() -> void:
 
 
 func _on_battle_player_victory(enemy) -> void:
-	pass # print("_on_battle_player_victory: handler invoked — calling enemy_defeated")
+	pass  # print("_on_battle_player_victory: handler invoked — calling enemy_defeated")
 	enemy_defeated(enemy)
 
 

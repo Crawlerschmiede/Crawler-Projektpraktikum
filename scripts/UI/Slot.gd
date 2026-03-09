@@ -80,7 +80,7 @@ func _fit_item_to_slot(it: Node) -> void:
 
 		var result := regex.search(g)
 		if result:
-			pass # print("Scale Result: ", result)
+			pass  # print("Scale Result: ", result)
 			var scale_value := float(result.get_string(1))
 			c.scale = Vector2(scale_value, scale_value)
 

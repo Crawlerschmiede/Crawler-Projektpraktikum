@@ -88,9 +88,9 @@ func _on_reached_player() -> void:
 
 
 func _collect_loot() -> void:
-	pass # print("[LootBox] collecting loot:", loot_table)
+	pass  # print("[LootBox] collecting loot:", loot_table)
 	for item_name in loot_table.keys():
-		pass # print("[LootBox] giving item:", item_name, loot_table[item_name])
+		pass  # print("[LootBox] giving item:", item_name, loot_table[item_name])
 		PlayerInventory.add_item(item_name, int(loot_table[item_name]))
 
 
@@ -116,7 +116,7 @@ func _generate_random_loot(min_weight: int, max_weight: int) -> Dictionary:
 			continue
 		# skip level-specific variants that don't match current level
 		if not _item_allowed_on_level(str(item_name)):
-			pass # print("[LootBox] skip by level filter:", item_name)
+			pass  # print("[LootBox] skip by level filter:", item_name)
 			continue
 
 		if not info.has("loot_stats"):
@@ -214,11 +214,11 @@ func _item_allowed_on_level(item_name: String) -> bool:
 	var rex := RegEx.new()
 	var err := rex.compile("_a(\\d+)$")
 	if err != OK:
-		pass # print("[LootBox] RegEx compile failed")
+		pass  # print("[LootBox] RegEx compile failed")
 		return true
 	var match := rex.search(item_name)
 	if match == null:
-		pass # print("[LootBox] item has no _aN suffix, allowed:", item_name, "lvl=", lvl)
+		pass  # print("[LootBox] item has no _aN suffix, allowed:", item_name, "lvl=", lvl)
 		return true
 	var parsed = int(match.get_string(1))
 	# Mapping: asset suffix `_a1` corresponds to world_index 0 (offset -1)

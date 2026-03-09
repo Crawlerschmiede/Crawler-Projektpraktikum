@@ -29,12 +29,12 @@ func _generate_manifests() -> void:
 	var room_manifest: Dictionary = ManifestCore.build_room_manifest()
 	_manifest_bytes = ManifestCore.manifest_bytes(room_manifest)
 	add_file(ManifestCore.ROOM_MANIFEST_PATH, _manifest_bytes, false)
-	pass # print("Manifest added to export: ", ManifestCore.ROOM_MANIFEST_PATH)
+	pass  # print("Manifest added to export: ", ManifestCore.ROOM_MANIFEST_PATH)
 
 	var audio_manifest: Dictionary = ManifestCore.build_audio_manifest()
 	_audio_manifest_bytes = ManifestCore.manifest_bytes(audio_manifest)
 	add_file(ManifestCore.AUDIO_MANIFEST_PATH, _audio_manifest_bytes, false)
-	pass # print("Audio manifest added to export: ", ManifestCore.AUDIO_MANIFEST_PATH)
+	pass  # print("Audio manifest added to export: ", ManifestCore.AUDIO_MANIFEST_PATH)
 
 	if not ManifestCore.write_manifest_to_disk(ManifestCore.ROOM_MANIFEST_PATH, room_manifest):
 		var room_err := FileAccess.get_open_error()

@@ -104,7 +104,7 @@ func _ready():
 	if player != null and is_instance_valid(player):
 		player_hp_bar.value = (player.hp * 100.0) / player.max_hp
 	player.reset_skills()
-	pass # print("At the start, player has these: ", player.alterations)
+	pass  # print("At the start, player has these: ", player.alterations)
 	_add_range_indicators()
 	enemy.decide_attack()
 	_enemy_prepare_turn()
@@ -137,7 +137,7 @@ func _create_battle_sprite(from_actor: CharacterBody2D) -> AnimatedSprite2D:
 func _enemy_prepare_turn(mid_turn = false):
 	# TODO: very low tech; clears everything (ok for 1-turn effects).
 	# Anything longer-term will need something more robust.
-	pass # print("Tile modifiers right now are: ", tile_modifiers)
+	pass  # print("Tile modifiers right now are: ", tile_modifiers)
 	for tile_modifier in tile_modifiers.keys():
 		tile_modifiers[tile_modifier]["duration"] -= 1
 		if tile_modifiers[tile_modifier]["duration"] <= 0:
@@ -159,7 +159,7 @@ func enemy_turn():
 	if not active:
 		return
 	turn_counter += 1
-	pass # print("It is turn " + str(turn_counter))
+	pass  # print("It is turn " + str(turn_counter))
 	over = check_victory()
 	update_health_bars()
 	var happened = []
@@ -175,7 +175,7 @@ func enemy_turn():
 			#pass # print(enemy, " activates its Skill ", enemy.chosen.name, "!")
 			happened = await enemy.chosen.activate_skill(enemy, player, self)
 			enemy_action_log.append(enemy.chosen.name)
-			pass # print(enemy_action_log)
+			pass  # print(enemy_action_log)
 			if hit_anim_enemy != null:
 				hit_anim_enemy.visible = true
 				hit_anim_enemy.play("triple_strike")
@@ -200,7 +200,7 @@ func enemy_turn():
 		next_turn = []
 		if extra_stuff[0]:
 			_player_turn()
-			pass # print(player_action_log)
+			pass  # print(player_action_log)
 		else:
 			enemy_turn()
 		over = check_victory()
@@ -243,8 +243,8 @@ func _trigger_passives(abilities, user, target, battle, prep):
 	for ability in abilities:
 		if ability.is_passive:
 			if ability.is_activateable(user, target, self):
-				pass # print("Activated the passive effect ", ability.name)
-				pass # print_stack()
+				pass  # print("Activated the passive effect ", ability.name)
+				pass  # print_stack()
 				if prep:
 					await ability.prep_skill(user, target, battle)
 				else:
@@ -258,11 +258,11 @@ func check_victory():
 		return true
 	# Treat missing or freed enemy/player as defeat for that side
 	if enemy == null or not is_instance_valid(enemy) or enemy.hp <= 0:
-		pass # print("battle_script: emitting player_victory (enemy dead)")
+		pass  # print("battle_script: emitting player_victory (enemy dead)")
 		player_victory.emit()
 		return true
 	if player == null or not is_instance_valid(player) or player.hp <= 0:
-		pass # print("battle_script: emitting player_loss (player dead)")
+		pass  # print("battle_script: emitting player_loss (player dead)")
 		player_loss.emit()
 		return true
 	return false
@@ -288,7 +288,7 @@ func move_player(direction: String, distance: int):
 	var dir = ""
 	var basics = ["u", "d", "l", "r"]
 	var new_cell := player_gridpos
-	pass # print("Moving the player in direction: ", direction)
+	pass  # print("Moving the player in direction: ", direction)
 	if player_sprite == null:
 		return "One cannot move what doesn't exist. Remember this."
 	if direction in basics:
@@ -352,7 +352,7 @@ func move_player(direction: String, distance: int):
 			log_container.changed = true
 		var new_dir := "no"
 		while new_dir == "no":
-			pass # print("still waiting...")
+			pass  # print("still waiting...")
 			await get_tree().process_frame
 			new_dir = _get_held_direction()
 		if log_container != null:
@@ -400,19 +400,19 @@ func _add_range_indicators():
 	var valid_cells = []
 	for tile in used_cells:
 		var min_y = _get_min_y()
-		pass # print("Is cell ", tile, " valid in ranges ", range, "?")
+		pass  # print("Is cell ", tile, " valid in ranges ", range, "?")
 		if tile.y - min_y in valid_ys:
 			valid_cells.append(tile)
-	pass # print("The valid cells are ", valid_cells)
+	pass  # print("The valid cells are ", valid_cells)
 	for cell in valid_cells:
 		var marker_info = MARKER_FLAVOURS["good_range"]
 		var marker = MARKER_PREFAB.instantiate()
 
 		var marker_visual = marker_info.get("visual", "eugh")
-		pass # print("visual is ", marker_visual)
+		pass  # print("visual is ", marker_visual)
 		marker.marker_type = marker_visual
-		pass # print("Visual is ", marker_visual)
-		pass # print("Adding ", marker.marker_type, " marker!")
+		pass  # print("Visual is ", marker_visual)
+		pass  # print("Adding ", marker.marker_type, " marker!")
 		marker.tooltip_container = log_container
 
 		$Battle_root.add_child(marker)
@@ -501,7 +501,7 @@ func _get_min_y():
 
 
 func apply_zones(zone_type, mult, pos, dur, direction):
-	pass # print("Applying ", zone_type, " zones at ", pos)
+	pass  # print("Applying ", zone_type, " zones at ", pos)
 	# NOTE: duration currently unused (effects are 1-turn only).
 	var mult_type = zone_type + direction
 	var marker_info = MARKER_FLAVOURS[zone_type]
@@ -607,14 +607,14 @@ func _update_marker_visuals():
 	active_markers.clear()
 	for cell: Vector2i in tile_modifiers.keys():
 		var marker_info = MARKER_FLAVOURS[tile_modifiers[cell].get("type", "nope")]
-		pass # print("Tile modifiers", tile_modifiers)
+		pass  # print("Tile modifiers", tile_modifiers)
 		var marker = MARKER_PREFAB.instantiate()
 
 		var marker_visual = marker_info.get("visual", "eugh")
-		pass # print("visual is ", marker_visual)
+		pass  # print("visual is ", marker_visual)
 		marker.marker_type = marker_visual
-		pass # print("Visual is ", marker_visual)
-		pass # print("Adding ", marker.marker_type, " marker!")
+		pass  # print("Visual is ", marker_visual)
+		pass  # print("Adding ", marker.marker_type, " marker!")
 		marker.tooltip_container = log_container
 		var text_val = tile_modifiers[cell].get("mult", 0)
 		if tile_modifiers[cell].get("type", "nope") == "dmg_reduc_":
