@@ -225,6 +225,7 @@
 		"StackSize": 1,
 		"Description": "",
 		"group": "chest",
+		"example_in_inventory": "chest",
 		"bound_skills": [
             "Block"
 		],
@@ -400,27 +401,6 @@
 			"weight": 1
 		}
 	},
-	"frozen": {
-		"ItemCategory": "Misc",
-		"StackSize": 1,
-		"Description": "",
-		"group": "frozen",
-		"loot_stats": {
-			"weight": 1,
-			"chance": 1.0,
-			"max_stack": 1
-		},
-		"merchant": {
-			"min_count": 1,
-			"max_count": 1,
-			"min_price": 1,
-			"max_price": 1,
-			"buy_amount": 1,
-			"chance": 1.0,
-			"weight": 1
-		},
-		"bound_skills": []
-	},
 	"halberd_a1": {
 		"ItemCategory": "Weapon",
 		"StackSize": 1,
@@ -576,6 +556,7 @@
 		"StackSize": 1,
 		"Description": "",
 		"group": "head",
+		"example_in_inventory": "head",
 		"slot": "head",
 		"bound_skills": [
             "Block"
@@ -648,6 +629,7 @@
 		"StackSize": 1,
 		"Description": "",
 		"group": "legs",
+		"example_in_inventory": "legs",
 		"slot": "legs",
 		"bound_skills": [
 			"Sly Dodge",
@@ -801,6 +783,7 @@
 		"StackSize": 1,
 		"Description": "",
 		"group": "sword",
+		"example_in_inventory": "sword",
 		"loot_stats": {
 			"weight": 1,
 			"chance": 1.0,
