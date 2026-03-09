@@ -49,7 +49,7 @@
 		},
 		"weight": 3,
 		"stats": {
-			"hp": 2,
+			"hp": 5,
 			"str": 1,
 			"def": 0,
 			"phyres": 0,
@@ -101,7 +101,7 @@
 		},
 		"weight": 3,
 		"stats": {
-			"hp": 3,
+			"hp": 10,
 			"str": 1,
 			"def": 1,
 			"phyres": 0.2,
@@ -203,8 +203,8 @@
 		},
 		"weight": 2,
 		"stats": {
-			"hp": 3,
-			"str": 1,
+			"hp": 10,
+			"str": 0,
 			"def": 0,
 			"phyres": 0,
 			"firres": 0,
@@ -255,7 +255,7 @@
 		},
 		"weight": 4,
 		"stats": {
-			"hp": 4,
+			"hp": 20,
 			"str": 1,
 			"def": 0,
 			"phyres": 0,
@@ -307,7 +307,7 @@
 		},
 		"weight": 5,
 		"stats": {
-			"hp": 3,
+			"hp": 10,
 			"str": 1,
 			"def": 0,
 			"phyres": 0.8,
@@ -359,7 +359,7 @@
 		},
 		"weight": 6,
 		"stats": {
-			"hp": 5,
+			"hp": 20,
 			"str": 1,
 			"def": 0,
 			"phyres": 0.5,
@@ -411,7 +411,7 @@
 		},
 		"weight": 0,
 		"stats": {
-			"hp": 20,
+			"hp": 40,
 			"str": 3,
 			"def": 1,
 			"phyres": 0.4,
@@ -465,7 +465,7 @@
 		},
 		"weight": 0,
 		"stats": {
-			"hp": 20,
+			"hp": 40,
 			"str": 3,
 			"def": 1,
 			"phyres": 0,
@@ -517,7 +517,7 @@
 		},
 		"weight": 0,
 		"stats": {
-			"hp": 20,
+			"hp": 40,
 			"str": 3,
 			"def": 1,
 			"phyres": 0.2,
@@ -561,7 +561,7 @@
 		},
 		"weight": 0,
 		"stats": {
-			"hp": 20,
+			"hp": 50,
 			"str": 3,
 			"def": 1,
 			"phyres": 0.2,

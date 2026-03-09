@@ -3,9 +3,9 @@
 		"ItemCategory": "Consumable",
 		"StackSize": 99,
 		"Description": "",
-		"group": "Equipment",
-		"use_effects": [
-            "Heal"
+		"group": "Consumable",
+		"bound_skills": [
+            "Drink"
 		],
 		"loot_stats": {
 			"weight": 3,
@@ -28,8 +28,7 @@
 		"Description": "",
 		"group": "Weapon",
 		"bound_skills": [
-			"Bash",
-            "Punch"
+			"Bash"
 		],
 		"range": "short",
 		"slot": "arm",
@@ -54,8 +53,7 @@
 		"Description": "",
 		"group": "Weapon",
 		"bound_skills": [
-			"Bash",
-            "Punch"
+			"Bash +1"
 		],
 		"range": "short",
 		"slot": "arm",
@@ -80,8 +78,7 @@
 		"Description": "",
 		"group": "Weapon",
 		"bound_skills": [
-			"Bash",
-            "Punch"
+			"Bash +2"
 		],
 		"range": "short",
 		"slot": "arm",
@@ -130,7 +127,7 @@
 		"Description": "",
 		"group": "Weapon",
 		"bound_skills": [
-            "Shoot"
+            "Shoot +1"
 		],
 		"range": "long",
 		"loot_stats": {
@@ -154,7 +151,7 @@
 		"Description": "",
 		"group": "Weapon",
 		"bound_skills": [
-            "Shoot"
+            "Shoot +2"
 		],
 		"range": "long",
 		"loot_stats": {
@@ -252,8 +249,7 @@
 		"group": "Weapon",
 		"example_in_inventory": "Weapon",
 		"bound_skills": [
-			"Shoot",
-            "Reload"
+			"Fire Bolt"
 		],
 		"range": "long",
 		"loot_stats": {
@@ -278,8 +274,7 @@
 		"group": "Weapon",
 		"example_in_inventory": "Weapon",
 		"bound_skills": [
-			"Shoot",
-            "Reload"
+			"Fire Bolt +1"
 		],
 		"range": "long",
 		"loot_stats": {
@@ -304,8 +299,7 @@
 		"group": "Weapon",
 		"example_in_inventory": "Weapon",
 		"bound_skills": [
-			"Shoot",
-            "Reload"
+			"Fire Bolt +2"
 		],
 		"range": "long",
 		"loot_stats": {
@@ -329,9 +323,7 @@
 		"Description": "",
 		"group": "Weapon",
 		"bound_skills": [
-			"Stab",
-			"Shank",
-            "Blade Dance"
+			"Shank"
 		],
 		"range": "short",
 		"loot_stats": {
@@ -355,9 +347,7 @@
 		"Description": "",
 		"group": "Weapon",
 		"bound_skills": [
-			"Stab",
-			"Shank",
-            "Blade Dance"
+			"Shank +1"
 		],
 		"range": "short",
 		"loot_stats": {
@@ -381,9 +371,7 @@
 		"Description": "",
 		"group": "Weapon",
 		"bound_skills": [
-			"Stab",
-			"Shank",
-            "Blade Dance"
+			"Shank +2"
 		],
 		"range": "short",
 		"loot_stats": {
@@ -408,8 +396,7 @@
 		"group": "Weapon",
 		"bound_skills": [
 			"Slash",
-			"Stab",
-            "Overhau"
+			"Stab"
 		],
 		"range": "medium",
 		"loot_stats": {
@@ -433,9 +420,8 @@
 		"Description": "",
 		"group": "Weapon",
 		"bound_skills": [
-			"Slash",
-			"Stab",
-            "Overhau"
+			"Slash +1",
+			"Stab +1"
 		],
 		"range": "medium",
 		"loot_stats": {
@@ -459,9 +445,8 @@
 		"Description": "",
 		"group": "Weapon",
 		"bound_skills": [
-			"Slash",
-			"Stab",
-            "Overhau"
+			"Slash +2",
+			"Stab +2"
 		],
 		"range": "medium",
 		"loot_stats": {
@@ -509,7 +494,7 @@
 		"Description": "",
 		"group": "Weapon",
 		"bound_skills": [
-            "Slash"
+            "Slash +1"
 		],
 		"range": "short",
 		"loot_stats": {
@@ -533,7 +518,7 @@
 		"Description": "",
 		"group": "Weapon",
 		"bound_skills": [
-            "Slash"
+            "Slash +2"
 		],
 		"range": "short",
 		"loot_stats": {
@@ -632,9 +617,6 @@
 		"example_in_inventory": "legs",
 		"slot": "legs",
 		"bound_skills": [
-			"Sly Dodge",
-			"Move Left",
-            "Move Right"
 		],
 		"loot_stats": {
 			"weight": 3,
@@ -658,9 +640,6 @@
 		"group": "legs",
 		"slot": "legs",
 		"bound_skills": [
-			"Sly Dodge",
-			"Move Left",
-            "Move Right"
 		],
 		"loot_stats": {
 			"weight": 3,
@@ -684,9 +663,6 @@
 		"group": "legs",
 		"slot": "legs",
 		"bound_skills": [
-			"Sly Dodge",
-			"Move Left",
-            "Move Right"
 		],
 		"loot_stats": {
 			"weight": 3,
@@ -709,8 +685,7 @@
 		"Description": "",
 		"group": "Weapon",
 		"bound_skills": [
-			"Stab",
-            "Riposte"
+			"Stab"
 		],
 		"range": "medium",
 		"loot_stats": {
@@ -734,8 +709,7 @@
 		"Description": "",
 		"group": "Weapon",
 		"bound_skills": [
-			"Stab",
-            "Riposte"
+			"Stab +1"
 		],
 		"range": "medium",
 		"loot_stats": {
@@ -759,8 +733,7 @@
 		"Description": "",
 		"group": "Weapon",
 		"bound_skills": [
-			"Stab",
-            "Riposte"
+			"Stab +2"
 		],
 		"range": "medium",
 		"loot_stats": {
@@ -798,7 +771,7 @@
 			"chance": 1.0,
 			"weight": 1
 		},
-		"bound_skills": []
+		"bound_skills": ["Slash"]
 	},
 	"sword_a2": {
 		"ItemCategory": "Misc",
@@ -819,7 +792,7 @@
 			"chance": 1.0,
 			"weight": 1
 		},
-		"bound_skills": []
+		"bound_skills": ["Slash +1"]
 	},
 	"sword_a3": {
 		"ItemCategory": "Misc",
@@ -840,7 +813,7 @@
 			"chance": 1.0,
 			"weight": 1
 		},
-		"bound_skills": []
+		"bound_skills": ["Slash +2"]
 	},
 	"throwing_knives_a1": {
 		"ItemCategory": "Weapon",
@@ -848,8 +821,7 @@
 		"Description": "",
 		"group": "Weapon",
 		"bound_skills": [
-			"Throw",
-            "Fill the Sky"
+			"Throw"
 		],
 		"range": "long",
 		"loot_stats": {
@@ -873,8 +845,7 @@
 		"Description": "",
 		"group": "Weapon",
 		"bound_skills": [
-			"Throw",
-            "Fill the Sky"
+			"Throw +1"
 		],
 		"range": "long",
 		"loot_stats": {
@@ -898,8 +869,7 @@
 		"Description": "",
 		"group": "Weapon",
 		"bound_skills": [
-			"Throw",
-            "Fill the Sky"
+			"Throw +2"
 		],
 		"range": "long",
 		"loot_stats": {
@@ -923,8 +893,7 @@
 		"Description": "",
 		"group": "Weapon",
 		"bound_skills": [
-			"Cast",
-            "Vortex"
+			"Cast"
 		],
 		"range": "long",
 		"loot_stats": {
@@ -948,8 +917,7 @@
 		"Description": "",
 		"group": "Weapon",
 		"bound_skills": [
-			"Cast",
-            "Vortex"
+			"Cast +1"
 		],
 		"range": "long",
 		"loot_stats": {
@@ -973,8 +941,7 @@
 		"Description": "",
 		"group": "Weapon",
 		"bound_skills": [
-			"Cast",
-            "Vortex"
+			"Cast +2"
 		],
 		"range": "long",
 		"loot_stats": {
