@@ -314,6 +314,7 @@ func move_player(direction: String, distance: int):
 		var ranges = ["short", "medium", "long"]
 		var move_markers = ["dmg_reduc_good"]
 		var parts = direction.split("|")
+		print("DEBUG!!: ", direction)
 		var area = parts[1]
 		var from_to = []
 		var min_y = get_min_y()
@@ -396,7 +397,9 @@ func add_range_indicators():
 			range = player.ranges[2]
 	var valid_ys = []
 	print("Valid Range is: ", range)
-	if range[0] == range[1]:
+	if not range:
+		valid_ys.append(0)
+	elif range[0] == range[1]:
 		valid_ys.append(int(range[0]))
 	else:
 		valid_ys.append(int(range[0]))
