@@ -51,7 +51,7 @@ func _input(event):
 				scale = original_scale * (1.0 - click_scale_reduction)
 			else:
 				scale = original_scale
-				print("Clicked!")
+				pass # print("Clicked!")
 
 
 func get_rect_compat():

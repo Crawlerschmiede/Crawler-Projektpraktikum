@@ -64,7 +64,7 @@ func chase():
 	if !chasing:
 		if "burrowing" in types:
 			if !burrowed:
-				print("Animations is ", animations)
+				pass # print("Animations is ", animations)
 				if animations != null and animations.has("teleport_start"):
 					sprite.play(animations["teleport_start"])
 				else:
@@ -150,7 +150,7 @@ func _ready() -> void:
 	_super_ready(sprite_type, types)
 
 	var p := get_best_player()
-	#print("Enemy ready:", name, " found player:", p)
+	#pass # print("Enemy ready:", name, " found player:", p)
 
 	if p == null:
 		push_warning("❌ Enemy found NO player in group 'player' -> cannot connect player_moved")
@@ -158,7 +158,7 @@ func _ready() -> void:
 
 	if not p.player_moved.is_connected(move_it):
 		p.player_moved.connect(move_it)
-		#print("✅ Connected player_moved -> move_it")
+		#pass # print("✅ Connected player_moved -> move_it")
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
@@ -168,12 +168,12 @@ func _process(delta: float) -> void:
 
 
 func move_it():
-	#print("Move1")
+	#pass # print("Move1")
 	if multi_turn_action == null:
-		#print("Move2")
+		#pass # print("Move2")
 		var saw_player = check_sight()
 		if saw_player:
-			#print("Move3")
+			#pass # print("Move3")
 			if "hostile" in types:
 				behaviour = "chase"
 		else:
@@ -201,9 +201,9 @@ func move_it():
 func check_sight() -> bool:
 	var bodies := sight_area.get_overlapping_bodies()
 
-	#print("\n============================")
-	#print("👁️ CHECK_SIGHT START: ", self.name, " | grid_pos:", grid_pos)
-	#print("SightArea:", sight_area.name, " bodies_count:", bodies.size())
+	#pass # print("\n============================")
+	#pass # print("👁️ CHECK_SIGHT START: ", self.name, " | grid_pos:", grid_pos)
+	#pass # print("SightArea:", sight_area.name, " bodies_count:", bodies.size())
 
 	var saw_player := false
 	chase_target = null
@@ -211,21 +211,21 @@ func check_sight() -> bool:
 	for i in range(bodies.size()):
 		var body = bodies[i]
 
-		#print("\n--- BODY #", i, " ----------------------")
+		#pass # print("\n--- BODY #", i, " ----------------------")
 
 		if body == null:
-			#print("❌ body is NULL")
+			#pass # print("❌ body is NULL")
 			continue
 
-		#print("Node:", body)
-		#print("Name:", body.name)
-		#print("Class:", body.get_class())
+		#pass # print("Node:", body)
+		#pass # print("Name:", body.name)
+		#pass # print("Class:", body.get_class())
 		if body == self:
-			#print("⚠️ body is SELF -> skip")
+			#pass # print("⚠️ body is SELF -> skip")
 			continue
 
 		# --- Gruppen ausgeben ---
-		#print("Groups:", body.get_groups())
+		#pass # print("Groups:", body.get_groups())
 
 		# --- is_player property check ---
 		var has_is_player := body.get("is_player") != null or body.has_method("get")  # fallback
@@ -234,23 +234,23 @@ func check_sight() -> bool:
 		var is_player_value = null
 		if body.has_method("get"):
 			is_player_value = body.get("is_player")
-		#print("body.get('is_player'):", is_player_value)
+		#pass # print("body.get('is_player'):", is_player_value)
 
 		# --- Gruppencheck ---
 		var in_player_group := false
 		if body.has_method("is_in_group"):
 			in_player_group = body.is_in_group("player")
-		#print("Is in group 'player'?", in_player_group)
+		#pass # print("Is in group 'player'?", in_player_group)
 
 		# --- Typcheck ---
 		var is_player_character := body is PlayerCharacter
-		#print("Is PlayerCharacter?", is_player_character)
+		#pass # print("Is PlayerCharacter?", is_player_character)
 
 		# --- Collision Info (falls PhysicsBody2D) ---
 
 		# --- finale Entscheidung ---
 		if in_player_group or is_player_character or (("is_player" in body) and body.is_player):
-			#print("✅✅✅ PLAYER DETECTED! -> setting chase_target =", body.name)
+			#pass # print("✅✅✅ PLAYER DETECTED! -> setting chase_target =", body.name)
 			if not body.is_hiding() or self.grid_pos.y <= body.grid_pos.y:
 				saw_player = true
 				chase_target = body
@@ -263,7 +263,7 @@ func decide_attack() -> void:
 	var a = chosen
 	if chosen != null:
 		a = chosen.name
-	print("Enemy's freeze is currently ", frozen, " and chosen is ", a)
+	pass # print("Enemy's freeze is currently ", frozen, " and chosen is ", a)
 	if frozen > 0 and chosen != null:
 		return
 	var activateable_abilities = []
@@ -273,7 +273,7 @@ func decide_attack() -> void:
 		if ability.is_activateable():
 			activateable_abilities.append(ability)
 	while not valid_pick:
-		print(activateable_abilities)
+		pass # print(activateable_abilities)
 		chosen_index = rng.randi_range(0, len(activateable_abilities) - 1)
 		var current_name = ""
 		if chosen != null:
@@ -284,7 +284,7 @@ func decide_attack() -> void:
 		):
 			valid_pick = true
 	chosen = activateable_abilities[chosen_index]
-	print("Next ability is ", chosen.name)
+	pass # print("Next ability is ", chosen.name)
 
 
 #x and y offset in tiles

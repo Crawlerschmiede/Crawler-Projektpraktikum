@@ -107,12 +107,12 @@ func _on_settings_closed() -> void:
 
 
 func _on_save_pressed() -> void:
-	print("SAVE")
+	pass # print("SAVE")
 	# Emit a signal so an external controller can perform the actual save
 	save_requested.emit()
 
 
 # Function for the "Quit" button
 func _on_quit_pressed():
-	#print("Check: Quit Pressed! Emitting signal.")
+	#pass # print("Check: Quit Pressed! Emitting signal.")
 	get_tree().quit()

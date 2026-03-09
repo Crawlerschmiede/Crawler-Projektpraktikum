@@ -474,21 +474,11 @@ func _debug_audio_manifest_status(
 	var world_count := world_music_by_index.size()
 	var combat_pool_count := combat_music_by_type.size()
 	var generic_count := _get_combat_tracks("generic").size()
-	print(
-		(
-			"[AudioManager] track cache %s (%s) world=%d combat_pools=%d generic=%d"
-			% [reason, mode, world_count, combat_pool_count, generic_count]
-		)
-	)
 
 
 func _debug_boss_music_selection(mode: String, boss_key: String, pool_size: int) -> void:
 	if not OS.is_debug_build():
 		return
-
-	print(
-		"[AudioManager] boss battle music mode=%s boss_key=%s pool=%d" % [mode, boss_key, pool_size]
-	)
 
 
 func _paths_to_streams(paths: Array) -> Array[AudioStream]:

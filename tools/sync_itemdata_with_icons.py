@@ -19,10 +19,10 @@ ITEMDATA = ROOT / "data" / "itemData.json"
 ICONS_DIR = ROOT / "assets" / "item_icons"
 
 if not ITEMDATA.exists():
-    print("itemData.json not found at", ITEMDATA)
+    pass # print("itemData.json not found at", ITEMDATA)
     raise SystemExit(1)
 if not ICONS_DIR.exists():
-    print("icons dir not found at", ICONS_DIR)
+    pass # print("icons dir not found at", ICONS_DIR)
     raise SystemExit(1)
 
 with open(ITEMDATA, "r", encoding="utf-8") as f:
@@ -32,7 +32,7 @@ with open(ITEMDATA, "r", encoding="utf-8") as f:
 icon_files = [p.name for p in ICONS_DIR.glob("*.png")]
 icon_basenames = set([os.path.splitext(n)[0] for n in icon_files])
 
-print(f"Found {len(icon_basenames)} icon names in {ICONS_DIR}")
+pass # print(f"Found {len(icon_basenames)} icon names in {ICONS_DIR}")
 
 # helper: detect base from name (strip _aN suffix)
 def base_name(name: str) -> str:
@@ -68,7 +68,7 @@ for icon in sorted(icon_basenames):
         }
         added.append(icon)
 
-print(f"Added {len(added)} item entries for icons (examples): {added[:10]}")
+pass # print(f"Added {len(added)} item entries for icons (examples): {added[:10]}")
 
 # 2) Remove entries that have no icon and no variant icon
 removed = []
@@ -87,13 +87,13 @@ for key in list(data.keys()):
         removed.append(key)
         del data[key]
 
-print(f"Removed {len(removed)} item entries without icons (examples): {removed[:10]}")
+pass # print(f"Removed {len(removed)} item entries without icons (examples): {removed[:10]}")
 
 # backup
 bak = ITEMDATA.with_suffix(".json.bak")
 with open(bak, "w", encoding="utf-8") as f:
     json.dump(data, f, indent=4, ensure_ascii=False)
-print("Backup written to", bak)
+pass # print("Backup written to", bak)
 
 # Post-process: if loot_stats or merchant are dicts with only key '0', unwrap them
 for k, v in list(data.items()):
@@ -110,6 +110,6 @@ for k, v in list(data.items()):
 
 with open(ITEMDATA, "w", encoding="utf-8") as f:
     json.dump(data, f, indent=4, ensure_ascii=False)
-print("Wrote updated", ITEMDATA)
+pass # print("Wrote updated", ITEMDATA)
 
-print("Done.")
+pass # print("Done.")

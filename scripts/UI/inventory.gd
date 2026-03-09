@@ -85,7 +85,7 @@ func _get_ui() -> Node:
 func _get_slots() -> Array[Node]:
 	# get_children() liefert Array[Node], aber ohne typed generic → wir casten sauber.
 	var children: Array = _get_all_slots()
-	#print(children)
+	#pass # print(children)
 	var out: Array[Node] = []
 	for n in children:
 		if n is Node:
@@ -399,7 +399,7 @@ func _validate_slot(slot: Node) -> void:
 
 
 func verify_equipment_slots() -> Array:
-	# Collect all slot-like nodes under the equipment container and print a validation summary.
+	# Collect all slot-like nodes under the equipment container and pass # print a validation summary.
 	var out: Array[Node] = []
 	_collect_slots_recursive(inv_grid, out)
 

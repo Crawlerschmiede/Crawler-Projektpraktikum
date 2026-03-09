@@ -91,7 +91,7 @@ func _close_menu() -> void:
 
 func _ready() -> void:
 	if camera == null:
-		#print("Children:", get_children())
+		#pass # print("Children:", get_children())
 		push_error("❌ Camera2D fehlt im Player!")
 		return
 
@@ -238,7 +238,7 @@ func level_up():
 	self.max_hp = self.max_hp + 1
 	self.hp = self.max_hp
 	update_unlocked_skills()
-	print("now has ", abilities)
+	pass # print("now has ", abilities)
 
 
 func _check_exit_tile() -> bool:
@@ -263,17 +263,17 @@ func is_hiding() -> bool:
 
 
 func update_unlocked_skills():
-	print("update_skills")
+	pass # print("update_skills")
 	abilities = []
 	var gotten_skills = SkillState.skilltrees.get_active_skills()
-	print("Gotten skills ", gotten_skills)
+	pass # print("Gotten skills ", gotten_skills)
 	var equipped_skills = inventory.get_equipment_skills()
 	var armed = false
 	if can_use_weapons:
 		for extra in equipped_skills:
 			gotten_skills.append(extra)
 			armed = true
-		print("Gotten Skills:", gotten_skills)
+		pass # print("Gotten Skills:", gotten_skills)
 		if armed:
 			is_armed = true
 		else:
@@ -288,7 +288,7 @@ func get_used_range():
 
 func update_visibility():
 	if tilemap == null or fog_layer == null:
-		print("[DEBUG] update_visibility: tilemap=", tilemap, " fog_layer=", fog_layer)
+		pass # print("[DEBUG] update_visibility: tilemap=", tilemap, " fog_layer=", fog_layer)
 		return
 
 	var tm := tilemap
@@ -310,11 +310,6 @@ func update_visibility():
 				fog.erase_cell(cell)
 				erased_count += 1
 				visible_cells[_cell_key(cell)] = cell
-
-	print(
-		"[DEBUG] update_visibility: erased=", erased_count, "visible_cells=", visible_cells.size()
-	)
-
 	if dynamic_fog:
 		# Re-fog cells that were visible previously but are not visible now
 		for key in _prev_visible.keys():
@@ -392,7 +387,7 @@ func reveal_on_spawn() -> void:
 			if found != null:
 				fog_layer = found
 
-	print("[DEBUG] _reveal_on_spawn: tilemap=", tilemap, " fog_layer=", fog_layer)
+	pass # print("[DEBUG] _reveal_on_spawn: tilemap=", tilemap, " fog_layer=", fog_layer)
 	if tilemap == null or fog_layer == null:
 		call_deferred("_reveal_on_spawn")
 		return

@@ -54,7 +54,7 @@ func _on_tab_changed(tab_idx: int) -> void:
 
 func _populate_list(tab_idx: int) -> void:
 	_clear_vbox(list_vbox)
-	print("Populating list!")
+	pass # print("Populating list!")
 	match tab_idx:
 		Tab.SKILLS:
 			for ability in player.abilities:
@@ -186,9 +186,6 @@ func _on_skill_pressed(ability) -> void:
 			await hit_anim_player.animation_finished
 			hit_anim_player.visible = false
 		var stuff = await ability.activate_skill(player, enemy, battle_scene)
-		print(
-			"Effect log (by the omnissiah godf please just work) ", battle_scene.player_effect_log
-		)
 		battle_scene.player_action_log.append(ability.name)
 		for thing in stuff:
 			battle_scene.log_container.add_log_event(thing)

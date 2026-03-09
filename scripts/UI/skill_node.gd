@@ -87,13 +87,13 @@ func _is_levelup_locked() -> bool:
 
 #func _on_skill_pressed():
 #if is_unlocked:
-#print("Already unlocked!")
+#pass # print("Already unlocked!")
 #return
 #
 ## Logic: Unlock this skill
 #is_unlocked = true
 #update_visuals()
-#print(name + " unlocked!")
+#pass # print(name + " unlocked!")
 #
 #var all_skills = get_tree().get_nodes_in_group("skill_nodes")
 #for skill in all_skills:

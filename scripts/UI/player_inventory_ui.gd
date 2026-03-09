@@ -126,7 +126,7 @@ func _ready() -> void:
 
 	# Connect existing merchants (if any)
 	for m in get_tree().get_nodes_in_group("merchant_entity"):
-		#print("CONNECT MERCHANT:", m)
+		#pass # print("CONNECT MERCHANT:", m)
 		var cb2: Callable = Callable(self, "_on_merchant_open")
 		if not m.player_entered_merchant.is_connected(cb2):
 			m.player_entered_merchant.connect(cb2)
@@ -208,7 +208,7 @@ func _on_node_added(node: Node) -> void:
 	if node == null:
 		return
 	if node.is_in_group("merchant_entity"):
-		#print("NEW MERCHANT ADDED, CONNECTING:", node)
+		#pass # print("NEW MERCHANT ADDED, CONNECTING:", node)
 		var cb: Callable = Callable(self, "_on_merchant_open")
 		if not node.player_entered_merchant.is_connected(cb):
 			node.player_entered_merchant.connect(cb)
@@ -222,7 +222,7 @@ func _on_node_added(node: Node) -> void:
 
 
 func _on_merchant_updated(updated):
-	#print("rebuild Merchant")
+	#pass # print("rebuild Merchant")
 	merchantgui._rebuild(updated)
 
 

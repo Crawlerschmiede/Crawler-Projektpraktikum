@@ -25,24 +25,6 @@ static func _debug_log(context: Node, phase: String, pause_tree: bool, lock_move
 	if not _debug_enabled:
 		return
 
-	print(
-		(
-			(
-				"[UIModalController] %s | pause=%s lock=%s | "
-				+ "pause_count=%d movement_count=%d tree_was_paused=%s caller=%s"
-			)
-			% [
-				phase,
-				str(pause_tree),
-				str(lock_movement),
-				_pause_request_count,
-				_movement_lock_count,
-				str(_tree_was_paused_before_modal),
-				_context_name(context)
-			]
-		)
-	)
-
 
 static func acquire(context: Node, pause_tree: bool = true, lock_movement: bool = true) -> void:
 	if lock_movement:

@@ -302,14 +302,6 @@ func load_world(idx: int, generators: Array[Node2D]) -> void:
 			if typeof(PlayerInventory) != TYPE_NIL and PlayerInventory != null:
 				inventory_slots = (PlayerInventory.inventory as Dictionary).size()
 				coins = int(PlayerInventory.coins)
-			print(
-				"[ContinueLoad] world_index=",
-				_main.world_index,
-				" inventory_slots=",
-				inventory_slots,
-				" coins=",
-				coins
-			)
 		_main.saved_maps = {}
 	else:
 		_main.player = await _main.spawn_coordinator.spawn_standard_world_entities(true, _main)

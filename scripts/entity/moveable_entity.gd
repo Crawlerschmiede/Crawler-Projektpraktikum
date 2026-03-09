@@ -113,13 +113,13 @@ func setup(
 	str_stat = _str
 	def_stat = _def
 	action_points = base_action_points
-	print("Setting up with the following:", _resistances)
+	pass # print("Setting up with the following:", _resistances)
 	resistances["physical"] = _resistances.get("phyres", 0)
 	resistances["fire"] = _resistances.get("firres", 0)
 	resistances["electric"] = _resistances.get("eleres", 0)
 	resistances["earth"] = _resistances.get("erres", 0)
 	resistances["ice"] = _resistances.get("iceres", 0)
-	print("Ended up with ", resistances)
+	pass # print("Ended up with ", resistances)
 
 
 func _super_ready(sprite_type: String, entity_type: Array):
@@ -143,7 +143,7 @@ func _super_ready(sprite_type: String, entity_type: Array):
 			if tile_data:
 				var is_boss_tile = tile_data.get_custom_data("boss_spawn")
 				if is_boss_tile:
-					print("found boss tile! ", cell)
+					pass # print("found boss tile! ", cell)
 					# check with EntityAutoload if the position is valid (not occupied)
 					if EntityAutoload.has_method("can_reserve_pos"):
 						if EntityAutoload.can_reserve_pos(cell, tilemap):
@@ -161,14 +161,14 @@ func _super_ready(sprite_type: String, entity_type: Array):
 						possible_spawns.append(cell)
 
 		if possible_spawns.size() == 0:
-			print("super_ready: boss - no possible spawns found")
+			pass # print("super_ready: boss - no possible spawns found")
 			self.queue_free()
 			return
 		var spawnpoint = possible_spawns[rng.randi_range(0, possible_spawns.size() - 1)]
 		# reserve chosen cell so other entities won't take it
 		if EntityAutoload.has_method("reserve_pos"):
 			EntityAutoload.reserve_pos(spawnpoint)
-		print("super_ready: boss - chosen spawn:", spawnpoint)
+		pass # print("super_ready: boss - chosen spawn:", spawnpoint)
 		position = tilemap.map_to_local(spawnpoint)
 		grid_pos = spawnpoint
 
@@ -181,7 +181,7 @@ func _super_ready(sprite_type: String, entity_type: Array):
 			if tile_data:
 				var is_boss_tile = tile_data.get_custom_data("tutorial_enemy")
 				if is_boss_tile:
-					print("found tutorial tile! ", cell)
+					pass # print("found tutorial tile! ", cell)
 					# avoid spawning on occupied tiles
 					if EntityAutoload.has_method("can_reserve_pos"):
 						if EntityAutoload.can_reserve_pos(cell, tilemap):
@@ -203,7 +203,7 @@ func _super_ready(sprite_type: String, entity_type: Array):
 			var spawnpoint = possible_spawns[rng.randi_range(0, possible_spawns.size() - 1)]
 			if EntityAutoload.has_method("reserve_pos"):
 				EntityAutoload.reserve_pos(spawnpoint)
-			print("super_ready: tutorial - chosen spawn:", spawnpoint)
+			pass # print("super_ready: tutorial - chosen spawn:", spawnpoint)
 			position = tilemap.map_to_local(spawnpoint)
 			grid_pos = spawnpoint
 		else:
@@ -254,13 +254,13 @@ func _super_ready(sprite_type: String, entity_type: Array):
 
 		# Initialize grid position based on where the entity starts
 		if possible_spawns.size() == 0:
-			print("super_ready: enemy - no possible spawns found")
+			pass # print("super_ready: enemy - no possible spawns found")
 			self.queue_free()
 			return
 		var spawnpoint = possible_spawns[rng.randi_range(0, possible_spawns.size() - 1)]
 		if EntityAutoload.has_method("reserve_pos"):
 			EntityAutoload.reserve_pos(spawnpoint)
-		print("super_ready: enemy - chosen spawn:", spawnpoint)
+		pass # print("super_ready: enemy - chosen spawn:", spawnpoint)
 		position = tilemap.map_to_local(spawnpoint)
 		grid_pos = spawnpoint
 	var sprite_scene = sprites[sprite_type]
@@ -370,11 +370,11 @@ func _is_cell_walkable(cell: Vector2i, direction: Vector2i = Vector2i.ZERO) -> b
 
 	# Check for your custom property "non_walkable"
 	if tile_data.get_custom_data("non_walkable") == true:
-		print("That tile ain't walkable pal!")
+		pass # print("That tile ain't walkable pal!")
 		return false
 
 	if _is_cell_blocked(cell, direction):
-		print("That tile's blocked pal!")
+		pass # print("That tile's blocked pal!")
 		return false
 
 	# Prevent stepping onto tiles already occupied by another enemy (no stacking)
@@ -474,7 +474,7 @@ func _initiate_battle(player: Node, enemy: Node) -> bool:
 
 
 func take_damage(damage, type = ""):
-	#print(self, " takes ", damage, " damage!")
+	#pass # print(self, " takes ", damage, " damage!")
 	var taken_damage = damage  #useless right now but just put here for later damage calculations
 	var damage_type = "physical"
 	if "fire" in type:
@@ -485,31 +485,31 @@ func take_damage(damage, type = ""):
 		damage_type = "electric"
 	elif "earth" in type:
 		damage_type = "earth"
-	print("Relevant resistances: ", resistances)
+	pass # print("Relevant resistances: ", resistances)
 	var active_res = resistances.get(damage_type, 0)
-	print("active resistance should be ", damage_type, " resistance of ", active_res)
-	print("type is ", type)
+	pass # print("active resistance should be ", damage_type, " resistance of ", active_res)
+	pass # print("type is ", type)
 	if "pierce" in type:
-		print("it has pierce")
+		pass # print("it has pierce")
 		var parts = type.split("||")
 		for i in range(len(parts)):
 			if "pierce" in parts[i]:
 				var pieces = parts[i].split("=")
 				var reduction = float(pieces[1])
-				print("should reduce resistacne by ", reduction)
+				pass # print("should reduce resistacne by ", reduction)
 				if active_res > 0:
 					if active_res - reduction > 0:
 						active_res -= reduction
 					else:
 						active_res = 0
-	print("After pierce it's ", active_res)
+	pass # print("After pierce it's ", active_res)
 	taken_damage *= (1 - active_res)
 	if not "ignoredef" in type:
 		taken_damage -= self.def_stat
 	if taken_damage < 0:
 		taken_damage = 0
-	print(self.name, " should take damage")
-	print("These are the recipeints alterations ", alterations)
+	pass # print(self.name, " should take damage")
+	pass # print("These are the recipeints alterations ", alterations)
 	for alteration in alterations:
 		if alterations[alteration].has("dodge_chance") and not "undodgeable" in type:
 			var dodge_chance = alterations[alteration].dodge_chance * 100
@@ -526,22 +526,22 @@ func take_damage(damage, type = ""):
 					closeness = " easily"
 				elif dodge_chance - dodged < 50:
 					closeness = " by a disrespectfully large margin"
-				print("but dodges! with a chance of", dodge_chance, " against ", dodged)
+				pass # print("but dodges! with a chance of", dodge_chance, " against ", dodged)
 				return [
 					" avoided " + str(taken_damage) + " Damage by dodging" + closeness,
 					" now has " + str(hp) + " HP"
 				]
 	hp = hp - taken_damage
-	#print("Now has ", hp, "HP")
-	print("And in fact does...")
+	#pass # print("Now has ", hp, "HP")
+	pass # print("And in fact does...")
 	return [" took " + str(taken_damage) + " Damage", " now has " + str(hp) + " HP"]
 
 
 func heal(healing):
-	#print(self, " heals by ", healing, "!")
+	#pass # print(self, " heals by ", healing, "!")
 	var healed_hp = healing  #useless right now but just put here for later damage calculations
 	hp = hp + healed_hp
-	#print("Now has ", hp, "HP")
+	#pass # print("Now has ", hp, "HP")
 	return [" healed by " + str(healed_hp), " now has " + str(hp) + " HP"]
 
 
@@ -553,7 +553,7 @@ func refill_actions():
 
 
 func reset_cooldowns(number: int):
-	print("resetting cooldowns!!1!!!!!1")
+	pass # print("resetting cooldowns!!1!!!!!1")
 	for i in range(number):
 		var cooldownables = []
 		for ability in abilities:
@@ -561,11 +561,8 @@ func reset_cooldowns(number: int):
 				cooldownables.append(ability)
 		var picked = randi_range(0, len(cooldownables) - 1)
 		for cooldownable in cooldownables:
-			print("cool lad! ", cooldownable.name)
+			pass # print("cool lad! ", cooldownable.name)
 		if len(cooldownables) > 0:
-			print(
-				"cooled lad! ", cooldownables[picked].name, cooldownables[picked].turns_until_reuse
-			)
 			cooldownables[picked].turns_until_reuse = 0
 	return []
 
@@ -627,10 +624,10 @@ func deal_with_status_effects(battle, phase) -> Array:
 	if pre_freeze > 0 and phase == 2:
 		pre_freeze = 0
 		frozen = 4
-		print("Player pre-freeze turns into freeze!")
+		pass # print("Player pre-freeze turns into freeze!")
 		things_that_happened.append("Target was frozen and can't move!")
 	if frozen > 0 and phase == 2:
-		print("Freeze is currently ", frozen)
+		pass # print("Freeze is currently ", frozen)
 		frozen -= status_recovery
 		if frozen < 0:
 			frozen = 0
@@ -638,7 +635,7 @@ func deal_with_status_effects(battle, phase) -> Array:
 	if burned > 0 and phase == 2:
 		var message = take_damage((self.max_hp * 0.01) * burned, "ignoredef|undodgeable")
 		burned += 3
-		print("Burn went to ", burned)
+		pass # print("Burn went to ", burned)
 		things_that_happened.append(
 			(
 				"Target"
@@ -655,7 +652,7 @@ func deal_with_status_effects(battle, phase) -> Array:
 
 func touch_recovery(value):
 	self.status_recovery *= value
-	print(self.name, "'s recovery was altered! Went to ", self.status_recovery)
+	pass # print(self.name, "'s recovery was altered! Went to ", self.status_recovery)
 	if value > 1:
 		return ["Recovery rises!"]
 	if value < 1:
@@ -684,7 +681,7 @@ func set_resistance(resistance, value):
 		if exists != null:
 			old = resistances[resistance]
 			resistances[resistance] = value
-	print(self.name, "'s resistances have been altered! Specifically, ", resistance, resistances)
+	pass # print(self.name, "'s resistances have been altered! Specifically, ", resistance, resistances)
 	if old < value:
 		return [resistance + " resistance has risen to " + str(value) + "!"]
 	if old > value:
@@ -708,7 +705,7 @@ func _update_visibility():
 	for obj in objects:
 		if _can_see(obj.global_position):
 			obj.visible = true
-			print("Updating visibility")
+			pass # print("Updating visibility")
 		else:
 			obj.visible = false
 
