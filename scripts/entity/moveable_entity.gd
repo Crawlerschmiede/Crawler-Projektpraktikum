@@ -616,7 +616,7 @@ func deal_with_status_effects(battle, phase) -> Array:
 		if stunned < 0:
 			stunned = 0
 		if randi_range(0, 100) <= 25:
-			battle.move_player("rnd_dir", 1)
+			battle.move_player("rnd|dir", 1)
 		things_that_happened.append("Is stunned and movement seems janky")
 	if poisoned > 0 and phase == 2:
 		var message = take_damage((self.max_hp * 0.02) * poisoned, "ignoredef|undodgeable")
