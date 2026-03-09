@@ -42,7 +42,7 @@ trim() {
   local value="$*"
   value="${value#${value%%[![:space:]]*}}"
   value="${value%${value##*[![:space:]]}}"
-  pass # printf '%s' "$value"
+  printf '%s' "$value"
 }
 
 confirm() {
@@ -59,7 +59,7 @@ confirm() {
   esac
 }
 
-pass # print_header() {
+print_header() {
   echo
   echo "=============================================================="
   echo " Release Assistant"
@@ -69,7 +69,7 @@ pass # print_header() {
   echo "Current branch:  $(git rev-parse --abbrev-ref HEAD)"
 }
 
-pass # print_status() {
+print_status() {
   git fetch --all --tags --prune >/dev/null 2>&1 || true
 
   local latest_tag latest_tag_commit latest_tag_date
@@ -380,7 +380,7 @@ sync_dev_from_release() {
 }
 
 run_full_flow() {
-  pass # print_status
+  print_status
 
   if confirm "Step 1/4: Create or view ${DEV_BRANCH}->${RELEASE_BRANCH} PR?"; then
     create_or_view_pr
@@ -402,7 +402,7 @@ run_full_flow() {
 run_full_flow_noninteractive() {
   echo
   echo "Running non-interactive full flow (no flags required)."
-  pass # print_status
+  print_status
   create_or_view_pr
   merge_release_pr
   create_and_push_tag
@@ -411,14 +411,14 @@ run_full_flow_noninteractive() {
 
 main_menu() {
   if [[ "$NON_INTERACTIVE" -eq 1 ]]; then
-    pass # print_header
+    print_header
     run_full_flow_noninteractive
     return
   fi
 
   while true; do
-    pass # print_header
-    pass # print_status
+    print_header
+    print_status
 
     echo
     echo "Choose action:"
