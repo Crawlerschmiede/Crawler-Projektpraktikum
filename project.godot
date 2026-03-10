@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="Crawler-Projektpraktikum"
-run/main_scene="uid://b5v87f3uddnt5"
+run/main_scene="uid://buwc6nchgbgf3"
 config/features=PackedStringArray("4.6", "Mobile")
 config/icon="res://icon.svg"
 
