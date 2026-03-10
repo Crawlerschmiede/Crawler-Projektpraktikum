@@ -35,6 +35,7 @@ const SEWER_TILESET := "res://scenes/rooms/Rooms/roomtiles_2world.tres"
 const TUTORIAL_ROOM := "res://scenes/rooms/Tutorial Rooms/tutorial_room.tscn"
 const FINAL_BOSS_ROOM := "res://scenes/rooms/Final Boss Room/final_boss_room.tscn"
 const TUTORIAL_WORLD_INDEX := -1
+const FINAL_BOSS_WORLD_INDEX := 3
 const TUTORIAL_STATE_PATH_USER := "user://tutorialData.json"
 const TUTORIAL_STATE_PATH_RES := "res://data/tutorialData.json"
 const UI_MODAL_CONTROLLER := preload("res://scripts/UI/ui_modal_controller.gd")
@@ -259,6 +260,10 @@ func _load_tutorial_world() -> void:
 	await world_loading_coordinator.load_tutorial_world(TUTORIAL_ROOM)
 
 
+func _is_final_boss_world() -> bool:
+	return world_index == FINAL_BOSS_WORLD_INDEX
+
+
 func _load_world(idx: int) -> void:
 	if world_loading_coordinator == null:
 		push_warning("_load_world: world_loading_coordinator is null")
@@ -421,9 +426,9 @@ func spawn_player() -> void:
 	# Spawn Position
 	var start_pos := Vector2i(2, 2)
 
-	# Final-Boss-Welt: Spawnpunkt fix auf (1, 0)
+	# Final-Boss-Welt: Spawnpunkt fix auf (0, 12)
 	if _is_final_boss_world():
-		start_pos = Vector2i(1, 0)
+		start_pos = Vector2i(0, 12)
 
 	# Tutorial world: spawn at different position
 	elif minimap == null:

@@ -112,7 +112,12 @@ func extract_tutorial_scene_to_world_root(tutorial_scene: Node2D, world_root: No
 		if area.get_parent() != null:
 			area.get_parent().remove_child(area)
 		world_root.add_child(area)
-		area.position = Vector2.ZERO
+
+	var canvas_modulates = tutorial_scene.find_children("*", "CanvasModulate")
+	for canvas_modulate in canvas_modulates:
+		if canvas_modulate.get_parent() != null:
+			canvas_modulate.get_parent().remove_child(canvas_modulate)
+		world_root.add_child(canvas_modulate)
 
 	var physics_bodies = tutorial_scene.find_children("*", "PhysicsBody2D")
 	for body in physics_bodies:

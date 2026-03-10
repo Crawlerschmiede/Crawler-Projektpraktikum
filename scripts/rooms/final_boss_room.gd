@@ -1,4 +1,4 @@
-extends Area2D
+extends Node
 
 @onready var bossenterd = 0
 
