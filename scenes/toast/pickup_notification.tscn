@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://bb3m3b6dqx28h"]
 
 [ext_resource type="Script" uid="uid://bu3mn4ujhd03h" path="res://scenes/toast/pickup_notification.tscn.gd" id="1_f4yok"]
+[ext_resource type="FontFile" uid="uid://d4fqcjicieold" path="res://assets/font/PixelPurl.ttf" id="2_t871p"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_f4yok"]
 
@@ -26,6 +27,7 @@ layout_mode = 2
 
 [node name="Label" type="Label" parent="HBoxContainer" unique_id=1332467508]
 layout_mode = 2
+theme_override_fonts/font = ExtResource("2_t871p")
 
 [node name="Panel" type="Panel" parent="HBoxContainer" unique_id=2058785308]
 custom_minimum_size = Vector2(30, 30)
