@@ -287,7 +287,8 @@ func update_unlocked_skills():
 #works tho
 #no but seriously
 #these suck bad
-#we can never have a second type of consumable and a consumable can never have 2 effects levels of bad
+#we can never have a second type of consumable
+#and a consumable can never have 2 effects levels of bad
 func use_consumable():
 	print("Should reduce amount of item")
 	var slots = inventory._get_all_slots(false)
@@ -310,7 +311,8 @@ func get_consumable_actions():
 			print("Got item ", item.item_name, " item was in group ", group)
 			if group == "Consumable":
 				print("Item was consumable! Should be getting these: ", item.get_bound_skills())
-				return [existing_skills.get_skill(item.get_bound_skills()[0])]  #I mean... just look at what has transpired here!
+				var bound_skills = item.get_bound_skills()
+				return [existing_skills.get_skill(bound_skills[0])]
 	return []
 
 

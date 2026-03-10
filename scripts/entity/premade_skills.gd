@@ -2,6 +2,9 @@ class_name MadeSkills
 
 extends Resource
 
+# gdlint: disable=max-line-length
+# gdlint: disable=max-file-lines
+
 #write skills here as
 # name : [skilltree, description, effects, cooldown]
 # The effects should be in the format:
@@ -350,7 +353,6 @@ var existing_skills = {
 		"tree": "Short-Ranged-Weaponry",
 		"tier": 4,
 		"description":
-		# gdlint:ignore = max-line-length
 		"It's kinda like a worm on a string, except the worm is a knife and you stab people with it",
 		"effects": [["damage_nullification", 1, true, "No"]],
 		"passive": true,
@@ -364,7 +366,6 @@ var existing_skills = {
 		"tree": "Short-Ranged-Weaponry",
 		"tier": 5,
 		"description":
-		# gdlint:ignore = max-line-length
 		"If you can imagine how scary someone running at you with a knife is, imagine how much scarier it'd be if they teleported!",
 		"effects": [["movement", 1, true, "rnd|short"], ["damage", 1, false, "No"]],
 		"cooldown": 3,
@@ -406,7 +407,6 @@ var existing_skills = {
 		"tree": "Medium-Ranged-Weaponry",
 		"tier": 4,
 		"description":
-		# gdlint:ignore = max-line-length
 		"Everything in balance, far and close. You can maintain that equilibrium for longer, but have become dependant on it",
 		"effects": [["damage_nullification", 1, true, "No"]],
 		"passive": true,
@@ -463,7 +463,6 @@ var existing_skills = {
 		"tree": "Long-Ranged-Weaponry",
 		"tier": 4,
 		"description":
-		# gdlint:ignore = max-line-length
 		"You are one with the bow and have mastered ranged combat. Close quarters though? Too scary",
 		"effects": [["damage_nullification", 1, true, "No"]],
 		"passive": true,
@@ -507,7 +506,6 @@ var existing_skills = {
 		"tree": "Unarmed-Combat",
 		"tier": 3,
 		"description":
-		# gdlint:ignore = max-line-length
 		"God, it pains me to think about just how annoying it must be to try and hit you...",
 		"effects": [["movement", 1, true, "conditional--rnd|long||rnd|short"]],
 		"cooldown": 3,
