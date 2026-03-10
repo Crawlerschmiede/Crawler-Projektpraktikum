@@ -7,6 +7,10 @@ var _counter: int = 0
 
 func _ready() -> void:
 	rng = RandomNumberGenerator.new()
+	# Immer beim Start randomizen, damit jeder Lauf anders ist
+	rng.randomize()
+	base_seed = int(rng.randi())
+	_counter = 0
 	rng.seed = int(base_seed)
 
 
