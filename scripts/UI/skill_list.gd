@@ -191,7 +191,7 @@ func _on_skill_pressed(ability) -> void:
 			hit_anim_player.play("default")
 			await hit_anim_player.animation_finished
 			hit_anim_player.visible = false
-		if current_tab ==Tab.ITEMS:
+		if current_tab == Tab.ITEMS:
 			player.use_consumable()
 		var stuff = await ability.activate_skill(player, enemy, battle_scene)
 		battle_scene.player_action_log.append(ability.name)

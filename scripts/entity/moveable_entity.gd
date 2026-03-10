@@ -540,8 +540,8 @@ func take_damage(damage, type = ""):
 func heal(healing):
 	#print(self, " heals by ", healing, "!")
 	var healed_hp = healing  #useless right now but just put here for later damage calculations
-	if hp+ healed_hp>max_hp:
-		hp=max_hp
+	if hp + healed_hp > max_hp:
+		hp = max_hp
 	else:
 		hp = hp + healed_hp
 	#print("Now has ", hp, "HP")

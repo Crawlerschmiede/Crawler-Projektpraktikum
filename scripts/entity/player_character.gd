@@ -281,8 +281,8 @@ func update_unlocked_skills():
 			is_armed = false
 	for ability in gotten_skills:
 		add_skill(ability)
-		
-		
+
+
 #I'm gonna go ahead and say it: This function is bad in every conceivable way
 #works tho
 #no but seriously
@@ -299,6 +299,7 @@ func use_consumable():
 				item.decrease_item_quantity(1)
 				break
 
+
 func get_consumable_actions():
 	print("Looking for item skills: ")
 	var slots = inventory._get_all_slots(false)
@@ -309,7 +310,7 @@ func get_consumable_actions():
 			print("Got item ", item.item_name, " item was in group ", group)
 			if group == "Consumable":
 				print("Item was consumable! Should be getting these: ", item.get_bound_skills())
-				return [existing_skills.get_skill(item.get_bound_skills()[0])] #I mean... just look at what has transpired here!
+				return [existing_skills.get_skill(item.get_bound_skills()[0])]  #I mean... just look at what has transpired here!
 	return []
 
 

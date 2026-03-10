@@ -57,7 +57,7 @@ func _is_descendant(parent: Node, child: Node) -> bool:
 	return false
 
 
-func _get_all_slots(include_sell:bool=true) -> Array[Node]:
+func _get_all_slots(include_sell: bool = true) -> Array[Node]:
 	var out: Array[Node] = []
 	_collect_slots_recursive(inv_grid, out)
 	_collect_slots_recursive(equip_grid, out)

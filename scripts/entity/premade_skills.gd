@@ -311,7 +311,8 @@ var existing_skills = {
 		"description": "Have you ever punched someone with your life on the line?",
 		"effects": [["damage", 3, false, "No"], ["damage", 1, true, "No"], ["stun", 2, true, "No"]],
 		"cooldown": 5,
-		"full_description": "Deal 3 damage to your opponent, but also deal 1 damage to yourself and become stunned."
+		"full_description":
+		"Deal 3 damage to your opponent, but also deal 1 damage to yourself and become stunned."
 	},
 	#short ranged weaponry
 	"Close and Personal":
@@ -355,7 +356,8 @@ var existing_skills = {
 		"passive": true,
 		"on_acquisition": [["range_buff", 1, true, "short"]],
 		"conditions": ["outside_short_range"],
-		"full_description": "The second front row also counts as short range. Deal no damage outside of short range."
+		"full_description":
+		"The second front row also counts as short range. Deal no damage outside of short range."
 	},
 	"Blade Dance":
 	{
@@ -410,7 +412,8 @@ var existing_skills = {
 		"passive": true,
 		"on_acquisition": [["range_buff", 1, true, "medium"]],
 		"conditions": ["outside_medium_range"],
-		"full_description": "Additional rows will count as medium range, but you won't deal damage outside of medium range"
+		"full_description":
+		"Additional rows will count as medium range, but you won't deal damage outside of medium range"
 	},
 	"Riposte":
 	{
@@ -419,7 +422,8 @@ var existing_skills = {
 		"description": "You know who looks extra punchable? People that punch you",
 		"effects": [["counter", 1, true, "No"]],
 		"passive": true,
-		"full_description": "Deal 1 damage after getting hit. Deal 2 instead if the hit was critical"
+		"full_description":
+		"Deal 1 damage after getting hit. Deal 2 instead if the hit was critical"
 	},
 	#long ranged weaponry
 	"Sniper Position":
@@ -465,7 +469,8 @@ var existing_skills = {
 		"passive": true,
 		"on_acquisition": [["range_buff", 1, true, "long"]],
 		"conditions": ["outside_long_range"],
-		"full_description": "The second to last row will also count as long range, but you will deal no damage outside of long range"
+		"full_description":
+		"The second to last row will also count as long range, but you will deal no damage outside of long range"
 	},
 	"Fill the Sky":
 	{
@@ -507,7 +512,8 @@ var existing_skills = {
 		"effects": [["movement", 1, true, "conditional--rnd|long||rnd|short"]],
 		"cooldown": 3,
 		"switch_condition": ["outside_short_range"],
-		"full_description": "Move into short range. Move into long range instead if you are in short range"
+		"full_description":
+		"Move into short range. Move into long range instead if you are in short range"
 	},
 	"Pressure Points":
 	{
@@ -690,7 +696,8 @@ var existing_skills = {
 		"description": "You mastered pain and weaponize it to stop your opponent's bad ideas.",
 		"effects": [["deter", 1, false, "No"]],
 		"cooldown": 5,
-		"full_description": "Change what attack your enemy is about to do. Doesn't work if only 1 is available"
+		"full_description":
+		"Change what attack your enemy is about to do. Doesn't work if only 1 is available"
 	},
 	#mage skilltree
 	"Adaptable":
@@ -738,7 +745,8 @@ var existing_skills = {
 		],
 		"passive": true,
 		"conditions": ["lost_after||effect_happened-alter_recovery-1"],
-		"full_description": "Your enemy will take double damage by attacks of a random element, but half damage by attacks of another random element"
+		"full_description":
+		"Your enemy will take double damage by attacks of a random element, but half damage by attacks of another random element"
 	},
 	"Wretched Deluge":
 	{
@@ -755,7 +763,8 @@ var existing_skills = {
 			["stun", 2, false, "No"]
 		],
 		"cooldown": 8,
-		"full_description": "Deal 1 damage of every element, apply 2 poison to your enemy and stun them for 2 turns"
+		"full_description":
+		"Deal 1 damage of every element, apply 2 poison to your enemy and stun them for 2 turns"
 	},
 	#standard actions
 	"Move Up":
@@ -799,7 +808,7 @@ var existing_skills = {
 		"full_description": "Remove half the fire procs on you. Remove all if used consecutively"
 	},
 	#weapon skills (first plan)
-	#is the +1 +2 mechanic maybe the cheapest possible option? 
+	#is the +1 +2 mechanic maybe the cheapest possible option?
 	#Yeah sure
 	#Does it work?
 	#...
@@ -809,21 +818,34 @@ var existing_skills = {
 	{
 		"tree": "knife skills",
 		"description": "When one stab just isn't enough",
-		"effects": [["damage", 1, false, "No"], ["poison", 2, false, "No"],],
+		"effects":
+		[
+			["damage", 1, false, "No"],
+			["poison", 2, false, "No"],
+		],
 		"cooldown": 2
 	},
 	"Shank +1":
 	{
 		"tree": "knife skills",
 		"description": "When one stab just isn't enough",
-		"effects": [["damage", 2, false, "No"], ["poison", 3, false, "No"],],
+		"effects":
+		[
+			["damage", 2, false, "No"],
+			["poison", 3, false, "No"],
+		],
 		"cooldown": 2
 	},
 	"Shank +2":
 	{
 		"tree": "knife skills",
 		"description": "When one stab just isn't enough",
-		"effects": [["damage", 2, false, "No"], ["damage", 2, false, "No"], ["poison", 3, false, "No"],],
+		"effects":
+		[
+			["damage", 2, false, "No"],
+			["damage", 2, false, "No"],
+			["poison", 3, false, "No"],
+		],
 		"cooldown": 2
 	},
 	"Shoot":
@@ -839,7 +861,8 @@ var existing_skills = {
 		"tree": "bow skills",
 		"description":
 		"You feel like, in maybe a couple centuries, this term would hold more weight",
-		"effects": [["damage", 1, false, "No"], ["damage", 1, false, "No"], ["damage", 1, false, "No"]],
+		"effects":
+		[["damage", 1, false, "No"], ["damage", 1, false, "No"], ["damage", 1, false, "No"]],
 		"cooldown": 2
 	},
 	"Shoot +2":
@@ -847,7 +870,13 @@ var existing_skills = {
 		"tree": "bow skills",
 		"description":
 		"You feel like, in maybe a couple centuries, this term would hold more weight",
-		"effects": [["damage", 1, false, "No"], ["damage", 1, false, "No"], ["damage", 1, false, "No"], ["damage", 3, false, "No"]],
+		"effects":
+		[
+			["damage", 1, false, "No"],
+			["damage", 1, false, "No"],
+			["damage", 1, false, "No"],
+			["damage", 3, false, "No"]
+		],
 		"cooldown": 2
 	},
 	"Fire Bolt":
@@ -887,7 +916,11 @@ var existing_skills = {
 		"tree": "wand skills",
 		"description":
 		"You feel like, in maybe a couple centuries, this term would hold more weight",
-		"effects": [["damage", 1, false, "fire"], ["damage", 1, false, "electric"],],
+		"effects":
+		[
+			["damage", 1, false, "fire"],
+			["damage", 1, false, "electric"],
+		],
 		"cooldown": 2
 	},
 	"Cast +2":
@@ -895,31 +928,44 @@ var existing_skills = {
 		"tree": "wand skills",
 		"description":
 		"You feel like, in maybe a couple centuries, this term would hold more weight",
-		"effects": [["damage", 2, false, "fire"], ["damage", 2, false, "electric"],],
+		"effects":
+		[
+			["damage", 2, false, "fire"],
+			["damage", 2, false, "electric"],
+		],
 		"cooldown": 2
 	},
 	"Throw":
 	{
 		"tree": "throwing knife skills",
-		"description":
-		"As in 'the weapon', not 'the game' (wait, what game?)",
-		"effects": [["damage", 1, false, "No"], ["poison", 2, false, "No"],],
+		"description": "As in 'the weapon', not 'the game' (wait, what game?)",
+		"effects":
+		[
+			["damage", 1, false, "No"],
+			["poison", 2, false, "No"],
+		],
 		"cooldown": 2
 	},
 	"Throw +1":
 	{
 		"tree": "throwing knife skills",
-		"description":
-		"As in 'the weapon', not 'the game' (wait, what game?)",
-		"effects": [["damage", 2, false, "No"], ["poison", 3, false, "No"],],
+		"description": "As in 'the weapon', not 'the game' (wait, what game?)",
+		"effects":
+		[
+			["damage", 2, false, "No"],
+			["poison", 3, false, "No"],
+		],
 		"cooldown": 2
 	},
 	"Throw +2":
 	{
 		"tree": "throwing knife skills",
-		"description":
-		"As in 'the weapon', not 'the game' (wait, what game?)",
-		"effects": [["damage", 3, false, "No"], ["poison", 4, false, "No"],],
+		"description": "As in 'the weapon', not 'the game' (wait, what game?)",
+		"effects":
+		[
+			["damage", 3, false, "No"],
+			["poison", 4, false, "No"],
+		],
 		"cooldown": 2
 	},
 	"Slash":
@@ -968,21 +1014,21 @@ var existing_skills = {
 	{
 		"tree": "arm skills",
 		"description": "Truly, the most basic of basic things you could do",
-		"effects": [["damage", 1, false, "No"],["movement", 1, true, "U"]],
+		"effects": [["damage", 1, false, "No"], ["movement", 1, true, "U"]],
 		"cooldown": 2
 	},
 	"Bash +1":
 	{
 		"tree": "arm skills",
 		"description": "Truly, the most basic of basic things you could do",
-		"effects": [["damage", 2, false, "No"],["movement", 1, true, "U"]],
+		"effects": [["damage", 2, false, "No"], ["movement", 1, true, "U"]],
 		"cooldown": 2
 	},
 	"Bash +2":
 	{
 		"tree": "arm skills",
 		"description": "Truly, the most basic of basic things you could do",
-		"effects": [["damage", 3, false, "No"],["movement", 1, true, "U"]],
+		"effects": [["damage", 3, false, "No"], ["movement", 1, true, "U"]],
 		"cooldown": 2
 	},
 	#item effects (maybe also here? Who knows what anything is at this point)
@@ -1063,5 +1109,5 @@ func get_tree_explanation(tree_name):
 
 func get_detailed_description(skill_name) -> String:
 	var skill = existing_skills[skill_name]
-	
+
 	return skill.get("full_description", "No description available")
