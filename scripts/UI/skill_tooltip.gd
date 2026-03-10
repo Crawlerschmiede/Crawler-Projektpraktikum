@@ -8,7 +8,7 @@ const TOOLTIP_TEXT_WIDTH: float = 220.0
 
 func _ready():
 	tooltip_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	tooltip_label.custom_minimum_size.x = TOOLTIP_TEXT_WIDTH
+	tooltip_label.custom_minimum_size.x = 120
 	popup_panel.hide()
 
 

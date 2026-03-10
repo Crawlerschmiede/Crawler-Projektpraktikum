@@ -13,6 +13,7 @@
 [ext_resource type="Texture2D" uid="uid://vfjxmvbrolmu" path="res://assets/menu/arrow down.png" id="10_jrqig"]
 [ext_resource type="Texture2D" uid="uid://csrl31y7cxsxj" path="res://assets/menu/UI_TravelBook_Toggle03b.png" id="11_n0fy7"]
 [ext_resource type="Texture2D" uid="uid://dp5wgevvgve8m" path="res://assets/menu/UI_TravelBook_Toggle03a.png" id="12_jpbdv"]
+[ext_resource type="Theme" uid="uid://do40vcwiibb8g" path="res://assets/theme/HealthBar.tres" id="14_ecjli"]
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_jrqig"]
 
@@ -217,6 +218,7 @@ autowrap_mode = 3
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
+theme = ExtResource("14_ecjli")
 
 [node name="ActionsList" type="VBoxContainer" parent="PanelContainer/VBoxContainer/TabContainer/Hotkeys/Scroll" unique_id=703295001]
 layout_mode = 2
@@ -227,6 +229,7 @@ theme_override_constants/separation = 4
 [node name="Sound" type="VBoxContainer" parent="PanelContainer/VBoxContainer/TabContainer" unique_id=582511074]
 visible = false
 layout_mode = 2
+theme = ExtResource("14_ecjli")
 theme_override_constants/separation = 6
 metadata/_tab_index = 2
 
