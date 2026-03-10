@@ -540,7 +540,10 @@ func take_damage(damage, type = ""):
 func heal(healing):
 	#print(self, " heals by ", healing, "!")
 	var healed_hp = healing  #useless right now but just put here for later damage calculations
-	hp = hp + healed_hp
+	if hp+ healed_hp>max_hp:
+		hp=max_hp
+	else:
+		hp = hp + healed_hp
 	#print("Now has ", hp, "HP")
 	return [" healed by " + str(healed_hp), " now has " + str(hp) + " HP"]
 
@@ -615,8 +618,8 @@ func deal_with_status_effects(battle, phase) -> Array:
 		stunned -= status_recovery
 		if stunned < 0:
 			stunned = 0
-		if randi_range(0, 100) <= 25:
-			battle.move_player("rnd_dir", 1)
+		if is_player and randi_range(0, 100) <= 25:
+			battle.move_player("rnd|dir", 1)
 		things_that_happened.append("Is stunned and movement seems janky")
 	if poisoned > 0 and phase == 2:
 		var message = take_damage((self.max_hp * 0.02) * poisoned, "ignoredef|undodgeable")

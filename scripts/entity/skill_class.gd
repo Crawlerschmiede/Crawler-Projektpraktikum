@@ -458,7 +458,7 @@ class Effect:
 					can_move = false
 					print(user.name + " cannot move right now!")
 				if user.stunned > 0 and GlobalRNG.randi_range(0, 100) < 50:
-					considered_details = "rnd_dir"
+					considered_details = "rnd|dir"
 				if (
 					(
 						considered_details in basic_directions

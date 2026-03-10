@@ -57,7 +57,7 @@ func _is_descendant(parent: Node, child: Node) -> bool:
 	return false
 
 
-func _get_all_slots() -> Array[Node]:
+func _get_all_slots(include_sell:bool=true) -> Array[Node]:
 	var out: Array[Node] = []
 	_collect_slots_recursive(inv_grid, out)
 	_collect_slots_recursive(equip_grid, out)
@@ -66,11 +66,12 @@ func _get_all_slots() -> Array[Node]:
 	# Include special slots (e.g. SellSlot, CraftSlot, ChestSlot) which might live
 	# outside of the regular grid containers but still should be part of the
 	# global slot index space. We use groups so scenes can opt-in their nodes.
-	if get_tree() != null:
-		var special := get_tree().get_nodes_in_group("SellSlot")
-		for s in special:
-			if s != null and s is Node:
-				out.append(s)
+	if include_sell:
+		if get_tree() != null:
+			var special := get_tree().get_nodes_in_group("SellSlot")
+			for s in special:
+				if s != null and s is Node:
+					out.append(s)
 
 	return out
 
