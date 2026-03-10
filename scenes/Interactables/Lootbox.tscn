@@ -30,6 +30,8 @@ animations = [{
 
 [node name="Lootbox" type="CharacterBody2D" unique_id=1855558291 groups=["item"]]
 script = ExtResource("1_f4uf5")
+random_min_weight = 3
+random_max_weight = 7
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=828204495]
 shape = SubResource("RectangleShape2D_mhsm6")

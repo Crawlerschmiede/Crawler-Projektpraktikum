@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://d0vtvrg3pcmrm"
+path="res://.godot/imported/Start New-03.mp3-a46e4f3f7e924bfed701c7892c7cdd6b.mp3str"
+
+[deps]
+
+source_file="res://assets/sfx/Start New/Start New-03.mp3"
+dest_files=["res://.godot/imported/Start New-03.mp3-a46e4f3f7e924bfed701c7892c7cdd6b.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

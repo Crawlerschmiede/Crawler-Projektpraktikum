@@ -4,6 +4,8 @@ signal player_turn_done
 
 enum Tab { SKILLS, ITEMS, ACTIONS }
 
+var current_tab = Tab.SKILLS
+
 var tooltip_container: Node
 
 var player: Node
@@ -49,6 +51,7 @@ func update(new_turn = true):
 
 
 func _on_tab_changed(tab_idx: int) -> void:
+	current_tab = tab_idx
 	_populate_list(tab_idx)
 
 
@@ -64,11 +67,14 @@ func _populate_list(tab_idx: int) -> void:
 					elif ability.turns_until_reuse > 0:
 						var butt_label = ability.name
 						butt_label = (
-							butt_label + " (Cooldown: " + str(ability.turns_until_reuse) + ")"
+							butt_label + " (Coold: " + str(ability.turns_until_reuse) + ")"
 						)
 						_add_button_disabled(butt_label)
 		Tab.ACTIONS:
 			for ability in player.actions:
+				_add_button(ability)
+		Tab.ITEMS:
+			for ability in player.get_consumable_actions():
 				_add_button(ability)
 	if list_vbox.get_child_count() > 0:
 		var scene_tree = get_tree()
@@ -185,7 +191,9 @@ func _on_skill_pressed(ability) -> void:
 			hit_anim_player.play("default")
 			await hit_anim_player.animation_finished
 			hit_anim_player.visible = false
-		var stuff = ability.activate_skill(player, enemy, battle_scene)
+		if current_tab == Tab.ITEMS:
+			player.use_consumable()
+		var stuff = await ability.activate_skill(player, enemy, battle_scene)
 		battle_scene.player_action_log.append(ability.name)
 		for thing in stuff:
 			battle_scene.log_container.add_log_event(thing)
@@ -193,7 +201,7 @@ func _on_skill_pressed(ability) -> void:
 		if player.action_points < 1:
 			player_turn = false
 			player.deal_with_status_effects(battle_scene, 2)
-			battle_scene.check_curr_tile_mods()
+			battle_scene._check_curr_tile_mods()
 			player_turn_done.emit()
 		else:
 			var over = battle_scene.check_victory()

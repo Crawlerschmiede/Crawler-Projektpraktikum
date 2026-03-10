@@ -16,8 +16,7 @@ var second_turn_effects: Array[Effect] = []
 var pre_prepared_effects = [
 	"danger_dmg_mult", "safety_dmg_reduc", "death_zone", "heal_zone", "damage_zone"
 ]
-# TODO: could do with a more sophisticated sorting system later.
-var high_prio_effects = ["movement"]
+var count_anything = 0  #this will be used for anything that needs counting
 
 var last_user = null
 var last_target = null
@@ -46,26 +45,34 @@ func prep_skill(user, target, battle):
 	var things_that_happened = []
 	for effect in effects:
 		if effect.type in pre_prepared_effects:
-			var stuff = effect.apply(user, target, battle, self)
+			var stuff = await effect.apply(user, target, battle, self)
 			for thing in stuff:
 				things_that_happened.append(thing)
 	return things_that_happened
 
 
-func activate_skill(user, target, battle, depth = 0):
+func activate_skill(user, target, battle):
+	var who = "enemy"
+	if user.is_player:
+		who = "player"
 	turns_until_reuse = cooldown
 	var things_that_happened = []
 	var stuff = null
+	for condition in conditions:
+		update_conditions(condition, user, battle)
 	for effect in effects:
-		if effect.type in high_prio_effects && !effect.type in pre_prepared_effects:
-			stuff = effect.apply(user, target, battle, self, depth)
-			for thing in stuff:
-				things_that_happened.append(thing)
-	for effect in effects:
-		if !effect.type in high_prio_effects && !effect.type in pre_prepared_effects:
-			stuff = effect.apply(user, target, battle, self, depth)
-			for thing in stuff:
-				things_that_happened.append(thing)
+		if battle != null and is_instance_valid(battle):
+			if !effect.type in pre_prepared_effects:
+				if not is_passive or not effect.type == "damage":
+					if user.is_player:
+						battle.player_effect_log.append(effect.type)
+					else:
+						battle.enemy_effect_log.append(effect.type)
+				stuff = await effect.apply(user, target, battle, self)
+				for thing in stuff:
+					things_that_happened.append(thing)
+			if battle.get_tree() != null and is_instance_valid(battle.get_tree()):
+				await battle.get_tree().create_timer(0.3).timeout
 	if len(second_turn_effects) != 0:
 		last_user = user
 		last_target = target
@@ -75,18 +82,17 @@ func activate_skill(user, target, battle, depth = 0):
 
 
 func activate_followup():
-	var depth = 0
 	var things_that_happened = []
 	things_that_happened.append("The preparations pay off!")
 	var stuff = null
 	for effect in second_turn_effects:
-		if effect.type in high_prio_effects && !effect.type in pre_prepared_effects:
-			stuff = effect.apply(last_user, last_target, last_battle, self, depth)
-			for thing in stuff:
-				things_that_happened.append(thing)
-	for effect in second_turn_effects:
-		if !effect.type in high_prio_effects && !effect.type in pre_prepared_effects:
-			stuff = effect.apply(last_user, last_target, last_battle, self, depth)
+		if !effect.type in pre_prepared_effects:
+			stuff = await effect.apply(last_user, last_target, last_battle, self)
+			if not is_passive:
+				if last_user.is_player:
+					last_battle.player_effect_log.append(effect.type)
+				else:
+					last_battle.enemy_effect_log.append(effect.type)
 			for thing in stuff:
 				things_that_happened.append(thing)
 	return things_that_happened
@@ -96,7 +102,7 @@ func activate_immediate(user):
 	print("immediate activation")
 	if len(immediate_effects) > 0:
 		for effect in immediate_effects:
-			effect.apply(user, null, null, self)
+			await effect.apply(user, null, null, self)
 	return []
 
 
@@ -126,13 +132,43 @@ func is_activateable(user = null, target = null, battle = null) -> bool:
 	return activateable
 
 
+func update_conditions(cond_name, user, battle):
+	if "effect_happened" in cond_name:
+		var effect_log = []
+		if user.is_player:
+			effect_log = battle.player_effect_log
+		else:
+			effect_log = battle.enemy_effect_log
+		var splits = cond_name.split("-")
+		var sought = splits[1]
+		var limit = int(splits[2])
+		var count = 0
+		for effect in effect_log:
+			if effect == sought:
+				count += 1
+		if "every" in splits[0]:
+			if (count - count_anything) % limit == 0 and (count - count_anything) >= limit:
+				count_anything += limit
+
+
 func tick_down():
 	if turns_until_reuse > 0:
 		turns_until_reuse = turns_until_reuse - 1
 
 
+func reset():
+	turns_until_reuse = 0
+	count_anything = 0
+	for effect in effects:
+		effect.reset()
+
+
 func condition_met(condition_name, user, _target, battle) -> bool:
 	var is_met = true
+	if "lost_after" in condition_name:
+		var splits = condition_name.split("||")
+		is_met = not condition_met(splits[1], user, _target, battle)
+		return is_met
 	if "range" in condition_name and user == null:
 		return false
 	match condition_name:
@@ -158,8 +194,61 @@ func condition_met(condition_name, user, _target, battle) -> bool:
 
 	if "every_x_turns" in condition_name:
 		var splits = condition_name.split("=")
-		is_met = battle.turn_counter % int(splits[1]) == 0
+		is_met = ((battle.turn_counter % int(splits[1]) == 0) and battle.turn_counter != 0)
+	if "effect_happened" in condition_name:
+		var effect_log = []
+		if user.is_player:
+			effect_log = battle.player_effect_log
+		else:
+			effect_log = battle.enemy_effect_log
+		print("effect log was ", effect_log)
+		var splits = condition_name.split("-")
+		var sought = splits[1]
+		var limit = int(splits[2])
+		var count = 0
+		for effect in effect_log:
+			if effect == sought:
+				count += 1
+		if "every" in splits[0]:
+			is_met = (count - count_anything) % limit == 0 and (count - count_anything) >= limit
+		elif "consecutive" in splits[0]:
+			print("Effect log was (burn(so I can see this in the filter)) ", effect_log)
+			is_met = (
+				(effect_log[len(effect_log) - 1] == effect_log[len(effect_log) - 2])
+				and (effect_log[len(effect_log) - 1] == sought)
+			)
+		else:
+			is_met = limit <= count
+	if "skill_happened" in condition_name:
+		var effect_log = []
+		if user.is_player:
+			effect_log = battle.player_action_log
+		else:
+			effect_log = battle.enemy_action_log
+		print("skill log was ", effect_log)
+		var splits = condition_name.split("-")
+		var sought = splits[1]
+		var limit = int(splits[2])
+		var count = 0
+		for effect in effect_log:
+			if effect == sought:
+				count += 1
+		if "every" in splits[0]:
+			is_met = (count - count_anything) % limit == 0 and (count - count_anything) >= limit
+		elif "consecutive" in splits[0]:
+			print("Effect log was (burn(so I can see this in the filter)) ", effect_log)
+			is_met = (effect_log[len(effect_log) - 1] == sought)
+		else:
+			is_met = limit <= count
+	if "on_tile" in condition_name:
+		var active_modifiers = battle.get_player_pos_modifiers()
+		print("Player is standing on ", active_modifiers)
+		var parts = condition_name.split("=")
+		is_met = parts[1] in active_modifiers.keys()
+	if "burning" in condition_name:
+		return user.burned > 0
 	print("Condition " + condition_name + " is met? " + str(is_met))
+
 	return is_met
 
 
@@ -180,6 +269,9 @@ class Effect:
 		targets_self = _targets_self
 		details = _details.to_lower()
 
+	func reset():
+		pass
+
 	func _safe_invoke(obj, method_name: String, args := []):
 		# Return a safe default (empty array) if the object is null/freed/missing method.
 		if obj == null:
@@ -194,8 +286,7 @@ class Effect:
 			return []
 		return obj.callv(method_name, args)
 
-	# gdlint: disable=max-returns
-	func apply(user, target, battle, skill, depth = 0):
+	func apply(user, target, battle, skill):
 		var messages = []
 		var ret = []
 		var considered_details = details
@@ -235,77 +326,106 @@ class Effect:
 		print("Active mods: ", active_placement_effects)
 		match type:
 			"damage":
+				print("Attacker has ", user.alterations)
 				print("Activating damage!")
 				var active_dmg = value
-				active_dmg += user.str_stat
 				var critted = false
-				if "ramp" in considered_details:
-					var parts = considered_details.split("||")
-					if len(parts) > 1:
-						var ramp_type = parts[1]
-						match ramp_type:
-							"consecutive":
+				if not "plain" in considered_details:
+					active_dmg += user.str_stat
+					if "ramp" in considered_details:
+						var parts = considered_details.split("||")
+						if len(parts) > 1:
+							var ramp_type = parts[1]
+							match ramp_type:
+								"consecutive":
+									if user.is_player:
+										if len(battle.player_action_log) > 0:
+											for i in range(
+												battle.player_action_log.size() - 1, -1, -1
+											):
+												if battle.player_action_log[i] == skill.name:
+													active_dmg += 1
+												else:
+													break
+					if "dmg_boost" in considered_details:
+						var parts = considered_details.split("=")
+						active_dmg += int(parts[1])
+					for modifier_name in active_placement_effects:
+						var modifier_value = active_placement_effects[modifier_name]
+
+						match modifier_name:
+							"dmg_mult_bad":
+								if !user.is_player:
+									critted = true
+									active_dmg *= modifier_value
+							"dmg_mult_good":
 								if user.is_player:
-									if len(battle.player_action_log) > 0:
-										for i in range(battle.player_action_log.size() - 1, -1, -1):
-											if battle.player_action_log[i] == skill.name:
-												active_dmg += 1
-											else:
-												break
-				for modifier_name in active_placement_effects:
-					var modifier_value = active_placement_effects[modifier_name]
+									active_dmg *= modifier_value
+							"dmg_reduc_good":
+								if !user.is_player:
+									active_dmg *= modifier_value
+							"dmg_reduc_bad":
+								if user.is_player:
+									active_dmg *= modifier_value
 
-					match modifier_name:
-						"dmg_mult_bad":
-							if !user.is_player:
-								critted = true
-								active_dmg *= modifier_value
-						"dmg_mult_good":
-							if user.is_player:
-								active_dmg *= modifier_value
-						"dmg_reduc_good":
-							if !user.is_player:
-								active_dmg *= modifier_value
-						"dmg_reduc_bad":
-							if user.is_player:
-								active_dmg *= modifier_value
-
-				for alteration in user.alterations:
-					if user.alterations[alteration].has("dmg_buff"):
-						active_dmg *= user.alterations[alteration].dmg_buff
-					if user.alterations[alteration].has("dmg_null"):
-						active_dmg = 0
-					if user.alterations[alteration].has("pierce"):
-						considered_details += (
-							"||pierce=" + str(user.alterations[alteration].pierce) + "||"
-						)
-					if user.alterations[alteration].has("elementize"):
-						if (
-							not "fire" in considered_details
-							and not "earth" in considered_details
-							and not "ice" in considered_details
-							and not "electric" in considered_details
-						):
-							var added_element = ""
+					for alteration in user.alterations:
+						print(user.name, " has alteration ", user.alterations[alteration])
+						if user.alterations[alteration].has("dmg_buff"):
+							active_dmg *= user.alterations[alteration].dmg_buff
 							print(
-								"Alteration looks like this mate... ",
-								user.alterations[alteration].elementize
+								user.name,
+								" has a damage buff! ",
+								user.alterations[alteration].dmg_buff
 							)
-							if user.alterations[alteration].elementize == "rand":
-								print("target's resistances ", target.resistances)
-								var min = 999
-								for element in target.resistances.keys():
-									if target.resistances[element] < min:
-										added_element = element
-										min = target.resistances[element]
-							else:
-								added_element = user.alterations[alteration].elementize
-							considered_details += "||" + added_element + "||"
-
-				if user.is_player:
-					active_dmg *= battle.get_player_range_dmg_mult()
-				if user.stunned > 0:
-					active_dmg *= 0.75
+						if user.alterations[alteration].has("dmg_null"):
+							active_dmg = 0
+						if user.alterations[alteration].has("pierce"):
+							considered_details += (
+								"||pierce=" + str(user.alterations[alteration].pierce) + "||"
+							)
+						if user.alterations[alteration].has("elementize"):
+							if (
+								not "fire" in considered_details
+								and not "earth" in considered_details
+								and not "ice" in considered_details
+								and not "electric" in considered_details
+							):
+								var added_element = ""
+								print(
+									"Alteration looks like this mate... ",
+									user.alterations[alteration].elementize
+								)
+								if user.alterations[alteration].elementize == "rand":
+									print("target's resistances ", target.resistances)
+									var min = 999
+									for element in target.resistances.keys():
+										if target.resistances[element] < min:
+											added_element = element
+											min = target.resistances[element]
+								else:
+									added_element = user.alterations[alteration].elementize
+								considered_details += "||" + added_element + "||"
+						if user.alterations[alteration].has("confused"):
+							var prob = 50
+							var happen = GlobalRNG.randi_range(0, 100)
+							if happen > prob:
+								targets_self = true
+						if user.alterations[alteration].has("leech") and not targets_self:
+							user.heal(user.alterations[alteration]["leech"])
+						if user.alterations[alteration].has("element_buff"):
+							print("elements buffed!")
+							if (
+								"fire" in considered_details
+								or "earth" in considered_details
+								or "ice" in considered_details
+								or "electric" in considered_details
+							):
+								print("dmg buffed by ", user.alterations[alteration].element_buff)
+								active_dmg *= user.alterations[alteration].element_buff
+					if user.is_player:
+						active_dmg *= battle.get_player_range_dmg_mult()
+					if user.stunned > 0:
+						active_dmg *= 0.75
 
 				var recipient = user if targets_self else target
 				messages = _safe_invoke(recipient, "take_damage", [active_dmg, considered_details])
@@ -330,23 +450,30 @@ class Effect:
 				var basic_directions = ["u", "d", "l", "r"]
 				var can_move = true
 
-				if user.is_player:
-					if user.frozen > 0:
+				for alteration in user.alterations:
+					if user.alterations[alteration].has("cannot_move"):
 						can_move = false
-				else:
-					if target.frozen > 0:
-						can_move = false
+
+				if user.frozen > 0:
+					can_move = false
+					print(user.name + " cannot move right now!")
 				if user.stunned > 0 and GlobalRNG.randi_range(0, 100) < 50:
-					considered_details = "rnd_dir"
+					considered_details = "rnd|dir"
 				if (
-					(considered_details in basic_directions or "rnd" in considered_details)
+					(
+						considered_details in basic_directions
+						or "rnd" in considered_details
+						or "input" in considered_details
+					)
 					and can_move
 				):
-					ret = [battle.move_player(considered_details, value)]
+					ret = [await battle.move_player(considered_details, value)]
 			"danger_dmg_mult":
 				print("Activating danger")
 				var duration = 1
-				ret = battle.apply_zones("dmg_mult_", value, considered_details, duration, "bad")
+				ret = do_zones(
+					"dmg_mult_", value, considered_details, duration, "bad", battle, user
+				)
 			"poison":
 				print("Activating poison!")
 				var recipient = user if targets_self else target
@@ -362,10 +489,17 @@ class Effect:
 				var recipient = user if targets_self else target
 				messages = _safe_invoke(recipient, "increase_freeze", [value])
 				ret = ["Targets " + (messages[0] if messages.size() > 0 else "")]
+			"burn":
+				print("Burning!")
+				var recipient = user if targets_self else target
+				messages = _safe_invoke(recipient, "increase_burn", [value])
+				ret = ["Targets " + (messages[0] if messages.size() > 0 else "")]
 			"safety_dmg_reduc":
 				print("Activating safety")
 				var duration = 1
-				ret = battle.apply_zones("dmg_reduc_", value, considered_details, duration, "good")
+				ret = do_zones(
+					"dmg_reduc_", value, considered_details, duration, "good", battle, user
+				)
 			"death_zone":
 				print("Activating death")
 				var duration = 1
@@ -374,11 +508,19 @@ class Effect:
 					direction = "bad"
 				else:
 					direction = "good"
-				ret = battle.apply_zones("death_", value, considered_details, duration, direction)
+				ret = do_zones(
+					"death_", value, considered_details, duration, direction, battle, user
+				)
 			"damage_zone":
 				var duration = 1
 				var direction
 				var active_dmg = value
+				for alteration in user.alterations:
+					if user.alterations[alteration].has("confused"):
+						var prob = 50
+						var happen = GlobalRNG.randi_range(0, 100)
+						if happen > prob:
+							targets_self = true
 				if (targets_self and user.is_player) or (!targets_self and !user.is_player):
 					direction = "bad"
 				else:
@@ -388,8 +530,8 @@ class Effect:
 						active_dmg *= user.alterations[alteration].dmg_buff
 					if user.alterations[alteration].has("dmg_null"):
 						active_dmg = 0
-				ret = battle.apply_zones(
-					"damage_", active_dmg, considered_details, duration, direction
+				ret = do_zones(
+					"damage_", active_dmg, considered_details, duration, direction, battle, user
 				)
 			"heal_zone":
 				print("Activating death")
@@ -399,7 +541,9 @@ class Effect:
 					direction = "good"
 				else:
 					direction = "bad"
-				ret = battle.apply_zones("heal_", value, considered_details, duration, direction)
+				ret = do_zones(
+					"heal_", value, considered_details, duration, direction, battle, user
+				)
 			"heal":
 				var recipient = user if targets_self else target
 				ret = _safe_invoke(recipient, "heal", [value])
@@ -465,12 +609,90 @@ class Effect:
 				ret = _safe_invoke(
 					recipient, "add_alteration", ["action_bonus", value, skill.name, dur]
 				)
+			"cannot_move":
+				var dur = null
+				if "duration" in considered_details:
+					var parts = considered_details.split("=")
+					dur = int(parts[1])
+				var recipient = user if targets_self else target
+				ret = _safe_invoke(
+					recipient, "add_alteration", ["cannot_move", value, skill.name, dur]
+				)
+			"confuse":
+				var dur = null
+				if "duration" in considered_details:
+					var parts = considered_details.split("=")
+					dur = int(parts[1])
+				var recipient = user if targets_self else target
+				ret = _safe_invoke(
+					recipient, "add_alteration", ["confused", value, skill.name, dur]
+				)
+			"leeching":
+				var dur = null
+				if "duration" in considered_details:
+					var parts = considered_details.split("=")
+					dur = int(parts[1])
+				var recipient = user if targets_self else target
+				ret = _safe_invoke(recipient, "add_alteration", ["leech", value, skill.name, dur])
+			"element_buff":
+				var dur = null
+				if "duration" in considered_details:
+					var parts = considered_details.split("=")
+					dur = int(parts[1])
+				var recipient = user if targets_self else target
+				ret = _safe_invoke(
+					recipient, "add_alteration", ["element_buff", value, skill.name, dur]
+				)
+			"add_zone_duration":
+				var recipient = user if targets_self else target
+				print("The recipient of added zone duration is player: ", recipient.is_player)
+				ret = _safe_invoke(recipient, "add_zone_duration", [value])
+			"deter":
+				battle.dissuade_enemy()
+				ret = ["The enemy can no longer bring himself to executing its chosen move"]
+			"random":
+				var skills_there_are = user.existing_skills
+				var copyable = skills_there_are.get_skills_by_condition({"passive": false})
+				var copied = null
+				if len(copyable) > 0:
+					copied = copyable[GlobalRNG.randi_range(0, len(copyable) - 1)]
+				if copied != null:
+					var back = await skills_there_are.get_skill(copied).activate_skill(
+						user, target, battle
+					)
+					ret = ["Copied the effect of " + copied]
+					ret.append_array(back)
+			"alter_recovery":
+				var recipient = user if targets_self else target
+				ret = _safe_invoke(recipient, "touch_recovery", [considered_details, value])
+			"set_resistance":
+				var recipient = user if targets_self else target
+				ret = _safe_invoke(recipient, "set_resistance", [considered_details, value])
+			"extinguish":
+				print("Extinguishing: Burn was ", user.burned)
+				var used_extinguishement = float(considered_details)
+				user.burned = user.burned - (user.burned * used_extinguishement)
+				print("Burn went to ", user.burned)
 			"prepare":
 				var prep_msg := "The enemy seems to be preparing something big... or maybe it's just tired?"
 				var prep_hint := "Hard to tell really"
 				ret = [prep_msg, prep_hint]
-		if depth < 3 and not battle.battle_over():
-			battle.update_passives(depth + 1, false)
 		return ret
 
-	# gdlint: enable=max-returns
+	func do_zones(type, value, considered_details, duration, dir, battle, user):
+		duration += user.added_zone_duration
+		var rng = GlobalRNG
+		var rand_num = 0
+		if user.stunned > 0:
+			match considered_details:
+				"player_x":
+					rand_num = rng.randi_range(0, 4)
+					considered_details = "x=" + rand_num
+				"player_y":
+					rand_num = rng.randi_range(0, 4)
+					considered_details = "y=" + rand_num
+				"player_pos":
+					considered_details = "area||rand||rand||1"
+				"surrounding":
+					considered_details = "area||rand||rand||2"
+		return battle.apply_zones(type, value, considered_details, duration, dir)

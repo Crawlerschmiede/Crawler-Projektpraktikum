@@ -3,17 +3,22 @@ class_name Skilltree
 extends Resource
 
 const SKILLS := preload("res://scripts/entity/premade_skills.gd")
+const DEFAULT_SKILLTREES := {
+	"basic": 0,
+	"Cleric": 0,
+	"Mage": 0,
+	"Rogue": 0,
+	"Warrior": 0,
+	"Short-Ranged-Weaponry": 0,
+	"Medium-Ranged-Weaponry": 0,
+	"Long-Ranged-Weaponry": 0,
+	"Unarmed-Combat": 0
+}
 var existing_skills = SKILLS.new()
 # format here is name:{tier, skills}
 # tier is the level of the tree, 0 being unselected
 #skills should be in the format [name, required tier]
-var skilltrees = {
-	"basic": 0,
-	"Short Ranged Weaponry": 0,
-	"Medium Ranged Weaponry": 0,
-	"Long Ranged Weaponry": 0,
-	"Unarmed": 0
-}
+var skilltrees = DEFAULT_SKILLTREES.duplicate(true)
 
 
 func get_active_skills():
@@ -30,7 +35,8 @@ func get_active_skills():
 		for skill_in_tree in skills_in_tree:
 			if skill_in_tree[1].has("tier"):
 				if skill_in_tree[1].tier <= skilltrees[active_tree]:
-					active_skills.append(skill_in_tree[0])
+					if not (skill_in_tree[0] in active_skills):
+						active_skills.append(skill_in_tree[0])
 	return active_skills
 
 
@@ -39,6 +45,16 @@ func increase_tree_level(tree_name: String):
 		push_warning("Unknown skilltree: %s" % tree_name)
 		return
 	skilltrees[tree_name] = int(skilltrees[tree_name]) + 1
+	print("Leveled successfully: ", tree_name)
+
+
+func activate(tree_name: String):
+	if not skilltrees.has(tree_name):
+		push_warning("Unknown skilltree: %s" % tree_name)
+		return
+	if int(skilltrees[tree_name]) < 1:
+		skilltrees[tree_name] = int(skilltrees[tree_name]) + 1
+		print("Activated successfully: ", tree_name)
 
 
 func get_all_explanations():
@@ -50,3 +66,17 @@ func get_all_explanations():
 
 func get_explanation(tree_name):
 	return existing_skills.get_tree_explanation(tree_name)
+
+
+func reset() -> void:
+	skilltrees = DEFAULT_SKILLTREES.duplicate(true)
+
+
+func import_levels(levels: Dictionary) -> void:
+	reset()
+	if typeof(levels) != TYPE_DICTIONARY:
+		return
+
+	for tree_name in skilltrees.keys():
+		if levels.has(tree_name):
+			skilltrees[tree_name] = int(levels[tree_name])

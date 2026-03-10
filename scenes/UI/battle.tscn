@@ -494,6 +494,7 @@ offset_top = 23.0
 offset_right = 193.5
 offset_bottom = 85.0
 scale = Vector2(0.62, 0.8)
+theme = ExtResource("14_ubutp")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="Battle_root/ItemList/ScrollContainer" unique_id=1465506574]
 custom_minimum_size = Vector2(170, 50)
@@ -575,6 +576,7 @@ offset_top = 11.0
 offset_right = 197.0
 offset_bottom = 81.0
 scale = Vector2(0.62, 0.8)
+theme = ExtResource("14_ubutp")
 script = ExtResource("16_d23n6")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="Battle_root/TextureRect2/message_container" unique_id=738247885]

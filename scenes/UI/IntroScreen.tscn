@@ -58,7 +58,7 @@ modulate = Color(1, 1, 1, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.75686276, 0, 0, 1)
 theme_override_fonts/font = ExtResource("1_n8ope")
-text = "TeamName"
+text = "CrawlerSchmiede"
 script = ExtResource("3_kx4lv")
 
 [node name="LabelShadow" type="Label" parent="." unique_id=1200703739]
@@ -110,3 +110,4 @@ offset_bottom = 480.0
 
 [node name="tv_noise" type="AudioStreamPlayer" parent="." unique_id=586750406]
 stream = ExtResource("8_idkc3")
+bus = &"SFX"
