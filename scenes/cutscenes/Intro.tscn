@@ -8,7 +8,7 @@
 
 [sub_resource type="Animation" id="Animation_aqbct"]
 resource_name = "new_animation"
-length = 6.75
+length = 5.75
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
@@ -16,7 +16,7 @@ tracks/0/path = NodePath("AnimatedSprite2D:position")
 tracks/0/interp = 1
 tracks/0/loop_wrap = true
 tracks/0/keys = {
-"times": PackedFloat32Array(0, 1, 4, 6.5),
+"times": PackedFloat32Array(0, 1, 4, 5.5),
 "transitions": PackedFloat32Array(1, 1, 1, 1),
 "update": 0,
 "values": [Vector2(176, 432), Vector2(224, 400), Vector2(224, 400), Vector2(375.99997, 344)]
@@ -40,7 +40,7 @@ tracks/2/path = NodePath("PetIntroScene:position")
 tracks/2/interp = 1
 tracks/2/loop_wrap = true
 tracks/2/keys = {
-"times": PackedFloat32Array(0, 1, 2, 5),
+"times": PackedFloat32Array(0, 1, 2, 4),
 "transitions": PackedFloat32Array(1, 1, 1, 1),
 "update": 0,
 "values": [Vector2(232, 456.00003), Vector2(272, 424), Vector2(272, 424), Vector2(376, 368)]
@@ -52,7 +52,7 @@ tracks/3/path = NodePath("PetIntroScene:animation")
 tracks/3/interp = 1
 tracks/3/loop_wrap = true
 tracks/3/keys = {
-"times": PackedFloat32Array(0, 1, 1.01, 2, 5),
+"times": PackedFloat32Array(0, 1, 1.01, 2, 4),
 "transitions": PackedFloat32Array(1, 1, 1, 1, 1),
 "update": 1,
 "values": [&"walking_up", &"walking_up", &"idl", &"running_up", &"running_up"]
@@ -88,7 +88,7 @@ tracks/6/path = NodePath("PetIntroScene:visible")
 tracks/6/interp = 1
 tracks/6/loop_wrap = true
 tracks/6/keys = {
-"times": PackedFloat32Array(0.001, 5.01),
+"times": PackedFloat32Array(0.001, 4.01),
 "transitions": PackedFloat32Array(1, 1),
 "update": 1,
 "values": [true, false]
@@ -100,7 +100,7 @@ tracks/7/path = NodePath("AnimatedSprite2D:visible")
 tracks/7/interp = 1
 tracks/7/loop_wrap = true
 tracks/7/keys = {
-"times": PackedFloat32Array(0.001, 6.51),
+"times": PackedFloat32Array(0.001, 5.51),
 "transitions": PackedFloat32Array(1, 1),
 "update": 1,
 "values": [true, false]
@@ -127,7 +127,7 @@ tracks/9/keys = {
 "times": PackedFloat32Array(0, 2.01, 3.5),
 "transitions": PackedFloat32Array(1, 1, 1),
 "update": 0,
-"values": ["", "", "Add something here as a Text"]
+"values": ["", "", "Wait! Don't go in there!"]
 }
 tracks/10/type = "value"
 tracks/10/imported = false
@@ -316,17 +316,21 @@ offset_bottom = 480.0
 [node name="RichTextLabel" type="RichTextLabel" parent="Panel" unique_id=129473705]
 z_index = 100
 layout_mode = 0
-offset_right = 384.0
+offset_right = 304.0
 offset_bottom = 56.0
 theme_override_fonts/normal_font = ExtResource("4_ee3pl")
-theme_override_font_sizes/normal_font_size = 24
+theme_override_font_sizes/normal_font_size = 32
+horizontal_alignment = 1
 
 [node name="Label" type="Label" parent="Panel" unique_id=1190184913]
 visible = false
 layout_mode = 0
-offset_left = 320.0
-offset_top = 32.0
-offset_right = 380.0
-offset_bottom = 55.0
+offset_left = 296.0
+offset_top = 23.0
+offset_right = 376.0
+offset_bottom = 56.0
 theme_override_fonts/font = ExtResource("4_ee3pl")
+theme_override_font_sizes/font_size = 24
 text = "Press ▶"
+horizontal_alignment = 2
+vertical_alignment = 1
