@@ -94,7 +94,7 @@ func spawn_enemies(
 	var chosen: int
 
 	if do_boss:
-		print("Should spawn boss")
+		pass  # print("Should spawn boss")
 		roll = rng.randf() * total
 		acc = 0.0
 		chosen = 0
@@ -116,7 +116,7 @@ func spawn_enemies(
 			fallback_parent,
 			true
 		)
-		print("Spawned boss!")
+		pass  # print("Spawned boss!")
 		return
 
 	for _i in range(MAX_SPAWN_SELECTION_ITERATIONS):
@@ -170,7 +170,7 @@ func spawn_enemies(
 				world_root,
 				fallback_parent
 			)
-			print("spawn: ", def.get("sprite_type", id))
+			pass  # print("spawn: ", def.get("sprite_type", id))
 
 
 func spawn_enemy(

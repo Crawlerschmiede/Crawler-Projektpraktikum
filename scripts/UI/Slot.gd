@@ -80,7 +80,7 @@ func _fit_item_to_slot(it: Node) -> void:
 
 		var result := regex.search(g)
 		if result:
-			print("Scale Result: ", result)
+			pass  # print("Scale Result: ", result)
 			var scale_value := float(result.get_string(1))
 			c.scale = Vector2(scale_value, scale_value)
 
@@ -98,8 +98,8 @@ func _on_mouse_exited() -> void:
 
 
 func refresh_style() -> void:
-	#print(PlayerInventory.get_selected_slot())
-	#print(item)
+	#pass # print(PlayerInventory.get_selected_slot())
+	#pass # print(item)
 	if item != null and (not is_instance_valid(item) or item.get_parent() != self):
 		item = null
 	if has_background:

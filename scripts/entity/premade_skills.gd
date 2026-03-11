@@ -639,7 +639,7 @@ var existing_skills = {
 		"passive": true,
 		"full_description": "Safe zones you place last longer. You take 50% more damage"
 	},
-	"Sprint to cover":
+	"Spass # print to cover":
 	{
 		"tree": "Warrior",
 		"tier": 5,
@@ -1055,7 +1055,7 @@ func get_skill(skill_name):
 	var switch_conditions = []
 	if values.has("switch_condition"):
 		switch_conditions = values.switch_condition
-	print(values)
+	pass  # print(values)
 	var new_skill = Skill.new(
 		skill_name, values.tree, values.description, cool, passive, conditions, switch_conditions
 	)

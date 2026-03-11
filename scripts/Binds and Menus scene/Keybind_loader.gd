@@ -26,7 +26,7 @@ func _ready():
 		scroll_container.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 		display_all_custom_binds()
 	else:
-		print("Path Error: Check the node order in your Scene Tree!")
+		pass  # print("Path Error: Check the node order in your Scene Tree!")
 
 
 func display_all_custom_binds():
@@ -34,14 +34,14 @@ func display_all_custom_binds():
 		child.queue_free()
 
 	var all_actions = InputMap.get_actions()
-	print("Found ", all_actions.size(), " total actions.")  # DEBUG 1
+	pass  # print("Found ", all_actions.size(), " total actions.")  # DEBUG 1
 
 	for action in all_actions:
 		# Temporarily comment out the filter to see EVERYTHING
 		if action.begins_with("ui_"):
 			continue
 
-		print("Adding action to UI: ", action)  # DEBUG 2
+		pass  # print("Adding action to UI: ", action)  # DEBUG 2
 
 		var name_label = _make_menu_label(action.capitalize())
 		grid.add_child(name_label)

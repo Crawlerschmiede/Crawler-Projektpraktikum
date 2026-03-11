@@ -57,7 +57,7 @@ func _on_tab_changed(tab_idx: int) -> void:
 
 func _populate_list(tab_idx: int) -> void:
 	_clear_vbox(list_vbox)
-	print("Populating list!")
+	pass  # print("Populating list!")
 	match tab_idx:
 		Tab.SKILLS:
 			for ability in player.abilities:

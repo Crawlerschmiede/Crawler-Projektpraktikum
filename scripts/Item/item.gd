@@ -89,28 +89,28 @@ func _get_stack_size(_name: String) -> int:
 
 
 func get_bound_skills() -> Array:
-	print("Itemname: ", item_name)
+	pass  # print("Itemname: ", item_name)
 	if !item_exists():
-		print("doesn't exist")
+		pass  # print("doesn't exist")
 		return []
 	var data: Dictionary = JsonData.item_data
 	var info: Variant = data[item_name]
 	if typeof(info) != TYPE_DICTIONARY:
-		print("not_dict")
+		pass  # print("not_dict")
 		return []
 	var bound_skills: Array = Array((info as Dictionary).get("bound_skills", []))
 	return bound_skills
 
 
 func get_range() -> String:
-	print("Itemname: ", item_name)
+	pass  # print("Itemname: ", item_name)
 	if !item_exists():
-		print("doesn't exist")
+		pass  # print("doesn't exist")
 		return ""
 	var data: Dictionary = JsonData.item_data
 	var info: Variant = data[item_name]
 	if typeof(info) != TYPE_DICTIONARY:
-		print("not_dict")
+		pass  # print("not_dict")
 		return ""
 	var range: String = String((info as Dictionary).get("range", ""))
 	return range
@@ -131,7 +131,7 @@ func _set_icon() -> void:
 			var base_path := "res://assets/item_icons/%s.png" % base
 			tex = ResourceLoader.load(base_path)
 			if tex != null:
-				print("[InventoryItem] using base icon for", item_name, "->", base_path)
+				pass  # print("[InventoryItem] using base icon for", item_name, "->", base_path)
 			else:
 				push_warning("Icon nicht gefunden (exact+base): %s, %s" % [path, base_path])
 		else:

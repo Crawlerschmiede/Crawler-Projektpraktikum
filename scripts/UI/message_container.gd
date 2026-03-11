@@ -64,13 +64,13 @@ func _ready() -> void:
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(_delta: float) -> void:
 	if state != last_state or changed:
-		#print("clearing")
+		#pass # print("clearing")
 		_clear_list()
 		up_to_date = false
 		list_index = 0
 		last_state = state
 		changed = false
-		#print("switched from " + last_state + " to " + state)
+		#pass # print("switched from " + last_state + " to " + state)
 	if not up_to_date:
 		match state:
 			"log":

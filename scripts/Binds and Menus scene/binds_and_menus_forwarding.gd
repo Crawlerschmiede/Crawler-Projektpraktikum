@@ -68,7 +68,7 @@ func suppress_hotkey_close_until_release() -> void:
 
 
 func _on_element_clicked(element_name: String):
-	print("Clicked: ", element_name)
+	pass  # print("Clicked: ", element_name)
 
 	match element_name:
 		"InventoryLabel", "InventoryIcon":

@@ -50,12 +50,12 @@ func _ready() -> void:
 		anim.stop()
 		anim.frame = 0
 
-	print("TrapTile ready | dmg:", damage, "| cooldown:", cooldown)
+	pass  # print("TrapTile ready | dmg:", damage, "| cooldown:", cooldown)
 
 
 func _on_body_entered(body: Node) -> void:
 	if not _ready_to_trigger:
-		print("Trap trigger blocked (cooldown)")
+		pass  # print("Trap trigger blocked (cooldown)")
 		return
 
 	if body == null:
@@ -63,10 +63,10 @@ func _on_body_entered(body: Node) -> void:
 
 	# Nur Player triggern
 	if not body.is_in_group("player"):
-		print("Trap ignored:", body.name)
+		pass  # print("Trap ignored:", body.name)
 		return
 
-	print("TRAP TRIGGERED by:", body.name)
+	pass  # print("TRAP TRIGGERED by:", body.name)
 
 	_ready_to_trigger = false
 
@@ -81,7 +81,7 @@ func _on_body_entered(body: Node) -> void:
 
 	# one shot?
 	if one_shot:
-		#print("💀 Trap one_shot -> removed")
+		#pass # print("💀 Trap one_shot -> removed")
 		queue_free()
 		return
 
@@ -96,7 +96,7 @@ func _on_body_entered(body: Node) -> void:
 	anim.stop()
 	anim.frame = 0
 
-	#print("✅ Trap ready again")
+	#pass # print("✅ Trap ready again")
 
 
 func _apply_damage(player: Node) -> void:
@@ -106,5 +106,5 @@ func _apply_damage(player: Node) -> void:
 	# Variante 1: Player hat take_damage()
 	if player.has_method("take_damage"):
 		player.take_damage(damage, "undodgeable")
-		#print("💥 Damage applied via take_damage:", damage)
+		#pass # print("💥 Damage applied via take_damage:", damage)
 		return
