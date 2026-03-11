@@ -376,7 +376,9 @@ func _is_cell_walkable(cell: Vector2i, direction: Vector2i = Vector2i.ZERO) -> b
 	var tile_data = tilemap.get_cell_tile_data(cell)
 	if tile_data == null:
 		return false  # No tile = not walkable (outside map)
-
+	if hp <= 0:
+		return false
+	print("[DEBUG DEATH]: ", hp)
 	# Check for your custom property "non_walkable"
 	if tile_data.get_custom_data("non_walkable") == true:
 		print("That tile ain't walkable pal!")
@@ -385,7 +387,10 @@ func _is_cell_walkable(cell: Vector2i, direction: Vector2i = Vector2i.ZERO) -> b
 	if _is_cell_blocked(cell, direction):
 		print("That tile's blocked pal!")
 		return false
-
+	
+	if get_tree() == null:
+		return false
+		
 	# Prevent stepping onto tiles already occupied by another enemy (no stacking)
 	# For multi-tile entities, consider all occupied offsets in `my_tiles`.
 	var target_tiles: Array = []

@@ -458,6 +458,8 @@ func get_world_tilemaps() -> Dictionary:
 
 
 func _on_player_moved() -> void:
+	if player.hp <= 0:
+		game_over()
 	if minimap_reveal_flow == null:
 		return
 	minimap_reveal_flow.on_player_moved(minimap, dungeon_floor, player, fog_war_layer, get_tree())
