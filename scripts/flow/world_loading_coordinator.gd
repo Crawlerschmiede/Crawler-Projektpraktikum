@@ -91,6 +91,7 @@ func clear_world() -> void:
 
 	_main.dungeon_floor = null
 	_main.dungeon_top = null
+	_main.minimap = null
 
 	if EntityAutoload != null and EntityAutoload.has_method("reset"):
 		EntityAutoload.reset()
@@ -199,6 +200,7 @@ func load_tutorial_world(tutorial_room_path: String) -> void:
 
 	_main.dungeon_floor = extracted.get("floor", null)
 	_main.dungeon_top = extracted.get("top", _main.dungeon_floor)
+	_main.minimap = null
 
 	await setup_fog_layer_for_current_world()
 

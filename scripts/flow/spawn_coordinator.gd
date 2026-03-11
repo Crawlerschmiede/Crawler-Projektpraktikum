@@ -118,7 +118,10 @@ func spawn_player(
 	if fog_war_layer != null:
 		e.z_index = fog_war_layer.z_index + PLAYER_Z_INDEX_OFFSET
 
-	e.set_minimap(minimap)
+	if minimap != null and is_instance_valid(minimap):
+		e.set_minimap(minimap)
+	else:
+		e.set_minimap(null)
 
 	var start_pos = Vector2i(2, 2)
 	if typeof(spawn_pos_override) == TYPE_VECTOR2I:
