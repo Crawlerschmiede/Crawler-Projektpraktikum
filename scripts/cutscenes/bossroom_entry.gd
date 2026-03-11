@@ -8,12 +8,13 @@ extends Node2D
 
 var player: Node = null
 
-var dialog_lines : Array[String]= [
+var dialog_lines: Array[String] = [
 	"Ist das etwa... eine Tür?",
 	"Ich habe überall gesucht, ohne Erfolg.",
 	"Bist du vielleicht hier reingelaufen?  Ich habe kein gutes Gefühl..",
 	"Ich bin so weit gekommen. Ich kann jetzt nicht aufgeben!"
 ]
+
 
 func _ready() -> void:
 	# Nur für Testzwecke automatisch starten:
@@ -37,14 +38,12 @@ func start_cutscene(p: Node) -> void:
 	path_follower.progress_ratio = 0.0
 
 	var tween = create_tween()
-	tween.tween_property(
-		path_follower,
-		"progress_ratio",
-		1.0,
-		move_duration
-	)\
-	.set_trans(Tween.TRANS_SINE)\
-	.set_ease(Tween.EASE_IN_OUT)
+	(
+		tween
+		. tween_property(path_follower, "progress_ratio", 1.0, move_duration)
+		. set_trans(Tween.TRANS_SINE)
+		. set_ease(Tween.EASE_IN_OUT)
+	)
 
 	await tween.finished
 	end_reached()
@@ -71,4 +70,4 @@ func end_cutscene() -> void:
 			player_cam.enabled = true
 			player_cam.make_current()
 
-	queue_free() # Cutscene entfernen
+	queue_free()  # Cutscene entfernen
