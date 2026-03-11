@@ -228,7 +228,7 @@ func _ready() -> void:
 		not _should_load_from_save()
 		and (saved_maps == {} or not typeof(saved_maps) == TYPE_DICTIONARY)
 	):
-		world_index = 2
+		world_index = 0
 
 	await _load_world(world_index)
 
