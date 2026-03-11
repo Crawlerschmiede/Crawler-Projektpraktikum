@@ -136,6 +136,9 @@ func get_random_tilemap() -> Dictionary:
 	# Ensure RNG is seeded fresh for this generation (deterministic per GlobalRNG reset)
 	_rng = GlobalRNG.get_rng()
 
+	# Use a fresh GA seed per run so genetic algorithm evaluations differ between starts
+	ga_seed = GlobalRNG.next_seed()
+
 	# load/start scenes
 	start_room = load("res://scenes/rooms/Rooms/room_11x11_4.tscn")
 	room_scenes = load_room_scenes_from_folder(rooms_folder)
