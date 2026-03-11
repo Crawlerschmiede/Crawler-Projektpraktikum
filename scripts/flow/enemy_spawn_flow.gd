@@ -93,9 +93,18 @@ func spawn_enemies(
 	var acc: float
 	var chosen: int
 
+	# Debug: print available defs and weights
+	var def_ids := []
+	for d in defs:
+		def_ids.append(d.get("_id", "?"))
+	print("[EnemySpawnFlow] defs:", def_ids)
+	print("[EnemySpawnFlow] weights:", weights)
+	print("[EnemySpawnFlow] total weight:", total)
+
 	if do_boss:
 		print("Should spawn boss")
 		roll = rng.randf() * total
+		print("[EnemySpawnFlow] boss roll:", roll)
 		acc = 0.0
 		chosen = 0
 		for j in range(defs.size()):
@@ -124,6 +133,7 @@ func spawn_enemies(
 			break
 
 		roll = rng.randf() * total
+		print("[EnemySpawnFlow] roll:", roll)
 		acc = 0.0
 		chosen = 0
 

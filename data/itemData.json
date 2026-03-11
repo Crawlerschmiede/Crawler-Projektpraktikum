@@ -755,8 +755,8 @@
 		"ItemCategory": "Misc",
 		"StackSize": 1,
 		"Description": "",
-		"group": "sword",
-		"example_in_inventory": "sword",
+		"group": "Weapon",
+		"example_in_inventory": "Weapon",
 		"loot_stats": {
 			"weight": 1,
 			"chance": 1.0,
@@ -777,7 +777,7 @@
 		"ItemCategory": "Misc",
 		"StackSize": 1,
 		"Description": "",
-		"group": "sword",
+		"group": "Weapon",
 		"loot_stats": {
 			"weight": 1,
 			"chance": 1.0,
@@ -798,7 +798,7 @@
 		"ItemCategory": "Misc",
 		"StackSize": 1,
 		"Description": "",
-		"group": "sword",
+		"group": "Weapon",
 		"loot_stats": {
 			"weight": 1,
 			"chance": 1.0,

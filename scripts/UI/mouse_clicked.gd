@@ -15,7 +15,6 @@ var _settings_layer: CanvasLayer = null
 
 
 func _ready():
-	# 👉 Reset ALL autoloads cleanly (kein new(), kein instantiate!)
 	if Engine.has_singleton("AutoloadResetRunner"):
 		AutoloadResetRunner.reset_all()
 	if (
@@ -42,12 +41,6 @@ func _ready():
 
 	_wire_buttons()
 	_setup_focus_navigation()
-
-
-# ==========================
-# BUTTON WIRING
-# ==========================
-
 
 func _wire_buttons() -> void:
 	if has_node("BoxContainer/VBoxContainer2/Settings"):

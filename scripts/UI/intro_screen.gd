@@ -1,5 +1,7 @@
 extends Control
 
+var _skip_pressed: bool = false
+
 # --- Scene Configuration ---
 const START_MENU_PACKED := preload("res://scenes/UI/start-menu.tscn")
 @export var start_menu_path: String = "res://scenes/UI/start-menu.tscn"
@@ -91,6 +93,14 @@ func _go_to_start_menu() -> void:
 		scene_tree.change_scene_to_packed(START_MENU_PACKED)
 	else:
 		push_error("intro_screen: SceneTree is null; cannot change to start menu")
+
+
+func _input(event) -> void:
+	if _skip_pressed:
+		return
+	if Input.is_action_just_pressed("ui_accept"):
+		_skip_pressed = true
+		_go_to_start_menu()
 
 
 # --- Procedural Effects ---
