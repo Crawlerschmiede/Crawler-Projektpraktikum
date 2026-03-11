@@ -625,4 +625,5 @@ animations = [{
 [node name="PetIntroScene" type="AnimatedSprite2D" unique_id=1149031699]
 z_index = 1
 sprite_frames = SubResource("SpriteFrames_wq0xh")
-animation = &"idl"
+animation = &"running_up"
+frame_progress = 0.636623

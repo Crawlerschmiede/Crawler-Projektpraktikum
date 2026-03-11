@@ -239,13 +239,12 @@ _data = {
 [node name="AnimatedSprite2D" parent="." unique_id=782547247 instance=ExtResource("1_fqeff")]
 position = Vector2(176, 432)
 scale = Vector2(5, 5)
-frame_progress = 0.6627698
 
 [node name="PetIntroScene" parent="." unique_id=1149031699 instance=ExtResource("2_p7jo3")]
 position = Vector2(232, 456.00003)
 scale = Vector2(2.5, 2.5)
 animation = &"walking_up"
-frame_progress = 0.02432952
+autoplay = "walking_up"
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=1371701362]
 libraries/ = SubResource("AnimationLibrary_ywiat")
