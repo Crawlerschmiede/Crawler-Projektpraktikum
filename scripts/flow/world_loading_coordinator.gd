@@ -91,6 +91,7 @@ func clear_world() -> void:
 
 	_main.dungeon_floor = null
 	_main.dungeon_top = null
+	_main.minimap = null
 
 	if EntityAutoload != null and EntityAutoload.has_method("reset"):
 		EntityAutoload.reset()
@@ -199,6 +200,7 @@ func load_tutorial_world(tutorial_room_path: String) -> void:
 
 	_main.dungeon_floor = extracted.get("floor", null)
 	_main.dungeon_top = extracted.get("top", _main.dungeon_floor)
+	_main.minimap = null
 
 	await setup_fog_layer_for_current_world()
 
@@ -211,8 +213,62 @@ func load_tutorial_world(tutorial_room_path: String) -> void:
 	_main._set_tree_paused(false)
 
 
+func load_final_boss_world(final_boss_room_path: String) -> void:
+	if _main == null:
+		return
+
+	_main.world_index = _main.FINAL_BOSS_WORLD_INDEX
+	if _main.game_event_gateway != null:
+		_main.game_event_gateway.emit_world_loaded(_main.FINAL_BOSS_WORLD_INDEX)
+
+	_main._set_tree_paused(true)
+	await _show_loading()
+
+	clear_world()
+	_main.boss_win = false
+
+	_main.world_root = Node2D.new()
+	_main.world_root.name = "WorldRoot"
+	_main.add_child(_main.world_root)
+
+	var final_boss_packed = load(final_boss_room_path)
+	if final_boss_packed == null:
+		push_error("Failed to load final boss room scene")
+		_hide_loading()
+		_main._set_tree_paused(false)
+		return
+
+	var final_boss_inst = final_boss_packed.instantiate() as Node2D
+	var extracted: Dictionary = {}
+	if _world_load_flow != null:
+		extracted = _world_load_flow.extract_tutorial_scene_to_world_root(
+			final_boss_inst, _main.world_root
+		)
+
+	if extracted.is_empty() or not bool(extracted.get("ok", false)):
+		push_error(str(extracted.get("error", "Failed to extract final boss scene")))
+		_hide_loading()
+		_main._set_tree_paused(false)
+		return
+
+	_main.dungeon_floor = extracted.get("floor", null)
+	_main.dungeon_top = extracted.get("top", _main.dungeon_floor)
+
+	await setup_fog_layer_for_current_world()
+
+	_main.dungeon_floor.visibility_layer = 1
+	_main.player = await _main.spawn_coordinator.spawn_final_boss_world_entities(_main)
+
+	_hide_loading()
+	_main._set_tree_paused(false)
+
+
 func load_world(idx: int, generators: Array[Node2D]) -> void:
 	if _main == null:
+		return
+
+	if idx == _main.FINAL_BOSS_WORLD_INDEX:
+		await load_final_boss_world(_main.FINAL_BOSS_ROOM)
 		return
 
 	_main.world_index = idx

@@ -1,0 +1,336 @@
+[gd_scene format=3 uid="uid://boajdchepu4bs"]
+
+[ext_resource type="PackedScene" uid="uid://baj7jh2io882q" path="res://scenes/sprite_scenes/player_sprite_scene.tscn" id="1_fqeff"]
+[ext_resource type="PackedScene" uid="uid://bx3qcu4rlif2e" path="res://scenes/cutscenes/pet_intro_scene.tscn" id="2_p7jo3"]
+[ext_resource type="Texture2D" uid="uid://cpitvujxba467" path="res://assets/intro/background.png" id="3_td4oo"]
+[ext_resource type="FontFile" uid="uid://d4fqcjicieold" path="res://assets/font/PixelPurl.ttf" id="4_ee3pl"]
+[ext_resource type="Script" uid="uid://cc528o07cgafa" path="res://scripts/cutscenes/intro.gd" id="5_34s3l"]
+
+[sub_resource type="Animation" id="Animation_aqbct"]
+resource_name = "new_animation"
+length = 5.75
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("AnimatedSprite2D:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 1, 4, 5.5),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [Vector2(176, 432), Vector2(224, 400), Vector2(224, 400), Vector2(375.99997, 344)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("AnimatedSprite2D:animation")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 1, 1.01, 4.01),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 1,
+"values": [&"walk_up", &"walk_up", &"idle_up", &"walk_up"]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("PetIntroScene:position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 1, 2, 4),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 0,
+"values": [Vector2(232, 456.00003), Vector2(272, 424), Vector2(272, 424), Vector2(376, 368)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("PetIntroScene:animation")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0, 1, 1.01, 2, 4),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1),
+"update": 1,
+"values": [&"walking_up", &"walking_up", &"idl", &"running_up", &"running_up"]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("AnimatedSprite2D:scale")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0.0009999999, 1),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(5, 5), Vector2(4.5, 4.5)]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("PetIntroScene:scale")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0.0009999999, 1),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector2(2.5, 2.5), Vector2(2.25, 2.25)]
+}
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("PetIntroScene:visible")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"times": PackedFloat32Array(0.001, 4.01),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [true, false]
+}
+tracks/7/type = "value"
+tracks/7/imported = false
+tracks/7/enabled = true
+tracks/7/path = NodePath("AnimatedSprite2D:visible")
+tracks/7/interp = 1
+tracks/7/loop_wrap = true
+tracks/7/keys = {
+"times": PackedFloat32Array(0.001, 5.51),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [true, false]
+}
+tracks/8/type = "value"
+tracks/8/imported = false
+tracks/8/enabled = true
+tracks/8/path = NodePath("Panel:visible")
+tracks/8/interp = 1
+tracks/8/loop_wrap = true
+tracks/8/keys = {
+"times": PackedFloat32Array(0, 2.01, 4.25),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [false, true, false]
+}
+tracks/9/type = "value"
+tracks/9/imported = false
+tracks/9/enabled = true
+tracks/9/path = NodePath("Panel/RichTextLabel:text")
+tracks/9/interp = 1
+tracks/9/loop_wrap = true
+tracks/9/keys = {
+"times": PackedFloat32Array(0, 2.01, 3.5),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 0,
+"values": ["", "", "Wait! Don't go in there!"]
+}
+tracks/10/type = "value"
+tracks/10/imported = false
+tracks/10/enabled = true
+tracks/10/path = NodePath("Panel/Label:visible")
+tracks/10/interp = 1
+tracks/10/loop_wrap = true
+tracks/10/keys = {
+"times": PackedFloat32Array(0, 3.51),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [false, true]
+}
+
+[sub_resource type="Animation" id="Animation_capyo"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("AnimatedSprite2D:animation")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [&"walk_up"]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("AnimatedSprite2D:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(176, 432)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("PetIntroScene:position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(232, 456.00003)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("PetIntroScene:animation")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [&"walking_up"]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("AnimatedSprite2D:scale")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(5, 5)]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("PetIntroScene:scale")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(2.5, 2.5)]
+}
+tracks/6/type = "value"
+tracks/6/imported = false
+tracks/6/enabled = true
+tracks/6/path = NodePath("PetIntroScene:visible")
+tracks/6/interp = 1
+tracks/6/loop_wrap = true
+tracks/6/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
+tracks/7/type = "value"
+tracks/7/imported = false
+tracks/7/enabled = true
+tracks/7/path = NodePath("AnimatedSprite2D:visible")
+tracks/7/interp = 1
+tracks/7/loop_wrap = true
+tracks/7/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
+tracks/8/type = "value"
+tracks/8/imported = false
+tracks/8/enabled = true
+tracks/8/path = NodePath("Panel:visible")
+tracks/8/interp = 1
+tracks/8/loop_wrap = true
+tracks/8/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+tracks/9/type = "value"
+tracks/9/imported = false
+tracks/9/enabled = true
+tracks/9/path = NodePath("Panel/RichTextLabel:text")
+tracks/9/interp = 1
+tracks/9/loop_wrap = true
+tracks/9/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [""]
+}
+tracks/10/type = "value"
+tracks/10/imported = false
+tracks/10/enabled = true
+tracks/10/path = NodePath("Panel/Label:visible")
+tracks/10/interp = 1
+tracks/10/loop_wrap = true
+tracks/10/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_ywiat"]
+_data = {
+&"Intro": SubResource("Animation_aqbct"),
+&"RESET": SubResource("Animation_capyo")
+}
+
+[node name="Intro" type="Node2D" unique_id=997829745]
+script = ExtResource("5_34s3l")
+
+[node name="AnimatedSprite2D" parent="." unique_id=782547247 instance=ExtResource("1_fqeff")]
+position = Vector2(176, 432)
+scale = Vector2(5, 5)
+
+[node name="PetIntroScene" parent="." unique_id=1149031699 instance=ExtResource("2_p7jo3")]
+position = Vector2(232, 456.00003)
+scale = Vector2(2.5, 2.5)
+animation = &"walking_up"
+autoplay = "walking_up"
+frame_progress = 0.0
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=1371701362]
+libraries/ = SubResource("AnimationLibrary_ywiat")
+
+[node name="Bild" type="Sprite2D" parent="." unique_id=1107766166]
+position = Vector2(320.00003, 240)
+scale = Vector2(0.4166667, 0.46875)
+texture = ExtResource("3_td4oo")
+
+[node name="Panel" type="Panel" parent="." unique_id=1580887176]
+visible = false
+z_index = 100
+offset_left = 128.0
+offset_top = 424.0
+offset_right = 512.0
+offset_bottom = 480.0
+
+[node name="RichTextLabel" type="RichTextLabel" parent="Panel" unique_id=129473705]
+z_index = 100
+layout_mode = 0
+offset_right = 304.0
+offset_bottom = 56.0
+theme_override_fonts/normal_font = ExtResource("4_ee3pl")
+theme_override_font_sizes/normal_font_size = 32
+horizontal_alignment = 1
+
+[node name="Label" type="Label" parent="Panel" unique_id=1190184913]
+visible = false
+layout_mode = 0
+offset_left = 296.0
+offset_top = 23.0
+offset_right = 376.0
+offset_bottom = 56.0
+theme_override_fonts/font = ExtResource("4_ee3pl")
+theme_override_font_sizes/font_size = 24
+text = "Press ▶"
+horizontal_alignment = 2
+vertical_alignment = 1

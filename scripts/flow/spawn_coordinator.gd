@@ -36,14 +36,26 @@ func spawn_lootbox(dungeon_floor: TileMapLayer, lootbox_scene: PackedScene) -> v
 
 
 func spawn_enemies(
-	do_boss: bool, world_index: int, dungeon_floor: TileMapLayer, dungeon_top: TileMapLayer, owner
+	do_boss: bool,
+	world_index: int,
+	dungeon_floor: TileMapLayer,
+	dungeon_top: TileMapLayer,
+	owner,
+	boss_spawn_weight_override: int = -1
 ) -> void:
 	if _enemy_spawn_flow == null or _main == null:
 		return
 
 	var data: Dictionary = EntityAutoload.item_data
 	_enemy_spawn_flow.spawn_enemies(
-		do_boss, world_index, data, dungeon_floor, dungeon_top, _main.world_root, owner
+		do_boss,
+		world_index,
+		data,
+		dungeon_floor,
+		dungeon_top,
+		_main.world_root,
+		owner,
+		boss_spawn_weight_override
 	)
 
 
@@ -84,7 +96,8 @@ func spawn_player(
 	fog_dynamic: bool,
 	fog_tile_id: int,
 	entity_persistence_flow: RefCounted,
-	owner
+	owner,
+	spawn_pos_override: Variant = null
 ):
 	if _main == null or _main.world_root == null or player_scene == null or dungeon_floor == null:
 		return null
@@ -105,10 +118,15 @@ func spawn_player(
 	if fog_war_layer != null:
 		e.z_index = fog_war_layer.z_index + PLAYER_Z_INDEX_OFFSET
 
-	e.set_minimap(minimap)
+	if minimap != null and is_instance_valid(minimap):
+		e.set_minimap(minimap)
+	else:
+		e.set_minimap(null)
 
 	var start_pos = Vector2i(2, 2)
-	if minimap == null:
+	if typeof(spawn_pos_override) == TYPE_VECTOR2I:
+		start_pos = spawn_pos_override
+	elif minimap == null:
 		start_pos = Vector2i(-18, 15)
 
 	e.grid_pos = start_pos
@@ -190,5 +208,28 @@ func spawn_tutorial_entities_with_reveal(on_player_moved: Callable, owner):
 	var merchants = find_merchants(_main.dungeon_floor)
 	for i in merchants:
 		spawn_merchant_entity(i, _main.MERCHANT, _main.world_index)
+
+	return spawned_player
+
+
+func spawn_final_boss_world_entities(owner):
+	if _main == null:
+		return null
+
+	var spawned_player = spawn_player(
+		_main.PLAYER_SCENE,
+		_main.dungeon_floor,
+		_main.dungeon_top,
+		_main.fog_war_layer,
+		_main.minimap,
+		_main.fog_dynamic,
+		_main.fog_tile_id,
+		_main.entity_persistence_flow,
+		owner,
+		Vector2i(0, 12)
+	)
+
+	# Final boss world: only spawn boss enemy, no lootboxes/traps/merchants/regular enemies.
+	spawn_enemies(true, _main.world_index, _main.dungeon_floor, _main.dungeon_top, owner, 2)
 
 	return spawned_player

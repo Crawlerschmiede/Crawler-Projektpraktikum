@@ -33,10 +33,13 @@ const WIN_SCENE := "res://scenes/UI/won-screen.tscn"
 const WIN_SCENE_PACKED := preload("res://scenes/UI/won-screen.tscn")
 const SEWER_TILESET := "res://scenes/rooms/Rooms/roomtiles_2world.tres"
 const TUTORIAL_ROOM := "res://scenes/rooms/Tutorial Rooms/tutorial_room.tscn"
+const FINAL_BOSS_ROOM := "res://scenes/rooms/Final Boss Room/final_boss_room.tscn"
 const TUTORIAL_WORLD_INDEX := -1
+const FINAL_BOSS_WORLD_INDEX := 3
 const TUTORIAL_STATE_PATH_USER := "user://tutorialData.json"
 const TUTORIAL_STATE_PATH_RES := "res://data/tutorialData.json"
 const UI_MODAL_CONTROLLER := preload("res://scripts/UI/ui_modal_controller.gd")
+const INTRO_SCENE := "res://scenes/cutscenes/Intro.tscn"
 @export var menu_scene := preload("res://scenes/UI/popup-menu.tscn")
 @export var fog_tile_id: int = 0  # set this in the inspector to the fog-tile id in your tileset
 @export var fog_dynamic: bool = true  # if true, areas that are no longer visible get fogged again
@@ -193,6 +196,7 @@ func _ready() -> void:
 			saved_maps = early_loaded
 			world_index = int(early_loaded.get("world_index", 0))
 	else:
+		await _show_intro_scene()
 		await _show_skilltree_select_menu()
 		await _show_skilltree_upgrading_menu()
 
@@ -236,6 +240,41 @@ func _show_skilltree_select_menu() -> void:
 	await ui_overlay_coordinator.show_skilltree_select_menu(self, SKILLTREE_SELECT_SCENE)
 
 
+func _show_intro_scene() -> void:
+	var intro_scene: PackedScene = load(INTRO_SCENE)
+	if intro_scene == null:
+		push_warning("_show_intro_scene: failed to load intro scene")
+		return
+
+	var intro_instance := intro_scene.instantiate()
+	if intro_instance == null:
+		push_warning("_show_intro_scene: failed to instantiate intro scene")
+		return
+
+	var intro_overlay := CanvasLayer.new()
+	intro_overlay.name = "IntroOverlay"
+	intro_overlay.layer = 100
+	add_child(intro_overlay)
+	intro_overlay.add_child(intro_instance)
+
+	# Ensure nodes are inside the scene tree before animation playback starts.
+	await get_tree().process_frame
+
+	var animation_player := intro_instance.get_node_or_null("AnimationPlayer") as AnimationPlayer
+	if animation_player == null:
+		push_warning("_show_intro_scene: missing AnimationPlayer, skipping intro playback")
+	else:
+		if animation_player.has_animation("Intro"):
+			animation_player.play("Intro")
+			await animation_player.animation_finished
+		else:
+			push_warning("_show_intro_scene: animation 'Intro' not found, skipping playback")
+
+	if is_instance_valid(intro_overlay):
+		intro_overlay.queue_free()
+		await get_tree().process_frame
+
+
 func _show_skilltree_upgrading_menu() -> void:
 	if ui_overlay_coordinator == null:
 		push_warning("_show_skilltree_upgrading_menu: ui_overlay_coordinator is null")
@@ -256,6 +295,10 @@ func _load_tutorial_world() -> void:
 		push_warning("_load_tutorial_world: world_loading_coordinator is null")
 		return
 	await world_loading_coordinator.load_tutorial_world(TUTORIAL_ROOM)
+
+
+func _is_final_boss_world() -> bool:
+	return world_index == FINAL_BOSS_WORLD_INDEX
 
 
 func _load_world(idx: int) -> void:
@@ -420,8 +463,12 @@ func spawn_player() -> void:
 	# Spawn Position
 	var start_pos := Vector2i(2, 2)
 
+	# Final-Boss-Welt: Spawnpunkt fix auf (0, 12)
+	if _is_final_boss_world():
+		start_pos = Vector2i(0, 12)
+
 	# Tutorial world: spawn at different position
-	if minimap == null:
+	elif minimap == null:
 		start_pos = Vector2i(-18, 15)
 
 	# erst tilemap, dann gridpos, dann position
@@ -444,7 +491,8 @@ func spawn_player() -> void:
 	if player.has_method("update_visibility"):
 		player.update_visibility()
 		# ensure reveal runs after any reparenting/initialization in this frame
-		player.call_deferred("_reveal_on_spawn")
+		if player.has_method("reveal_on_spawn"):
+			player.call_deferred("reveal_on_spawn")
 		emit_signal("player_spawned", player)
 
 

@@ -451,7 +451,7 @@ func reveal_on_spawn() -> void:
 
 	print("[DEBUG] _reveal_on_spawn: tilemap=", tilemap, " fog_layer=", fog_layer)
 	if tilemap == null or fog_layer == null:
-		call_deferred("_reveal_on_spawn")
+		call_deferred("reveal_on_spawn")
 		return
 
 	update_visibility()

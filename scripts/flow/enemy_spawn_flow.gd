@@ -15,7 +15,8 @@ func spawn_enemies(
 	dungeon_floor: TileMapLayer,
 	dungeon_top: TileMapLayer,
 	world_root: Node,
-	fallback_parent: Node
+	fallback_parent: Node,
+	boss_spawn_weight_override: int = -1
 ) -> void:
 	if data == null or data.is_empty():
 		push_warning("EnemySpawnFlow.spawn_enemies: entity data is empty")
@@ -109,12 +110,15 @@ func spawn_enemies(
 				chosen = j
 				break
 		var def = defs[chosen]
+		var boss_spawn_weight := int(def.get("weight", 1))
+		if boss_spawn_weight_override >= 0:
+			boss_spawn_weight = boss_spawn_weight_override
 		spawn_enemy(
 			def.get("sprite_type", "what"),
 			def.get("behaviour", []),
 			def.get("skills", []),
 			def.get("stats", {}),
-			def.get("weight", 1),
+			boss_spawn_weight,
 			dungeon_floor,
 			dungeon_top,
 			world_root,
