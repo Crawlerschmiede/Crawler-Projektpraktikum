@@ -539,6 +539,7 @@ func _on_battle_player_victory(enemy) -> void:
 
 
 func game_over():
+	AutoloadResetRunner.reset_all()
 	if game_event_gateway != null:
 		game_event_gateway.emit_game_over()
 	if battle_flow != null and battle_flow.has_active_battle():
