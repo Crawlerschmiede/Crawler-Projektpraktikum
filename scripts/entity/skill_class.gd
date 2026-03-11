@@ -687,10 +687,10 @@ class Effect:
 			match considered_details:
 				"player_x":
 					rand_num = rng.randi_range(0, 4)
-					considered_details = "x=" + rand_num
+					considered_details = "x=" + str(rand_num)
 				"player_y":
 					rand_num = rng.randi_range(0, 4)
-					considered_details = "y=" + rand_num
+					considered_details = "y=" + str(rand_num)
 				"player_pos":
 					considered_details = "area||rand||rand||1"
 				"surrounding":
