@@ -473,9 +473,9 @@ offset_bottom = 54.000008
 
 [node name="HotContainer" type="GridContainer" parent="Hotbar" unique_id=11696494]
 layout_mode = 0
-offset_left = -90.66664
+offset_left = -81.3333
 offset_top = 7.333332
-offset_right = 25.333359
+offset_right = 34.666702
 offset_bottom = 27.333332
 columns = 5
 
@@ -531,3 +531,13 @@ size_flags_vertical = 4
 theme_override_styles/panel = SubResource("StyleBoxEmpty_4ypmo")
 script = ExtResource("6_5c7wf")
 has_background = false
+
+[node name="Player_HPBar" type="ProgressBar" parent="." unique_id=1452440477]
+layout_mode = 0
+offset_left = -106.00001
+offset_top = 61.666687
+offset_right = -66.00001
+offset_bottom = 79.66669
+scale = Vector2(1, 0.7)
+theme = ExtResource("12_4ypmo")
+theme_override_fonts/font = ExtResource("9_6k8oa")

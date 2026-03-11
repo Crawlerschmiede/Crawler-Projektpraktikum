@@ -89,15 +89,20 @@ func spawn_enemies(
 	var current_weight = 0
 	var spawn_plan = {}
 
-	var roll: float
-	var acc: float
-	var chosen: int
+	# Debug: print available defs and weights
+	var def_ids := []
+	for d in defs:
+		def_ids.append(d.get("_id", "?"))
+	print("[EnemySpawnFlow] defs:", def_ids)
+	print("[EnemySpawnFlow] weights:", weights)
+	print("[EnemySpawnFlow] total weight:", total)
 
 	if do_boss:
 		print("Should spawn boss")
-		roll = rng.randf() * total
-		acc = 0.0
-		chosen = 0
+		var roll = rng.randf() * total
+		print("[EnemySpawnFlow] boss roll:", roll)
+		var acc = 0.0
+		var chosen = 0
 		for j in range(defs.size()):
 			acc += weights[j]
 			if roll <= acc:
@@ -119,39 +124,79 @@ func spawn_enemies(
 		print("Spawned boss!")
 		return
 
-	for _i in range(MAX_SPAWN_SELECTION_ITERATIONS):
-		if current_weight >= max_weight:
-			break
-
-		roll = rng.randf() * total
-		acc = 0.0
-		chosen = 0
-
-		for j in range(defs.size()):
-			acc += weights[j]
-			if roll <= acc:
-				chosen = j
-				break
-
-		var def = defs[chosen]
-
-		var sc_raw = def.get("spawncount", {})
+	# --- Balanced spawn allocation ---
+	# Compute per-def spawn count capacities and an initial proportional allocation
+	var capacities := []
+	var counts := []
+	for j in range(defs.size()):
+		var def_j = defs[j]
+		var sc_raw = def_j.get("spawncount", {})
 		var sc = {}
 		if sc_raw.has(str(world_index)):
 			sc = sc_raw[str(world_index)]
 		elif sc_raw.has("min"):
 			sc = sc_raw
+		var sc_min = int(sc.get("min", 0))
+		var sc_max = int(sc.get("max", 1))
+		var w = int(def_j.get("weight", 1))
+		capacities.append({"min": sc_min, "max": sc_max, "weight": w})
+		counts.append(0)
 
-		var count := rng.randi_range(int(sc.get("min", 0)), int(sc.get("max", 1)))
-		var w = int(def.get("weight", 1))
-		var id = def["_id"]
+	# Initial proportional allocation based on weights
+	for j in range(defs.size()):
+		var p = (weights[j] / total) if total > 0.0 else (1.0 / float(defs.size()))
+		var exp = int(floor((p * max_weight) / float(capacities[j]["weight"])))
+		var actual = exp
+		if actual < capacities[j]["min"]:
+			actual = capacities[j]["min"]
+		if actual > capacities[j]["max"]:
+			actual = capacities[j]["max"]
+		counts[j] = actual
+		current_weight += counts[j] * capacities[j]["weight"]
 
-		for _j in range(count):
-			if current_weight + w > max_weight:
+	# Distribute remaining weight by weighted choice among defs with spare capacity
+	var attempts = 0
+	while current_weight < max_weight:
+		# build candidate total (weights only for those with capacity left)
+		var candidates := []
+		var cand_total = 0.0
+		for j in range(defs.size()):
+			if counts[j] < capacities[j]["max"]:
+				candidates.append(j)
+				cand_total += weights[j]
+		if candidates.size() == 0:
+			break
+		var r = rng.randf() * cand_total
+		var acc2 = 0.0
+		var chosen_idx = candidates[0]
+		for idx in candidates:
+			acc2 += weights[idx]
+			if r <= acc2:
+				chosen_idx = idx
 				break
+		var w = capacities[chosen_idx]["weight"]
+		# if adding this would overflow, try to find a smaller candidate
+		if current_weight + w > max_weight:
+			var found = false
+			for idx in candidates:
+				var ww = capacities[idx]["weight"]
+				if current_weight + ww <= max_weight:
+					chosen_idx = idx
+					found = true
+					break
+			if not found:
+				break
+		counts[chosen_idx] += 1
+		current_weight += w
+		attempts += 1
+		if attempts > max_weight * 5:
+			break
 
-			spawn_plan[id] = spawn_plan.get(id, 0) + 1
-			current_weight += w
+	# Build spawn_plan from counts
+	for j in range(defs.size()):
+		if counts[j] > 0:
+			var id = defs[j].get("_id")
+			spawn_plan[id] = counts[j]
 
 	for id in spawn_plan.keys():
 		var def = data[id]
