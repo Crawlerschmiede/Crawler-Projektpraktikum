@@ -512,9 +512,7 @@ func take_damage(damage, type = ""):
 					else:
 						active_res = 0
 	print("After pierce it's ", active_res)
-	
 
-	
 	if not "ignoredef" in type:
 		taken_damage *= (1 - active_res)
 		# apply percent-based armor (multiplicative reduction)
