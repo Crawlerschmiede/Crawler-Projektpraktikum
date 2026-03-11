@@ -476,11 +476,21 @@ func _check_curr_tile_mods():
 				enemy.hp = 0
 			"damage_bad":
 				if player != null and is_instance_valid(player):
-					print("[BATTLE] Tile damage to player:", modifier_value, " player.armor_percent=", player.armor_percent)
+					print(
+						"[BATTLE] Tile damage to player:",
+						modifier_value,
+						" player.armor_percent=",
+						player.armor_percent
+					)
 					player.take_damage(modifier_value)
 			"damage_good":
 				if enemy != null and is_instance_valid(enemy):
-					print("[BATTLE] Tile damage to enemy:", modifier_value, " enemy.armor_percent=", enemy.armor_percent)
+					print(
+						"[BATTLE] Tile damage to enemy:",
+						modifier_value,
+						" enemy.armor_percent=",
+						enemy.armor_percent
+					)
 					enemy.take_damage(modifier_value)
 			"heal_good":
 				player.heal(modifier_value)
