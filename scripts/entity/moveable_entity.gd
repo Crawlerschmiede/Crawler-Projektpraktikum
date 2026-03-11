@@ -512,14 +512,14 @@ func take_damage(damage, type = ""):
 					else:
 						active_res = 0
 	print("After pierce it's ", active_res)
-	taken_damage *= (1 - active_res)
 
-	# apply percent-based armor (multiplicative reduction)
-	if self.armor_percent != null and float(self.armor_percent) > 0.0:
-		var ap: float = clamp(float(self.armor_percent), 0.0, 0.5)
-		print("Applying armor percent:", ap)
-		taken_damage *= (1.0 - ap)
 	if not "ignoredef" in type:
+		taken_damage *= (1 - active_res)
+		# apply percent-based armor (multiplicative reduction)
+		if self.armor_percent != null and float(self.armor_percent) > 0.0:
+			var ap: float = clamp(float(self.armor_percent), 0.0, 0.5)
+			print("Applying armor percent:", ap)
+			taken_damage *= (1.0 - ap)
 		taken_damage -= self.def_stat
 	if taken_damage < 0:
 		taken_damage = 0
