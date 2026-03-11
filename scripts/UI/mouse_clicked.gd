@@ -42,6 +42,7 @@ func _ready():
 	_wire_buttons()
 	_setup_focus_navigation()
 
+
 func _wire_buttons() -> void:
 	if has_node("BoxContainer/VBoxContainer2/Settings"):
 		$BoxContainer/VBoxContainer2/Settings.pressed.connect(_open_settings)
