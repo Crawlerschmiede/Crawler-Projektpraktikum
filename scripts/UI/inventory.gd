@@ -115,6 +115,20 @@ func get_equipment_skills():
 	return gotten_skills
 
 
+func get_equipped_items():
+	var equipment_slots = _get_equipment_slots()
+	var equipped = []
+	for slot in equipment_slots:
+		var item_in_slot = null
+		if InventoryUtils.has_property(slot, &"item"):
+			item_in_slot = slot.get("item")
+		if item_in_slot != null and is_instance_valid(item_in_slot):
+			var nm = str(item_in_slot.get("item_name"))
+			if nm != "":
+				equipped.append(nm)
+	return equipped
+
+
 func get_equipment_range():
 	var equipment_slots = _get_equipment_slots()
 	var gotten_range = "short"

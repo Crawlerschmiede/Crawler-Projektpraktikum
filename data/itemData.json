@@ -178,6 +178,7 @@
             "Block"
 		],
 		"slot": "chest",
+		"armor": 0.05,
 		"loot_stats": {
 			"weight": 3,
 			"chance": 1.0,
@@ -202,6 +203,7 @@
             "Block"
 		],
 		"slot": "chest",
+		"armor": 0.10,
 		"loot_stats": {
 			"weight": 3,
 			"chance": 1.0,
@@ -227,6 +229,7 @@
             "Block"
 		],
 		"slot": "chest",
+		"armor": 0.15,
 		"loot_stats": {
 			"weight": 3,
 			"chance": 1.0,
@@ -543,6 +546,7 @@
 		"group": "head",
 		"example_in_inventory": "head",
 		"slot": "head",
+		"armor": 0.03,
 		"bound_skills": [
             "Block"
 		],
@@ -567,6 +571,7 @@
 		"Description": "",
 		"group": "head",
 		"slot": "head",
+		"armor": 0.06,
 		"bound_skills": [
             "Block"
 		],
@@ -591,6 +596,7 @@
 		"Description": "",
 		"group": "head",
 		"slot": "head",
+		"armor": 0.09,
 		"bound_skills": [
             "Block"
 		],
@@ -616,6 +622,7 @@
 		"group": "legs",
 		"example_in_inventory": "legs",
 		"slot": "legs",
+		"armor": 0.02,
 		"bound_skills": [
 		],
 		"loot_stats": {
@@ -639,6 +646,7 @@
 		"Description": "",
 		"group": "legs",
 		"slot": "legs",
+		"armor": 0.04,
 		"bound_skills": [
 		],
 		"loot_stats": {
@@ -662,6 +670,7 @@
 		"Description": "",
 		"group": "legs",
 		"slot": "legs",
+		"armor": 0.06,
 		"bound_skills": [
 		],
 		"loot_stats": {

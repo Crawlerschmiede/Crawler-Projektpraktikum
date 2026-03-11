@@ -65,6 +65,7 @@ var max_hp: int = 1
 var hp: int = 1
 var str_stat: int = 1
 var def_stat: int = 0
+var armor_percent: float = 0.0
 var abilities: Array[Skill] = []
 var acquired_abilities: Array[String] = []
 var base_action_points: int = 1
@@ -119,6 +120,14 @@ func setup(
 	resistances["electric"] = _resistances.get("eleres", 0)
 	resistances["earth"] = _resistances.get("erres", 0)
 	resistances["ice"] = _resistances.get("iceres", 0)
+	var raw_armor: float = float(_resistances.get("armor_percent", _resistances.get("armor", 0)))
+	armor_percent = float(raw_armor)
+	if armor_percent > 1.0:
+		armor_percent = armor_percent / 100.0
+	if armor_percent < 0.0:
+		armor_percent = 0.0
+	if armor_percent > 0.5:
+		armor_percent = 0.5
 	print("Ended up with ", resistances)
 
 
@@ -504,6 +513,12 @@ func take_damage(damage, type = ""):
 						active_res = 0
 	print("After pierce it's ", active_res)
 	taken_damage *= (1 - active_res)
+
+	# apply percent-based armor (multiplicative reduction)
+	if self.armor_percent != null and float(self.armor_percent) > 0.0:
+		var ap: float = clamp(float(self.armor_percent), 0.0, 0.5)
+		print("Applying armor percent:", ap)
+		taken_damage *= (1.0 - ap)
 	if not "ignoredef" in type:
 		taken_damage -= self.def_stat
 	if taken_damage < 0:
