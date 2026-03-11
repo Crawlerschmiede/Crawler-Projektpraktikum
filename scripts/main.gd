@@ -228,7 +228,7 @@ func _ready() -> void:
 		not _should_load_from_save()
 		and (saved_maps == {} or not typeof(saved_maps) == TYPE_DICTIONARY)
 	):
-		world_index = 0
+		world_index = 2
 
 	await _load_world(world_index)
 
@@ -491,7 +491,8 @@ func spawn_player() -> void:
 	if player.has_method("update_visibility"):
 		player.update_visibility()
 		# ensure reveal runs after any reparenting/initialization in this frame
-		player.call_deferred("_reveal_on_spawn")
+		if player.has_method("reveal_on_spawn"):
+			player.call_deferred("reveal_on_spawn")
 		emit_signal("player_spawned", player)
 
 

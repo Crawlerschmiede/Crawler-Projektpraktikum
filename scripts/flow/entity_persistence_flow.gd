@@ -61,7 +61,8 @@ func update_player_visibility(player_node: Node) -> void:
 		return
 	if player_node.has_method("update_visibility"):
 		player_node.call("update_visibility")
-		player_node.call_deferred("_reveal_on_spawn")
+		if player_node.has_method("reveal_on_spawn"):
+			player_node.call_deferred("reveal_on_spawn")
 
 
 func serialize_entities(world_root: Node) -> Array:
