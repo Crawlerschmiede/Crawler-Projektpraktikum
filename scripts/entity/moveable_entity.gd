@@ -387,10 +387,10 @@ func _is_cell_walkable(cell: Vector2i, direction: Vector2i = Vector2i.ZERO) -> b
 	if _is_cell_blocked(cell, direction):
 		print("That tile's blocked pal!")
 		return false
-	
+
 	if get_tree() == null:
 		return false
-		
+
 	# Prevent stepping onto tiles already occupied by another enemy (no stacking)
 	# For multi-tile entities, consider all occupied offsets in `my_tiles`.
 	var target_tiles: Array = []
