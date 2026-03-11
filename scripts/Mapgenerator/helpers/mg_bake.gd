@@ -141,8 +141,8 @@ func bake_rooms_into_world_tilemap(gen) -> void:
 			)
 	gen._emit_progress_mapped(0.92, 0.98, 0.0, "Baking doors...")
 	await gen.get_tree().process_frame
-	await bake_closed_doors_into_world_simple(gen)
 	await bake_closed_doors_into_minimap(gen)
+	await bake_closed_doors_into_world_simple(gen)
 	gen._emit_progress_mapped(0.92, 0.98, 1.0, "Baking doors...")
 	await gen.get_tree().process_frame
 	gen._emit_progress_mapped(0.98, 1.0, 1.0, "Done")
