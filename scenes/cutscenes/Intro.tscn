@@ -1,9 +1,9 @@
 [gd_scene format=3 uid="uid://boajdchepu4bs"]
 
-[ext_resource type="Texture2D" uid="uid://cpitvujxba467" path="res://assets/intro/background.png" id="1_45dpb"]
-[ext_resource type="PackedScene" uid="uid://bx3qcu4rlif2e" path="res://scenes/pet_intro_scene.tscn" id="1_aqbct"]
-[ext_resource type="PackedScene" uid="uid://baj7jh2io882q" path="res://scenes/sprite_scenes/player_sprite_scene.tscn" id="1_hc7eg"]
-[ext_resource type="FontFile" uid="uid://d4fqcjicieold" path="res://assets/font/PixelPurl.ttf" id="4_ywiat"]
+[ext_resource type="PackedScene" uid="uid://baj7jh2io882q" path="res://scenes/sprite_scenes/player_sprite_scene.tscn" id="1_fqeff"]
+[ext_resource type="PackedScene" uid="uid://bx3qcu4rlif2e" path="res://scenes/cutscenes/pet_intro_scene.tscn" id="2_p7jo3"]
+[ext_resource type="Texture2D" uid="uid://cpitvujxba467" path="res://assets/intro/background.png" id="3_td4oo"]
+[ext_resource type="FontFile" uid="uid://d4fqcjicieold" path="res://assets/font/PixelPurl.ttf" id="4_ee3pl"]
 
 [sub_resource type="Animation" id="Animation_aqbct"]
 resource_name = "new_animation"
@@ -236,12 +236,12 @@ _data = {
 
 [node name="Intro" type="Node" unique_id=1227895505]
 
-[node name="AnimatedSprite2D" parent="." unique_id=782547247 instance=ExtResource("1_hc7eg")]
+[node name="AnimatedSprite2D" parent="." unique_id=782547247 instance=ExtResource("1_fqeff")]
 position = Vector2(176, 432)
 scale = Vector2(5, 5)
 frame_progress = 0.6627698
 
-[node name="PetIntroScene" parent="." unique_id=1149031699 instance=ExtResource("1_aqbct")]
+[node name="PetIntroScene" parent="." unique_id=1149031699 instance=ExtResource("2_p7jo3")]
 position = Vector2(232, 456.00003)
 scale = Vector2(2.5, 2.5)
 animation = &"walking_up"
@@ -253,7 +253,7 @@ libraries/ = SubResource("AnimationLibrary_ywiat")
 [node name="Bild" type="Sprite2D" parent="." unique_id=1107766166]
 position = Vector2(320.00003, 240)
 scale = Vector2(0.4166667, 0.46875)
-texture = ExtResource("1_45dpb")
+texture = ExtResource("3_td4oo")
 
 [node name="Label" type="Label" parent="." unique_id=591177398]
 z_index = 100
@@ -261,6 +261,6 @@ offset_left = 400.0
 offset_top = 328.0
 offset_right = 441.0
 offset_bottom = 377.0
-theme_override_fonts/font = ExtResource("4_ywiat")
+theme_override_fonts/font = ExtResource("4_ee3pl")
 text = "Hallo
 "

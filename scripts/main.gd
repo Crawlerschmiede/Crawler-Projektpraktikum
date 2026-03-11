@@ -39,6 +39,7 @@ const FINAL_BOSS_WORLD_INDEX := 3
 const TUTORIAL_STATE_PATH_USER := "user://tutorialData.json"
 const TUTORIAL_STATE_PATH_RES := "res://data/tutorialData.json"
 const UI_MODAL_CONTROLLER := preload("res://scripts/UI/ui_modal_controller.gd")
+const INTRO_SCENE := "res://scenes/cutscenes/Intro.tscn"
 @export var menu_scene := preload("res://scenes/UI/popup-menu.tscn")
 @export var fog_tile_id: int = 0  # set this in the inspector to the fog-tile id in your tileset
 @export var fog_dynamic: bool = true  # if true, areas that are no longer visible get fogged again
@@ -195,6 +196,7 @@ func _ready() -> void:
 			saved_maps = early_loaded
 			world_index = int(early_loaded.get("world_index", 0))
 	else:
+		await _show_intro_scene()
 		await _show_skilltree_select_menu()
 		await _show_skilltree_upgrading_menu()
 
@@ -236,6 +238,41 @@ func _show_skilltree_select_menu() -> void:
 		push_warning("_show_skilltree_select_menu: ui_overlay_coordinator is null")
 		return
 	await ui_overlay_coordinator.show_skilltree_select_menu(self, SKILLTREE_SELECT_SCENE)
+
+
+func _show_intro_scene() -> void:
+	var intro_scene: PackedScene = load(INTRO_SCENE)
+	if intro_scene == null:
+		push_warning("_show_intro_scene: failed to load intro scene")
+		return
+
+	var intro_instance := intro_scene.instantiate()
+	if intro_instance == null:
+		push_warning("_show_intro_scene: failed to instantiate intro scene")
+		return
+
+	var intro_overlay := CanvasLayer.new()
+	intro_overlay.name = "IntroOverlay"
+	intro_overlay.layer = 100
+	add_child(intro_overlay)
+	intro_overlay.add_child(intro_instance)
+
+	# Ensure nodes are inside the scene tree before animation playback starts.
+	await get_tree().process_frame
+
+	var animation_player := intro_instance.get_node_or_null("AnimationPlayer") as AnimationPlayer
+	if animation_player == null:
+		push_warning("_show_intro_scene: missing AnimationPlayer, skipping intro playback")
+	else:
+		if animation_player.has_animation("Intro"):
+			animation_player.play("Intro")
+			await animation_player.animation_finished
+		else:
+			push_warning("_show_intro_scene: animation 'Intro' not found, skipping playback")
+
+	if is_instance_valid(intro_overlay):
+		intro_overlay.queue_free()
+		await get_tree().process_frame
 
 
 func _show_skilltree_upgrading_menu() -> void:
