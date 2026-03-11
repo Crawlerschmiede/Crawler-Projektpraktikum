@@ -174,13 +174,17 @@ func add_item(item_name: String, item_quantity: int = 1) -> void:
 	for k in indices:
 		var i: int = int(k)
 
+		# Only consider slots that are regular inventory slots (avoid equipment slots)
+		var slot_groups: Array = slot_group_by_index.get(i, [])
+		if not ("Inventory" in slot_groups):
+			continue
+
 		if i == 17:
 			continue
 
 		if inventory.has(i):
 			continue
 
-		var slot_groups: Array = slot_group_by_index.get(i, [])
 		if not (wanted_group in slot_groups):
 			print("not the same: ", slot_groups, wanted_group)
 			continue
@@ -199,6 +203,10 @@ func add_item(item_name: String, item_quantity: int = 1) -> void:
 	# wenn wir hier sind: kein passender Slot gefunden -> versuche irgendeinen freien Slot
 	for i in range(NUM_INVENTORY_SLOTS):
 		if i == 17:
+			continue
+		# fallback only into inventory slots (avoid auto-equipping into equipment slots)
+		var slot_groups_fb: Array = slot_group_by_index.get(i, [])
+		if not ("Inventory" in slot_groups_fb):
 			continue
 		if not inventory.has(i):
 			print("[PlayerInventory] placing into fallback free slot:", i, item_name)

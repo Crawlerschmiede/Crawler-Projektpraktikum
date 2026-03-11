@@ -282,6 +282,28 @@ func update_unlocked_skills():
 	for ability in gotten_skills:
 		add_skill(ability)
 
+	# --- Equipment-derived stats (armor_percent) ---
+	# Sum armor values from currently equipped items (only equipped ones)
+	if inventory != null and is_instance_valid(inventory):
+		var equipped_items = inventory.get_equipped_items()
+		var total_armor := 0.0
+		if JsonData != null and ("item_data" in JsonData):
+			var idata := JsonData.item_data
+			for itm_name in equipped_items:
+				if idata.has(itm_name):
+					var info = idata[itm_name]
+					if typeof(info) == TYPE_DICTIONARY:
+						# accept 'armor_percent' (0..1) or legacy 'armor' (0..1 or percent)
+						var raw = info.get("armor_percent", info.get("armor", 0))
+						var ap = float(raw)
+						if ap > 1.0:
+							ap = ap / 100.0
+						total_armor += ap
+		# clamp and apply to player (max 50% total armor)
+		total_armor = clamp(total_armor, 0.0, 0.5)
+		self.armor_percent = total_armor
+		print("Equipped armor_percent set to:", self.armor_percent)
+
 
 #I'm gonna go ahead and say it: This function is bad in every conceivable way
 #works tho

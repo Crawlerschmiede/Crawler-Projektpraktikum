@@ -1,9 +1,9 @@
 {
 	"_settings": {
 		"max_total_weight_per_level": [
-			100,
-			110,
-			120
+			50,
+			60,
+			70
 		],
 		"default_max_total_weight": 30
 	},
