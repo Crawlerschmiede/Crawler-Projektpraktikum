@@ -97,6 +97,7 @@ func _ready() -> void:
 
 	PlayerInventory.item_picked_up.connect(_on_item_picked_up)
 	inventory.inventory_changed.connect(update_unlocked_skills)
+	PlayerInventory.add_item("heal_potion", 1)
 
 	camera.make_current()
 	_super_ready("pc", ["pc"])
@@ -236,7 +237,7 @@ func _on_area_2d_area_entered(area: Area2D):
 
 func level_up():
 	self.max_hp = self.max_hp + 1
-	self.hp = self.max_hp
+	heal(5)
 	update_unlocked_skills()
 	pass  # print("now has ", abilities)
 
@@ -280,6 +281,39 @@ func update_unlocked_skills():
 			is_armed = false
 	for ability in gotten_skills:
 		add_skill(ability)
+
+
+#I'm gonna go ahead and say it: This function is bad in every conceivable way
+#works tho
+#no but seriously
+#these suck bad
+#we can never have a second type of consumable
+#and a consumable can never have 2 effects levels of bad
+func use_consumable():
+	print("Should reduce amount of item")
+	var slots = inventory._get_all_slots(false)
+	for slot in slots:
+		var item = slot.get_item()
+		if item:
+			var group = PlayerInventory._get_item_group(item.item_name)
+			if group == "Consumable":
+				item.decrease_item_quantity(1)
+				break
+
+
+func get_consumable_actions():
+	print("Looking for item skills: ")
+	var slots = inventory._get_all_slots(false)
+	for slot in slots:
+		var item = slot.get_item()
+		if item:
+			var group = PlayerInventory._get_item_group(item.item_name)
+			print("Got item ", item.item_name, " item was in group ", group)
+			if group == "Consumable":
+				print("Item was consumable! Should be getting these: ", item.get_bound_skills())
+				var bound_skills = item.get_bound_skills()
+				return [existing_skills.get_skill(bound_skills[0])]
+	return []
 
 
 func get_used_range():

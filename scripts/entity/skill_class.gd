@@ -450,7 +450,7 @@ class Effect:
 					can_move = false
 					pass  # print(user.name + " cannot move right now!")
 				if user.stunned > 0 and GlobalRNG.randi_range(0, 100) < 50:
-					considered_details = "rnd_dir"
+					considered_details = "rnd|dir"
 				if (
 					(
 						considered_details in basic_directions
@@ -674,15 +674,15 @@ class Effect:
 	func do_zones(type, value, considered_details, duration, dir, battle, user):
 		duration += user.added_zone_duration
 		var rng = GlobalRNG
-		var randNum = 0
+		var rand_num = 0
 		if user.stunned > 0:
 			match considered_details:
 				"player_x":
-					randNum = rng.randi_range(0, 4)
-					considered_details = "x=" + randNum
+					rand_num = rng.randi_range(0, 4)
+					considered_details = "x=" + rand_num
 				"player_y":
-					randNum = rng.randi_range(0, 4)
-					considered_details = "y=" + randNum
+					rand_num = rng.randi_range(0, 4)
+					considered_details = "y=" + rand_num
 				"player_pos":
 					considered_details = "area||rand||rand||1"
 				"surrounding":

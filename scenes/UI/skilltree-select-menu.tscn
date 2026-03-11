@@ -436,11 +436,21 @@ layout_mode = 2
 [node name="Confirm" type="Button" parent="." unique_id=1602233874]
 material = SubResource("ShaderMaterial_n3lvg")
 layout_mode = 0
-offset_left = 281.0
-offset_top = 221.0
-offset_right = 352.0
+offset_left = 289.0
+offset_top = 230.0
+offset_right = 360.0
 offset_bottom = 252.0
+scale = Vector2(0.9, 0.9)
 theme_override_fonts/font = ExtResource("3_wrkul")
 text = "Confirm"
+
+[node name="Label" type="Label" parent="." unique_id=1913730990]
+layout_mode = 0
+offset_left = 275.0
+offset_right = 389.0
+offset_bottom = 18.0
+scale = Vector2(0.8, 0.8)
+theme_override_fonts/font = ExtResource("3_wrkul")
+text = "Select 3 skills please"
 
 [connection signal="pressed" from="Confirm" to="." method="_on_ConfirmButton_pressed"]

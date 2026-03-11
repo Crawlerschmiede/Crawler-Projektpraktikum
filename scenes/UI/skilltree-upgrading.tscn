@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://bmon51xtlhjvs" path="res://scripts/UI/selected_skilltree_upgrading.gd" id="1_8u2yp"]
 [ext_resource type="Shader" uid="uid://do682u7jbuev1" path="res://shaders/IntroScreen.gdshader" id="3_ag73x"]
 [ext_resource type="Texture2D" uid="uid://bb54nue8qv54r" path="res://assets/menu/menu background.jpg" id="3_e2hdd"]
+[ext_resource type="FontFile" uid="uid://d4fqcjicieold" path="res://assets/font/PixelPurl.ttf" id="4_e2hdd"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_e2hdd"]
 shader = ExtResource("3_ag73x")
@@ -10,6 +11,10 @@ shader_parameter/scanline_count = 300.0
 shader_parameter/scanline_intensity = 0.1
 shader_parameter/curvature = 0.05
 shader_parameter/vignette_intensity = 0.4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qbevt"]
+bg_color = Color(0.02745098, 0.02745098, 0.02745098, 0.48235294)
+corner_detail = 12
 
 [node name="SkilltreeUpgrading" type="Control" unique_id=399792445]
 layout_mode = 3
@@ -40,10 +45,24 @@ offset_bottom = 480.0
 
 [node name="Continue" type="Button" parent="." unique_id=209471113]
 layout_mode = 0
-offset_left = 270.0
-offset_top = 438.0
-offset_right = 370.0
-offset_bottom = 469.0
+offset_left = 392.0
+offset_top = 450.0
+offset_right = 455.0
+offset_bottom = 476.0
+theme_override_colors/font_color = Color(0.4214203, 0.26486203, 0.18795946, 1)
+theme_override_colors/font_hover_color = Color(0.95, 0.95, 0.95, 1)
+theme_override_fonts/font = ExtResource("4_e2hdd")
+theme_override_styles/normal = SubResource("StyleBoxFlat_qbevt")
 text = "Continue"
+
+[node name="Label" type="Label" parent="." unique_id=1975288272]
+layout_mode = 0
+offset_left = 131.0
+offset_top = 459.0
+offset_right = 441.0
+offset_bottom = 482.0
+scale = Vector2(0.8, 0.8)
+theme_override_fonts/font = ExtResource("4_e2hdd")
+text = "Please  select one upgrade and press continue to proceed"
 
 [connection signal="pressed" from="Continue" to="." method="_on_continue_pressed"]
