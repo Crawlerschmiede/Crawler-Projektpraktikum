@@ -335,6 +335,34 @@ func add_item_quantity(slot_node: Node, amount: int) -> void:
 	_emit_changed()
 
 
+func decrease_item_quantity(slot_node: Node, amount: int) -> void:
+	if amount <= 0:
+		return
+
+	var idx: int = _slot_index_from_slot(slot_node)
+	if idx < 0:
+		return
+
+	if not inventory.has(idx):
+		return
+
+	var data: Array = inventory[idx]
+	if data.size() < 2:
+		return
+
+	var current: int = int(data[1])
+	var new_value: int = max(0, current - amount)
+
+	if new_value <= 0:
+		# remove the item from inventory when quantity reaches zero
+		inventory.erase(idx)
+	else:
+		data[1] = new_value
+		inventory[idx] = data
+
+	_emit_changed()
+
+
 func clear_inventory() -> void:
 	inventory.clear()
 	_emit_changed()

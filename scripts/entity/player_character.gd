@@ -319,7 +319,8 @@ func use_consumable():
 		if item:
 			var group = PlayerInventory._get_item_group(item.item_name)
 			if group == "Consumable":
-				item.decrease_item_quantity(1)
+				if PlayerInventory.has_method("decrease_item_quantity"):
+					PlayerInventory.decrease_item_quantity(slot, 1)
 				break
 
 
