@@ -116,28 +116,21 @@ func serialize_minimap(minimap_node: Node) -> Dictionary:
 	if minimap_node == null:
 		return {}
 
-	var out: Dictionary = {
-		"type": "minimap",
-		"root_type": "",
-		"root": {},
-		"children": []
-	}
+	var out: Dictionary = {"type": "minimap", "root_type": "", "root": {}, "children": []}
 
 	if minimap_node is TileMapLayer:
 		out["root_type"] = "tilemap"
 		out["root"] = serialize_tilemap(minimap_node)
 	else:
 		out["root_type"] = "node2d"
-		out["root"] = {
-			"name": str(minimap_node.name),
-			"visible": bool(minimap_node.visible)
-		}
+		out["root"] = {"name": str(minimap_node.name), "visible": bool(minimap_node.visible)}
 
 	for child in minimap_node.get_children():
 		if child is TileMapLayer:
 			out["children"].append(serialize_tilemap(child))
 
 	return out
+
 
 func deserialize_minimap(data: Dictionary) -> Node:
 	if data == null or typeof(data) != TYPE_DICTIONARY or data.is_empty():
