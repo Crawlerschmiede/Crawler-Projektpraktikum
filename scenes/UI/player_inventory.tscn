@@ -531,3 +531,13 @@ size_flags_vertical = 4
 theme_override_styles/panel = SubResource("StyleBoxEmpty_4ypmo")
 script = ExtResource("6_5c7wf")
 has_background = false
+
+[node name="Player_HPBar" type="ProgressBar" parent="." unique_id=1452440477]
+layout_mode = 0
+offset_left = -106.0
+offset_top = 43.0
+offset_right = -66.0
+offset_bottom = 61.0
+scale = Vector2(1, 0.7)
+theme = ExtResource("12_4ypmo")
+theme_override_fonts/font = ExtResource("9_6k8oa")

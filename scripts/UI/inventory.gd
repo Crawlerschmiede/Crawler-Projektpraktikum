@@ -27,9 +27,11 @@ var _inventory_renderer: InventoryRenderer = null
 var _interaction: InventoryInteraction = null
 var _selection: InventorySelection = null
 
+@onready var player_hp_bar = $Player_HPBar
 @onready var inv_grid: GridContainer = $Inner/Equiptment
 @onready var equip_grid: GridContainer = $Inner/GridContainer
 @onready var hotbar_grid: GridContainer = $Hotbar/HotContainer
+@onready var player: Node = find_parent("Player")
 
 
 func _collect_slots_recursive(root: Node, out: Array[Node]) -> void:
@@ -127,11 +129,9 @@ func get_equipment_range():
 # Lifecycle
 # -------------------------
 func _ready() -> void:
-	#dgb("_ready() gestartet")
 	_initialize_dependencies()
 
 	var slots: Array[Node] = _get_slots()
-	#dgb("Slots im GridContainer gefunden: %d" % slots.size())
 
 	if slots.is_empty():
 		push_error("Keine Slots im GridContainer! Hast du Slot Panels als Children drin?")
@@ -147,6 +147,15 @@ func _ready() -> void:
 
 	# When opening inventory, ensure a sensible selected slot
 	call_deferred("_ensure_inventory_selection")
+	print("DEBUG FIND: ", player)
+	if player != null and is_instance_valid(player):
+		if player.has_signal("player_moved"):
+			var c: Callable = Callable(self, "_update_player_hp")
+			if not player.player_moved.is_connected(c):
+				player.player_moved.connect(c)
+		_update_player_hp()
+	else:
+		player_hp_bar.value = 80
 
 
 func _initialize_dependencies() -> void:
@@ -460,6 +469,17 @@ func _ensure_inventory_selection() -> void:
 		_initialize_dependencies()
 	if _selection != null:
 		_selection.ensure_inventory_selection()
+
+
+func _update_player_hp() -> void:
+	if player != null and is_instance_valid(player):
+		# Protect against division by zero
+		if player.max_hp != 0:
+			player_hp_bar.value = (player.hp * 100.0) / player.max_hp
+		else:
+			player_hp_bar.value = 0
+	else:
+		player_hp_bar.value = 0
 
 
 func _get_hotbar_slot_nodes_sorted() -> Array:
