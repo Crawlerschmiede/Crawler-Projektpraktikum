@@ -226,7 +226,7 @@ func spawn_final_boss_world_entities(owner):
 		_main.fog_tile_id,
 		_main.entity_persistence_flow,
 		owner,
-		Vector2i(0, 12)
+		Vector2i(1, 12)
 	)
 
 	# Final boss world: only spawn boss enemy, no lootboxes/traps/merchants/regular enemies.
