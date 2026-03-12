@@ -237,7 +237,7 @@ func condition_met(condition_name, user, _target, battle) -> bool:
 			is_met = (count - count_anything) % limit == 0 and (count - count_anything) >= limit
 		elif "consecutive" in splits[0]:
 			print("Effect log was (burn(so I can see this in the filter)) ", effect_log)
-			if len(effect_log)>0:
+			if len(effect_log) > 0:
 				is_met = (effect_log[len(effect_log) - 1] == sought)
 		else:
 			is_met = limit <= count
