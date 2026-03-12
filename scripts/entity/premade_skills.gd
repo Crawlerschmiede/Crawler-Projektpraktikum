@@ -882,7 +882,7 @@ var existing_skills = {
 		"tree": "bow skills",
 		"description":
 		"You feel like, in maybe a couple centuries, this term would hold more weight",
-		"effects": [["damage", 3, false, "pierce||0.1"]],
+		"effects": [["damage", 3, false, "pierce=0.1"]],
 		"cooldown": 3
 	},
 	"Fire Bolt +1":
@@ -890,7 +890,7 @@ var existing_skills = {
 		"tree": "bow skills",
 		"description":
 		"You feel like, in maybe a couple centuries, this term would hold more weight",
-		"effects": [["damage", 4, false, "pierce||0.1"]],
+		"effects": [["damage", 4, false, "pierce=0.1"]],
 		"cooldown": 3
 	},
 	"Fire Bolt +2":
@@ -898,7 +898,7 @@ var existing_skills = {
 		"tree": "bow skills",
 		"description":
 		"You feel like, in maybe a couple centuries, this term would hold more weight",
-		"effects": [["damage", 5, false, "pierce||0.2"]],
+		"effects": [["damage", 5, false, "pierce=0.2"]],
 		"cooldown": 3
 	},
 	"Cast":
@@ -998,14 +998,14 @@ var existing_skills = {
 	{
 		"tree": "spear skills",
 		"description": "Truly, the most basic of basic things you could do",
-		"effects": [["damage", 2, false, "pierce||0.1"]],
+		"effects": [["damage", 2, false, "pierce=0.1"]],
 		"cooldown": 2
 	},
 	"Stab +2":
 	{
 		"tree": "spear skills",
 		"description": "Truly, the most basic of basic things you could do",
-		"effects": [["damage", 3, false, "pierce||0.1"]],
+		"effects": [["damage", 3, false, "pierce=0.1"]],
 		"cooldown": 2
 	},
 	"Bash":
