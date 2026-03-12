@@ -1,5 +1,6 @@
 extends Control
 
+
 func _ready() -> void:
 	# zwingt den UI-Root auf die aktuelle Viewport-Größe
 	set_anchors_preset(Control.PRESET_FULL_RECT)

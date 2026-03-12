@@ -230,13 +230,6 @@ func spawn_final_boss_world_entities(owner):
 	)
 
 	# Final boss world: only spawn boss enemy, no lootboxes/traps/merchants/regular enemies.
-	spawn_enemies(
-		true,
-		_main.world_index,
-		_main.dungeon_floor,
-		_main.dungeon_top,
-		owner,
-		2
-	)
+	spawn_enemies(true, _main.world_index, _main.dungeon_floor, _main.dungeon_top, owner, 2)
 
 	return spawned_player

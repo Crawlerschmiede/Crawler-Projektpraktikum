@@ -18,6 +18,7 @@ func _ready() -> void:
 	offset_top = -180  # Höhe der Box
 	visible = false
 
+
 func show_lines(new_lines: Array[String]) -> void:
 	lines = new_lines
 	index = 0
@@ -25,7 +26,7 @@ func show_lines(new_lines: Array[String]) -> void:
 	visible = true
 	next_arrow.visible = true
 	_show_current()
-	
+
 
 func _unhandled_input(event: InputEvent) -> void:
 	if !active:
