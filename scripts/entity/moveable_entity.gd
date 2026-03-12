@@ -373,6 +373,8 @@ func _on_move_finished():
 
 func _is_cell_walkable(cell: Vector2i, direction: Vector2i = Vector2i.ZERO) -> bool:
 	# Get the tile data from the TileMapLayer at the given cell
+	if tilemap == null:
+		return false
 	var tile_data = tilemap.get_cell_tile_data(cell)
 	if tile_data == null:
 		return false  # No tile = not walkable (outside map)

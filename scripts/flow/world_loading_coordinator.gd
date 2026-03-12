@@ -108,6 +108,12 @@ func _show_loading() -> void:
 	)
 
 
+func _show_entry() -> void:
+	if _main == null or _main.ui_overlay_coordinator == null:
+		return
+	_main.loading_screen = await _main.ui_overlay_coordinator.show_loading(_main, _main.ENTRY_SCENE)
+
+
 func _hide_loading() -> void:
 	if _main == null or _main.ui_overlay_coordinator == null:
 		return
@@ -261,6 +267,7 @@ func load_final_boss_world(final_boss_room_path: String) -> void:
 
 	_hide_loading()
 	_main._set_tree_paused(false)
+	_show_entry()
 
 
 func load_world(idx: int, generators: Array[Node2D]) -> void:

@@ -24,6 +24,7 @@ const LOOTBOX := preload("res://scenes/Interactables/Lootbox.tscn")
 const TRAP := preload("res://scenes/Interactables/Trap.tscn")
 const MERCHANT := preload("res://scenes/entity/merchant.tscn")
 const LOADING_SCENE := preload("res://scenes/UI/loading_screen.tscn")
+const ENTRY_SCENE := preload("res://scenes/UI/entry.tscn")
 const SKILLTREE_SELECT_SCENE := preload("res://scenes/UI/skilltree-select-menu.tscn")
 const SKILLTREE_UPGRADING_SCENE := preload("res://scenes/UI/skilltree-upgrading.tscn")
 const START_SCENE := "res://scenes/UI/start-menu.tscn"

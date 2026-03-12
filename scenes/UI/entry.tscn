@@ -1,0 +1,33 @@
+[gd_scene format=3 uid="uid://cbcf70roplfpx"]
+
+[ext_resource type="VideoStream" uid="uid://nxxyjihplybs" path="res://assets/films/bossroom-entry.ogv" id="1_8b440"]
+[ext_resource type="Script" uid="uid://dvvvpyt3ktg7y" path="res://scenes/UI/entry.gd" id="1_84d17"]
+
+[node name="Entry" type="CanvasLayer" unique_id=834050761]
+script = ExtResource("1_84d17")
+
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=49427678]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -222.0
+offset_top = -166.0
+offset_right = 418.0
+offset_bottom = 314.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VideoStreamPlayer" type="VideoStreamPlayer" parent="MarginContainer" unique_id=8807128]
+layout_mode = 2
+stream = ExtResource("1_8b440")
+autoplay = true
+expand = true
+
+[node name="InputBlocker" type="Control" parent="." unique_id=286396242]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+focus_mode = 2
