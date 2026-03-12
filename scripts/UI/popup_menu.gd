@@ -1,5 +1,5 @@
 extends CanvasLayer
-
+@onready var save_message = %SaveMessage
 # custom signal to inform the main scene
 signal menu_closed
 signal save_requested
@@ -110,6 +110,9 @@ func _on_save_pressed() -> void:
 	print("SAVE")
 	# Emit a signal so an external controller can perform the actual save
 	save_requested.emit()
+	save_message.show()
+	await get_tree().create_timer(2).timeout
+	save_message.hide()
 
 
 # Function for the "Quit" button

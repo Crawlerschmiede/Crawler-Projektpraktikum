@@ -95,6 +95,16 @@ icon = ExtResource("3_lakus")
 flat = true
 icon_alignment = 1
 
+[node name="SaveMessage" type="Label" parent="." unique_id=1090656395]
+unique_name_in_owner = true
+visible = false
+offset_left = 66.25
+offset_top = 15.357143
+offset_right = 134.25
+offset_bottom = 29.642859
+theme_override_fonts/font = ExtResource("2_1u5a3")
+text = "Game Saved!"
+
 [connection signal="pressed" from="VBoxContainer/ButtonContinue" to="." method="_on_continue_pressed"]
 [connection signal="pressed" from="VBoxContainer/ButtonSettings" to="." method="_on_settings_pressed"]
 [connection signal="pressed" from="VBoxContainer/ButtonSave" to="." method="_on_save_pressed"]
