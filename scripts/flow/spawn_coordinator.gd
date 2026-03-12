@@ -228,8 +228,19 @@ func spawn_final_boss_world_entities(owner):
 		owner,
 		Vector2i(1, 12)
 	)
-
-	# Final boss world: only spawn boss enemy, no lootboxes/traps/merchants/regular enemies.
-	spawn_enemies(true, _main.world_index, _main.dungeon_floor, _main.dungeon_top, owner, 2)
+	var defs = EntityAutoload.item_data
+	var def = defs["necromancer"]
+	var boss_spawn_weight := int(def.get("weight", 1))
+	spawn_enemy(
+		def.get("sprite_type", "what"),
+		def.get("behaviour", []),
+		def.get("skills", []),
+		def.get("stats", {}),
+		boss_spawn_weight,
+		_main.dungeon_floor,
+		_main.dungeon_top,
+		owner
+	)
+	print("Spawned boss!")
 
 	return spawned_player

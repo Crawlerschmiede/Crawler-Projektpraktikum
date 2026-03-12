@@ -259,7 +259,7 @@ func check_sight() -> bool:
 	return saw_player
 
 
-func decide_attack() -> void:
+func decide_attack(player, battle) -> void:
 	var a = chosen
 	if chosen != null:
 		a = chosen.name
@@ -270,7 +270,7 @@ func decide_attack() -> void:
 	var valid_pick = false
 	var chosen_index = 0
 	for ability in abilities:
-		if ability.is_activateable():
+		if ability.is_activateable(self, player, battle):
 			activateable_abilities.append(ability)
 	while not valid_pick:
 		print(activateable_abilities)
