@@ -154,6 +154,8 @@ func is_boss_enemy(enemy: Node) -> bool:
 	var types = enemy.get("types")
 	if typeof(types) == TYPE_ARRAY and "boss" in types:
 		return true
+	if typeof(types) == TYPE_ARRAY and "final_boss" in types:
+		return true
 
 	return false
 
