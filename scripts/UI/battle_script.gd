@@ -106,12 +106,12 @@ func _ready():
 	player.reset_skills()
 	print("At the start, player has these: ", player.alterations)
 	_add_range_indicators()
-	enemy.decide_attack()
+	enemy.decide_attack(player, self)
 	_enemy_prepare_turn()
 
 
 func dissuade_enemy():
-	enemy.decide_attack()
+	enemy.decide_attack(player, self)
 	_enemy_prepare_turn(true)
 
 
@@ -183,7 +183,7 @@ func enemy_turn():
 				hit_anim_enemy.visible = false
 			for happening in happened:
 				log_container.add_log_event(happening)
-			enemy.decide_attack()
+			enemy.decide_attack(player, self)
 			_enemy_prepare_turn()
 			extra_stuff = enemy.deal_with_status_effects(self, 2)
 			happened = extra_stuff[1]

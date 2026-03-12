@@ -182,6 +182,44 @@ func _super_ready(sprite_type: String, entity_type: Array):
 		grid_pos = spawnpoint
 
 	# spawn logic for bosses
+	elif "final_boss" in entity_type:
+		var possible_spawns = []
+
+		for cell in tilemap.get_used_cells():
+			var tile_data = tilemap.get_cell_tile_data(cell)
+			if tile_data:
+				var is_boss_tile = tile_data.get_custom_data("final_boss_spawn")
+				if is_boss_tile:
+					print("found boss tile! ", cell)
+					# check with EntityAutoload if the position is valid (not occupied)
+					if EntityAutoload.has_method("can_reserve_pos"):
+						if EntityAutoload.can_reserve_pos(cell, tilemap):
+							possible_spawns.append(cell)
+					elif EntityAutoload.has_method("is_valid_pos"):
+						# fallback: check tile existence and walkability directly (don't reserve)
+						if tilemap.get_cell_source_id(cell) != -1:
+							var td_fallback := tilemap.get_cell_tile_data(cell)
+							if (
+								td_fallback == null
+								or not td_fallback.get_custom_data("non_walkable")
+							):
+								possible_spawns.append(cell)
+					else:
+						possible_spawns.append(cell)
+
+		if possible_spawns.size() == 0:
+			print("super_ready: boss - no possible spawns found")
+			self.queue_free()
+			return
+		var spawnpoint = possible_spawns[rng.randi_range(0, possible_spawns.size() - 1)]
+		# reserve chosen cell so other entities won't take it
+		if EntityAutoload.has_method("reserve_pos"):
+			EntityAutoload.reserve_pos(spawnpoint)
+		print("super_ready: boss - chosen spawn:", spawnpoint)
+		position = tilemap.map_to_local(spawnpoint)
+		grid_pos = spawnpoint
+
+	# spawn logic for bosses
 	elif "tutorial" in entity_type:
 		var possible_spawns = []
 
@@ -373,6 +411,8 @@ func _on_move_finished():
 
 func _is_cell_walkable(cell: Vector2i, direction: Vector2i = Vector2i.ZERO) -> bool:
 	# Get the tile data from the TileMapLayer at the given cell
+	if tilemap == null:
+		return false
 	var tile_data = tilemap.get_cell_tile_data(cell)
 	if tile_data == null:
 		return false  # No tile = not walkable (outside map)

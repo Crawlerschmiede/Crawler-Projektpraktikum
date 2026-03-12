@@ -38,6 +38,9 @@ func serialize_tilemap(tm: TileMapLayer) -> Dictionary:
 		}
 		out["cells"].append(item)
 
+	# Sichtbarkeit des TileMaps speichern
+	out["visible"] = bool(tm.visible)
+
 	return out
 
 
@@ -61,6 +64,9 @@ func deserialize_tilemap(data: Dictionary) -> TileMapLayer:
 
 	tm.z_index = int(data.get("z_index", 0))
 	tm.visibility_layer = int(data.get("visibility_layer", 1))
+
+	# Sichtbarkeit wiederherstellen (default: sichtbar)
+	tm.visible = bool(data.get("visible", true))
 
 	var meta = data.get("meta", {})
 	if typeof(meta) == TYPE_DICTIONARY:
@@ -110,10 +116,15 @@ func serialize_minimap(minimap_node: Node) -> Dictionary:
 	if minimap_node == null:
 		return {}
 
-	if minimap_node is TileMapLayer:
-		return {"type": "single", "tilemap": serialize_tilemap(minimap_node)}
+	var out: Dictionary = {"type": "minimap", "root_type": "", "root": {}, "children": []}
 
-	var out: Dictionary = {"type": "group", "children": []}
+	if minimap_node is TileMapLayer:
+		out["root_type"] = "tilemap"
+		out["root"] = serialize_tilemap(minimap_node)
+	else:
+		out["root_type"] = "node2d"
+		out["root"] = {"name": str(minimap_node.name), "visible": bool(minimap_node.visible)}
+
 	for child in minimap_node.get_children():
 		if child is TileMapLayer:
 			out["children"].append(serialize_tilemap(child))
@@ -122,18 +133,37 @@ func serialize_minimap(minimap_node: Node) -> Dictionary:
 
 
 func deserialize_minimap(data: Dictionary) -> Node:
-	if data == null or typeof(data) != TYPE_DICTIONARY:
+	if data == null or typeof(data) != TYPE_DICTIONARY or data.is_empty():
 		return null
-	if str(data.get("type", "")) == "single":
-		var tm_data = data.get("tilemap", {})
-		return deserialize_tilemap(tm_data)
 
-	var root = Node2D.new()
-	root.name = "Minimap"
+	var root: Node = null
+	var root_type = str(data.get("root_type", ""))
+
+	if root_type == "tilemap":
+		root = deserialize_tilemap(data.get("root", {}))
+	elif root_type == "node2d":
+		var n = Node2D.new()
+		var root_data = data.get("root", {})
+		if typeof(root_data) == TYPE_DICTIONARY:
+			n.name = str(root_data.get("name", "Minimap"))
+			n.visible = bool(root_data.get("visible", true))
+		else:
+			n.name = "Minimap"
+			n.visible = true
+		root = n
+	else:
+		# Fallback für alte Saves
+		if str(data.get("type", "")) == "single":
+			return deserialize_tilemap(data.get("tilemap", {}))
+		root = Node2D.new()
+		root.name = "Minimap"
+		root.visible = true
+
 	var children = data.get("children", [])
-	for cd in children:
-		var tm = deserialize_tilemap(cd)
-		if tm != null:
-			root.add_child(tm)
+	if typeof(children) == TYPE_ARRAY:
+		for cd in children:
+			var tm = deserialize_tilemap(cd)
+			if tm != null:
+				root.add_child(tm)
 
 	return root

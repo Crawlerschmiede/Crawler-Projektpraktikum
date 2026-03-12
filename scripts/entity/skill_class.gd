@@ -77,6 +77,7 @@ func activate_skill(user, target, battle):
 		last_user = user
 		last_target = target
 		last_battle = battle
+
 		battle.next_turn.append(self)
 	return things_that_happened
 
@@ -237,7 +238,8 @@ func condition_met(condition_name, user, _target, battle) -> bool:
 			is_met = (count - count_anything) % limit == 0 and (count - count_anything) >= limit
 		elif "consecutive" in splits[0]:
 			print("Effect log was (burn(so I can see this in the filter)) ", effect_log)
-			is_met = (effect_log[len(effect_log) - 1] == sought)
+			if len(effect_log) > 0:
+				is_met = (effect_log[len(effect_log) - 1] == sought)
 		else:
 			is_met = limit <= count
 	if "on_tile" in condition_name:
@@ -246,7 +248,10 @@ func condition_met(condition_name, user, _target, battle) -> bool:
 		var parts = condition_name.split("=")
 		is_met = parts[1] in active_modifiers.keys()
 	if "burning" in condition_name:
-		return user.burned > 0
+		if user.burned > 0:
+			print(user.name, "'s Burning is happening with burn", user.burned)
+			return true
+		return false
 	print("Condition " + condition_name + " is met? " + str(is_met))
 
 	return is_met
