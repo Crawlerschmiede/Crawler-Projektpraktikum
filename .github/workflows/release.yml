@@ -35,7 +35,7 @@ jobs:
       - name: Export Windows
         run: |
           mkdir -v -p build/windows dist
-          ./Godot_v${{ env.GODOT_VERSION }}-stable_linux.x86_64 --headless --verbose --export-release "Windows Desktop" "build/windows/$EXPORT_NAME.exe"
+          ./Godot_v${{ env.GODOT_VERSION }}-stable_linux.x86_64 --headless --verbose --export-debug "Windows Desktop" "build/windows/$EXPORT_NAME.exe"
 
       - name: Package Windows
         run: |
