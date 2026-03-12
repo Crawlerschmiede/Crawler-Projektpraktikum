@@ -528,7 +528,7 @@
 		}
 	},
 	"necromancer": {
-		"entityCategory": "boss",
+		"entityCategory": "final_boss",
 		"skills": [
 			"Green Flames",
 			"Join the dead",
@@ -539,7 +539,7 @@
 		],
 		"sprite_type": "necromancer",
 		"behaviour": [
-			"boss"
+			"final_boss"
 		],
 		"spawnrate": {
 			"0": {
