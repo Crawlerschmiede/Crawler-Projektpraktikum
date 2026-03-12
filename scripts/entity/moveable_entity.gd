@@ -181,7 +181,6 @@ func _super_ready(sprite_type: String, entity_type: Array):
 		position = tilemap.map_to_local(spawnpoint)
 		grid_pos = spawnpoint
 
-
 	# spawn logic for bosses
 	elif "final_boss" in entity_type:
 		var possible_spawns = []
@@ -219,8 +218,6 @@ func _super_ready(sprite_type: String, entity_type: Array):
 		print("super_ready: boss - chosen spawn:", spawnpoint)
 		position = tilemap.map_to_local(spawnpoint)
 		grid_pos = spawnpoint
-
-
 
 	# spawn logic for bosses
 	elif "tutorial" in entity_type:
