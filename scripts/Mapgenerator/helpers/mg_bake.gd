@@ -64,6 +64,7 @@ func add_room_layer_to_minimap(gen, room: Node2D) -> void:
 	room_layer.visibility_layer = 1 << 1
 	room_layer.set_meta("room_rect", floor_tm.get_used_rect())
 	room_layer.set_meta("tile_origin", origin)
+	room_layer.set_meta("is_boss_room", room.is_in_group("boss_room"))
 	var tile_size: Vector2i = floor_tm.tile_set.tile_size
 	room_layer.position = Vector2(origin.x * tile_size.x, origin.y * tile_size.y)
 	gen.minimap.add_child(room_layer)

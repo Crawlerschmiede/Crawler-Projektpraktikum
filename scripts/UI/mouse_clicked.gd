@@ -15,9 +15,18 @@ var _settings_layer: CanvasLayer = null
 
 
 func _ready():
-	# 👉 Reset ALL autoloads cleanly (kein new(), kein instantiate!)
 	if Engine.has_singleton("AutoloadResetRunner"):
 		AutoloadResetRunner.reset_all()
+	if (
+		typeof(SaveState) != TYPE_NIL
+		and SaveState != null
+		and SaveState.has_method("set_should_load_from_save")
+	):
+		SaveState.set_should_load_from_save(false)
+	else:
+		var root := get_tree().root
+		if root != null:
+			root.set_meta("load_from_save", false)
 
 	# Cursor setzen
 	Input.set_custom_mouse_cursor(cursor_idle)
@@ -28,26 +37,48 @@ func _ready():
 		bg_music.play(13.0)
 
 		var fade_tween = create_tween()
-		fade_tween.tween_property(bg_music, "volume_db", 0.0, 2.0).set_trans(Tween.TRANS_SINE)
+		fade_tween.tween_property(bg_music, "volume_db", -10.0, 2.0).set_trans(Tween.TRANS_SINE)
 
 	_wire_buttons()
 	_setup_focus_navigation()
 
 
-# ==========================
-# BUTTON WIRING
-# ==========================
-
-
 func _wire_buttons() -> void:
 	if has_node("BoxContainer/VBoxContainer2/Settings"):
 		$BoxContainer/VBoxContainer2/Settings.pressed.connect(_open_settings)
+		$BoxContainer/VBoxContainer2/Settings.mouse_entered.connect(_on_settings_hovered)
 
 	if has_node("BoxContainer/VBoxContainer2/Start New"):
 		$"BoxContainer/VBoxContainer2/Start New".pressed.connect(_on_start_pressed)
+		$"BoxContainer/VBoxContainer2/Start New".mouse_entered.connect(_on_start_new_hovered)
+
+	if has_node("BoxContainer/VBoxContainer2/Continue"):
+		$BoxContainer/VBoxContainer2/Continue.pressed.connect(_on_continue_pressed)
 
 	if has_node("BoxContainer/VBoxContainer2/Exit"):
 		$BoxContainer/VBoxContainer2/Exit.pressed.connect(get_tree().quit)
+		$BoxContainer/VBoxContainer2/Exit.mouse_entered.connect(_on_exit_hovered)
+
+
+func _on_settings_hovered() -> void:
+	_play_menu_hover("hover_settings")
+
+
+func _on_start_new_hovered() -> void:
+	_play_menu_hover("hover_start_new")
+
+
+func _on_exit_hovered() -> void:
+	_play_menu_hover("hover_exit")
+
+
+func _play_menu_hover(event_key: String) -> void:
+	if (
+		typeof(AudioManager) != TYPE_NIL
+		and AudioManager != null
+		and AudioManager.has_method("play_sfx_event")
+	):
+		AudioManager.play_sfx_event("menu", event_key)
 
 
 # ==========================
@@ -59,6 +90,35 @@ func _on_start_pressed() -> void:
 	emit_signal("start_new_pressed")
 
 	# 👉 WICHTIG: kompletter Szenenwechsel
+	var scene_tree = get_tree()
+	if scene_tree != null:
+		scene_tree.paused = false
+		scene_tree.change_scene_to_packed(MAP_GENERATOR_SCENE)
+	else:
+		push_error("mouse_clicked: SceneTree is null; cannot change to map generator scene")
+
+
+func _on_continue_pressed() -> void:
+	# Set autoload flag so Map_Generator / main can load from save
+	if (
+		typeof(SaveState) != TYPE_NIL
+		and SaveState != null
+		and SaveState.has_method("set_should_load_from_save")
+	):
+		SaveState.set_should_load_from_save(true)
+	else:
+		var save_state = get_tree().root.get_node_or_null("SaveState")
+		if save_state != null:
+			save_state.set("load_from_save", true)
+			if save_state.has_method("set_should_load_from_save"):
+				save_state.set_should_load_from_save(true)
+			else:
+				var root := get_tree().root
+				if root != null:
+					root.set_meta("load_from_save", true)
+		else:
+			push_warning("SaveState autoload is missing; continue will start a new run")
+	# Then perform the same scene change as starting a new game
 	var scene_tree = get_tree()
 	if scene_tree != null:
 		scene_tree.paused = false
@@ -127,4 +187,3 @@ func _setup_focus_navigation():
 			child.focus_mode = Control.FOCUS_ALL
 
 	# Fokus auf ersten Button
-	container.get_child(0).grab_focus()

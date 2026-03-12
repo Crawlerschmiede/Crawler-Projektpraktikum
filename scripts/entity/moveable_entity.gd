@@ -1,4 +1,3 @@
-# gdlint: disable=max-public-methods
 class_name MoveableEntity
 extends CharacterBody2D
 
@@ -8,10 +7,10 @@ const TILE_SIZE: int = 16
 const DIRECTIONS := [Vector2i.RIGHT, Vector2i.LEFT, Vector2i.UP, Vector2i.DOWN]
 const SKILLS := preload("res://scripts/entity/premade_skills.gd")
 const SKILLTREES := preload("res://scripts/entity/premade_skilltrees.gd")
-const ACTIVE_SKILLTREES: Array[String] = ["Short Ranged Weaponry", "basic"]
 
 var existing_skills = SKILLS.new()
-var existing_skilltrees = SKILLTREES.new()
+# skilltrees are persisted in the SkillState autoload to survive scene changes
+# use `SkillState.skilltrees` instead of a local instance
 var abilities_this_has: Array = []
 var multi_turn_action = null
 var types
@@ -66,6 +65,7 @@ var max_hp: int = 1
 var hp: int = 1
 var str_stat: int = 1
 var def_stat: int = 0
+var armor_percent: float = 0.0
 var abilities: Array[Skill] = []
 var acquired_abilities: Array[String] = []
 var base_action_points: int = 1
@@ -74,20 +74,21 @@ var resistances: Dictionary = {"physical": 0, "fire": 0, "electric": 0, "earth":
 
 #--- status effects (not sure if this is the best way... it'll be fine!) ---
 #--- update it won't be, this is [not very good] and I'll fix it... someday
+var status_recovery: float = 1.0
 
-var stunned = 0
-var stun_recovery = 1
+var stunned = 0.0
 
-var poisoned = 0
-var poison_recovery = 1
+var poisoned = 0.0
+var pre_freeze = 0
+var frozen = 0.0
 
-var frozen = 0
-var freeze_recovery = 1
+var burned = 0.0
 
 #--- buffs/debuffs... status effects someday
 #should be in the format "<Source_Name>:{"<type>":<value>}"
 # something like that...
 var alterations = {}
+var added_zone_duration = 0
 
 #--- References to other stuff ---
 
@@ -119,10 +120,18 @@ func setup(
 	resistances["electric"] = _resistances.get("eleres", 0)
 	resistances["earth"] = _resistances.get("erres", 0)
 	resistances["ice"] = _resistances.get("iceres", 0)
+	var raw_armor: float = float(_resistances.get("armor_percent", _resistances.get("armor", 0)))
+	armor_percent = float(raw_armor)
+	if armor_percent > 1.0:
+		armor_percent = armor_percent / 100.0
+	if armor_percent < 0.0:
+		armor_percent = 0.0
+	if armor_percent > 0.5:
+		armor_percent = 0.5
 	print("Ended up with ", resistances)
 
 
-func super_ready(sprite_type: String, entity_type: Array):
+func _super_ready(sprite_type: String, entity_type: Array):
 	if tilemap == null:
 		push_error("MoveableEntity hat keine TileMap! setup(tilemap) vergessen?")
 		return
@@ -219,7 +228,7 @@ func super_ready(sprite_type: String, entity_type: Array):
 				var is_blocked = tile_data.get_custom_data("non_walkable")
 				if not is_blocked:
 					if "wallbound" in entity_type:
-						if is_next_to_wall(cell):
+						if _is_next_to_wall(cell):
 							# only add if EntityAutoload says the pos is free
 							if EntityAutoload.has_method("can_reserve_pos"):
 								if EntityAutoload.can_reserve_pos(cell, tilemap):
@@ -275,7 +284,7 @@ func super_ready(sprite_type: String, entity_type: Array):
 
 
 # --- Movement Logic ---
-func is_next_to_wall(cell: Vector2i):
+func _is_next_to_wall(cell: Vector2i):
 	var next_to_wall = false
 	for i in range(3):
 		for j in range(3):
@@ -288,11 +297,11 @@ func is_next_to_wall(cell: Vector2i):
 	return next_to_wall
 
 
-func can_burrow_through(target_cell, direction):
+func _can_burrow_through(target_cell, direction):
 	var new_target = target_cell
 	for i in range(3):
 		new_target = new_target + direction
-		if is_cell_walkable(new_target, direction):
+		if _is_cell_walkable(new_target, direction):
 			return [true, new_target]
 	return [false]
 
@@ -301,11 +310,11 @@ func move_to_tile(direction: Vector2i):
 	if is_moving:
 		return
 	var target_cell = grid_pos + direction
-	if not is_cell_walkable(target_cell, direction):
+	if not _is_cell_walkable(target_cell, direction):
 		if "burrowing" in types:
-			var burrow = can_burrow_through(target_cell, direction)
+			var burrow = _can_burrow_through(target_cell, direction)
 			if burrow[0]:
-				if has_animation(sprite, "dig_down"):
+				if _has_animation(sprite, "dig_down"):
 					sprite.play("dig_down")
 				multi_turn_action = {"name": "dig_to", "target": burrow[1], "countdown": 2}
 				return
@@ -322,8 +331,8 @@ func move_to_tile(direction: Vector2i):
 	return true
 
 
-func teleport_to_tile(coordinates: Vector2i, animation = null) -> void:
-	if not is_cell_walkable(coordinates):
+func _teleport_to_tile(coordinates: Vector2i, animation = null) -> void:
+	if not _is_cell_walkable(coordinates):
 		sprite.play("default")
 		return
 	self.grid_pos = coordinates
@@ -335,7 +344,7 @@ func teleport_to_tile(coordinates: Vector2i, animation = null) -> void:
 	return
 
 
-func check_collisions() -> void:
+func _check_collisions() -> void:
 	for body in collision_area.get_overlapping_bodies():
 		# Nur andere Entities prüfen
 		if not body is MoveableEntity:
@@ -352,29 +361,34 @@ func check_collisions() -> void:
 				if (grid_pos + tile) == (body.grid_pos + other_tile):
 					if self.hp > 0 and body.hp > 0:
 						if self.is_player:
-							initiate_battle(self, body)
+							_initiate_battle(self, body)
 						elif body.is_player:
-							initiate_battle(body, self)
+							_initiate_battle(body, self)
 
 
 func _on_move_finished():
 	is_moving = false
-	check_collisions()
+	_check_collisions()
 
 
-func is_cell_walkable(cell: Vector2i, direction: Vector2i = Vector2i.ZERO) -> bool:
+func _is_cell_walkable(cell: Vector2i, direction: Vector2i = Vector2i.ZERO) -> bool:
 	# Get the tile data from the TileMapLayer at the given cell
 	var tile_data = tilemap.get_cell_tile_data(cell)
 	if tile_data == null:
 		return false  # No tile = not walkable (outside map)
-
+	if hp <= 0:
+		return false
+	print("[DEBUG DEATH]: ", hp)
 	# Check for your custom property "non_walkable"
 	if tile_data.get_custom_data("non_walkable") == true:
 		print("That tile ain't walkable pal!")
 		return false
 
-	if is_cell_blocked(cell, direction):
+	if _is_cell_blocked(cell, direction):
 		print("That tile's blocked pal!")
+		return false
+
+	if get_tree() == null:
 		return false
 
 	# Prevent stepping onto tiles already occupied by another enemy (no stacking)
@@ -405,7 +419,7 @@ func is_cell_walkable(cell: Vector2i, direction: Vector2i = Vector2i.ZERO) -> bo
 	return true
 
 
-func is_cell_blocked(cell: Vector2i, direction: Vector2i = Vector2i.ZERO):
+func _is_cell_blocked(cell: Vector2i, direction: Vector2i = Vector2i.ZERO):
 	var top_cell_coord = tilemap.map_to_local(cell)
 	cell = top_layer.local_to_map(top_cell_coord)
 	var tile_data = top_layer.get_cell_tile_data(cell)
@@ -434,7 +448,7 @@ func add_skill(skill_name):
 		acquired_abilities.append(skill_name)
 
 
-func activate_passives(user, target, battle):
+func _activate_passives(user, target, battle):
 	for ability in abilities:
 		if ability.is_passive:
 			ability.activate_skill(user, target, battle)
@@ -448,22 +462,26 @@ func add_alteration(type, value, source = "test", duration = null):
 	return []
 
 
-func get_alterations():
+func _get_alterations():
 	return alterations
 
 
 func deactivate_buff(source = "test"):
-	print("alterations ", alterations)
 	if alterations.has(source):
 		if alterations[source].has("duration") and alterations[source].duration > 0:
 			alterations[source].duration = int(alterations[source].duration) - 1
 	alterations.erase(source)
 
 
+func reset_skills():
+	for skill in abilities:
+		skill.reset()
+
+
 #--battle logic--
 
 
-func initiate_battle(player: Node, enemy: Node) -> bool:
+func _initiate_battle(player: Node, enemy: Node) -> bool:
 	var main = get_tree().root.get_node("MAIN Pet Dungeon")
 	main.instantiate_battle(player, enemy)
 	return true
@@ -499,13 +517,19 @@ func take_damage(damage, type = ""):
 					else:
 						active_res = 0
 	print("After pierce it's ", active_res)
-	taken_damage *= (1 - active_res)
+
 	if not "ignoredef" in type:
+		taken_damage *= (1 - active_res)
+		# apply percent-based armor (multiplicative reduction)
+		if self.armor_percent != null and float(self.armor_percent) > 0.0:
+			var ap: float = clamp(float(self.armor_percent), 0.0, 0.5)
+			print("Applying armor percent:", ap)
+			taken_damage *= (1.0 - ap)
 		taken_damage -= self.def_stat
 	if taken_damage < 0:
 		taken_damage = 0
 	print(self.name, " should take damage")
-	print(alterations)
+	print("These are the recipeints alterations ", alterations)
 	for alteration in alterations:
 		if alterations[alteration].has("dodge_chance") and not "undodgeable" in type:
 			var dodge_chance = alterations[alteration].dodge_chance * 100
@@ -536,7 +560,10 @@ func take_damage(damage, type = ""):
 func heal(healing):
 	#print(self, " heals by ", healing, "!")
 	var healed_hp = healing  #useless right now but just put here for later damage calculations
-	hp = hp + healed_hp
+	if hp + healed_hp > max_hp:
+		hp = max_hp
+	else:
+		hp = hp + healed_hp
 	#print("Now has ", hp, "HP")
 	return [" healed by " + str(healed_hp), " now has " + str(hp) + " HP"]
 
@@ -570,7 +597,10 @@ func reset_cooldowns(number: int):
 
 
 func increase_poison(amount):
-	poisoned += amount
+	if poisoned + amount <= 8:
+		poisoned += amount
+	else:
+		poisoned = 8
 	return ["Poison increases to " + str(poisoned) + "!"]
 
 
@@ -580,65 +610,140 @@ func increase_stun(amount):
 
 
 func increase_freeze(amount):
+	if is_player:
+		pre_freeze = 1
+		return ["You will be frozen next turn!"]
 	frozen += amount
 	return ["Freeze increases to " + str(frozen) + "!"]
+
+
+func increase_burn(amount):
+	burned += amount
+	return ["Burn increases to " + str(frozen) + "!"]
 
 
 func full_status_heal():
 	stunned = 0
 	poisoned = 0
 	frozen = 0
+	pre_freeze = 0
+	burned = 0
+	self.status_recovery = 1
 
 
 func deal_with_status_effects(battle, phase) -> Array:
 	var gets_a_turn = true
 	var things_that_happened = []
 	if stunned > 0 and phase == 1:
-		stunned -= stun_recovery
+		stunned -= status_recovery
 		if stunned < 0:
 			stunned = 0
-		if randi_range(0, 100) <= 25:
-			battle.move_player("rnd_dir", 1)
+		if is_player and randi_range(0, 100) <= 25:
+			battle.move_player("rnd|dir", 1)
 		things_that_happened.append("Is stunned and movement seems janky")
 	if poisoned > 0 and phase == 2:
-		var message = take_damage(poisoned, "ignoredef|undodgeable")
-		poisoned -= poison_recovery
+		var message = take_damage((self.max_hp * 0.02) * poisoned, "ignoredef|undodgeable")
+		poisoned -= status_recovery
 		if poisoned < 0:
 			poisoned = 0
 		things_that_happened.append("Target" + message[0] + " from poison! Target" + message[1])
+	if pre_freeze > 0 and phase == 2:
+		pre_freeze = 0
+		frozen = 4
+		print("Player pre-freeze turns into freeze!")
+		things_that_happened.append("Target was frozen and can't move!")
 	if frozen > 0 and phase == 2:
 		print("Freeze is currently ", frozen)
-		frozen -= freeze_recovery
+		frozen -= status_recovery
 		if frozen < 0:
 			frozen = 0
 		things_that_happened.append("Target was frozen and can't move!")
+	if burned > 0 and phase == 2:
+		var message = take_damage((self.max_hp * 0.01) * burned, "ignoredef|undodgeable")
+		burned += 3
+		print("Burn went to ", burned)
+		things_that_happened.append(
+			(
+				"Target"
+				+ message[0]
+				+ " from Fire! Target"
+				+ message[1]
+				+ "Target's burn increased to "
+				+ str(burned)
+				+ "!"
+			)
+		)
 	return [gets_a_turn, things_that_happened]
 
 
+func touch_recovery(value):
+	self.status_recovery *= value
+	print(self.name, "'s recovery was altered! Went to ", self.status_recovery)
+	if value > 1:
+		return ["Recovery rises!"]
+	if value < 1:
+		return ["Recovery drops!"]
+	return ["Why'd we bother doing this again?"]
+
+
+func set_resistance(resistance, value):
+	var elemental_ones = ["fire", "electric", "earth", "ice"]
+	var allowed = []
+	var old = 0
+	if "random" in resistance:
+		for resistance_type in resistances:
+			if "elemental" in resistance:
+				if resistance_type in elemental_ones:
+					allowed.append(resistance_type)
+			else:
+				allowed.append(resistance_type)
+		if len(allowed) > 0:
+			resistance = allowed[GlobalRNG.randi_range(0, len(allowed) - 1)]
+			old = resistances[resistance]
+			resistances[resistance] = value
+
+	else:
+		var exists = resistances.get(resistance, null)
+		if exists != null:
+			old = resistances[resistance]
+			resistances[resistance] = value
+	print(self.name, "'s resistances have been altered! Specifically, ", resistance, resistances)
+	if old < value:
+		return [resistance + " resistance has risen to " + str(value) + "!"]
+	if old > value:
+		return [resistance + " resistance has fropped to " + str(value) + "!"]
+	return ["Nothing happened"]
+
+
+func add_zone_duration(amount):
+	added_zone_duration = amount
+	return []
+
+
 # --- helpers ---
-func has_animation(checked_sprite: AnimatedSprite2D, anim_name: String) -> bool:
+func _has_animation(checked_sprite: AnimatedSprite2D, anim_name: String) -> bool:
 	return checked_sprite.sprite_frames.has_animation(anim_name)
 
 
-func update_visibility():
+func _update_visibility():
 	var objects = get_tree().get_nodes_in_group("vision_objects")
 
 	for obj in objects:
-		if can_see(obj.global_position):
+		if _can_see(obj.global_position):
 			obj.visible = true
 			print("Updating visibility")
 		else:
 			obj.visible = false
 
 
-func can_see(target_pos: Vector2) -> bool:
+func _can_see(target_pos: Vector2) -> bool:
 	if tilemap == null:
 		return true
 
 	var start_cell = tilemap.local_to_map(global_position)
 	var end_cell = tilemap.local_to_map(target_pos)
 
-	var cells = get_line_cells(start_cell, end_cell)
+	var cells = _get_line_cells(start_cell, end_cell)
 
 	# Start- und Ziel-Tile ignorieren!
 	for i in range(1, cells.size() - 1):
@@ -652,7 +757,7 @@ func can_see(target_pos: Vector2) -> bool:
 	return true
 
 
-func get_line_cells(start: Vector2i, end: Vector2i) -> Array:
+func _get_line_cells(start: Vector2i, end: Vector2i) -> Array:
 	var points := []
 
 	var x0 = start.x

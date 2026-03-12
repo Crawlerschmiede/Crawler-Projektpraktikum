@@ -9,11 +9,12 @@ var burrowed = false
 var chased_pos: Vector2i
 var chased_direction: Vector2i
 var boss: bool = false
-var chosen: Skill
+var chosen: Skill = null
 var sprite_type: String = "bat"
 var behaviour = "idle"
 var chase_target: PlayerCharacter
 var chasing: bool = false
+var xp: int = 0
 var expanded: bool = false
 
 @onready var sight_area: Area2D = $SightArea
@@ -40,7 +41,7 @@ func roam():
 	elif direction_int == 3:
 		direction = Vector2i.DOWN
 	if "wallbound" in types:
-		if is_next_to_wall(grid_pos + direction):
+		if _is_next_to_wall(grid_pos + direction):
 			move_to_tile(direction)
 	else:
 		move_to_tile(direction)
@@ -54,7 +55,6 @@ func is_closer_to_player(
 	return target_distance <= curr_distance
 
 
-# gdlint: disable=max-returns
 func chase():
 	if "boss" in types or "immobile" in types:
 		return
@@ -79,7 +79,7 @@ func chase():
 			if animations:
 				if animations["teleport_start"] and animations["teleport_end"]:
 					animation_array = [animations["teleport_end"]]
-			await teleport_to_tile(targ_dig_pos, animation_array)
+			await _teleport_to_tile(targ_dig_pos, animation_array)
 			chasing = true
 			burrowed = false
 			return
@@ -94,16 +94,16 @@ func chase():
 		for direction in DIRECTIONS:
 			var target_tile = grid_pos + tile + direction
 			if target_tile not in tiles_im_on:
-				if not is_cell_walkable(target_tile):
+				if not _is_cell_walkable(target_tile):
 					if "burrowing" in types:
-						var burrowable = can_burrow_through(target_tile, direction)
+						var burrowable = _can_burrow_through(target_tile, direction)
 						if not burrowable[0]:
 							continue
 					else:
 						continue
 				else:
 					if "wallbound" in types:
-						if not is_next_to_wall(target_tile):
+						if not _is_next_to_wall(target_tile):
 							continue
 					if is_closer_to_player(grid_pos + tile, target_tile, chased_pos):
 						viable_target_tiles.append(target_tile)
@@ -117,9 +117,6 @@ func chase():
 		else:
 			move_to_tile(viable_directions[chosen_direction])
 	return
-
-
-# gdlint: enable=max-returns
 
 
 func get_best_player() -> PlayerCharacter:
@@ -150,7 +147,7 @@ func get_best_player() -> PlayerCharacter:
 
 
 func _ready() -> void:
-	super_ready(sprite_type, types)
+	_super_ready(sprite_type, types)
 
 	var p := get_best_player()
 	#print("Enemy ready:", name, " found player:", p)
@@ -193,8 +190,8 @@ func move_it():
 		else:
 			match multi_turn_action["name"]:
 				"dig_to":
-					teleport_to_tile(multi_turn_action["target"])
-					if has_animation(sprite, "dig_up"):
+					_teleport_to_tile(multi_turn_action["target"])
+					if _has_animation(sprite, "dig_up"):
 						sprite.play("dig_up")
 						await sprite.animation_finished
 						sprite.play("default")
@@ -263,11 +260,29 @@ func check_sight() -> bool:
 
 
 func decide_attack() -> void:
+	var a = chosen
+	if chosen != null:
+		a = chosen.name
+	print("Enemy's freeze is currently ", frozen, " and chosen is ", a)
+	if frozen > 0 and chosen != null:
+		return
 	var activateable_abilities = []
+	var valid_pick = false
+	var chosen_index = 0
 	for ability in abilities:
 		if ability.is_activateable():
 			activateable_abilities.append(ability)
-	var chosen_index = rng.randi_range(0, len(activateable_abilities) - 1)
+	while not valid_pick:
+		print(activateable_abilities)
+		chosen_index = rng.randi_range(0, len(activateable_abilities) - 1)
+		var current_name = ""
+		if chosen != null:
+			current_name = chosen.name
+		if (
+			activateable_abilities[chosen_index].name != current_name
+			or len(activateable_abilities) == 1
+		):
+			valid_pick = true
 	chosen = activateable_abilities[chosen_index]
 	print("Next ability is ", chosen.name)
 
@@ -338,7 +353,10 @@ func elongate():
 	var y_offset = 0
 	var rotation_deg = 0
 	for direction in DIRECTIONS:
-		if is_next_to_wall(grid_pos + direction * 2) and not is_next_to_wall(grid_pos + direction):
+		if (
+			_is_next_to_wall(grid_pos + direction * 2)
+			and not _is_next_to_wall(grid_pos + direction)
+		):
 			expand = true
 			match direction:
 				Vector2i.UP:
@@ -387,4 +405,4 @@ func elongate():
 		resize(1, 1, ["M"])
 		move_sprite(0, 0, 0)
 
-	check_collisions()
+	_check_collisions()

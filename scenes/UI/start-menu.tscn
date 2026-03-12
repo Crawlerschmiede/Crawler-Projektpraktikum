@@ -211,3 +211,4 @@ script = ExtResource("8_oy7i1")
 
 [node name="bg_music" type="AudioStreamPlayer" parent="." unique_id=1133867695]
 stream = ExtResource("9_w3k7h")
+bus = &"Music"

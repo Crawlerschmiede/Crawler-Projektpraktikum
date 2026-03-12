@@ -341,7 +341,10 @@ create_and_push_tag() {
     fi
 
     if [[ "$NON_INTERACTIVE" -eq 0 ]] && confirm "Open Releases page in browser?"; then
-      gh repo view --repo "$REPO_SLUG" --web
+      if ! gh repo view "$REPO_SLUG" --web; then
+        echo "Could not open releases page automatically."
+        echo "Open manually: https://github.com/${REPO_SLUG}/releases"
+      fi
     fi
   fi
 }

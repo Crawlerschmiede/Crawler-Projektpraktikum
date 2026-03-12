@@ -41,7 +41,6 @@ offset_bottom = 480.0
 script = ExtResource("1_idkc3")
 
 [node name="Background" type="ColorRect" parent="." unique_id=2126880719]
-visible = false
 layout_mode = 0
 offset_right = 640.0
 offset_bottom = 480.0
@@ -58,7 +57,7 @@ modulate = Color(1, 1, 1, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.75686276, 0, 0, 1)
 theme_override_fonts/font = ExtResource("1_n8ope")
-text = "TeamName"
+text = "CrawlerSchmiede"
 script = ExtResource("3_kx4lv")
 
 [node name="LabelShadow" type="Label" parent="." unique_id=1200703739]
@@ -72,7 +71,7 @@ offset_bottom = 239.0
 scale = Vector2(4, 4)
 theme_override_colors/font_color = Color(0.75686276, 0, 0, 1)
 theme_override_fonts/font = ExtResource("1_n8ope")
-text = "TeamName"
+text = "CrawlerSchmiede"
 script = ExtResource("3_kx4lv")
 
 [node name="InvertLayer" type="ColorRect" parent="." unique_id=1810684497]
@@ -110,3 +109,23 @@ offset_bottom = 480.0
 
 [node name="tv_noise" type="AudioStreamPlayer" parent="." unique_id=586750406]
 stream = ExtResource("8_idkc3")
+bus = &"SFX"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="." unique_id=1705670265]
+layout_mode = 0
+offset_top = 440.0
+offset_right = 643.0
+offset_bottom = 479.0
+alignment = 1
+
+[node name="TipLabel" type="Label" parent="HBoxContainer" unique_id=1580114059]
+process_mode = 3
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+size_flags_horizontal = 5
+theme_override_fonts/font = ExtResource("1_n8ope")
+theme_override_font_sizes/font_size = 22
+text = "Press Enter to skip"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2

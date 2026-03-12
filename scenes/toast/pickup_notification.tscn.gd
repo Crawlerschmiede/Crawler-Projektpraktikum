@@ -10,7 +10,7 @@ var item_ui: Node = null
 
 
 func setup(item_name: String, amount: int) -> void:
-	label.text = item_name
+	label.text = item_name.split("_")[0]
 	modulate.a = 0.0
 
 	# altes item entfernen

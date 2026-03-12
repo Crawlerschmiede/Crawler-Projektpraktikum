@@ -10,7 +10,7 @@ func _ready() -> void:
 	# Button verbinden
 	if continue_button:
 		continue_button.pressed.connect(_go_to_start)
-		continue_button.grab_focus()  # optional: direkt Fokus auf Button
+		#continue_button.grab_focus()  # optional: direkt Fokus auf Button
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -27,7 +27,7 @@ func _unhandled_input(event: InputEvent) -> void:
 func _go_to_start() -> void:
 	var scene_tree = get_tree()
 	if scene_tree == null:
-		push_error("death_screen: SceneTree is null; cannot change to start menu")
+		push_error("win_screen: SceneTree is null; cannot change to start menu")
 		return
 
 	# Prefer file-based change for robustness; fallback to PackedScene only if clearly valid

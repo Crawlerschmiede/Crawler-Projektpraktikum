@@ -1,0 +1,80 @@
+{
+	"music": {
+		"combat_by_type": {
+			"boss": {
+				"necro": [
+					"res://assets/sfx/(boss-necro)Burnt Spirit.mp3"
+				],
+				"orc": [
+					"res://assets/sfx/(boss-orc)Dentaneosuchus Hunt.mp3"
+				],
+				"plant": [
+					"res://assets/sfx/(boss-plant)Trouble with Tribals.mp3"
+				],
+				"wendigo": [
+					"res://assets/sfx/(boss-wendigo)Le Grand Chase.mp3"
+				]
+			},
+			"generic": [
+				"res://assets/sfx/(normal-fight)Evil March.mp3",
+				"res://assets/sfx/(normal-fight)Exotic Battle.mp3",
+				"res://assets/sfx/(normal-fight)Nightmare Machine.mp3",
+				"res://assets/sfx/(normal-fight)Unholy Knight.mp3",
+				"res://assets/sfx/(normal-fight)Voltaic.mp3"
+			]
+		},
+		"world_by_index": {
+			"-1": [
+				"res://assets/sfx/(floor-tutorial)Lord of the Rangs.mp3"
+			],
+			"0": [
+				"res://assets/sfx/(floor-1)Ossuary 6 - Air cut version.mp3"
+			],
+			"1": [
+				"res://assets/sfx/(floor-2)Night of Chaos.mp3"
+			],
+			"2": [
+				"res://assets/sfx/(floor-3)Road to Hell.mp3"
+			]
+		}
+	},
+	"schema_version": 1,
+	"sfx_events": {
+		"menu": {
+			"hover_exit": [
+				"res://assets/sfx/Exit/Exit-01.mp3",
+				"res://assets/sfx/Exit/Exit-02.mp3",
+				"res://assets/sfx/Exit/Exit-03.mp3",
+				"res://assets/sfx/Exit/Exit-04.mp3",
+				"res://assets/sfx/Exit/Exit-05.mp3",
+				"res://assets/sfx/Exit/Exit-06.mp3"
+			],
+			"hover_settings": [
+				"res://assets/sfx/Settings/Settings-01.mp3",
+				"res://assets/sfx/Settings/Settings-02.mp3",
+				"res://assets/sfx/Settings/Settings-03.mp3",
+				"res://assets/sfx/Settings/Settings-04.mp3",
+				"res://assets/sfx/Settings/Settings-05.mp3"
+			],
+			"hover_start_new": [
+				"res://assets/sfx/Start New/Start New-01.mp3",
+				"res://assets/sfx/Start New/Start New-02.mp3",
+				"res://assets/sfx/Start New/Start New-03.mp3",
+				"res://assets/sfx/Start New/Start New-04.mp3"
+			]
+		},
+		"ui": {
+			"game_over": [
+				"res://assets/sfx/Game Over/game_over_fv.mp3"
+			]
+		},
+		"world": {
+			"boss_room": [
+				"res://assets/sfx/(boss-room)Sauropod Spotting.mp3"
+			],
+			"final_boss_room": [
+				"res://assets/sfx/(floor-boss)SCP-x2x.mp3"
+			]
+		}
+	}
+}

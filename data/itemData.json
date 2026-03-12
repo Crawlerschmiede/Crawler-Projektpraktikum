@@ -1,89 +1,971 @@
 {
-  "Hund": {
-	"ItemCategory": "Hund",
-	"StackSize": 99,
-	"Description": "A sturdy tree branch that can be used for crafting.",
-	"group": "Sword",
-	"loot_stats": { "weight": 3, "chance": 1.0, "max_stack": 2 },
-	"merchant": {
-		"min_count": 1,
-		"max_count": 3,
-		"min_price": 4,
-		"max_price": 8,
-		"buy_amount": 1,
-		"chance": 1.0,
-		"weight": 1
-	}
-  },
-	"placeholder_dagger_poison": {
-		"ItemCategory": "Weapon",
-		"StackSize": 1,
-		"Description": "A sturdy tree branch that can be used for crafting.",
-		"group": "Equipment",
-		"loot_stats": { "weight": 3, "chance": 1.0, "max_stack": 2 },
-		"bound_skills":["Shank"],
-		"range":"short"
-	  },
-	"placeholder_sword": {
-		"ItemCategory": "Weapon",
-		"StackSize": 1,
-		"Description": "A sturdy tree branch that can be used for crafting.",
-		"group": "Weapon",
-		"loot_stats": { "weight": 3, "chance": 1.0, "max_stack": 2 },
-		"merchant": {
-			"min_count": 1,
-			"max_count": 2,
-			"min_price": 6,
-			"max_price": 9,
-			"buy_amount": 2,
-			"chance": 1.0,
-			"weight": 1
-		},
-		"bound_skills":["Slash"],
-		"range":"short"
-	  },
-	"placeholder_spear": {
-		"ItemCategory": "Weapon",
-		"StackSize": 1,
-		"Description": "A sturdy tree branch that can be used for crafting.",
-		"group": "Weapon",
-		"loot_stats": { "weight": 3, "chance": 1.0, "max_stack": 2 },
-		"merchant": {
-			"min_count": 1,
-			"max_count": 2,
-			"min_price": 6,
-			"max_price": 9,
-			"buy_amount": 2,
-			"chance": 1.0,
-			"weight": 1
-		},
-		"bound_skills":["Stab"],
-		"range":"medium"
-	  },
-	"placeholder_bow": {
-		"ItemCategory": "Weapon",
-		"StackSize": 1,
-		"Description": "A sturdy tree branch that can be used for crafting.",
-		"group": "Weapon",
-		"loot_stats": { "weight": 3, "chance": 1.0, "max_stack": 2 },
-		"merchant": {
-			"min_count": 1,
-			"max_count": 2,
-			"min_price": 6,
-			"max_price": 9,
-			"buy_amount": 2,
-			"chance": 1.0,
-			"weight": 1
-		},
-		"bound_skills":["Shoot"],
-		"range":"long"
-	  },
-	"placeholder_heal_potion": {
+	"heal_potion": {
 		"ItemCategory": "Consumable",
 		"StackSize": 99,
-		"Description": "A sturdy tree branch that can be used for crafting.",
-		"group": "Equipment",
-		"loot_stats": { "weight": 3, "chance": 1.0, "max_stack": 2 },
-		"use_effects":["Heal"]
-	  }
+		"Description": "",
+		"group": "Consumable",
+		"bound_skills": [
+            "Drink"
+		],
+		"loot_stats": {
+			"weight": 3,
+			"chance": 1.0,
+			"max_stack": 2
+		},
+		"merchant": {
+			"min_count": 1,
+			"max_count": 3,
+			"min_price": 4,
+			"max_price": 8,
+			"buy_amount": 1,
+			"chance": 1.0,
+			"weight": 1
+		}
+	},
+	"arm_a1": {
+		"ItemCategory": "Equipment",
+		"StackSize": 1,
+		"Description": "",
+		"group": "Weapon",
+		"bound_skills": [
+			"Bash"
+		],
+		"range": "short",
+		"slot": "arm",
+		"loot_stats": {
+			"weight": 3,
+			"chance": 1.0,
+			"max_stack": 2
+		},
+		"merchant": {
+			"min_count": 1,
+			"max_count": 3,
+			"min_price": 4,
+			"max_price": 8,
+			"buy_amount": 1,
+			"chance": 1.0,
+			"weight": 1
+		}
+	},
+	"arm_a2": {
+		"ItemCategory": "Equipment",
+		"StackSize": 1,
+		"Description": "",
+		"group": "Weapon",
+		"bound_skills": [
+			"Bash +1"
+		],
+		"range": "short",
+		"slot": "arm",
+		"loot_stats": {
+			"weight": 3,
+			"chance": 1.0,
+			"max_stack": 2
+		},
+		"merchant": {
+			"min_count": 1,
+			"max_count": 3,
+			"min_price": 4,
+			"max_price": 8,
+			"buy_amount": 1,
+			"chance": 1.0,
+			"weight": 1
+		}
+	},
+	"arm_a3": {
+		"ItemCategory": "Equipment",
+		"StackSize": 1,
+		"Description": "",
+		"group": "Weapon",
+		"bound_skills": [
+			"Bash +2"
+		],
+		"range": "short",
+		"slot": "arm",
+		"loot_stats": {
+			"weight": 3,
+			"chance": 1.0,
+			"max_stack": 2
+		},
+		"merchant": {
+			"min_count": 1,
+			"max_count": 3,
+			"min_price": 4,
+			"max_price": 8,
+			"buy_amount": 1,
+			"chance": 1.0,
+			"weight": 1
+		}
+	},
+	"bow_a1": {
+		"ItemCategory": "Weapon",
+		"StackSize": 1,
+		"Description": "",
+		"group": "Weapon",
+		"bound_skills": [
+            "Shoot"
+		],
+		"range": "long",
+		"loot_stats": {
+			"weight": 3,
+			"chance": 1.0,
+			"max_stack": 2
+		},
+		"merchant": {
+			"min_count": 1,
+			"max_count": 3,
+			"min_price": 4,
+			"max_price": 8,
+			"buy_amount": 1,
+			"chance": 1.0,
+			"weight": 1
+		}
+	},
+	"bow_a2": {
+		"ItemCategory": "Weapon",
+		"StackSize": 1,
+		"Description": "",
+		"group": "Weapon",
+		"bound_skills": [
+            "Shoot +1"
+		],
+		"range": "long",
+		"loot_stats": {
+			"weight": 3,
+			"chance": 1.0,
+			"max_stack": 2
+		},
+		"merchant": {
+			"min_count": 1,
+			"max_count": 3,
+			"min_price": 4,
+			"max_price": 8,
+			"buy_amount": 1,
+			"chance": 1.0,
+			"weight": 1
+		}
+	},
+	"bow_a3": {
+		"ItemCategory": "Weapon",
+		"StackSize": 1,
+		"Description": "",
+		"group": "Weapon",
+		"bound_skills": [
+            "Shoot +2"
+		],
+		"range": "long",
+		"loot_stats": {
+			"weight": 3,
+			"chance": 1.0,
+			"max_stack": 2
+		},
+		"merchant": {
+			"min_count": 1,
+			"max_count": 3,
+			"min_price": 4,
+			"max_price": 8,
+			"buy_amount": 1,
+			"chance": 1.0,
+			"weight": 1
+		}
+	},
+	"chest_a1": {
+		"ItemCategory": "Equipment",
+		"StackSize": 1,
+		"Description": "",
+		"group": "chest",
+		"bound_skills": [
+            "Block"
+		],
+		"slot": "chest",
+		"armor": 0.05,
+		"loot_stats": {
+			"weight": 3,
+			"chance": 1.0,
+			"max_stack": 2
+		},
+		"merchant": {
+			"min_count": 1,
+			"max_count": 3,
+			"min_price": 4,
+			"max_price": 8,
+			"buy_amount": 1,
+			"chance": 1.0,
+			"weight": 1
+		}
+	},
+	"chest_a2": {
+		"ItemCategory": "Equipment",
+		"StackSize": 1,
+		"Description": "",
+		"group": "chest",
+		"bound_skills": [
+            "Block"
+		],
+		"slot": "chest",
+		"armor": 0.10,
+		"loot_stats": {
+			"weight": 3,
+			"chance": 1.0,
+			"max_stack": 2
+		},
+		"merchant": {
+			"min_count": 1,
+			"max_count": 3,
+			"min_price": 4,
+			"max_price": 8,
+			"buy_amount": 1,
+			"chance": 1.0,
+			"weight": 1
+		}
+	},
+	"chest_a3": {
+		"ItemCategory": "Equipment",
+		"StackSize": 1,
+		"Description": "",
+		"group": "chest",
+		"example_in_inventory": "chest",
+		"bound_skills": [
+            "Block"
+		],
+		"slot": "chest",
+		"armor": 0.15,
+		"loot_stats": {
+			"weight": 3,
+			"chance": 1.0,
+			"max_stack": 2
+		},
+		"merchant": {
+			"min_count": 1,
+			"max_count": 3,
+			"min_price": 4,
+			"max_price": 8,
+			"buy_amount": 1,
+			"chance": 1.0,
+			"weight": 1
+		}
+	},
+	"crossbow_a1": {
+		"ItemCategory": "Weapon",
+		"StackSize": 1,
+		"Description": "",
+		"group": "Weapon",
+		"example_in_inventory": "Weapon",
+		"bound_skills": [
+			"Fire Bolt"
+		],
+		"range": "long",
+		"loot_stats": {
+			"weight": 3,
+			"chance": 1.0,
+			"max_stack": 2
+		},
+		"merchant": {
+			"min_count": 1,
+			"max_count": 3,
+			"min_price": 4,
+			"max_price": 8,
+			"buy_amount": 1,
+			"chance": 1.0,
+			"weight": 1
+		}
+	},
+	"crossbow_a2": {
+		"ItemCategory": "Weapon",
+		"StackSize": 1,
+		"Description": "",
+		"group": "Weapon",
+		"example_in_inventory": "Weapon",
+		"bound_skills": [
+			"Fire Bolt +1"
+		],
+		"range": "long",
+		"loot_stats": {
+			"weight": 3,
+			"chance": 1.0,
+			"max_stack": 2
+		},
+		"merchant": {
+			"min_count": 1,
+			"max_count": 3,
+			"min_price": 4,
+			"max_price": 8,
+			"buy_amount": 1,
+			"chance": 1.0,
+			"weight": 1
+		}
+	},
+	"crossbow_a3": {
+		"ItemCategory": "Weapon",
+		"StackSize": 1,
+		"Description": "",
+		"group": "Weapon",
+		"example_in_inventory": "Weapon",
+		"bound_skills": [
+			"Fire Bolt +2"
+		],
+		"range": "long",
+		"loot_stats": {
+			"weight": 3,
+			"chance": 1.0,
+			"max_stack": 2
+		},
+		"merchant": {
+			"min_count": 1,
+			"max_count": 3,
+			"min_price": 4,
+			"max_price": 8,
+			"buy_amount": 1,
+			"chance": 1.0,
+			"weight": 1
+		}
+	},
+	"dagger_a1": {
+		"ItemCategory": "Weapon",
+		"StackSize": 1,
+		"Description": "",
+		"group": "Weapon",
+		"bound_skills": [
+			"Shank"
+		],
+		"range": "short",
+		"loot_stats": {
+			"weight": 3,
+			"chance": 1.0,
+			"max_stack": 2
+		},
+		"merchant": {
+			"min_count": 1,
+			"max_count": 3,
+			"min_price": 4,
+			"max_price": 8,
+			"buy_amount": 1,
+			"chance": 1.0,
+			"weight": 1
+		}
+	},
+	"dagger_a2": {
+		"ItemCategory": "Weapon",
+		"StackSize": 1,
+		"Description": "",
+		"group": "Weapon",
+		"bound_skills": [
+			"Shank +1"
+		],
+		"range": "short",
+		"loot_stats": {
+			"weight": 3,
+			"chance": 1.0,
+			"max_stack": 2
+		},
+		"merchant": {
+			"min_count": 1,
+			"max_count": 3,
+			"min_price": 4,
+			"max_price": 8,
+			"buy_amount": 1,
+			"chance": 1.0,
+			"weight": 1
+		}
+	},
+	"dagger_a3": {
+		"ItemCategory": "Weapon",
+		"StackSize": 1,
+		"Description": "",
+		"group": "Weapon",
+		"bound_skills": [
+			"Shank +2"
+		],
+		"range": "short",
+		"loot_stats": {
+			"weight": 3,
+			"chance": 1.0,
+			"max_stack": 2
+		},
+		"merchant": {
+			"min_count": 1,
+			"max_count": 3,
+			"min_price": 4,
+			"max_price": 8,
+			"buy_amount": 1,
+			"chance": 1.0,
+			"weight": 1
+		}
+	},
+	"halberd_a1": {
+		"ItemCategory": "Weapon",
+		"StackSize": 1,
+		"Description": "",
+		"group": "Weapon",
+		"bound_skills": [
+			"Slash",
+			"Stab"
+		],
+		"range": "medium",
+		"loot_stats": {
+			"weight": 3,
+			"chance": 1.0,
+			"max_stack": 2
+		},
+		"merchant": {
+			"min_count": 1,
+			"max_count": 3,
+			"min_price": 4,
+			"max_price": 8,
+			"buy_amount": 1,
+			"chance": 1.0,
+			"weight": 1
+		}
+	},
+	"halberd_a2": {
+		"ItemCategory": "Weapon",
+		"StackSize": 1,
+		"Description": "",
+		"group": "Weapon",
+		"bound_skills": [
+			"Slash +1",
+			"Stab +1"
+		],
+		"range": "medium",
+		"loot_stats": {
+			"weight": 3,
+			"chance": 1.0,
+			"max_stack": 2
+		},
+		"merchant": {
+			"min_count": 1,
+			"max_count": 3,
+			"min_price": 4,
+			"max_price": 8,
+			"buy_amount": 1,
+			"chance": 1.0,
+			"weight": 1
+		}
+	},
+	"halberd_a3": {
+		"ItemCategory": "Weapon",
+		"StackSize": 1,
+		"Description": "",
+		"group": "Weapon",
+		"bound_skills": [
+			"Slash +2",
+			"Stab +2"
+		],
+		"range": "medium",
+		"loot_stats": {
+			"weight": 3,
+			"chance": 1.0,
+			"max_stack": 2
+		},
+		"merchant": {
+			"min_count": 1,
+			"max_count": 3,
+			"min_price": 4,
+			"max_price": 8,
+			"buy_amount": 1,
+			"chance": 1.0,
+			"weight": 1
+		}
+	},
+	"hatchet_a1": {
+		"ItemCategory": "Weapon",
+		"StackSize": 1,
+		"Description": "",
+		"group": "Weapon",
+		"bound_skills": [
+            "Slash"
+		],
+		"range": "short",
+		"loot_stats": {
+			"weight": 3,
+			"chance": 1.0,
+			"max_stack": 2
+		},
+		"merchant": {
+			"min_count": 1,
+			"max_count": 3,
+			"min_price": 4,
+			"max_price": 8,
+			"buy_amount": 1,
+			"chance": 1.0,
+			"weight": 1
+		}
+	},
+	"hatchet_a2": {
+		"ItemCategory": "Weapon",
+		"StackSize": 1,
+		"Description": "",
+		"group": "Weapon",
+		"bound_skills": [
+            "Slash +1"
+		],
+		"range": "short",
+		"loot_stats": {
+			"weight": 3,
+			"chance": 1.0,
+			"max_stack": 2
+		},
+		"merchant": {
+			"min_count": 1,
+			"max_count": 3,
+			"min_price": 4,
+			"max_price": 8,
+			"buy_amount": 1,
+			"chance": 1.0,
+			"weight": 1
+		}
+	},
+	"hatchet_a3": {
+		"ItemCategory": "Weapon",
+		"StackSize": 1,
+		"Description": "",
+		"group": "Weapon",
+		"bound_skills": [
+            "Slash +2"
+		],
+		"range": "short",
+		"loot_stats": {
+			"weight": 3,
+			"chance": 1.0,
+			"max_stack": 2
+		},
+		"merchant": {
+			"min_count": 1,
+			"max_count": 3,
+			"min_price": 4,
+			"max_price": 8,
+			"buy_amount": 1,
+			"chance": 1.0,
+			"weight": 1
+		}
+	},
+	"head_a1": {
+		"ItemCategory": "Equipment",
+		"StackSize": 1,
+		"Description": "",
+		"group": "head",
+		"example_in_inventory": "head",
+		"slot": "head",
+		"armor": 0.03,
+		"bound_skills": [
+            "Block"
+		],
+		"loot_stats": {
+			"weight": 3,
+			"chance": 1.0,
+			"max_stack": 2
+		},
+		"merchant": {
+			"min_count": 1,
+			"max_count": 3,
+			"min_price": 4,
+			"max_price": 8,
+			"buy_amount": 1,
+			"chance": 1.0,
+			"weight": 1
+		}
+	},
+	"head_a2": {
+		"ItemCategory": "Equipment",
+		"StackSize": 1,
+		"Description": "",
+		"group": "head",
+		"slot": "head",
+		"armor": 0.06,
+		"bound_skills": [
+            "Block"
+		],
+		"loot_stats": {
+			"weight": 3,
+			"chance": 1.0,
+			"max_stack": 2
+		},
+		"merchant": {
+			"min_count": 1,
+			"max_count": 3,
+			"min_price": 4,
+			"max_price": 8,
+			"buy_amount": 1,
+			"chance": 1.0,
+			"weight": 1
+		}
+	},
+	"head_a3": {
+		"ItemCategory": "Equipment",
+		"StackSize": 1,
+		"Description": "",
+		"group": "head",
+		"slot": "head",
+		"armor": 0.09,
+		"bound_skills": [
+            "Block"
+		],
+		"loot_stats": {
+			"weight": 3,
+			"chance": 1.0,
+			"max_stack": 2
+		},
+		"merchant": {
+			"min_count": 1,
+			"max_count": 3,
+			"min_price": 4,
+			"max_price": 8,
+			"buy_amount": 1,
+			"chance": 1.0,
+			"weight": 1
+		}
+	},
+	"legs_a1": {
+		"ItemCategory": "Equipment",
+		"StackSize": 1,
+		"Description": "",
+		"group": "legs",
+		"example_in_inventory": "legs",
+		"slot": "legs",
+		"armor": 0.02,
+		"bound_skills": [
+		],
+		"loot_stats": {
+			"weight": 3,
+			"chance": 1.0,
+			"max_stack": 2
+		},
+		"merchant": {
+			"min_count": 1,
+			"max_count": 3,
+			"min_price": 4,
+			"max_price": 8,
+			"buy_amount": 1,
+			"chance": 1.0,
+			"weight": 1
+		}
+	},
+	"legs_a2": {
+		"ItemCategory": "Equipment",
+		"StackSize": 1,
+		"Description": "",
+		"group": "legs",
+		"slot": "legs",
+		"armor": 0.04,
+		"bound_skills": [
+		],
+		"loot_stats": {
+			"weight": 3,
+			"chance": 1.0,
+			"max_stack": 2
+		},
+		"merchant": {
+			"min_count": 1,
+			"max_count": 3,
+			"min_price": 4,
+			"max_price": 8,
+			"buy_amount": 1,
+			"chance": 1.0,
+			"weight": 1
+		}
+	},
+	"legs_a3": {
+		"ItemCategory": "Equipment",
+		"StackSize": 1,
+		"Description": "",
+		"group": "legs",
+		"slot": "legs",
+		"armor": 0.06,
+		"bound_skills": [
+		],
+		"loot_stats": {
+			"weight": 3,
+			"chance": 1.0,
+			"max_stack": 2
+		},
+		"merchant": {
+			"min_count": 1,
+			"max_count": 3,
+			"min_price": 4,
+			"max_price": 8,
+			"buy_amount": 1,
+			"chance": 1.0,
+			"weight": 1
+		}
+	},
+	"spear_a1": {
+		"ItemCategory": "Weapon",
+		"StackSize": 1,
+		"Description": "",
+		"group": "Weapon",
+		"bound_skills": [
+			"Stab"
+		],
+		"range": "medium",
+		"loot_stats": {
+			"weight": 3,
+			"chance": 1.0,
+			"max_stack": 2
+		},
+		"merchant": {
+			"min_count": 1,
+			"max_count": 3,
+			"min_price": 4,
+			"max_price": 8,
+			"buy_amount": 1,
+			"chance": 1.0,
+			"weight": 1
+		}
+	},
+	"spear_a2": {
+		"ItemCategory": "Weapon",
+		"StackSize": 1,
+		"Description": "",
+		"group": "Weapon",
+		"bound_skills": [
+			"Stab +1"
+		],
+		"range": "medium",
+		"loot_stats": {
+			"weight": 3,
+			"chance": 1.0,
+			"max_stack": 2
+		},
+		"merchant": {
+			"min_count": 1,
+			"max_count": 3,
+			"min_price": 4,
+			"max_price": 8,
+			"buy_amount": 1,
+			"chance": 1.0,
+			"weight": 1
+		}
+	},
+	"spear_a3": {
+		"ItemCategory": "Weapon",
+		"StackSize": 1,
+		"Description": "",
+		"group": "Weapon",
+		"bound_skills": [
+			"Stab +2"
+		],
+		"range": "medium",
+		"loot_stats": {
+			"weight": 3,
+			"chance": 1.0,
+			"max_stack": 2
+		},
+		"merchant": {
+			"min_count": 1,
+			"max_count": 3,
+			"min_price": 4,
+			"max_price": 8,
+			"buy_amount": 1,
+			"chance": 1.0,
+			"weight": 1
+		}
+	},
+	"sword_a1": {
+		"ItemCategory": "Misc",
+		"StackSize": 1,
+		"Description": "",
+		"group": "Weapon",
+		"example_in_inventory": "Weapon",
+		"loot_stats": {
+			"weight": 1,
+			"chance": 1.0,
+			"max_stack": 1
+		},
+		"merchant": {
+			"min_count": 1,
+			"max_count": 1,
+			"min_price": 1,
+			"max_price": 1,
+			"buy_amount": 1,
+			"chance": 1.0,
+			"weight": 1
+		},
+		"bound_skills": ["Slash"]
+	},
+	"sword_a2": {
+		"ItemCategory": "Misc",
+		"StackSize": 1,
+		"Description": "",
+		"group": "Weapon",
+		"loot_stats": {
+			"weight": 1,
+			"chance": 1.0,
+			"max_stack": 1
+		},
+		"merchant": {
+			"min_count": 1,
+			"max_count": 1,
+			"min_price": 1,
+			"max_price": 1,
+			"buy_amount": 1,
+			"chance": 1.0,
+			"weight": 1
+		},
+		"bound_skills": ["Slash +1"]
+	},
+	"sword_a3": {
+		"ItemCategory": "Misc",
+		"StackSize": 1,
+		"Description": "",
+		"group": "Weapon",
+		"loot_stats": {
+			"weight": 1,
+			"chance": 1.0,
+			"max_stack": 1
+		},
+		"merchant": {
+			"min_count": 1,
+			"max_count": 1,
+			"min_price": 1,
+			"max_price": 1,
+			"buy_amount": 1,
+			"chance": 1.0,
+			"weight": 1
+		},
+		"bound_skills": ["Slash +2"]
+	},
+	"throwing_knives_a1": {
+		"ItemCategory": "Weapon",
+		"StackSize": 10,
+		"Description": "",
+		"group": "Weapon",
+		"bound_skills": [
+			"Throw"
+		],
+		"range": "long",
+		"loot_stats": {
+			"weight": 3,
+			"chance": 1.0,
+			"max_stack": 2
+		},
+		"merchant": {
+			"min_count": 1,
+			"max_count": 3,
+			"min_price": 4,
+			"max_price": 8,
+			"buy_amount": 1,
+			"chance": 1.0,
+			"weight": 1
+		}
+	},
+	"throwing_knives_a2": {
+		"ItemCategory": "Weapon",
+		"StackSize": 10,
+		"Description": "",
+		"group": "Weapon",
+		"bound_skills": [
+			"Throw +1"
+		],
+		"range": "long",
+		"loot_stats": {
+			"weight": 3,
+			"chance": 1.0,
+			"max_stack": 2
+		},
+		"merchant": {
+			"min_count": 1,
+			"max_count": 3,
+			"min_price": 4,
+			"max_price": 8,
+			"buy_amount": 1,
+			"chance": 1.0,
+			"weight": 1
+		}
+	},
+	"throwing_knives_a3": {
+		"ItemCategory": "Weapon",
+		"StackSize": 10,
+		"Description": "",
+		"group": "Weapon",
+		"bound_skills": [
+			"Throw +2"
+		],
+		"range": "long",
+		"loot_stats": {
+			"weight": 3,
+			"chance": 1.0,
+			"max_stack": 2
+		},
+		"merchant": {
+			"min_count": 1,
+			"max_count": 3,
+			"min_price": 4,
+			"max_price": 8,
+			"buy_amount": 1,
+			"chance": 1.0,
+			"weight": 1
+		}
+	},
+	"wand_a1": {
+		"ItemCategory": "Weapon",
+		"StackSize": 1,
+		"Description": "",
+		"group": "Weapon",
+		"bound_skills": [
+			"Cast"
+		],
+		"range": "long",
+		"loot_stats": {
+			"weight": 3,
+			"chance": 1.0,
+			"max_stack": 2
+		},
+		"merchant": {
+			"min_count": 1,
+			"max_count": 3,
+			"min_price": 4,
+			"max_price": 8,
+			"buy_amount": 1,
+			"chance": 1.0,
+			"weight": 1
+		}
+	},
+	"wand_a2": {
+		"ItemCategory": "Weapon",
+		"StackSize": 1,
+		"Description": "",
+		"group": "Weapon",
+		"bound_skills": [
+			"Cast +1"
+		],
+		"range": "long",
+		"loot_stats": {
+			"weight": 3,
+			"chance": 1.0,
+			"max_stack": 2
+		},
+		"merchant": {
+			"min_count": 1,
+			"max_count": 3,
+			"min_price": 4,
+			"max_price": 8,
+			"buy_amount": 1,
+			"chance": 1.0,
+			"weight": 1
+		}
+	},
+	"wand_a3": {
+		"ItemCategory": "Weapon",
+		"StackSize": 1,
+		"Description": "",
+		"group": "Weapon",
+		"bound_skills": [
+			"Cast +2"
+		],
+		"range": "long",
+		"loot_stats": {
+			"weight": 3,
+			"chance": 1.0,
+			"max_stack": 2
+		},
+		"merchant": {
+			"min_count": 1,
+			"max_count": 3,
+			"min_price": 4,
+			"max_price": 8,
+			"buy_amount": 1,
+			"chance": 1.0,
+			"weight": 1
+		}
+	}
 }

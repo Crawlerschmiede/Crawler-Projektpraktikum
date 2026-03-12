@@ -2,6 +2,7 @@ extends CanvasLayer
 
 # custom signal to inform the main scene
 signal menu_closed
+signal save_requested
 
 const SETTINGS_MENU_SCENE := preload("res://scenes/UI/settings_menu.tscn")
 const UI_MODAL_CONTROLLER := preload("res://scripts/UI/ui_modal_controller.gd")
@@ -17,6 +18,7 @@ var _settings_layer: CanvasLayer = null
 func _ready():
 	_apply_scale()
 	get_viewport().size_changed.connect(_on_viewport_size_changed)
+	_wire_hover_sfx()
 
 
 func _on_viewport_size_changed() -> void:
@@ -35,8 +37,32 @@ func _apply_scale() -> void:
 
 # Function for the "Continue" button
 func _on_continue_pressed():
-	#print("Check:Continue Pressed. Emitting signal.")
 	menu_closed.emit()
+
+
+func _wire_hover_sfx() -> void:
+	if has_node("VBoxContainer/ButtonSettings"):
+		$VBoxContainer/ButtonSettings.mouse_entered.connect(_on_settings_hovered)
+
+	if has_node("VBoxContainer/ButtonQuit"):
+		$VBoxContainer/ButtonQuit.mouse_entered.connect(_on_exit_hovered)
+
+
+func _on_settings_hovered() -> void:
+	_play_menu_hover("hover_settings")
+
+
+func _on_exit_hovered() -> void:
+	_play_menu_hover("hover_exit")
+
+
+func _play_menu_hover(event_key: String) -> void:
+	if (
+		typeof(AudioManager) != TYPE_NIL
+		and AudioManager != null
+		and AudioManager.has_method("play_sfx_event")
+	):
+		AudioManager.play_sfx_event("menu", event_key)
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -78,6 +104,12 @@ func _on_settings_closed() -> void:
 	_settings_instance = null
 	$VBoxContainer.visible = true
 	UI_MODAL_CONTROLLER.release(self, true, true)
+
+
+func _on_save_pressed() -> void:
+	print("SAVE")
+	# Emit a signal so an external controller can perform the actual save
+	save_requested.emit()
 
 
 # Function for the "Quit" button

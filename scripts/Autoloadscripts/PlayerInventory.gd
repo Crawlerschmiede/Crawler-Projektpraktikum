@@ -62,8 +62,6 @@ func _slot_accepts_item(slot_node: Node, item_name: String) -> bool:
 		return false
 
 	var item_group: String = _get_item_group(item_name)
-
-	# Debug Infos
 	var slot_groups: Array[StringName] = slot_node.get_groups()
 	print(
 		"[INV] CHECK groups: slot=",
@@ -76,14 +74,19 @@ func _slot_accepts_item(slot_node: Node, item_name: String) -> bool:
 		item_group
 	)
 
-	# Slot muss passende Gruppe haben
-	if slot_node.is_in_group(item_group):
+	# Wenn Slot irgendeine Gruppe "Inventory" hat, akzeptiere alles
+	if "Inventory" in slot_groups:
+		print("[INV] ✅ OK: universal Inventory slot (in group list)")
+		return true
+
+	# Slot muss passende Gruppe haben (exakter Match)
+	if item_group in slot_groups:
 		print("[INV] ✅ OK: slot in group ", item_group)
 		return true
 
-	# Fallback
-	if item_group == "Inventory" and slot_node.is_in_group("Inventory"):
-		print("[INV] ✅ OK: Inventory fallback")
+	# Fallback für Items ohne Gruppe
+	if item_group == "Inventory":
+		print("[INV] ✅ OK: Item ohne Gruppe, akzeptiert")
 		return true
 
 	print("[INV] ❌ DENY: group mismatch")
@@ -129,7 +132,11 @@ func add_item(item_name: String, item_quantity: int = 1) -> void:
 	if item_quantity <= 0:
 		return
 
+	print("[PlayerInventory] add_item called:", item_name, item_quantity)
+	if JsonData == null or not ("item_data" in JsonData):
+		print("[PlayerInventory] WARNING: JsonData.item_data missing at add_item")
 	var stack_size: int = _get_stack_size(item_name)
+	print("[PlayerInventory] resolved stack_size=", stack_size)
 	item_picked_up.emit(item_name, item_quantity)
 
 	# 1) vorhandene Stacks auffüllen
@@ -167,13 +174,17 @@ func add_item(item_name: String, item_quantity: int = 1) -> void:
 	for k in indices:
 		var i: int = int(k)
 
+		# Only consider slots that are regular inventory slots (avoid equipment slots)
+		var slot_groups: Array = slot_group_by_index.get(i, [])
+		if not ("Inventory" in slot_groups):
+			continue
+
 		if i == 17:
 			continue
 
 		if inventory.has(i):
 			continue
 
-		var slot_groups: Array = slot_group_by_index.get(i, [])
 		if not (wanted_group in slot_groups):
 			print("not the same: ", slot_groups, wanted_group)
 			continue
@@ -188,6 +199,23 @@ func add_item(item_name: String, item_quantity: int = 1) -> void:
 
 		if item_quantity <= 0:
 			return
+
+	# wenn wir hier sind: kein passender Slot gefunden -> versuche irgendeinen freien Slot
+	for i in range(NUM_INVENTORY_SLOTS):
+		if i == 17:
+			continue
+		# fallback only into inventory slots (avoid auto-equipping into equipment slots)
+		var slot_groups_fb: Array = slot_group_by_index.get(i, [])
+		if not ("Inventory" in slot_groups_fb):
+			continue
+		if not inventory.has(i):
+			print("[PlayerInventory] placing into fallback free slot:", i, item_name)
+			var put_now: int = min(stack_size, item_quantity)
+			inventory[i] = [item_name, put_now]
+			item_quantity -= put_now
+			_emit_changed()
+			if item_quantity <= 0:
+				return
 
 	# wenn wir hier sind: kein Platz
 	_emit_changed()
@@ -304,6 +332,34 @@ func add_item_quantity(slot_node: Node, amount: int) -> void:
 
 	data[1] = new_value
 	inventory[idx] = data
+	_emit_changed()
+
+
+func decrease_item_quantity(slot_node: Node, amount: int) -> void:
+	if amount <= 0:
+		return
+
+	var idx: int = _slot_index_from_slot(slot_node)
+	if idx < 0:
+		return
+
+	if not inventory.has(idx):
+		return
+
+	var data: Array = inventory[idx]
+	if data.size() < 2:
+		return
+
+	var current: int = int(data[1])
+	var new_value: int = max(0, current - amount)
+
+	if new_value <= 0:
+		# remove the item from inventory when quantity reaches zero
+		inventory.erase(idx)
+	else:
+		data[1] = new_value
+		inventory[idx] = data
+
 	_emit_changed()
 
 
