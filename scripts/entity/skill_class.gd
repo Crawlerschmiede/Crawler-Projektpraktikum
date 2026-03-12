@@ -77,6 +77,7 @@ func activate_skill(user, target, battle):
 		last_user = user
 		last_target = target
 		last_battle = battle
+
 		battle.next_turn.append(self)
 	return things_that_happened
 
